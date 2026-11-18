@@ -65,8 +65,8 @@ def build():
     g.box(bm, (0.013, 0.075, 0.0045), Vector((0, -0.043, -0.0535)))                                       # front tang / trigger plate along the stock belly
     g.cyl(bm, 0.0065, 0.0050, Matrix.Translation((0, -0.082, -0.0535)), 12)                               # front finial disc
     g.strap(bm, g.spline([Vector((0, y, z)) for y, z in ((0.085, -0.1085), (0.115, -0.1275), (0.150, -0.1160))], 4), 0.012, 0.0085, Vector((1, 0, 0)))   # rear tang on the grip
-    blade = [Vector((0, y, z)) for y, z in ((0.004, -0.054), (0.007, -0.078), (0.014, -0.100), (0.027, -0.114), (0.040, -0.117))]
-    g.strap(bm, g.spline(blade, 4), 0.008, 0.012, Vector((1, 0, 0)))                                      # curved trigger blade, tip to the rear
+    blade = [Vector((0, y, z)) for y, z in ((0.004, -0.054), (0.001, -0.078), (-0.006, -0.100), (-0.019, -0.114), (-0.032, -0.117))]
+    g.strap(bm, g.spline(blade, 4), 0.008, 0.012, Vector((1, 0, 0)))                                      # curved trigger blade turned 180 degrees (D-073): the tip curls FORWARD so the finger rests in the curve and pulls it back
     names.append(g.put("musket_trigger", bm, iron).name)
 
     bm = bmesh.new()                                                     # ramrod: a long thin rod below the fore-end, two pipes and a brass tip
