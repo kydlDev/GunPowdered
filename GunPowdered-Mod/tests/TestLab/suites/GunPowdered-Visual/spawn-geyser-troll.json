@@ -1,0 +1,14 @@
+﻿{
+  "name": "spawn-geyser-troll",
+  "description": "Short run: Troll caves and geysers generated through SpawnLocation with the player standing at each",
+  "timeout": 300,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.spawnNear", "args": { "name": "TrollCave02", "count": 20, "waitSeconds": 3 }, "contains": "started", "label": "20 troll caves" },
+    { "do": "wait", "seconds": 90 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.countObjects", "args": { "prefix": "GP_GuanoDeposit" }, "min": 1, "label": "troll caves: guano deposits (cumulative)" },
+    { "do": "hook", "name": "GunPowdered.spawnNear", "args": { "name": "FireHole", "count": 6, "waitSeconds": 3 }, "contains": "started", "label": "6 geysers" },
+    { "do": "wait", "seconds": 30 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.countObjects", "args": { "prefix": "GP_SulfurousMud" }, "min": 1, "label": "geysers: sulfurous mud placed around them" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

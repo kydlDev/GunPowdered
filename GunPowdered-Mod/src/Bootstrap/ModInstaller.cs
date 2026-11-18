@@ -2,6 +2,11 @@ using BepInEx.Configuration;
 using KydlCore.Common;
 using KydlCore.Core;
 using GunPowdered.Features.Example.Infrastructure;
+using GunPowdered.Features.Gunpowder.Infrastructure;
+using GunPowdered.Features.Guano.Infrastructure;
+using GunPowdered.Features.Saltpeter.Infrastructure;
+using GunPowdered.Features.Sulfur.Infrastructure;
+using GunPowdered.Features.Water.Infrastructure;
 using GunPowdered.Presentation.Hub.Registration;
 
 namespace GunPowdered.Bootstrap
@@ -33,6 +38,11 @@ namespace GunPowdered.Bootstrap
             Current = this;
             bool page = HubTabs.RegisterModPage(_config);
             Add(new ExampleFeature(Deps));
+            Add(new GuanoFeature());
+            Add(new WaterFeature());
+            Add(new SaltpeterFeature());
+            Add(new SulfurFeature());
+            Add(new GunpowderFeature());
             bool started = Refresh();
             ModLog.Verbose("ModInstaller: installed " + Features.Count + " feature(s), hub page " + page + ", started " + started);
             return page && started;

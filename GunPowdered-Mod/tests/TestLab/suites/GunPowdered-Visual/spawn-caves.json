@@ -1,0 +1,21 @@
+﻿{
+  "name": "spawn-caves",
+  "description": "Real locations are generated through the game's SpawnLocation with the player standing at each: Burial chambers, Troll caves, mountain caves and geysers get deposits from the placement patches; the Bat Swamp entry exists. Counts are cumulative per step.",
+  "timeout": 900,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.batSwampEntries", "expect": 1, "label": "guano is a vegetation entry of the Bat Swamp alt biome" },
+    { "do": "hook", "name": "GunPowdered.spawnNear", "args": { "name": "Crypt2", "count": 30, "waitSeconds": 6 }, "contains": "started", "label": "30 burial chambers" },
+    { "do": "wait", "seconds": 225 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.countObjects", "args": { "prefix": "GP_GuanoDeposit" }, "min": 1, "max": 80, "label": "burial chambers: guano deposits (expect about 5 of 30)" },
+    { "do": "hook", "name": "GunPowdered.spawnNear", "args": { "name": "TrollCave02", "count": 20, "waitSeconds": 3 }, "contains": "started", "label": "20 troll caves" },
+    { "do": "wait", "seconds": 90 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.countObjects", "args": { "prefix": "GP_GuanoDeposit" }, "min": 0, "label": "after troll caves (cumulative)" },
+    { "do": "hook", "name": "GunPowdered.spawnNear", "args": { "name": "MountainCave02", "count": 20, "waitSeconds": 6 }, "contains": "started", "label": "20 mountain caves" },
+    { "do": "wait", "seconds": 150 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.countObjects", "args": { "prefix": "GP_GuanoDeposit" }, "min": 0, "label": "after mountain caves (cumulative)" },
+    { "do": "hook", "name": "GunPowdered.spawnNear", "args": { "name": "FireHole", "count": 6, "waitSeconds": 3 }, "contains": "started", "label": "6 geysers" },
+    { "do": "wait", "seconds": 40 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.countObjects", "args": { "prefix": "GP_SulfurousMud" }, "min": 1, "label": "geysers: sulfurous mud placed around them" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

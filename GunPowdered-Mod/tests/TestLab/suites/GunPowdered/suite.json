@@ -7,6 +7,11 @@
   ],
   "configOverrides": [
     { "guid": "com.kydldev.GunPowdered", "section": "General", "key": "Enable Mod", "value": "true" },
+    { "guid": "com.kydldev.GunPowdered", "section": "General", "key": "Enable Guano", "value": "true" },
+    { "guid": "com.kydldev.GunPowdered", "section": "General", "key": "Enable Water", "value": "true" },
+    { "guid": "com.kydldev.GunPowdered", "section": "General", "key": "Enable Saltpeter", "value": "true" },
+    { "guid": "com.kydldev.GunPowdered", "section": "General", "key": "Enable Sulfur", "value": "true" },
+    { "guid": "com.kydldev.GunPowdered", "section": "General", "key": "Enable Gunpowder", "value": "true" },
     { "guid": "com.kydldev.GunPowdered", "section": "DebugLog", "key": "Enable", "value": "true" }
   ],
   "setup": { "timeOfDay": 0.5, "freezeTime": 1, "god": 1, "hideUnlockPopups": 1 },

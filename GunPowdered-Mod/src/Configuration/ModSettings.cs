@@ -11,10 +11,12 @@ namespace GunPowdered.Configuration
     ///    every static Tunable here by itself and lets the user change it in game - nothing to register.
     /// When the user settles a value in game, it becomes the new fixed value / default here.
     /// </summary>
-    internal static class ModSettings
+    internal static partial class ModSettings
     {
         // [General]
         public static ConfigEntry<bool> EnableMod;
+        // One functionality = one [General] switch "Enable <Category>" (PROJECT_RULES 11): on only when EnableMod AND its own switch are on
+        public static ConfigEntry<bool> EnableGuano, EnableWater, EnableSaltpeter, EnableSulfur, EnableGunpowder;
         // no MenuKey: the mod's menu is a set of tabs in the KY hub (F6, KydlCore), see src/Presentation/Hub/Registration/HubTabs.cs
         // One functionality = one [General] switch "Enable <Category>" (PROJECT_RULES 11), only when the mod has several of them, e.g.:
         //   public static ConfigEntry<bool> ColoursEnable;   // bound in General as "Enable Colours" with the value of the old Colours Enable entry;  on only when On && ColoursEnable.Value
@@ -59,6 +61,16 @@ namespace GunPowdered.Configuration
 
             EnableMod = c.Bind("General", "Enable Mod", Old(c, "General", "Enable mod", "General", "EnableAll"),
                 ConfigOrder.First("Switches the whole mod on / off while playing. Off: no effects from this mod; things already built stay in the world."));
+            EnableGuano = c.Bind("General", "Enable Guano", true,
+                "Bat Guano deposits in caves and swamps. Off: no new deposits; guano already collected stays in your inventory.");
+            EnableWater = c.Bind("General", "Enable Water", true,
+                "The Bucket, Water and the Rain Barrel. Off: buckets cannot be filled and barrels stop collecting rain; what you already carry stays.");
+            EnableSaltpeter = c.Bind("General", "Enable Saltpeter", true,
+                "The Leaching Vat that turns Bat Guano and Water into Saltpeter. Off: vats do not work; Saltpeter you already have stays.");
+            EnableSulfur = c.Bind("General", "Enable Sulfur", true,
+                "Sulfurous Mud deposits in the swamp and the extra Sulfur from Blobs and Oozers. Off: no new deposits and no extra drops.");
+            EnableGunpowder = c.Bind("General", "Enable Gunpowder", true,
+                "The Powder Mill and Gunpowder. Off: the mill does nothing; Gunpowder you already have stays.");
             DebugLog = c.Bind("DebugLog", "Enable", false,
                 "Writes detailed lines about everything the mod does to the BepInEx log (for bug reports). Leave off while playing normally.");
 
@@ -67,7 +79,7 @@ namespace GunPowdered.Configuration
 
             EnableMod.SettingChanged += (s, e) => ModLog.Info("Config: Enable Mod = " + EnableMod.Value + (EnableMod.Value ? ", the mod is on" : ", the mod is inert (no effects)"));
             ModLog.Verbose("Config: bound (Enable Mod " + EnableMod.Value + ", debug log " + DebugLog.Value + ")");
-            return EnableMod != null && DebugLog != null;
+            return EnableMod != null && EnableGuano != null && EnableWater != null && EnableSaltpeter != null && EnableSulfur != null && EnableGunpowder != null && DebugLog != null;
         }
     }
 }

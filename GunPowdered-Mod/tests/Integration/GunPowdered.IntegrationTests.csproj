@@ -7,6 +7,10 @@
     <RootNamespace>GunPowdered.Tests.Integration</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\src\Core\Roll.cs" Link="Mod\Core\Roll.cs" />
+    <Compile Include="..\..\src\Core\PrefabNames.cs" Link="Mod\Core\PrefabNames.cs" />
+    <Compile Include="..\..\src\Core\ItemCatalog.cs" Link="Mod\Core\ItemCatalog.cs" />
+    <Compile Include="..\..\src\Core\DepositRefill.cs" Link="Mod\Core\DepositRefill.cs" />
     <Compile Include="..\..\src\Features\*\Domain\**\*.cs" Link="Mod\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\..\src\Features\*\Application\**\*.cs" Link="Mod\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\..\src\Features\*\Execution\**\*.cs" Link="Mod\%(RecursiveDir)%(Filename)%(Extension)" />

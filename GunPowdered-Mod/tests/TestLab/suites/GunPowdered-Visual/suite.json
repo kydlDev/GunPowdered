@@ -1,0 +1,71 @@
+﻿{
+    "name":  "GunPowdered-Visual",
+    "description":  "Spawns every GunPowdered piece, item and deposit in front of the player and takes screenshots (looks, scale, colliders reachable by interact).",
+    "requireMods":  [
+                        {
+                            "guid":  "com.kydldev.GunPowdered",
+                            "minVersion":  "0.1.0"
+                        },
+                        {
+                            "guid":  "com.kydldev.KydlCore",
+                            "minVersion":  "0.1.0"
+                        }
+                    ],
+    "configOverrides":  [
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "General",
+                                "key":  "Enable Mod",
+                                "value":  "true"
+                            },
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "General",
+                                "key":  "Enable Guano",
+                                "value":  "true"
+                            },
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "General",
+                                "key":  "Enable Water",
+                                "value":  "true"
+                            },
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "General",
+                                "key":  "Enable Saltpeter",
+                                "value":  "true"
+                            },
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "General",
+                                "key":  "Enable Sulfur",
+                                "value":  "true"
+                            },
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "General",
+                                "key":  "Enable Gunpowder",
+                                "value":  "true"
+                            },
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "DebugLog",
+                                "key":  "Enable",
+                                "value":  "true"
+                            }
+                        ],
+    "setup":  {
+                  "timeOfDay":  0.5,
+                  "freezeTime":  1,
+                  "god":  1,
+                  "hideUnlockPopups":  1
+              },
+    "resetBetweenTests":  true,
+    "tests":  [
+                  "visual-pieces",
+                  "visual-items-deposits",
+                  "spawn-caves",
+                  "spawn-geyser-troll"
+              ]
+}

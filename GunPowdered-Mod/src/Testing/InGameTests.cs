@@ -1,6 +1,7 @@
 using KydlCore.Common;
 using GunPowdered.Bootstrap;
 using GunPowdered.Configuration;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing
 {
@@ -37,6 +38,40 @@ namespace GunPowdered.Testing
             bool loaded = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey(KydlCore.Bootstrap.Plugin.ModGuid);
             ModLog.Verbose("InGameTests: Startup_CoreLoaded " + loaded);
             return loaded ? "PASS: " + KydlCore.Bootstrap.Plugin.ModGuid + " is loaded" : "FAIL: " + KydlCore.Bootstrap.Plugin.ModGuid + " is not loaded (this mod requires it)";
+        }
+
+        /// The AssetBundle was loaded (embedded in the DLL) and holds the prefabs and icons (D-027 / D-028).
+        static string Startup_BundleLoaded()
+        {
+            var b = Plugin.Bundle;
+            if (b == null) return "FAIL: Plugin.Bundle is null, the mod runs on placeholder looks";
+            int n = b.GetAllAssetNames().Length;
+            ModLog.Verbose("InGameTests: Startup_BundleLoaded " + n + " assets");
+            return n >= 22 ? "PASS: bundle has " + n + " assets" : "FAIL: bundle has " + n + " assets, expected at least 22 (11 prefabs + 11 icons)";
+        }
+
+        /// Every item, piece and deposit prefab carries the bundle model (child gp_model with a renderer and a real shader), and items an icon.
+        static string World_BundleModels()
+        {
+            var bad = new System.Text.StringBuilder();
+            int ok = 0;
+            foreach (var s in ItemCatalog.All)
+            {
+                var go = Jotunn.Managers.PrefabManager.Instance.GetPrefab(s.Id);
+                if (go == null) { bad.Append(s.Id).Append(" missing; "); continue; }
+                var model = go.transform.Find("gp_model");
+                if (model == null) { bad.Append(s.Id).Append(" no gp_model; "); continue; }
+                var rends = model.GetComponentsInChildren<UnityEngine.Renderer>(true);
+                if (rends.Length == 0) { bad.Append(s.Id).Append(" no renderer; "); continue; }
+                foreach (var r in rends)
+                    foreach (var m in r.sharedMaterials)
+                        if (m == null || m.shader == null || m.shader.name.Contains("InternalErrorShader")) bad.Append(s.Id).Append("/").Append(r.name).Append(" bad shader; ");
+                var drop = go.GetComponent<ItemDrop>();
+                if (drop != null && (drop.m_itemData.m_shared.m_icons == null || drop.m_itemData.m_shared.m_icons.Length == 0 || drop.m_itemData.m_shared.m_icons[0] == null)) bad.Append(s.Id).Append(" no icon; ");
+                ok++;
+            }
+            ModLog.Verbose("InGameTests: World_BundleModels " + ok + " of " + ItemCatalog.All.Count + " ok");
+            return bad.Length == 0 ? "PASS: " + ok + " prefabs use the bundle model" : "FAIL: " + bad;
         }
 
         /// The local player exists once a world is loaded (example of a World_ test; replace with the mod's own checks).
