@@ -128,7 +128,7 @@ namespace GunPowdered.Tests.Unit
             Assert.That(ItemCatalog.MobileCannon.Station, Is.EqualTo(ItemCatalog.Forge));
             Assert.That(Cost(ItemCatalog.MobileCannon), Is.EquivalentTo(new[] { "FlametalNew:20", "Blackwood:30", "Iron:10" }));
             Assert.That(ItemCatalog.AsksvinHarness.Kind, Is.EqualTo(ItemKind.Material));
-            Assert.That(Cost(ItemCatalog.AsksvinHarness), Is.EquivalentTo(new[] { "LeatherScraps:10", "Chain:3", "Bronze:2" }));
+            Assert.That(Cost(ItemCatalog.AsksvinHarness), Is.EquivalentTo(new[] { "LoxPelt:10", "Chain:3", "FlametalNew:2", "Bronze:2" }));
         }
 
         [Test]

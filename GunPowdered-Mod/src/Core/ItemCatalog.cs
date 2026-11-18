@@ -80,7 +80,7 @@ namespace GunPowdered.Core
         public const string Workbench = "piece_workbench";
         public const string Forge = "forge";
         /// <summary>Vanilla prefab names of the materials the recipes use (Charcoal is the prefab "Coal", Sulfur is the prefab "SulfurStone"; checked in the Unity rip 2026-11-17).</summary>
-        public const string Wood = "Wood", Iron = "Iron", Bronze = "Bronze", LeatherScraps = "LeatherScraps", Resin = "Resin", Stone = "Stone", Charcoal = "Coal", Sulfur = "SulfurStone", Obsidian = "Obsidian";
+        public const string Wood = "Wood", Iron = "Iron", Bronze = "Bronze", LeatherScraps = "LeatherScraps", Resin = "Resin", Stone = "Stone", Charcoal = "Coal", Sulfur = "SulfurStone", Obsidian = "Obsidian", LoxPelt = "LoxPelt";
 
         public static readonly ItemSpec BatGuano = new ItemSpec(GunPowderedPrefabs.BatGuano, "Bat Guano", "Dung of cave bats. Rich in nitrates: leach it with water in a Leaching Vat to get saltpeter.",
             ItemKind.Material, "Resin", 50, 0.5f, "", 1);
@@ -175,7 +175,7 @@ namespace GunPowdered.Core
         public static readonly ItemSpec AsksvinHarness = new ItemSpec(GunPowderedPrefabs.AsksvinHarness, "Asksvin Harness",
             "Leather straps and a chain that hang on an Asksvin's saddle, so the rider can tow a Mobile Cannon.",
             ItemKind.Material, Chain, 1, 5f, Workbench, 1,
-            new CostLine(LeatherScraps, 10), new CostLine(Chain, 3), new CostLine(Bronze, 2)).AtStationLevel(2);
+            new CostLine(LoxPelt, 10), new CostLine(Chain, 3), new CostLine(Flametal, 2), new CostLine(Bronze, 2)).AtStationLevel(2);
 
         /// <summary>Every entry, in the order they are registered.</summary>
         public static IList<ItemSpec> All
