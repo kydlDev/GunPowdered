@@ -188,6 +188,7 @@ public static class GunPowderedArtBuilder
             foreach (var m in r.sharedMaterials)
             {
                 if (m == null || !seen.Add(m.name)) continue;
+                if (m.name.EndsWith("_mat")) continue;                 // already remapped by an earlier run
                 Material target;
                 if (mats.TryGetValue(m.name, out target)) imp.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material), m.name), target);
                 else Debug.LogWarning("[GunPowdered] no material definition for " + m.name + " in " + model);
