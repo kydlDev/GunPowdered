@@ -1,0 +1,20 @@
+{
+  "name": "cave-claim-bjornita",
+  "description": "Two players and one cave (D-036): the location proxy's owner lets only the FIRST asker fill a cave with guano. Bjornita asks first and is granted, her second request is refused, and the host asking afterwards is refused too",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "peerJoin" },
+    { "do": "spawn", "prefab": "LocationProxy", "dz": 6, "owner": "me", "as": "cave" },
+    { "do": "peerRpc", "target": "cave", "method": "GP_CaveClaim" },
+    { "do": "check", "check": "peerReceived", "method": "GP_CaveClaimed", "types": [ "bool" ], "args": [ true ], "label": "Bjornita asked first: she may fill the cave" },
+    { "do": "peerClear" },
+    { "do": "peerRpc", "target": "cave", "method": "GP_CaveClaim" },
+    { "do": "check", "check": "peerReceived", "method": "GP_CaveClaimed", "types": [ "bool" ], "args": [ false ], "label": "asking again is refused (already filled)" },
+    { "do": "hook", "name": "GunPowdered.claimCave", "args": { "target": "cave" }, "expect": "asked", "label": "the host asks too" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.caveClaimAnswer", "expect": "refused", "label": "the host is refused: Bjornita filled the cave" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

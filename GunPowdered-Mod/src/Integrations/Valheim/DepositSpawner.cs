@@ -42,7 +42,16 @@ namespace GunPowdered.Integrations.Valheim
             RaycastHit hit;
             bool found = Physics.Raycast(around + Vector3.up * 3f, Vector3.down, out hit, 9f, FloorMask, QueryTriggerInteraction.Ignore);
             floor = found ? hit.point : around;
-            return found;
+            if (found) return true;
+            // no collider hit: right after a location's terrain changes are applied the ground collider is rebuilt and a ray finds nothing (lake ruin,
+            // run extra2b), so the terrain height itself is used when it lies in the same window
+            float ground = float.NaN;
+            bool loaded = ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(around, out ground);
+            bool inWindow = loaded && ground <= around.y + 3f && ground >= around.y - 6f;
+            if (inWindow) floor = new Vector3(around.x, ground, around.z);
+            KydlCore.Common.ModLog.Verbose("DepositSpawner: no collider under " + around.ToString("0.0") + ", terrain height "
+                + (loaded ? ground.ToString("0.0") : "not loaded") + (inWindow ? " used" : " not used"));
+            return inWindow;
         }
 
         /// <summary>A random point on the ring [minR, maxR] around the centre, from a seeded source of numbers.</summary>

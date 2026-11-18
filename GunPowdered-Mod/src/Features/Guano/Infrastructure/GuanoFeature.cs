@@ -18,6 +18,16 @@ namespace GunPowdered.Features.Guano.Infrastructure
         internal GuanoFeature()
         {
             ItemRegistry.Register(FeatureId, ItemCatalog.BatGuano, ItemCatalog.GuanoDeposit);
+            Jotunn.Managers.PrefabManager.OnVanillaPrefabsAvailable += AttachCaveClaim;
+        }
+
+        // D-036: every location proxy gets the part that decides who fills a cave with guano (always attached; it does nothing until a player asks)
+        static void AttachCaveClaim()
+        {
+            Jotunn.Managers.PrefabManager.OnVanillaPrefabsAvailable -= AttachCaveClaim;
+            UnityEngine.GameObject proxy = Jotunn.Managers.PrefabManager.Instance.GetPrefab("LocationProxy");
+            bool added = proxy != null && (proxy.GetComponent<CaveClaim>() != null || proxy.AddComponent<CaveClaim>() != null);
+            KydlCore.Common.ModLog.Verbose("GuanoFeature: CaveClaim on the LocationProxy prefab " + (added ? "added" : "NOT added (prefab " + (proxy != null) + ")"));
         }
 
         public string Id { get { return _lifecycle.Id; } }

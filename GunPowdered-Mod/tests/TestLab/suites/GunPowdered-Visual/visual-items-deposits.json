@@ -25,7 +25,8 @@
     { "do": "pressKey", "button": "Inventory", "frames": 3 },
     { "do": "wait", "seconds": 1.5 },
     { "do": "screenshot", "name": "inventory", "clean": true },
-    { "do": "closeUi" }
+    { "do": "closeUi" },
+    { "do": "cleanArena" }
   ],
   "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
 }

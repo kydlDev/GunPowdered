@@ -1,0 +1,11 @@
+{
+  "name": "meta-cave-verdict-fails",
+  "description": "Negative test for the cave-entry verdict: before any cave run the verdict must NOT be ok, so the check fails (expectFailure names that check)",
+  "timeout": 30,
+  "expectFailure": "every cave entered and every planned guano deposit placed",
+  "steps": [
+    { "do": "check", "check": "hook", "name": "GunPowdered.caveRunVerdict", "expect": "ok", "label": "every cave entered and every planned guano deposit placed" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

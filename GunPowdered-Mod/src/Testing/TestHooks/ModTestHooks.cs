@@ -156,6 +156,21 @@ namespace GunPowdered.Testing.TestHooks
             return n;
         }
 
+        /// D-033: generates N real caves of one kind and goes in through each entrance like a player; poll caveRunLeft until 0, then read caveRunResult.
+        [TestHook("GunPowdered.enterCaves")]
+        static string EnterCaves(string name, int count) { return CaveEntryRun.Start(name, count); }
+
+        [TestHook("GunPowdered.caveRunLeft")]
+        static int CaveRunLeft() { return CaveEntryRun.Left; }
+
+        /// "<name>: caves N, entrance E, entered T of E, filled F, planned P, placed Q" (filled / planned / placed count since the game started).
+        [TestHook("GunPowdered.caveRunResult")]
+        static string CaveRunResult() { return CaveEntryRun.Result(); }
+
+        /// "ok" when the last cave run entered every cave and placed every planned deposit, else "bad: <first problem>".
+        [TestHook("GunPowdered.caveRunVerdict")]
+        static string CaveRunVerdict() { return CaveEntryRun.Verdict(); }
+
         /// EXAMPLE: the current value.
         [TestHook("GunPowdered.example.value")]
         static double ExampleValue() { return ExampleFeature.Instance != null ? ExampleFeature.Instance.Value : double.NaN; }

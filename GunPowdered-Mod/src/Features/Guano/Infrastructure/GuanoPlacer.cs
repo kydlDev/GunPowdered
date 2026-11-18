@@ -15,10 +15,14 @@ namespace GunPowdered.Features.Guano.Infrastructure
     internal static class GuanoPlacer
     {
         /// <summary>Expected outcome: the number of deposits that ended up in the world (0 when the roll gave none or no spot had a floor).</summary>
-        internal static int Place(CaveKind kind, IList<Vector3> spots, int seed)
+        internal static int Place(CaveKind kind, IList<Vector3> spots, int seed) => Place(kind, spots, seed, out _);
+
+        /// <summary>Same, and says how many deposits the roll asked for (a planned deposit that found no floor is the difference).</summary>
+        internal static int Place(CaveKind kind, IList<Vector3> spots, int seed, out int planned)
         {
             var rng = new System.Random(seed ^ 0x6A09E667);
             int[] plan = GuanoDepositRules.Plan(kind, () => rng.NextDouble());
+            planned = plan.Length;
             if (plan.Length == 0 || spots.Count == 0) return 0;
 
             // every spot in a random order: a spot without a floor under it (a wall piece, a gap) is skipped and the next one is tried (seen in game: 2 of 3 missed)

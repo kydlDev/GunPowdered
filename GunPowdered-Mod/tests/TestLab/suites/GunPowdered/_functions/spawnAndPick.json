@@ -1,0 +1,10 @@
+{
+  "params": [ "prefab" ],
+  "actions": [
+    { "do": "spawn", "prefab": "{{prefab}}", "dz": 2, "as": "deposit" },
+    { "do": "setZdo", "target": "deposit", "key": "gp_amount", "type": "int", "value": 2 },
+    { "do": "interact", "target": "deposit" },
+    { "do": "wait", "seconds": 3 }
+  ],
+  "asserts": []
+}

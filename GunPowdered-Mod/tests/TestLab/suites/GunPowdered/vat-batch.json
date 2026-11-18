@@ -1,0 +1,29 @@
+{
+  "name": "vat-batch",
+  "description": "Leaching Station (D-025): fill the barrel (10 Bat Guano + 10 Water), feed the hearth (4 Wood), it burns; a day later (start time moved back) 5 Saltpeter are collected and the station is idle again",
+  "timeout": 90,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "give", "prefab": "GP_BatGuano", "count": 10 },
+    { "do": "give", "prefab": "GP_Water", "count": 10 },
+    { "do": "give", "prefab": "Wood", "count": 4 },
+    { "do": "spawn", "prefab": "GP_LeachingVat", "dz": 4, "owner": "me", "as": "vat" },
+    { "do": "interact", "target": "vat" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "zdoIs", "target": "vat", "key": "gp_vat_loaded", "value": "1", "label": "barrel filled" },
+    { "do": "check", "check": "noItem", "prefab": "GP_BatGuano", "label": "the 10 Bat Guano went into the barrel" },
+    { "do": "interact", "target": "vat" },
+    { "do": "wait", "seconds": 5 },
+    { "do": "zdoIs", "target": "vat", "key": "gp_vat_state", "value": "1", "label": "the hearth burns (state 1)" },
+    { "do": "check", "check": "noItem", "prefab": "Wood", "label": "the 4 Wood went into the hearth" },
+    { "do": "setZdo", "target": "vat", "key": "gp_vat_start", "type": "long", "value": 1 },
+    { "do": "wait", "seconds": 5 },
+    { "do": "zdoIs", "target": "vat", "key": "gp_vat_state", "value": "2", "label": "a day later the saltpeter is done (state 2)" },
+    { "do": "interact", "target": "vat" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "check", "check": "hasItem", "prefab": "GP_Saltpeter", "count": 5, "label": "5 Saltpeter collected" },
+    { "do": "zdoIs", "target": "vat", "key": "gp_vat_state", "value": "0", "label": "the station is idle again" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

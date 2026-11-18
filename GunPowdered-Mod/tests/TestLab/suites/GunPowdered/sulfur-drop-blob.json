@@ -1,0 +1,17 @@
+{
+  "name": "sulfur-drop-blob",
+  "description": "Blob (D-016): with the sulfur chance set to 100 % for the test, killing a Blob drops Sulfur (1-2) next to its loot",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.setTunable", "args": { "field": "KillSulfurChance", "value": "1" }, "expect": "1", "label": "sulfur chance 100 % for the test" },
+    { "do": "spawn", "prefab": "Blob", "dz": 6 },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.killNearest", "args": { "prefab": "Blob" }, "expect": "killed Blob", "label": "the Blob is killed" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.countWithInventory", "args": { "prefab": "SulfurStone" }, "min": 1, "max": 2, "label": "1-2 Sulfur dropped" },
+    { "do": "hook", "name": "GunPowdered.setTunable", "args": { "field": "KillSulfurChance", "value": "reset" }, "expect": "0.1", "label": "chance back to 10 %" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

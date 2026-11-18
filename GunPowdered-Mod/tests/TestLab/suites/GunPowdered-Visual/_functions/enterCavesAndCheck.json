@@ -1,0 +1,12 @@
+{
+  "params": [ "cave", "count", "seconds" ],
+  "actions": [
+    { "do": "hook", "name": "GunPowdered.enterCaves", "args": { "name": "{{cave}}", "count": "{{count}}" }, "contains": "started", "label": "{{count}} x {{cave}} generated and entered", "stop": true },
+    { "do": "wait", "seconds": "{{seconds}}" },
+    { "do": "hook", "name": "GunPowdered.caveRunResult", "contains": "{{cave}}", "label": "{{cave}}: run numbers (for the report)" }
+  ],
+  "asserts": [
+    { "check": "hook", "name": "GunPowdered.caveRunLeft", "expect": 0, "label": "{{cave}}: the cave run finished" },
+    { "check": "hook", "name": "GunPowdered.caveRunVerdict", "expect": "ok", "label": "{{cave}}: every cave entered and every planned guano deposit placed" }
+  ]
+}

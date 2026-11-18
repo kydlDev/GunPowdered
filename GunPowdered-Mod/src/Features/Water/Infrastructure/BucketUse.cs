@@ -42,17 +42,26 @@ namespace GunPowdered.Features.Water.Infrastructure
             return true;
         }
 
-        // water within reach in front of the player: the surface lies above the ground there
+        // water within reach in front of the player: the surface lies above the ground there. The surface is the local water volume's level, or the
+        // world's sea level (lakes, rivers and the sea all lie at it): at a lake shore the volume lookup alone found nothing (run core3)
         static bool WaterAhead(Player p)
         {
+            float sea = ZoneSystem.instance != null ? ZoneSystem.instance.m_waterLevel : float.MinValue;
+            var probes = new System.Text.StringBuilder();
             for (float d = 1f; d <= ReachMetres; d += 0.75f)
             {
                 Vector3 point = p.transform.position + p.transform.forward * d;
-                float surface = Floating.GetLiquidLevel(point, 1f, LiquidType.Water);
+                float surface = Mathf.Max(Floating.GetLiquidLevel(point, 1f, LiquidType.Water), sea);
                 float ground = ZoneSystem.instance != null ? ZoneSystem.instance.GetGroundHeight(point) : point.y;
-                if (surface > ground + 0.1f) return true;
+                probes.Append(d.ToString("0.0")).Append(" m: surface ").Append(surface.ToString("0.0")).Append(" ground ").Append(ground.ToString("0.0")).Append("; ");
+                if (surface > ground + 0.1f)
+                {
+                    ModLog.Decision("bucket water check", "water ahead", "player at " + p.transform.position.ToString("0.0") + ", " + probes);
+                    return surface > ground;
+                }
             }
-            return false;
+            ModLog.Decision("bucket water check", "no water ahead", "player at " + p.transform.position.ToString("0.0") + ", facing " + p.transform.forward.ToString("0.0") + ", sea level " + sea + ", " + probes);
+            return sea < float.MinValue;
         }
 
         static IEnumerator FillThenPour(Player p, ItemDrop.ItemData item)

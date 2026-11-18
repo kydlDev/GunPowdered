@@ -1,0 +1,20 @@
+{
+  "name": "bucket-fill-lake",
+  "description": "Bucket (D-008): at the shore of the test world's lake (centre x 50, z 201, water at 30 m) facing the water, using the empty bucket fills it and 10 Water land in the inventory; the bucket is empty again",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "teleport", "x": 50, "z": 160 },
+    { "do": "wait", "seconds": 6 },
+    { "do": "hook", "name": "GunPowdered.goToWater", "args": { "radius": 60 }, "contains": "water ahead", "label": "at the shore of the nearest water", "stop": true },
+    { "do": "wait", "seconds": 8 },
+    { "do": "give", "prefab": "GP_Bucket", "count": 1, "equip": true },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.bucketUse", "expect": "handled GP_Bucket", "label": "the empty bucket is used facing water" },
+    { "do": "wait", "seconds": 4 },
+    { "do": "check", "check": "hasItem", "prefab": "GP_Water", "count": 10, "label": "10 Water from the lake" },
+    { "do": "hook", "name": "GunPowdered.heldPrefab", "expect": "GP_Bucket", "label": "the bucket is empty again" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

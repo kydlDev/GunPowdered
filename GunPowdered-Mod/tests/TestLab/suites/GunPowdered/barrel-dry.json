@@ -1,0 +1,16 @@
+{
+  "name": "barrel-dry",
+  "description": "Rain Barrel: in clear weather (devcommand env Clear, 15 s for the change of weather to finish) the barrel stays empty",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "console", "command": "env Clear" },
+    { "do": "wait", "seconds": 15 },
+    { "do": "spawn", "prefab": "GP_RainBarrel", "dz": 4, "owner": "me", "as": "barrel" },
+    { "do": "wait", "seconds": 20 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.zdoNumber", "args": { "target": "barrel", "key": "gp_water" }, "max": 0, "label": "no water without rain" },
+    { "do": "console", "command": "resetenv" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

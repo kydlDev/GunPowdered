@@ -1,0 +1,20 @@
+{
+  "name": "mill-turns",
+  "description": "Powder Mill (D-026): while a player has its window open (the stamp a crafting client writes) the sweep arm turns by itself on every client; about 3 s after the window closes it stops",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "spawn", "prefab": "GP_PowderMill", "dz": 5, "owner": "me", "as": "mill" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.millArm", "args": { "target": "mill" }, "contains": "", "label": "arm position noted" },
+    { "do": "hook", "name": "GunPowdered.millStampNow", "args": { "target": "mill" }, "expect": "stamped", "label": "a player has the mill's window open" },
+    { "do": "wait", "seconds": 2 },
+    { "do": "hook", "name": "GunPowdered.millArm", "args": { "target": "mill" }, "expect": "turning", "label": "the arm turns" },
+    { "do": "wait", "seconds": 5 },
+    { "do": "hook", "name": "GunPowdered.millArm", "args": { "target": "mill" }, "contains": "", "label": "arm position noted after the window closed" },
+    { "do": "wait", "seconds": 2 },
+    { "do": "hook", "name": "GunPowdered.millArm", "args": { "target": "mill" }, "expect": "still", "label": "the arm has stopped" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

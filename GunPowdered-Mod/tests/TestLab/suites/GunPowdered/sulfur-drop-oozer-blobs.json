@@ -1,0 +1,22 @@
+{
+  "name": "sulfur-drop-oozer-blobs",
+  "description": "An Oozer splits into 2 Blobs when it dies (vanilla); those Blobs roll the same sulfur chance as any Blob (user 2026-11-18). With the chance at 100 % for the test: Oozer 1-2 + each Blob 1-2 = 3-6 Sulfur",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.setTunable", "args": { "field": "KillSulfurChance", "value": "1" }, "expect": "1", "label": "sulfur chance 100 % for the test" },
+    { "do": "spawn", "prefab": "BlobElite", "dz": 6 },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.killNearest", "args": { "prefab": "BlobElite" }, "expect": "killed BlobElite", "label": "the Oozer is killed" },
+    { "do": "wait", "seconds": 2 },
+    { "do": "hook", "name": "GunPowdered.countCreatures", "args": { "prefab": "Blob" }, "expect": 2, "label": "the Oozer split into 2 Blobs" },
+    { "do": "hook", "name": "GunPowdered.killNearest", "args": { "prefab": "Blob" }, "expect": "killed Blob", "label": "first Blob killed" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.killNearest", "args": { "prefab": "Blob" }, "expect": "killed Blob", "label": "second Blob killed" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.countWithInventory", "args": { "prefab": "SulfurStone" }, "min": 3, "max": 6, "label": "Oozer and both Blobs dropped Sulfur (3-6)" },
+    { "do": "hook", "name": "GunPowdered.setTunable", "args": { "field": "KillSulfurChance", "value": "reset" }, "expect": "0.1", "label": "chance back to 10 %" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

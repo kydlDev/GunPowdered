@@ -19,7 +19,8 @@
       "contains": "PASS",
       "notContains": "FAIL",
       "label": "InGameTests"
-    }
+    },
+    { "do": "cleanArena" }
   ],
   "asserts": [
     {

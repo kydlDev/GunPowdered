@@ -1,25 +1,100 @@
 {
-  "name": "GunPowdered",
-  "description": "GunPowdered: loads with its exact KydlCore, registers its KY hub page, every feature switches live, its commands reach the real handlers (MIGRATION_DECISIONS C14-C21)",
-  "requireMods": [
-    { "guid": "com.kydldev.GunPowdered", "minVersion": "0.1.0" },
-    { "guid": "com.kydldev.KydlCore", "minVersion": "0.1.0" }
-  ],
-  "configOverrides": [
-    { "guid": "com.kydldev.GunPowdered", "section": "General", "key": "Enable Mod", "value": "true" },
-    { "guid": "com.kydldev.GunPowdered", "section": "General", "key": "Enable Guano", "value": "true" },
-    { "guid": "com.kydldev.GunPowdered", "section": "General", "key": "Enable Water", "value": "true" },
-    { "guid": "com.kydldev.GunPowdered", "section": "General", "key": "Enable Saltpeter", "value": "true" },
-    { "guid": "com.kydldev.GunPowdered", "section": "General", "key": "Enable Sulfur", "value": "true" },
-    { "guid": "com.kydldev.GunPowdered", "section": "General", "key": "Enable Gunpowder", "value": "true" },
-    { "guid": "com.kydldev.GunPowdered", "section": "DebugLog", "key": "Enable", "value": "true" }
-  ],
-  "setup": { "timeOfDay": 0.5, "freezeTime": 1, "god": 1, "hideUnlockPopups": 1 },
-  "resetBetweenTests": true,
-  "tests": [
-    "startup-clean",
-    "hub-page",
-    "feature-toggle",
-    "example-command"
-  ]
+    "name":  "GunPowdered",
+    "description":  "GunPowdered: loads with its exact KydlCore, registers its KY hub page, every feature switches live, its commands reach the real handlers (MIGRATION_DECISIONS C14-C21)",
+    "requireMods":  [
+                        {
+                            "guid":  "com.kydldev.GunPowdered",
+                            "minVersion":  "0.1.0"
+                        },
+                        {
+                            "guid":  "com.kydldev.KydlCore",
+                            "minVersion":  "0.1.0"
+                        }
+                    ],
+    "configOverrides":  [
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "General",
+                                "key":  "Enable Mod",
+                                "value":  "true"
+                            },
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "General",
+                                "key":  "Enable Guano",
+                                "value":  "true"
+                            },
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "General",
+                                "key":  "Enable Water",
+                                "value":  "true"
+                            },
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "General",
+                                "key":  "Enable Saltpeter",
+                                "value":  "true"
+                            },
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "General",
+                                "key":  "Enable Sulfur",
+                                "value":  "true"
+                            },
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "General",
+                                "key":  "Enable Gunpowder",
+                                "value":  "true"
+                            },
+                            {
+                                "guid":  "com.kydldev.GunPowdered",
+                                "section":  "DebugLog",
+                                "key":  "Enable",
+                                "value":  "true"
+                            },
+                            {
+                                "guid":  "server_devcommands",
+                                "section":  "1. General",
+                                "key":  "No item usage with god mode",
+                                "value":  "false"
+                            }
+                        ],
+    "setup":  {
+                  "timeOfDay":  0.5,
+                  "freezeTime":  1,
+                  "god":  1,
+                  "hideUnlockPopups":  1
+              },
+    "resetBetweenTests":  true,
+    "tests":  [
+                  "startup-clean",
+                  "hub-page",
+                  "feature-toggle",
+                  "example-command",
+                  "barrel-take",
+                  "barrel-bjornita",
+                  "barrel-owned-by-bjornita",
+                  "vat-batch",
+                  "vat-missing-materials",
+                  "vat-bjornita",
+                  "mill-craft",
+                  "bucket-pour",
+                  "bucket-no-water",
+                  "deposit-pick-guano",
+                  "deposit-needs-pickaxe-guano",
+                  "deposit-pick-mud",
+                  "deposit-needs-pickaxe-mud",
+                  "barrel-rain",
+                  "barrel-dry",
+                  "bucket-fill-lake",
+                  "sulfur-drop-blob",
+                  "sulfur-drop-oozer",
+                  "cave-claim-bjornita",
+                  "sulfur-drop-oozer-blobs",
+                  "deposit-refill",
+                  "mill-turns",
+                  "mud-draugr-lake"
+              ]
 }

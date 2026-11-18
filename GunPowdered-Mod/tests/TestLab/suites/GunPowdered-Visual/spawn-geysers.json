@@ -1,0 +1,14 @@
+{
+  "name": "spawn-geysers",
+  "description": "Geysers (FireHole) generated through SpawnLocation get Sulfurous Mud around them (D-030); the Bat Swamp vegetation entry for guano exists",
+  "timeout": 120,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.batSwampEntries", "expect": 1, "label": "guano is a vegetation entry of the Bat Swamp alt biome" },
+    { "do": "hook", "name": "GunPowdered.spawnNear", "args": { "name": "FireHole", "count": 6, "waitSeconds": 3 }, "contains": "started", "label": "6 geysers" },
+    { "do": "wait", "seconds": 40 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.countObjects", "args": { "prefix": "GP_SulfurousMud" }, "min": 1, "label": "geysers: sulfurous mud placed around them" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

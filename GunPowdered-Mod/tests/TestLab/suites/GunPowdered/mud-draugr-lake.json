@@ -1,0 +1,21 @@
+{
+  "name": "mud-draugr-lake",
+  "description": "Sulfurous Mud next to Draugr piles (D-015): the placement puts mud next to a pile standing in the test world's lake (under water), none next to a pile on dry ground, and a generated swamp ruin's pile asks for it. (A whole ruin in the lake digs its own 20 m hole into this flat world, so the water case runs the real placer at the lake floor; run extra3c.)",
+  "timeout": 90,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "teleport", "x": 50, "z": 165 },
+    { "do": "wait", "seconds": 6 },
+    { "do": "hook", "name": "GunPowdered.mudNearPile", "args": { "x": 50, "z": 201 }, "expect": 1, "label": "a pile in the lake gets its 1 mud deposit under water" },
+    { "do": "wait", "seconds": 2 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.countObjects", "args": { "prefix": "GP_SulfurousMud" }, "min": 1, "label": "the mud deposit exists" },
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "back on the dry arena" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "hook", "name": "GunPowdered.mudNearPile", "args": { "x": 70, "z": 45 }, "expect": 0, "label": "a pile on dry ground gets no mud" },
+    { "do": "hook", "name": "GunPowdered.spawnLocationAt", "args": { "name": "SwampRuin1", "x": 70, "z": 45 }, "expect": "spawned", "label": "a swamp ruin generated on the arena", "stop": true },
+    { "do": "wait", "seconds": 5 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.pilesSeen", "min": 2, "label": "the ruin's Draugr pile asked for mud" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

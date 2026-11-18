@@ -35,6 +35,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
 
                     ItemDrop.ItemData held = user.GetCurrentWeapon();
                     bool ok = held != null && held.m_shared.m_skillType == Skills.SkillType.Pickaxes;
+                    ModLog.Decision("deposit tool check", ok ? "pick allowed" : "refused, no pickaxe", Utils.GetPrefabName(__instance.gameObject) + ", held " + (held != null ? held.m_shared.m_name + " (" + held.m_shared.m_skillType + ")" : "nothing"));
                     if (ok) return true;
 
                     user.Message(MessageHud.MessageType.Center, "You need a pickaxe");
@@ -70,6 +71,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
                         view.GetZDO().Set(DepositSpawner.KeyAmount, amount);
                     }
                     __instance.m_amount = amount;
+                    ModLog.Decision("deposit picked", amount + " " + (guano ? "Bat Guano" : "Sulfur"), Utils.GetPrefabName(__instance.gameObject) + " at " + __instance.transform.position.ToString("0") + ", extra drops " + (__instance.m_extraDrops != null && __instance.m_extraDrops.m_drops != null ? __instance.m_extraDrops.m_drops.Count : 0));
                 }
                 catch (Exception e)
                 {

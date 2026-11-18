@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "visual-pieces",
   "description": "Leaching Station, Powder Mill and Rain Barrel placed side by side, screenshot of each and of all three",
   "timeout": 90,
@@ -14,7 +14,8 @@
     { "do": "lookAt", "target": "barrel" },
     { "do": "screenshot", "name": "barrel" },
     { "do": "lookAt", "target": "mill", "pitch": -5 },
-    { "do": "screenshot", "name": "all-three" }
+    { "do": "screenshot", "name": "all-three" },
+    { "do": "cleanArena" }
   ],
   "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
 }

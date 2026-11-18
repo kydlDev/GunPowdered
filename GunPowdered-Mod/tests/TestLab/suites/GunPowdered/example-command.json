@@ -36,7 +36,8 @@
       "do": "hook",
       "name": "GunPowdered.example.value",
       "expect": 10
-    }
+    },
+    { "do": "cleanArena" }
   ],
   "asserts": [
     {

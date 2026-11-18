@@ -80,7 +80,8 @@
       "name": "GunPowdered.exampleTab",
       "expect": true,
       "label": "tab back"
-    }
+    },
+    { "do": "cleanArena" }
   ],
   "asserts": [
     {

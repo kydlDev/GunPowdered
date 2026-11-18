@@ -22,6 +22,35 @@ namespace GunPowdered.Features.Saltpeter.Domain
             return barrelLoaded && fuelPerBatch >= 1 && fuel >= fuelPerBatch;
         }
 
+        /// <summary>Guano and water in the barrel and wood in the hearth (what the station holds, or what one batch needs).</summary>
+        internal readonly struct VatAmounts
+        {
+            internal VatAmounts(int guano, int water, int fuel) { Guano = guano; Water = water; Fuel = fuel; }
+            internal int Guano { get; }
+            internal int Water { get; }
+            internal int Fuel { get; }
+        }
+
+        /// <summary>What one fed item is (D-035, like the game's Smelter: one item per request, the owner checks the item and the room).</summary>
+        internal enum Feed { Refused, Guano, Water, Wood }
+
+        /// <summary>
+        /// Does the station take one item of this prefab now. Expected outcome: Guano / Water / Wood when the station is idle and that slot still has room,
+        /// Refused for any other item, a full slot or a busy station.
+        /// </summary>
+        internal static Feed Accept(string prefab, bool idle, VatAmounts have, VatAmounts need)
+        {
+            if (!idle || string.IsNullOrEmpty(prefab)) return Feed.Refused;
+            if (prefab == "GP_BatGuano") return have.Guano < need.Guano ? Feed.Guano : Feed.Refused;
+            if (prefab == "GP_Water") return have.Water < need.Water ? Feed.Water : Feed.Refused;
+            if (prefab == "Wood") return have.Fuel < need.Fuel ? Feed.Wood : Feed.Refused;
+            return Feed.Refused;
+        }
+
+        /// <summary>The barrel is ready when it holds a whole batch of guano and of water. Expected outcome: false for any shortfall or a bad setting.</summary>
+        internal static bool BarrelFull(int guano, int water, int guanoNeed, int waterNeed) =>
+            guanoNeed >= 1 && waterNeed >= 1 && guano >= guanoNeed && water >= waterNeed;
+
         /// <summary>How many full batches the loaded guano and water make. Expected outcome: 0 or more; never more than either input allows.</summary>
         internal static int Batches(int guano, int water, int guanoPerBatch, int waterPerBatch)
         {

@@ -1,0 +1,5 @@
+{
+  "params": [ "prefab" ],
+  "actions": [ { "do": "peerRpc", "target": "vat", "method": "GP_VatAdd", "args": [ "{{prefab}}" ], "types": [ "string" ] } ],
+  "asserts": []
+}

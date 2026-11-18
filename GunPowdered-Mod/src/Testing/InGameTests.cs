@@ -66,12 +66,26 @@ namespace GunPowdered.Testing
                 foreach (var r in rends)
                     foreach (var m in r.sharedMaterials)
                         if (m == null || m.shader == null || m.shader.name.Contains("InternalErrorShader")) bad.Append(s.Id).Append("/").Append(r.name).Append(" bad shader; ");
+                // the game's navmesh builder needs readable meshes on pieces ("does not allow read access" errors, GameProbe 2026-11-18)
+                foreach (var mf in model.GetComponentsInChildren<UnityEngine.MeshFilter>(true))
+                    if (mf.sharedMesh != null && !mf.sharedMesh.isReadable) bad.Append(s.Id).Append("/").Append(mf.name).Append(" mesh not readable; ");
                 var drop = go.GetComponent<ItemDrop>();
                 if (drop != null && (drop.m_itemData.m_shared.m_icons == null || drop.m_itemData.m_shared.m_icons.Length == 0 || drop.m_itemData.m_shared.m_icons[0] == null)) bad.Append(s.Id).Append(" no icon; ");
                 ok++;
             }
             ModLog.Verbose("InGameTests: World_BundleModels " + ok + " of " + ItemCatalog.All.Count + " ok");
             return bad.Length == 0 ? "PASS: " + ok + " prefabs use the bundle model" : "FAIL: " + bad;
+        }
+
+        /// The public API (GunPowderedApi) names prefabs that exist in the game: what another mod gets from it can be spawned and used.
+        static string World_ApiPrefabs()
+        {
+            var missing = new System.Text.StringBuilder();
+            foreach (string id in GunPowderedApi.AllPrefabs)
+                if (ZNetScene.instance == null || ZNetScene.instance.GetPrefab(id) == null) missing.Append(id).Append(' ');
+            int n = GunPowderedApi.AllPrefabs.Count;
+            ModLog.Verbose("InGameTests: World_ApiPrefabs " + n + " names, missing: " + (missing.Length == 0 ? "none" : missing.ToString()));
+            return missing.Length == 0 ? "PASS: all " + n + " API prefab names exist (API version " + GunPowderedApi.ApiVersion + ")" : "FAIL: not registered: " + missing;
         }
 
         /// The local player exists once a world is loaded (example of a World_ test; replace with the mod's own checks).

@@ -183,6 +183,10 @@ namespace GunPowdered.Integrations.Items
                 if (drop != null) pick.m_itemPrefab = drop;
                 pick.m_amount = 1;
                 pick.m_overrideName = s.Name;          // else the hover still says "Sulfur Rock"
+                // the vanilla sulfur rock also drops extra Sulfur from its own table: a mud pick gave 4 instead of 2 and a guano pick dropped Sulfur (run core1)
+                int extra = pick.m_extraDrops != null && pick.m_extraDrops.m_drops != null ? pick.m_extraDrops.m_drops.Count : 0;
+                pick.m_extraDrops = new DropTable();
+                ModLog.Verbose("ItemRegistry: deposit " + s.Id + " - " + extra + " extra drop entr" + (extra == 1 ? "y" : "ies") + " of " + s.CloneOf + " removed");
                 pick.m_respawnTimeMinutes = (float)(DepositRefill.RefillAt(0d, ModSettings.DepositRefillDays.Value, DepositRefill.DefaultDayLengthSeconds) / 60d);
                 pick.m_hideWhenPicked = null;
             }

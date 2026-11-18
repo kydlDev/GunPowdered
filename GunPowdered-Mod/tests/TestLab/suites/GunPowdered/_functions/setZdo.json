@@ -1,0 +1,5 @@
+{
+  "params": [ "target", "key", "type", "value" ],
+  "actions": [ { "do": "hook", "name": "GunPowdered.setZdo", "args": { "target": "{{target}}", "key": "{{key}}", "type": "{{type}}", "value": "{{value}}" }, "expect": "set", "label": "start state: {{key}} = {{value}}", "stop": true } ],
+  "asserts": []
+}

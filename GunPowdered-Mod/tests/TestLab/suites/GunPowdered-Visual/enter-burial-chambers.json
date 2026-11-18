@@ -1,0 +1,11 @@
+{
+  "name": "enter-burial-chambers",
+  "description": "D-033: Burial chambers get their guano when the player first goes in through the entrance; 8 caves generated with the game's TestSpawnLocation and entered like a player",
+  "timeout": 420,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "enterCavesAndCheck", "cave": "Crypt2", "count": 8, "seconds": 300 },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

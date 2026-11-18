@@ -15,6 +15,9 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
         const float GeyserMin = 3f, GeyserMax = 8f, PileMin = 3f, PileMax = 10f;
         const int Tries = 8;
 
+        /// <summary>How many Draugr piles asked for mud since the game started (read by the test hooks).</summary>
+        internal static int PilesSeen { get; private set; }
+
         /// <summary>Around a geyser: on dry or wet ground, any floor. Expected outcome: deposits placed.</summary>
         internal static int AroundGeyser(Vector3 centre, int seed)
         {
@@ -24,6 +27,7 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
         /// <summary>Next to a Draugr pile: only where the water covers the ground. Expected outcome: deposits placed.</summary>
         internal static int NearPile(Vector3 centre, int seed)
         {
+            PilesSeen++;
             return Place(centre, seed, ModSettings.MudPerDraugrPile.Value, PileMin, PileMax, true);
         }
 
@@ -36,7 +40,12 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
                 for (int t = 0; t < Tries; t++)
                 {
                     Vector3 floor;
-                    if (!DepositSpawner.Floor(DepositSpawner.OnRing(centre, minR, maxR, rng), out floor)) continue;
+                    Vector3 spot = DepositSpawner.OnRing(centre, minR, maxR, rng);
+                    if (!DepositSpawner.Floor(spot, out floor))
+                    {
+                        KydlCore.Common.ModLog.Verbose("MudPlacer: no floor within 3 m above / 6 m below " + spot.ToString("0.0") + " (centre " + centre.ToString("0.0") + ")");
+                        continue;
+                    }
                     if (needWater && !UnderWater(floor)) continue;
                     int amount = SulfurRules.Amount(SulfurSource.SulfurousMud, () => rng.NextDouble());
                     if (DepositSpawner.Spawn(GunPowderedPrefabs.SulfurousMud, floor, amount, seed + n) != null) placed++;
@@ -46,9 +55,15 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
             return placed;
         }
 
+        // the local water volume's level, or the world's sea level (lakes, rivers, the sea lie at it): at the test world's lake shore the volume lookup
+        // alone found no water (bucket, run core3), so the same fallback is used here
         static bool UnderWater(Vector3 floor)
         {
-            return Floating.GetLiquidLevel(floor, 1f, LiquidType.Water) > floor.y + 0.1f;
+            float sea = ZoneSystem.instance != null ? ZoneSystem.instance.m_waterLevel : float.MinValue;
+            float surface = Mathf.Max(Floating.GetLiquidLevel(floor, 1f, LiquidType.Water), sea);
+            bool under = surface > floor.y + 0.1f;
+            KydlCore.Common.ModLog.Verbose("MudPlacer: floor " + floor.ToString("0.0") + ", water surface " + surface.ToString("0.0") + " -> under water " + under);
+            return under;
         }
     }
 }

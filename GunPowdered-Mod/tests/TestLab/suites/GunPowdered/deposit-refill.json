@@ -1,0 +1,29 @@
+{
+  "name": "deposit-refill",
+  "description": "Deposit refill (D-019, 3 in-game days): a picked guano deposit gives nothing while empty, still nothing 2 days later, and its full amount again after 3 days",
+  "timeout": 90,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "give", "prefab": "PickaxeAntler", "count": 1, "equip": true },
+    { "do": "spawnAndPick", "prefab": "GP_GuanoDeposit" },
+    { "do": "hook", "name": "GunPowdered.countWithInventory", "args": { "prefab": "GP_BatGuano" }, "expect": 2, "label": "first pick: 2 Bat Guano" },
+    { "do": "interact", "target": "deposit" },
+    { "do": "wait", "seconds": 2 },
+    { "do": "hook", "name": "GunPowdered.countWithInventory", "args": { "prefab": "GP_BatGuano" }, "expect": 2, "label": "an empty deposit gives nothing" },
+    { "do": "console", "command": "skiptime 3600" },
+    { "do": "wait", "seconds": 2 },
+    { "do": "hook", "name": "GunPowdered.depositRespawnCheck", "args": { "target": "deposit" }, "expect": "empty", "label": "2 in-game days (3600 s) later still empty" },
+    { "do": "interact", "target": "deposit" },
+    { "do": "wait", "seconds": 2 },
+    { "do": "hook", "name": "GunPowdered.countWithInventory", "args": { "prefab": "GP_BatGuano" }, "expect": 2, "label": "after 2 days still empty" },
+    { "do": "console", "command": "skiptime 2000" },
+    { "do": "wait", "seconds": 2 },
+    { "do": "hook", "name": "GunPowdered.depositRespawnCheck", "args": { "target": "deposit" }, "expect": "refilled", "label": "past 3 in-game days (5600 s) the deposit refilled" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "interact", "target": "deposit" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "hook", "name": "GunPowdered.countWithInventory", "args": { "prefab": "GP_BatGuano" }, "expect": 4, "label": "after 3 days the deposit gave its 2 again" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

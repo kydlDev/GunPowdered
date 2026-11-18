@@ -67,7 +67,8 @@
         "expect": false
       },
       "timeout": 5
-    }
+    },
+    { "do": "cleanArena" }
   ],
   "asserts": [
     {
