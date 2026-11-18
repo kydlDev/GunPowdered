@@ -88,6 +88,16 @@ namespace GunPowdered.Testing
             return missing.Length == 0 ? "PASS: all " + n + " API prefab names exist (API version " + GunPowderedApi.ApiVersion + ")" : "FAIL: not registered: " + missing;
         }
 
+        /// The Powder Mill crafts without a roof (D-040; its workbench original needs one).
+        static string World_PowderMillNoRoof()
+        {
+            var go = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(GunPowderedApi.Prefabs.PowderMill) : null;
+            var station = go != null ? go.GetComponent<CraftingStation>() : null;
+            ModLog.Verbose("InGameTests: World_PowderMillNoRoof station " + (station != null ? "roof needed " + station.m_craftRequireRoof : "missing"));
+            if (station == null) return "FAIL: GP_PowderMill has no CraftingStation";
+            return station.m_craftRequireRoof ? "FAIL: the Powder Mill still needs a roof" : "PASS: the Powder Mill needs no roof";
+        }
+
         /// The local player exists once a world is loaded (example of a World_ test; replace with the mod's own checks).
         static string World_PlayerPresent()
         {

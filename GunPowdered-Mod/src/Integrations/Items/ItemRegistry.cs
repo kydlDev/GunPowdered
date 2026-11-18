@@ -155,7 +155,14 @@ namespace GunPowdered.Integrations.Items
                 if (chest != null) UnityEngine.Object.DestroyImmediate(chest);
                 prefab.AddComponent<LeachingVat>();
             }
-            else if (s.Id == GunPowderedPrefabs.PowderMill) prefab.AddComponent<PowderMillSpin>();
+            else if (s.Id == GunPowderedPrefabs.PowderMill)
+            {
+                prefab.AddComponent<PowderMillSpin>();
+                // cloned from the workbench, which needs a roof; the Powder Mill works in the open (user 2026-11-18, D-040)
+                CraftingStation station = prefab.GetComponent<CraftingStation>();
+                if (station != null) station.m_craftRequireRoof = false;
+                ModLog.Verbose("ItemRegistry: Powder Mill needs no roof (station " + (station != null ? "found" : "missing") + ")");
+            }
             else if (s.Id == GunPowderedPrefabs.RainBarrel)
             {
                 Container chest = prefab.GetComponent<Container>();
