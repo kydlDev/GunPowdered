@@ -99,3 +99,11 @@ CLAUDE.md
 # BenchmarkDotNet output (PROJECT_RULES 30): numbers that matter go to tests/_quality/benchmarks.md
 **/BenchmarkDotNet.Artifacts/
 **/Benchmarks/bench*.log
+
+# third-party Unity texture packs imported by the user (about 1.8 GB, credit required if used; not used now - D-031)
+/GunPowdered-Unity/Assets/Realistic Metal Texture/
+/GunPowdered-Unity/Assets/Realistic Metal Texture.meta
+/GunPowdered-Unity/Assets/YughuesFreeFlooringMaterials/
+/GunPowdered-Unity/Assets/YughuesFreeFlooringMaterials.meta
+/GunPowdered-Unity/Assets/YughuesFreeMetalMaterials/
+/GunPowdered-Unity/Assets/YughuesFreeMetalMaterials.meta
