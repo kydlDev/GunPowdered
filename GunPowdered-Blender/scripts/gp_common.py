@@ -49,11 +49,14 @@ def put(name, bm, material, matrix=Matrix.Identity(4), smooth=True):
 def lathe(bm, profile, matrix=Matrix.Identity(4), segs=32, caps=True):
     """Solid of revolution around +Z from a (radius, z) profile; the ends close with a cap (caps=False for a profile that is a closed loop, like a ring)."""
     rings = []
+    closed = (not caps) and len(profile) > 2 and tuple(profile[0]) == tuple(profile[-1])
+    if closed:
+        profile = profile[:-1]                                # the last point equals the first: join round instead of leaving a seam
     for r, z in profile:
         r = max(r, 1e-4)
         rings.append([bm.verts.new(matrix @ Vector((r * math.cos(2 * math.pi * i / segs), r * math.sin(2 * math.pi * i / segs), z))) for i in range(segs)])
-    for k in range(len(profile) - 1):
-        a, b = rings[k], rings[k + 1]
+    for k in range(len(profile) - (0 if closed else 1)):
+        a, b = rings[k], rings[(k + 1) % len(rings)]
         for i in range(segs):
             j = (i + 1) % segs
             bm.faces.new((a[i], a[j], b[j], b[i]))

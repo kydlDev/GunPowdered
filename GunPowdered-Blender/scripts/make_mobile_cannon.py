@@ -94,7 +94,7 @@ def build_wheel(side, ash, flametal):
     for k in range(12):                                                                                                                     # twelve spokes
         a = 2 * math.pi * k / 12
         mid = 0.26
-        g.box(wood, (0.040, 0.075, 0.37), Vector((0.0, 0.0, 0.0)),
+        g.box(wood, (0.040 if k % 2 == 0 else 0.034, 0.075, 0.37), Vector((0.0, 0.0, 0.0)),
               Matrix.Translation((x, 0.0, AXLE_Z)) @ Matrix.Rotation(a, 4, "X") @ Matrix.Translation((0.0, 0.0, mid)))
     wheel = put_at("wheel_left" if side < 0 else "wheel_right", wood, ash, (x, 0.0, AXLE_Z))
     tyre = bmesh.new()

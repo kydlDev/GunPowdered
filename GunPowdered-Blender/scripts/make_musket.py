@@ -31,7 +31,7 @@ def build():
     prof = [(0.42, 0.030), (0.30, 0.015), (0.14, -0.004), (0.04, -0.008), (-0.62, -0.010), (-0.62, -0.046), (-0.10, -0.050), (0.02, -0.056),
             (0.07, -0.100), (0.115, -0.125), (0.165, -0.105), (0.22, -0.075), (0.30, -0.085), (0.42, -0.150)]
     g.poly_extrude(bm, prof, 0.040)
-    bmesh.ops.bevel(bm, geom=list(bm.edges), offset=0.004, segments=2, affect="EDGES")
+    # no bevel: on this concave profile it made inverted faces near the grip (D-074)
     names.append(g.put("musket_stock", bm, wood).name)
 
     bm = bmesh.new()                                                     # barrel: breech swell, long taper, muzzle swell, bore
@@ -78,7 +78,7 @@ def build():
     bm = bmesh.new()                                                     # fittings: butt plate, tip cap, ramrod tip, sling swivels
     g.box(bm, (0.044, 0.008, 0.190), Vector((0, 0.423, -0.060)), Matrix.Identity(4))                  # butt plate
     g.cyl(bm, 0.0075, 0.014, Matrix.Translation((0, -0.625, -0.060)) @ Matrix.Rotation(math.radians(90), 4, "X"), 10)    # ramrod head
-    g.box(bm, (0.040, 0.020, 0.040), Vector((0, -0.612, -0.028)))                                      # fore-end cap
+    g.box(bm, (0.046, 0.024, 0.048), Vector((0, -0.616, -0.028)))                                      # fore-end cap
     for y, z in ((-0.36, -0.052), (0.27, -0.082)):
         g.ring(bm, 0.011, 0.007, 0.006, Matrix.Translation((0, y, z)) @ Matrix.Rotation(math.radians(90), 4, "Y"), 12)
     names.append(g.put("musket_fittings", bm, brass).name)
