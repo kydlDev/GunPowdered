@@ -58,11 +58,15 @@ def build():
     g.cyl(bm, 0.0035, 0.020, Matrix.Translation((xs + 0.008, 0.038, 0.034)) @ Matrix.Rotation(math.radians(70), 4, "X"), 8)   # the slow match
     names.append(g.put("musket_lock", bm, steel).name)
 
-    bm = bmesh.new()                                                     # trigger guard (a bent bar) and trigger
-    arc = [Vector((0, 0.020 + 0.075 * math.sin(a), -0.052 - 0.070 * math.sin(a * 2 if False else a) * 0.9)) for a in [i * math.pi / 8 for i in range(0, 9)]]
-    arc = [Vector((0, 0.020 + 0.085 * t, -0.054 - 0.062 * math.sin(math.pi * t))) for t in [i / 8 for i in range(9)]]
-    g.tube(bm, arc, 0.0045, 8)
-    g.box(bm, (0.007, 0.007, 0.034), Vector((0, 0.058, -0.074)), Matrix.Rotation(math.radians(-14), 4, "X"))   # trigger
+    bm = bmesh.new()                                                     # trigger guard: a big oval bow (user reference photo, 2026-11-18), tangs, trigger blade
+    F, R = (-0.080, -0.052), (0.098, -0.112)                              # front end (under the stock belly) and rear end (inside the grip slope), (y, z)
+    bow = [Vector((0, y, z)) for y, z in (F, (-0.074, -0.082), (-0.050, -0.116), (-0.012, -0.141), (0.030, -0.148), (0.066, -0.136), (0.090, -0.122), R)]
+    g.strap(bm, g.spline(bow, 6), 0.012, 0.0085, Vector((1, 0, 0)))                                        # the bow, a flat band 12 mm wide and 8.5 mm thick in profile
+    g.box(bm, (0.013, 0.075, 0.0045), Vector((0, -0.043, -0.0535)))                                       # front tang / trigger plate along the stock belly
+    g.cyl(bm, 0.0065, 0.0050, Matrix.Translation((0, -0.082, -0.0535)), 12)                               # front finial disc
+    g.strap(bm, g.spline([Vector((0, y, z)) for y, z in ((0.085, -0.1085), (0.115, -0.1275), (0.150, -0.1160))], 4), 0.012, 0.0085, Vector((1, 0, 0)))   # rear tang on the grip
+    blade = [Vector((0, y, z)) for y, z in ((0.004, -0.054), (0.007, -0.078), (0.014, -0.100), (0.027, -0.114), (0.040, -0.117))]
+    g.strap(bm, g.spline(blade, 4), 0.008, 0.012, Vector((1, 0, 0)))                                      # curved trigger blade, tip to the rear
     names.append(g.put("musket_trigger", bm, iron).name)
 
     bm = bmesh.new()                                                     # ramrod: a long thin rod below the fore-end, two pipes and a brass tip
@@ -90,3 +94,4 @@ g.export(os.path.join(exports, "Musket.fbx"), NAMES + EM)
 g.shift(NAMES + EM, 0.45)
 g.views(photos, "musket", (0.0, -0.10, 0.45), 1.7, 0.1)
 g.views(photos, "musket-lock", (0.0, 0.10, 0.45), 0.55, 0.05)
+g.views(photos, "musket-trigger", (0.0, 0.02, 0.36), 0.42, 0.02)

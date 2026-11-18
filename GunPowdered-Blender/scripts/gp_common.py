@@ -46,8 +46,8 @@ def put(name, bm, material, matrix=Matrix.Identity(4), smooth=True):
     return o
 
 
-def lathe(bm, profile, matrix=Matrix.Identity(4), segs=32):
-    """Solid of revolution around +Z from a (radius, z) profile; the ends close with a cap."""
+def lathe(bm, profile, matrix=Matrix.Identity(4), segs=32, caps=True):
+    """Solid of revolution around +Z from a (radius, z) profile; the ends close with a cap (caps=False for a profile that is a closed loop, like a ring)."""
     rings = []
     for r, z in profile:
         r = max(r, 1e-4)
@@ -57,8 +57,9 @@ def lathe(bm, profile, matrix=Matrix.Identity(4), segs=32):
         for i in range(segs):
             j = (i + 1) % segs
             bm.faces.new((a[i], a[j], b[j], b[i]))
-    for rg in (rings[0], rings[-1]):                        # caps
-        bm.faces.new(rg)
+    if caps:
+        for rg in (rings[0], rings[-1]):                    # caps
+            bm.faces.new(rg)
 
 
 def box(bm, size, centre, matrix=Matrix.Identity(4)):
@@ -72,7 +73,7 @@ def cyl(bm, r, depth, matrix=Matrix.Identity(4), segs=16, r2=None):
 
 def ring(bm, r_out, r_in, width, matrix=Matrix.Identity(4), segs=32):
     """Flat band (a hoop / tyre): outer radius, inner radius, width along local Z."""
-    lathe(bm, [(r_in, -width / 2), (r_out, -width / 2), (r_out, width / 2), (r_in, width / 2), (r_in, -width / 2)], matrix, segs)
+    lathe(bm, [(r_in, -width / 2), (r_out, -width / 2), (r_out, width / 2), (r_in, width / 2), (r_in, -width / 2)], matrix, segs, caps=False)   # closed loop: NO caps (they were solid discs plugging the ring)
 
 
 def poly_extrude(bm, pts, width, matrix=Matrix.Identity(4)):
