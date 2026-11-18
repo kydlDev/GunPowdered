@@ -10,20 +10,21 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- shared 3D viewer (from WhipItUp, user 2026-10-27): its pure math is tested here -->
-    <Compile Include="..\..\..\GunPowdered-Unity\Assets\GunPowdered_UI\Runtime\ViewerSettings.cs" Link="Ui\ViewerSettings.cs" />
-    <Compile Include="..\..\..\GunPowdered-Unity\Assets\GunPowdered_UI\Runtime\ViewerMath.cs" Link="Ui\ViewerMath.cs" />
-    <Compile Include="..\..\..\GunPowdered-Unity\Assets\GunPowdered_UI\Runtime\ViewerOrbit.cs" Link="Ui\ViewerOrbit.cs" />
+    <Compile Include="..\..\..\GunPowdered-Unity\Assets\GunPowdered_UI\Runtime\ViewerSettings.cs" Link="Ui\ViewerSettings.cs" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\..\GunPowdered-Unity\Assets\GunPowdered_UI\Runtime\ViewerMath.cs" Link="Ui\ViewerMath.cs" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\..\GunPowdered-Unity\Assets\GunPowdered_UI\Runtime\ViewerOrbit.cs" Link="Ui\ViewerOrbit.cs" Condition="'$(KydlQuality)' != 'true'" />
   </ItemGroup>
   <ItemGroup>
     <!-- the mod's pure layers (Domain / Application / Execution): everything linked must compile without Unity (MIGRATION_DECISIONS B10) -->
-    <Compile Include="..\..\src\Core\Roll.cs" Link="Mod\Core\Roll.cs" />
-    <Compile Include="..\..\src\Core\GunPowderedApi.cs" Link="Mod\Core\GunPowderedApi.cs" />
-    <Compile Include="..\..\src\Core\PrefabNames.cs" Link="Mod\Core\PrefabNames.cs" />
-    <Compile Include="..\..\src\Core\ItemCatalog.cs" Link="Mod\Core\ItemCatalog.cs" />
-    <Compile Include="..\..\src\Core\DepositRefill.cs" Link="Mod\Core\DepositRefill.cs" />
-    <Compile Include="..\..\src\Features\*\Domain\**\*.cs" Link="Mod\%(RecursiveDir)%(Filename)%(Extension)" />
-    <Compile Include="..\..\src\Features\*\Application\**\*.cs" Link="Mod\%(RecursiveDir)%(Filename)%(Extension)" />
-    <Compile Include="..\..\src\Features\*\Execution\**\*.cs" Link="Mod\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\src\Core\Roll.cs" Link="Mod\Core\Roll.cs" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\src\Core\GunPowderedApi.cs" Link="Mod\Core\GunPowderedApi.cs" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\src\Core\PrefabNames.cs" Link="Mod\Core\PrefabNames.cs" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\src\Core\ItemCatalog.cs" Link="Mod\Core\ItemCatalog.cs" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\src\Core\DepositRefill.cs" Link="Mod\Core\DepositRefill.cs" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\src\Core\SeededRandom.cs" Link="Mod\Core\SeededRandom.cs" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\src\Features\*\Domain\**\*.cs" Link="Mod\%(RecursiveDir)%(Filename)%(Extension)" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\src\Features\*\Application\**\*.cs" Link="Mod\%(RecursiveDir)%(Filename)%(Extension)" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\src\Features\*\Execution\**\*.cs" Link="Mod\%(RecursiveDir)%(Filename)%(Extension)" Condition="'$(KydlQuality)' != 'true'" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine.CoreModule"><HintPath>$(ValheimRefs)\UnityEngine.CoreModule.dll</HintPath><Private>true</Private></Reference>

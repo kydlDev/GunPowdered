@@ -1,0 +1,25 @@
+{
+  "name": "cannon-mount-dismantle",
+  "description": "Hand Cannon (D-052 addendum): the cannon is mounted on the stock from the inventory, taken off again with shift + use, and dismantling the stock drops the mounted cannon next to its own wood and resin",
+  "timeout": 90,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "cannonStock" },
+    { "do": "give", "prefab": "GP_Cannon", "count": 1 },
+    { "do": "hook", "name": "GunPowdered.cannonState", "contains": "mounted False", "label": "an empty stock" },
+    { "do": "hook", "name": "GunPowdered.cannonUse", "args": { "alt": false }, "expect": true, "label": "mount the cannon" },
+    { "do": "hook", "name": "GunPowdered.cannonState", "contains": "mounted True, loaded False, barrel shown True", "label": "the cannon lies on the stock" },
+    { "do": "hook", "name": "GunPowdered.invCount", "args": { "prefab": "GP_Cannon" }, "expect": 0, "label": "it left the inventory" },
+    { "do": "hook", "name": "GunPowdered.cannonUse", "args": { "alt": true }, "expect": true, "label": "take it off" },
+    { "do": "hook", "name": "GunPowdered.cannonState", "contains": "mounted False", "label": "the stock is empty again" },
+    { "do": "hook", "name": "GunPowdered.invCount", "args": { "prefab": "GP_Cannon" }, "expect": 1, "label": "the cannon is back in the inventory" },
+    { "do": "hook", "name": "GunPowdered.cannonUse", "args": { "alt": false }, "expect": true, "label": "mount it again" },
+    { "do": "hook", "name": "GunPowdered.cannonDismantle", "expect": "removed", "label": "dismantle the stock" },
+    { "do": "wait", "seconds": 1.5 },
+    { "do": "hook", "name": "GunPowdered.recoveredNearStock", "args": { "prefab": "GP_Cannon" }, "expect": 1, "label": "the cannon came back (dropped or picked up)" },
+    { "do": "hook", "name": "GunPowdered.recoveredNearStock", "args": { "prefab": "Wood" }, "expect": 10, "label": "the wood came back" },
+    { "do": "hook", "name": "GunPowdered.recoveredNearStock", "args": { "prefab": "Resin" }, "expect": 4, "label": "the resin came back" },
+    { "do": "cannonClean" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

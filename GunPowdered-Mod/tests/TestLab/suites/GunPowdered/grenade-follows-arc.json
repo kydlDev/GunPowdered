@@ -1,0 +1,13 @@
+{
+  "name": "grenade-follows-arc",
+  "description": "Spiked Grenade (D-045 item 1, D-047): thrown through the game's own attack, the grenade bursts where the drawn arc said it would land (within 0.75 m), about 15 m out",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "grenadeArena" },
+    { "do": "throwGrenadeAtLanding", "pitch": 30 },
+    { "do": "hook", "name": "GunPowdered.grenadeFollowedArc", "expect": "ok", "label": "the blast is where the arc landed" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

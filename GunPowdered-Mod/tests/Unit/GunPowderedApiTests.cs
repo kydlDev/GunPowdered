@@ -8,9 +8,9 @@ namespace GunPowdered.Tests.Unit
     public class GunPowderedApiTests
     {
         [Test]
-        public void AllPrefabs_AreTheElevenGpNames()
+        public void AllPrefabs_AreTheGpNames()
         {
-            Assert.That(GunPowderedApi.AllPrefabs.Count, Is.EqualTo(11));
+            Assert.That(GunPowderedApi.AllPrefabs.Count, Is.EqualTo(15), "12 before the hand cannon + Cannon Ball, Cannon, Cannon Stock");
             Assert.That(GunPowderedApi.AllPrefabs, Does.Contain(GunPowderedApi.Prefabs.Gunpowder));
             Assert.That(GunPowderedApi.AllPrefabs.All(p => p.StartsWith("GP_")), Is.True);
         }

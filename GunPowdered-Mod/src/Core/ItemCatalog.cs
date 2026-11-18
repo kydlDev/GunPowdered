@@ -12,7 +12,9 @@ namespace GunPowdered.Core
         /// A crafting station or container piece the player builds with the hammer.
         Piece,
         /// A deposit placed in the world by the mod (not craftable, not in the inventory).
-        Deposit
+        Deposit,
+        /// A weapon or thrown explosive the player holds and attacks with (D-045).
+        Weapon
     }
 
     /// <summary>One cost line: a vanilla or mod prefab name and an amount.</summary>
@@ -61,6 +63,15 @@ namespace GunPowdered.Core
         public int Yield { get; }
         public IList<CostLine> Cost { get; }
         public bool HasRecipe { get { return !string.IsNullOrEmpty(Station); } }
+        /// <summary>The level the crafting station needs for the recipe (1 = any).</summary>
+        public int StationLevel { get; private set; } = 1;
+
+        /// <summary>Sets the station level the recipe needs. Expected outcome: this entry, with <see cref="StationLevel"/> = level (at least 1).</summary>
+        public ItemSpec AtStationLevel(int level)
+        {
+            StationLevel = level < 1 ? 1 : level;
+            return this;
+        }
     }
 
     /// <summary>The balance table the user approved (D-014) and the placeholder bases. Numbers are defaults; the Jotunn adapters read the Tunables.</summary>
@@ -69,7 +80,7 @@ namespace GunPowdered.Core
         public const string Workbench = "piece_workbench";
         public const string Forge = "forge";
         /// <summary>Vanilla prefab names of the materials the recipes use (Charcoal is the prefab "Coal", Sulfur is the prefab "SulfurStone"; checked in the Unity rip 2026-11-17).</summary>
-        public const string Wood = "Wood", Bronze = "Bronze", LeatherScraps = "LeatherScraps", Resin = "Resin", Stone = "Stone", Charcoal = "Coal", Sulfur = "SulfurStone";
+        public const string Wood = "Wood", Iron = "Iron", Bronze = "Bronze", LeatherScraps = "LeatherScraps", Resin = "Resin", Stone = "Stone", Charcoal = "Coal", Sulfur = "SulfurStone", Obsidian = "Obsidian";
 
         public static readonly ItemSpec BatGuano = new ItemSpec(GunPowderedPrefabs.BatGuano, "Bat Guano", "Dung of cave bats. Rich in nitrates: leach it with water in a Leaching Vat to get saltpeter.",
             ItemKind.Material, "Resin", 50, 0.5f, "", 1);
@@ -109,12 +120,35 @@ namespace GunPowdered.Core
         public static readonly ItemSpec SulfurousMud = new ItemSpec(GunPowderedPrefabs.SulfurousMud, "Sulfurous Mud", "Yellow mud that smells of sulfur. Mine it with a pickaxe.",
             ItemKind.Deposit, "Pickable_SulfurRock", 1, 0f, "", 1);
 
+        // D-047 (user approved): Mountains / silver tier, Workbench level 3 like the vanilla bombs; cloned from the vanilla Ooze Bomb for its throw_bomb attack
+        public static readonly ItemSpec SpikedGrenade = new ItemSpec(GunPowderedPrefabs.SpikedGrenade, "Spiked Grenade",
+            "A clay pot full of gunpowder, studded with spikes. Throw it: it bursts where it lands. Hold it to see the arc.",
+            ItemKind.Weapon, "BombOoze", 20, 0.5f, Workbench, 5,
+            new CostLine(GunPowderedPrefabs.Gunpowder, 3), new CostLine(Obsidian, 2), new CostLine(Stone, 2), new CostLine(Resin, 1)).AtStationLevel(3);
+
+        // D-051 / D-052 / D-053 (user answers): the mounted hand cannon, Swamp (iron) tier. The ball and the cannon are carried items that never stack and cannot be
+        // equipped (Material placeholder, "cannot be shot while carried"); the stock is the build piece the cannon is mounted on (Hammer, KY-Items category).
+        // The ball recipe is 2 Iron at a Forge level 2 (user, 2026-11-18).
+        public static readonly ItemSpec CannonBall = new ItemSpec(GunPowderedPrefabs.CannonBall, "Cannon Ball",
+            "A cast iron ball. Feed it into the muzzle of a mounted Hand Cannon together with gunpowder. It can be picked up and used again after the shot.",
+            ItemKind.Material, Iron, 1, 3f, Forge, 1, new CostLine(Iron, 2)).AtStationLevel(2);
+
+        public static readonly ItemSpec Cannon = new ItemSpec(GunPowderedPrefabs.Cannon, "Hand Cannon",
+            "A heavy cast iron cannon after the old Loshult gun. It cannot be fired in the hand: build a Cannon Stock and mount it there.",
+            ItemKind.Material, Iron, 1, 20f, Forge, 1,
+            new CostLine(Iron, 20), new CostLine(Wood, 5), new CostLine(Resin, 5)).AtStationLevel(2);
+
+        public static readonly ItemSpec CannonStock = new ItemSpec(GunPowderedPrefabs.CannonStock, "Cannon Stock",
+            "A wooden trestle for a Hand Cannon, with the rear support lower than the front. Mount the cannon on it; dismantling gives back the cannon and the wood.",
+            ItemKind.Piece, "piece_chest_wood", 1, 0f, Workbench, 1,
+            new CostLine(Wood, 10), new CostLine(Resin, 4));
+
         /// <summary>Every entry, in the order they are registered.</summary>
         public static IList<ItemSpec> All
         {
             get
             {
-                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud };
+                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud, SpikedGrenade, CannonBall, Cannon, CannonStock };
             }
         }
     }

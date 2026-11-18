@@ -33,7 +33,7 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
 
         static int Place(Vector3 centre, int seed, int count, float minR, float maxR, bool needWater)
         {
-            var rng = new System.Random(seed ^ 0x3C6EF372);
+            var rng = new SeededRandom(seed ^ 0x3C6EF372);
             int placed = 0;
             for (int n = 0; n < count; n++)
             {

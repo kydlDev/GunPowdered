@@ -1,0 +1,13 @@
+{
+  "name": "items-recipes-and-listing",
+  "description": "The Spiked Grenade recipe in the game is the approved one (D-047: Workbench level 3, 3 Gunpowder + 2 Obsidian + 2 Stone + 1 Resin makes 5) and every item and piece of the mod is listed in KydlCore's KY-Items registry, which the item viewer shows",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_SpikedGrenade" }, "expect": "piece_workbench level 3, makes 5, enabled True: GP_Gunpowder x3, Obsidian x2, Stone x2, Resin x1", "label": "the grenade recipe in the game" },
+    { "do": "hook", "name": "GunPowdered.kyItemsListed", "contains": "all ", "label": "every item, piece, ingredient and deposit of the mod is in the KY-Items list" },
+    { "do": "hook", "name": "GunPowdered.kyMaterialsListed", "contains": "all ", "label": "the ingredients and deposits are KyKind.Material (the Materials tab)" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

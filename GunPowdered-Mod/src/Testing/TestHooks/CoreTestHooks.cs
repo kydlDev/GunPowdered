@@ -155,6 +155,7 @@ namespace GunPowdered.Testing.TestHooks
             if (p == null || ZoneSystem.instance == null) return "no player";
             Vector3 from = p.transform.position, bestStand = Vector3.zero, bestDir = Vector3.zero;
             float best = float.MaxValue;
+            bool found = false;   // Sonar S1244: no float equality on the sentinel
             for (float x = -(float)radius; x <= radius; x += 3f)
                 for (float z = -(float)radius; z <= radius; z += 3f)
                 {
@@ -169,10 +170,10 @@ namespace GunPowdered.Testing.TestHooks
                         float aheadGround;
                         if (!ZoneSystem.instance.GetGroundHeight(ahead, out aheadGround) || aheadGround > ZoneSystem.instance.m_waterLevel - 0.3f) continue;   // 2 m ahead must be under water
                         float dist = new Vector2(x, z).magnitude;
-                        if (dist < best) { best = dist; bestStand = new Vector3(stand.x, ground + 0.2f, stand.z); bestDir = dir; }
+                        if (dist < best) { found = true; best = dist; bestStand = new Vector3(stand.x, ground + 0.2f, stand.z); bestDir = dir; }
                     }
                 }
-            if (best == float.MaxValue) return "no water within " + radius.ToString("0") + " m";
+            if (!found) return "no water within " + radius.ToString("0") + " m";
             p.TeleportTo(bestStand, Quaternion.LookRotation(bestDir), true);
             ModLog.Verbose("CoreTestHooks: shore at " + bestStand.ToString("0.0") + ", facing " + bestDir.ToString("0.0") + ", " + best.ToString("0") + " m away, water level " + ZoneSystem.instance.m_waterLevel);
             return "shore at (" + bestStand.x.ToString("0") + ", " + bestStand.z.ToString("0") + "), water ahead";
@@ -225,6 +226,80 @@ namespace GunPowdered.Testing.TestHooks
             return picked ? "empty" : "refilled";
         }
 
+        /// "visible" when the deposit shows its model, "hidden" when it does not (it hides while it is not full), "no deposit" otherwise.
+        [TestHook("GunPowdered.depositVisible")]
+        static string DepositVisible(GameObject target)
+        {
+            Pickable pick = target != null ? target.GetComponentInChildren<Pickable>() : null;
+            Transform model = pick != null ? pick.transform.Find("gp_model") : null;
+            if (model == null) return "no deposit";
+            ModLog.Verbose("CoreTestHooks: deposit " + target.name + " model active " + model.gameObject.activeInHierarchy);
+            return model.gameObject.activeInHierarchy ? "visible" : "hidden";
+        }
+
+        static float _markedGround = float.NaN;
+
+        /// Remembers the terrain height at (x, z) before a test digs there (a generated ruin levels and digs its own ground). Returns the height, or -1 when the ground is not loaded.
+        [TestHook("GunPowdered.terrainMark")]
+        static double TerrainMark(double x, double z)
+        {
+            float h;
+            if (ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(new Vector3((float)x, 0f, (float)z), out h)) return -1d;
+            _markedGround = h;
+            ModLog.Verbose("CoreTestHooks: terrain height marked " + h.ToString("0.00") + " at (" + x + ", " + z + ")");
+            return System.Math.Round(h, 2);
+        }
+
+        /// Undoes every terrain change (raise, lower, level, smooth, paint) the game stored near (x, z) within `radius` m, so a test that dug leaves the ground as it found it.
+        /// Returns "reset N terrain compiler(s)".
+        [TestHook("GunPowdered.terrainReset")]
+        static string TerrainReset(double x, double z, double radius)
+        {
+            var centre = new Vector3((float)x, 0f, (float)z);
+            int n = 0;
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
+            foreach (TerrainComp tc in UnityEngine.Object.FindObjectsByType<TerrainComp>(FindObjectsSortMode.None))
+            {
+                Vector3 p = tc.transform.position;
+                if (Vector2.Distance(new Vector2(p.x, p.z), new Vector2(centre.x, centre.z)) > radius + 40f) continue;
+                ZNetView view = tc.GetComponent<ZNetView>();
+                if (view != null && view.IsValid() && !view.IsOwner()) view.ClaimOwnership();
+                foreach (string field in new[] { "m_modifiedHeight", "m_modifiedPaint" })
+                {
+                    var arr = typeof(TerrainComp).GetField(field, flags)?.GetValue(tc) as bool[];
+                    if (arr != null) System.Array.Clear(arr, 0, arr.Length);
+                }
+                foreach (string field in new[] { "m_levelDelta", "m_smoothDelta" })
+                {
+                    var arr = typeof(TerrainComp).GetField(field, flags)?.GetValue(tc) as float[];
+                    if (arr != null) System.Array.Clear(arr, 0, arr.Length);
+                }
+                typeof(TerrainComp).GetMethod("Save", flags)?.Invoke(tc, new object[] { false });
+                var hm = typeof(TerrainComp).GetField("m_hmap", flags)?.GetValue(tc) as Heightmap;
+                var poke = typeof(Heightmap).GetMethod("Poke", flags);
+                if (hm != null && poke != null)
+                {
+                    var args = new object[poke.GetParameters().Length];
+                    for (int i = 0; i < args.Length; i++) args[i] = System.Type.Missing;
+                    poke.Invoke(hm, System.Reflection.BindingFlags.OptionalParamBinding | flags, null, args, null);
+                }
+                n++;
+            }
+            ModLog.Verbose("CoreTestHooks: terrain reset near (" + x + ", " + z + "), " + n + " terrain compiler(s)");
+            return "reset " + n + " terrain compiler(s)";
+        }
+
+        /// "back" when the terrain height at (x, z) is within 5 cm of the height terrainMark remembered; otherwise says by how much it differs.
+        [TestHook("GunPowdered.terrainBack")]
+        static string TerrainBack(double x, double z)
+        {
+            float h;
+            if (float.IsNaN(_markedGround)) return "nothing marked";
+            if (ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(new Vector3((float)x, 0f, (float)z), out h)) return "ground not loaded";
+            float diff = h - _markedGround;
+            ModLog.Verbose("CoreTestHooks: terrain at (" + x + ", " + z + ") is " + h.ToString("0.00") + ", marked " + _markedGround.ToString("0.00"));
+            return Mathf.Abs(diff) <= 0.05f ? "back" : "differs by " + diff.ToString("0.00") + " m";
+        }
         /// Runs the real Draugr-pile mud placement (MudPlacer.NearPile) for a pile standing on the ground at (x, z); returns how many deposits it placed.
         [TestHook("GunPowdered.mudNearPile")]
         static int MudNearPile(double x, double z)
@@ -285,6 +360,31 @@ namespace GunPowdered.Testing.TestHooks
             return ok ? "spawned" : "refused";
         }
 
+        /// Removes what a generated location left near (x, z): every object within `radius` m whose prefab is one of the location's own pieces (a swamp ruin's stone walls,
+        /// pillars ...), so the next test finds the arena empty (run a5final-1: leftover ruin walls blocked visual-pieces' camera). Returns "removed N object(s)".
+        [TestHook("GunPowdered.removeLocationObjects")]
+        static string RemoveLocationObjects(string name, double x, double z, double radius)
+        {
+            if (ZoneSystem.instance == null || ZNetScene.instance == null) return "no world";
+            ZoneSystem.ZoneLocation loc = ZoneSystem.instance.m_locations.Find(l => l.m_prefabName == name);
+            GameObject root = loc != null && loc.m_prefab != null ? loc.m_prefab.Asset : null;
+            if (root == null) return "no location " + name;
+            var names = new System.Collections.Generic.HashSet<string>();
+            foreach (ZNetView v in root.GetComponentsInChildren<ZNetView>(true)) names.Add(Utils.GetPrefabName(v.gameObject));
+            var centre = new Vector2((float)x, (float)z);
+            int removed = 0;
+            foreach (ZNetView nv in UnityEngine.Object.FindObjectsByType<ZNetView>(FindObjectsSortMode.None))
+            {
+                if (nv == null || !nv.IsValid() || nv.GetComponent<Player>() != null || nv.GetComponent<TerrainComp>() != null) continue;
+                Vector3 p = nv.transform.position;
+                if (Vector2.Distance(new Vector2(p.x, p.z), centre) > radius || !names.Contains(Utils.GetPrefabName(nv.gameObject))) continue;
+                nv.ClaimOwnership();
+                ZNetScene.instance.Destroy(nv.gameObject);
+                removed++;
+            }
+            ModLog.Verbose("CoreTestHooks: removed " + removed + " object(s) of location " + name + " near (" + x + ", " + z + "), " + names.Count + " prefab name(s)");
+            return "removed " + removed + " object(s)";
+        }
         static string _claimAnswer = "none";
 
         /// Asks the owner of a tagged location proxy to let THIS client fill the cave (the real CaveClaim path); read the answer with caveClaimAnswer.

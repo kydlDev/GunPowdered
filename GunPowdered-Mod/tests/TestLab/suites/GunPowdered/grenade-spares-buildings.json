@@ -1,0 +1,21 @@
+{
+  "name": "grenade-spares-buildings",
+  "description": "Spiked Grenade (D-047): a wood wall standing on the landing point keeps all its health (the blast does not hit buildings; that is the dynamite's job)",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "grenadeArena" },
+    { "do": "give", "prefab": "GP_SpikedGrenade", "count": 5, "equip": true },
+    { "do": "face", "dz": 10, "pitch": 30 },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.spawnAtLanding", "args": { "prefab": "woodwall" }, "expect": "placed woodwall", "label": "a wood wall stands on the landing point" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.throwGrenade", "expect": true, "label": "the grenade is thrown" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.grenadeBlastSeen", "expect": true }, "timeout": 12 },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.pieceHealth", "args": { "prefab": "woodwall" }, "expect": 100, "label": "the wall is untouched" },
+    { "do": "hook", "name": "GunPowdered.removeLandingPieces", "expect": "removed 1", "label": "the wall is taken away again" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

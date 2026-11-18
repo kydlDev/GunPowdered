@@ -14,6 +14,7 @@ namespace GunPowdered.Integrations.Items
     internal static class BundleVisuals
     {
         const string ModelChild = "gp_model";
+        const string CollidersChild = "colliders";
 
         /// <summary>Swaps the look of a cloned prefab for the bundle model. Expected outcome: true when the bundle model was added; false (look unchanged) when there is no bundle or no such prefab.</summary>
         internal static bool Apply(string id, GameObject target)
@@ -32,10 +33,21 @@ namespace GunPowdered.Integrations.Items
 
             GameObject inst = Object.Instantiate(model.gameObject, target.transform);
             inst.name = ModelChild;
-            inst.transform.localPosition = Vector3.zero;
-            inst.transform.localRotation = Quaternion.identity;
+            inst.transform.localPosition = model.localPosition;            // a model that is not at the root's origin (the Hand Cannon lies on its barrel) keeps its offset
+            inst.transform.localRotation = model.localRotation;
             inst.transform.localScale = Vector3.one;
             SetLayer(inst, target.layer);
+
+            // a bundle prefab may carry its solid shapes as a child "colliders" (the Cannon Stock: a base and two trestles instead of one box)
+            Transform shapes = source.transform.Find(CollidersChild);
+            if (shapes != null)
+            {
+                GameObject solid = Object.Instantiate(shapes.gameObject, target.transform);
+                solid.name = "gp_colliders";
+                solid.transform.localPosition = shapes.localPosition;
+                solid.transform.localRotation = shapes.localRotation;
+                SetLayer(solid, target.layer);
+            }
 
             BoxCollider box = source.GetComponent<BoxCollider>();
             if (box != null)
@@ -44,8 +56,43 @@ namespace GunPowdered.Integrations.Items
                 mine.center = box.center;
                 mine.size = box.size;
             }
+            // a round item (the Cannon Ball) carries a sphere instead of a box; without it the dropped item would fall through the ground
+            SphereCollider sphere = source.GetComponent<SphereCollider>();
+            if (sphere != null)
+            {
+                SphereCollider mine = target.AddComponent<SphereCollider>();
+                mine.center = sphere.center;
+                mine.radius = sphere.radius;
+            }
             ModLog.Verbose("BundleVisuals: " + id + " now uses the bundle model, layer " + LayerMask.LayerToName(target.layer));
             return true;
+        }
+
+        /// <summary>
+        /// Copies another named child of a bundle prefab onto the target (the Cannon Stock's "mounted_barrel": the cannon as it lies on the stock), on the
+        /// target's layer, keeping its local position, rotation and active state. Expected outcome: the copy (named newName), or null when the bundle or
+        /// the child is missing (one warning is logged).
+        /// </summary>
+        internal static GameObject CopyChild(string id, GameObject target, string child, string newName)
+        {
+            GameObject source = Plugin.Bundle != null ? Plugin.Bundle.LoadAsset<GameObject>(id) : null;
+            Transform part = source != null ? source.transform.Find(child) : null;
+            if (target == null || part == null)
+            {
+                ModLog.Warn("BundleVisuals: no child '" + child + "' in the bundle prefab " + id);
+                return null;
+            }
+            Transform existing = target.transform.Find(newName);
+            if (existing != null) return existing.gameObject;
+            GameObject copy = Object.Instantiate(part.gameObject, target.transform);
+            copy.name = newName;
+            copy.transform.localPosition = part.localPosition;
+            copy.transform.localRotation = part.localRotation;
+            copy.transform.localScale = part.localScale;
+            copy.SetActive(part.gameObject.activeSelf);
+            SetLayer(copy, target.layer);
+            ModLog.Verbose("BundleVisuals: " + id + " got the bundle child " + child + " as " + newName + " at " + copy.transform.localPosition.ToString("0.000"));
+            return copy;
         }
 
         /// <summary>The bundle's inventory / build menu icon of a prefab id. Expected outcome: the sprite, or null when there is no bundle or no such icon.</summary>

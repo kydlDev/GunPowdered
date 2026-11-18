@@ -12,9 +12,14 @@
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "back on the dry arena" },
     { "do": "wait", "seconds": 3 },
     { "do": "hook", "name": "GunPowdered.mudNearPile", "args": { "x": 70, "z": 45 }, "expect": 0, "label": "a pile on dry ground gets no mud" },
+    { "do": "check", "check": "hook", "name": "GunPowdered.terrainMark", "args": { "x": 70, "z": 45 }, "min": 1, "label": "the arena ground height is remembered before the ruin digs" },
     { "do": "hook", "name": "GunPowdered.spawnLocationAt", "args": { "name": "SwampRuin1", "x": 70, "z": 45 }, "expect": "spawned", "label": "a swamp ruin generated on the arena", "stop": true },
     { "do": "wait", "seconds": 5 },
     { "do": "check", "check": "hook", "name": "GunPowdered.pilesSeen", "min": 2, "label": "the ruin's Draugr pile asked for mud" },
+    { "do": "hook", "name": "GunPowdered.removeLocationObjects", "args": { "name": "SwampRuin1", "x": 70, "z": 45, "radius": 60 }, "contains": "removed", "label": "the ruin's pieces are removed from the arena" },
+    { "do": "hook", "name": "GunPowdered.terrainReset", "args": { "x": 70, "z": 45, "radius": 40 }, "contains": "reset", "label": "the ruin's terrain changes are undone" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "hook", "name": "GunPowdered.terrainBack", "args": { "x": 70, "z": 45 }, "expect": "back", "label": "the ground at the spot is back at its old height" },
     { "do": "cleanArena" }
   ],
   "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]

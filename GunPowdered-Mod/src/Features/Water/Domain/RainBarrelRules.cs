@@ -25,7 +25,7 @@ namespace GunPowdered.Features.Water.Domain
             if (isCovered) return OperationResponse<float>.Success(current, Covered);
             if (!isRaining) return OperationResponse<float>.Success(current, NotRaining);
             float grown = current + ratePerMinute * elapsedSeconds / 60f;
-            return OperationResponse<float>.Success(grown > capacity ? capacity : grown, Filled);
+            return OperationResponse<float>.Success(System.Math.Min(grown, capacity), Filled);
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace GunPowdered.Features.Water.Domain
             if (!IsUsable(current) || requested < 1) return OperationResponse<int>.Rejected(BadInput);
             int available = (int)current;
             if (available < 1) return OperationResponse<int>.Rejected(Empty);
-            return OperationResponse<int>.Success(requested < available ? requested : available, Taken);
+            return OperationResponse<int>.Success(System.Math.Min(requested, available), Taken);
         }
 
         static bool IsUsable(float value)

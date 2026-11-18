@@ -1,0 +1,16 @@
+{
+  "name": "cannon-items",
+  "description": "The Hand Cannon items in the game are the approved ones (D-051 addendum 2, D-053): the cannon is 20 Iron + 5 Wood + 5 Resin at a Forge level 2 and never stacks, the Cannon Ball (2 Iron at a Forge level 2) never stacks, the Cannon Stock is a build piece in the hammer's KY-Items category of 10 Wood + 4 Resin at a Workbench; all three are listed in KydlCore's KY-Items registry",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_Cannon" }, "expect": "forge level 2, makes 1, enabled True: Iron x20, Wood x5, Resin x5", "label": "the cannon recipe in the game" },
+    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_Cannon" }, "expect": "stack 1, weight 20, type Material", "label": "the cannon never stacks" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_CannonBall" }, "expect": "forge level 2, makes 1, enabled True: Iron x2", "label": "the cannon ball recipe in the game" },
+    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_CannonBall" }, "expect": "stack 1, weight 3, type Material", "label": "the cannon ball never stacks" },
+    { "do": "hook", "name": "GunPowdered.pieceOf", "args": { "prefab": "GP_CannonStock" }, "expect": "category KY-Items, station piece_workbench, enabled True: Wood x10, Resin x4, in KY-Items True", "label": "the cannon stock is in the KY-Items build category and listed in KY-Items" },
+    { "do": "hook", "name": "GunPowdered.kyItemsListed", "contains": "all ", "label": "every item and piece of the mod is in the KY-Items list" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

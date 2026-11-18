@@ -1,0 +1,14 @@
+{
+  "params": [],
+  "actions": [
+    { "do": "give", "prefab": "GP_Cannon", "count": 1 },
+    { "do": "give", "prefab": "GP_Gunpowder", "count": 2 },
+    { "do": "give", "prefab": "GP_CannonBall", "count": 1 },
+    { "do": "give", "prefab": "Torch", "count": 1, "equip": true },
+    { "do": "hook", "name": "GunPowdered.cannonUse", "args": { "alt": false }, "expect": true, "label": "mount" },
+    { "do": "hook", "name": "GunPowdered.cannonUse", "args": { "alt": false }, "expect": true, "label": "load at the muzzle" },
+    { "do": "wait", "seconds": 4.6 },
+    { "do": "hook", "name": "GunPowdered.cannonState", "contains": "loaded True", "label": "loaded" }
+  ],
+  "asserts": []
+}

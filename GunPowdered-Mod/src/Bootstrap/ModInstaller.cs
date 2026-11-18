@@ -1,7 +1,9 @@
 using BepInEx.Configuration;
 using KydlCore.Common;
 using KydlCore.Core;
+using GunPowdered.Features.Cannon.Infrastructure;
 using GunPowdered.Features.Example.Infrastructure;
+using GunPowdered.Features.Grenades.Infrastructure;
 using GunPowdered.Features.Gunpowder.Infrastructure;
 using GunPowdered.Features.Guano.Infrastructure;
 using GunPowdered.Features.Saltpeter.Infrastructure;
@@ -43,6 +45,8 @@ namespace GunPowdered.Bootstrap
             Add(new SaltpeterFeature());
             Add(new SulfurFeature());
             Add(new GunpowderFeature());
+            Add(new GrenadesFeature());
+            Add(new CannonFeature());
             bool started = Refresh();
             ModLog.Verbose("ModInstaller: installed " + Features.Count + " feature(s), hub page " + page + ", started " + started);
             return page && started;

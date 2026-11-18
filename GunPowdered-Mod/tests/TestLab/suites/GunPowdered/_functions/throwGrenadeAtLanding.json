@@ -1,0 +1,12 @@
+{
+  "params": [ { "pitch": 30 } ],
+  "actions": [
+    { "do": "give", "prefab": "GP_SpikedGrenade", "count": 5, "equip": true },
+    { "do": "face", "dz": 10, "pitch": "{{pitch}}" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.arcShown", "contains": "landing at", "label": "a landing is drawn before the throw" },
+    { "do": "hook", "name": "GunPowdered.throwGrenade", "expect": true, "label": "the grenade is thrown through the game's attack" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.grenadeBlastSeen", "expect": true }, "timeout": 12 }
+  ],
+  "asserts": []
+}

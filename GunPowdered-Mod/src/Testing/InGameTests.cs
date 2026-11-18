@@ -2,6 +2,7 @@ using KydlCore.Common;
 using GunPowdered.Bootstrap;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
+using UnityEngine;
 
 namespace GunPowdered.Testing
 {
@@ -59,7 +60,7 @@ namespace GunPowdered.Testing
             {
                 var go = Jotunn.Managers.PrefabManager.Instance.GetPrefab(s.Id);
                 if (go == null) { bad.Append(s.Id).Append(" missing; "); continue; }
-                var model = go.transform.Find("gp_model");
+                var model = WorldModel(go.transform);
                 if (model == null) { bad.Append(s.Id).Append(" no gp_model; "); continue; }
                 var rends = model.GetComponentsInChildren<UnityEngine.Renderer>(true);
                 if (rends.Length == 0) { bad.Append(s.Id).Append(" no renderer; "); continue; }
@@ -75,6 +76,25 @@ namespace GunPowdered.Testing
             }
             ModLog.Verbose("InGameTests: World_BundleModels " + ok + " of " + ItemCatalog.All.Count + " ok");
             return bad.Length == 0 ? "PASS: " + ok + " prefabs use the bundle model" : "FAIL: " + bad;
+        }
+
+        // the prefab's own bundle model: a direct child gp_model, or one a feature moved under a pivot of its own (the Cannon Stock turns its look
+        // on "pivot", D-052; run cannonA showed the root-only lookup failing for it). The hand copy under "attach" does not count as the world model.
+        static UnityEngine.Transform WorldModel(UnityEngine.Transform root)
+        {
+            var direct = root.Find("gp_model");
+            if (direct != null) return direct;
+            foreach (UnityEngine.Transform child in root)
+            {
+                if (child.name == "attach") continue;
+                var nested = child.Find("gp_model");
+                if (nested != null)
+                {
+                    ModLog.Verbose("InGameTests: " + root.name + " carries its model under " + child.name);
+                    return nested;
+                }
+            }
+            return null;
         }
 
         /// The public API (GunPowderedApi) names prefabs that exist in the game: what another mod gets from it can be spawned and used.
@@ -96,6 +116,29 @@ namespace GunPowdered.Testing
             ModLog.Verbose("InGameTests: World_PowderMillNoRoof station " + (station != null ? "roof needed " + station.m_craftRequireRoof : "missing"));
             if (station == null) return "FAIL: GP_PowderMill has no CraftingStation";
             return station.m_craftRequireRoof ? "FAIL: the Powder Mill still needs a roof" : "PASS: the Powder Mill needs no roof";
+        }
+
+        /// The Spiked Grenade (D-047) is wired as approved: its own flight and blast prefabs are registered, the throw has no random spread, the blast
+        /// spares buildings, and the hand shows the clay pot.
+        static string World_GrenadeReady()
+        {
+            var scene = ZNetScene.instance;
+            GameObject item = scene != null ? scene.GetPrefab(GunPowderedPrefabs.SpikedGrenade) : null;
+            GameObject flight = scene != null ? scene.GetPrefab(Features.Grenades.Infrastructure.GrenadeSetup.ProjectileId) : null;
+            GameObject blast = scene != null ? scene.GetPrefab(Features.Grenades.Infrastructure.GrenadeSetup.ExplosionId) : null;
+            Attack attack = item != null ? item.GetComponent<ItemDrop>().m_itemData.m_shared.m_attack : null;
+            Aoe aoe = blast != null ? blast.GetComponent<Aoe>() : null;
+            Transform attach = item != null ? item.transform.Find("attach") : null;
+            ModLog.Verbose("InGameTests: World_GrenadeReady item " + (item != null) + ", flight " + (flight != null) + ", blast " + (blast != null)
+                + (attack != null ? ", accuracy " + attack.m_projectileAccuracy + "/" + attack.m_projectileAccuracyMin + ", projectile " + (attack.m_attackProjectile != null ? attack.m_attackProjectile.name : "none") : "")
+                + (aoe != null ? ", blast hits props " + aoe.m_hitProps + ", radius " + aoe.m_radius : ""));
+            if (item == null || flight == null || blast == null) return "FAIL: missing prefab - item " + (item != null) + ", flight " + (flight != null) + ", blast " + (blast != null);
+            if (attack.m_attackProjectile != flight) return "FAIL: the grenade throws " + (attack.m_attackProjectile != null ? attack.m_attackProjectile.name : "nothing") + ", not its own flight";
+            if (attack.m_projectileAccuracy > 0f || attack.m_projectileAccuracyMin > 0f || attack.m_randomVelocity) return "FAIL: the throw has random spread, it would not follow the arc";
+            if (aoe == null || aoe.m_hitProps || aoe.m_hitTerrain) return "FAIL: the blast " + (aoe == null ? "has no Aoe" : "hits buildings or terrain");
+            if (attack.m_recoilPushback <= 0f) return "FAIL: the throw has no recoil (D-045: every weapon has some)";
+            if (attach == null || attach.Find("gp_model") == null) return "FAIL: no clay pot in the hand model (attach)";
+            return "PASS: grenade, flight and blast ready (radius " + aoe.m_radius + " m, speed " + attack.m_projectileVel + " m/s, no spread, recoil " + attack.m_recoilPushback + ", buildings spared)";
         }
 
         /// The local player exists once a world is loaded (example of a World_ test; replace with the mod's own checks).

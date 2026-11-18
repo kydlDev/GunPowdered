@@ -11,8 +11,10 @@ namespace GunPowdered.Features.Guano.Domain
         /// <summary>The cave kind of a location (by its prefab name) or of its dungeon generator; null when guano never goes there.</summary>
         public static CaveKind? KindOf(string locationName, string generatorName)
         {
+            // Stryker disable String : any fallback text without the cave words gives the same answer as an empty name
             string loc = locationName ?? string.Empty;
             string gen = generatorName ?? string.Empty;
+            // Stryker restore String
             if (Contains(loc, "Sunken") || Contains(gen, "Sunken") || Contains(loc, "Hildir") || Contains(gen, "Hildir")) return null;
             if (loc.StartsWith("TrollCave", StringComparison.Ordinal)) return CaveKind.TrollCaveOrBurialChamber;
             if (loc.StartsWith("Crypt", StringComparison.Ordinal)) return CaveKind.TrollCaveOrBurialChamber;
@@ -25,6 +27,7 @@ namespace GunPowdered.Features.Guano.Domain
         /// <summary>Place on this entry only when the player goes IN (not out), the location is a guano cave, and nobody placed there before.</summary>
         public static bool ShouldPlace(bool goingIn, CaveKind? kind, bool alreadyPlaced) => goingIn && kind.HasValue && !alreadyPlaced;
 
+        // Stryker disable once StringMethod : LastIndexOf finds the part exactly when IndexOf does (only whether it is found is used)
         static bool Contains(string text, string part) => text.IndexOf(part, StringComparison.Ordinal) >= 0;
     }
 }

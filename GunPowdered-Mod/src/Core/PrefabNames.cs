@@ -17,5 +17,9 @@ namespace GunPowdered.Core
         public const string RainBarrel = "GP_RainBarrel";
         public const string GuanoDeposit = "GP_GuanoDeposit";
         public const string SulfurousMud = "GP_SulfurousMud";
+        public const string SpikedGrenade = "GP_SpikedGrenade";
+        public const string CannonBall = "GP_CannonBall";
+        public const string Cannon = "GP_Cannon";
+        public const string CannonStock = "GP_CannonStock";
     }
 }

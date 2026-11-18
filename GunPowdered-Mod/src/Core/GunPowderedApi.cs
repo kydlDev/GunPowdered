@@ -32,6 +32,7 @@ namespace GunPowdered
             public const string RainBarrel = Core.GunPowderedPrefabs.RainBarrel;
             public const string GuanoDeposit = Core.GunPowderedPrefabs.GuanoDeposit;
             public const string SulfurousMud = Core.GunPowderedPrefabs.SulfurousMud;
+            public const string SpikedGrenade = Core.GunPowderedPrefabs.SpikedGrenade;
         }
 
         /// <summary>Every prefab name the mod adds.</summary>

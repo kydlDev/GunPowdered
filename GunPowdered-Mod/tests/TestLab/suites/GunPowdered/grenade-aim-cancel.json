@@ -1,0 +1,22 @@
+{
+  "name": "grenade-aim-cancel",
+  "description": "Spiked Grenade aiming (D-050): the right button while aiming cancels the throw - nothing is thrown, the grenade stays, and letting go afterwards throws nothing",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "holdGrenadeFacing" },
+    { "do": "hook", "name": "GunPowdered.aimInput", "args": { "value": "hold" }, "label": "left button down" },
+    { "do": "wait", "seconds": 0.3 },
+    { "do": "hook", "name": "GunPowdered.aimState", "contains": "Aiming", "label": "aiming" },
+    { "do": "hook", "name": "GunPowdered.aimInput", "args": { "value": "hold+block" }, "label": "right button while aiming" },
+    { "do": "wait", "seconds": 0.3 },
+    { "do": "hook", "name": "GunPowdered.aimState", "contains": "Cancelled", "label": "the throw is cancelled" },
+    { "do": "hook", "name": "GunPowdered.aimInput", "args": { "value": "release" }, "label": "both buttons let go" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "hook", "name": "GunPowdered.aimState", "contains": "Idle", "label": "back to idle, no throw started" },
+    { "do": "hook", "name": "GunPowdered.grenadesLeft", "expect": 5, "label": "all five grenades are still there" },
+    { "do": "hook", "name": "GunPowdered.aimInput", "args": { "value": "off" }, "label": "real input again" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

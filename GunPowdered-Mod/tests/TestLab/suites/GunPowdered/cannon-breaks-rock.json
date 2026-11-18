@@ -1,0 +1,18 @@
+{
+  "name": "cannon-breaks-rock",
+  "description": "Hand Cannon (D-055 addendum 1): a rock on the line takes the ball as pickaxe damage, breaks, and still ends the flight",
+  "timeout": 90,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "cannonStock" },
+    { "do": "cannonLoaded" },
+    { "do": "hook", "name": "GunPowdered.cannonPlaceOnLine", "args": { "prefab": "rock2_heath", "distance": 15 }, "expect": "placed rock2_heath", "label": "a rock 15 m out" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "cannonFire30" },
+    { "do": "hook", "name": "GunPowdered.cannonShot", "contains": "stopped by rock2_heath", "label": "the rock stopped the ball" },
+    { "do": "hook", "name": "GunPowdered.cannonPassed", "expect": 0, "label": "nothing passed" },
+    { "do": "hook", "name": "GunPowdered.cannonPlacedLeft", "args": { "prefab": "rock2_heath" }, "expect": 0, "label": "the rock broke" },
+    { "do": "cannonClean" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

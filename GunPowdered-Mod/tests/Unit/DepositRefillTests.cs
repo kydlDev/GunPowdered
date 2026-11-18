@@ -30,6 +30,23 @@ namespace GunPowdered.Tests.Unit
             Assert.That(DepositRefill.SecondsLeft(emptiedAt, 0d, days, dayLength), Is.EqualTo(0d));
         }
 
+        [TestCase(true, 2, 2)]
+        [TestCase(true, 0, 0)]
+        [TestCase(true, -1, 0)]
+        [TestCase(false, 2, 0)]
+        [TestCase(false, 0, 0)]
+        public void Gives_OnlyAFullDepositRewards(bool full, int amount, int expected)
+        {
+            Assert.That(DepositRefill.Gives(full, amount), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ShowsModel_OnlyWhileFull()
+        {
+            Assert.That(DepositRefill.ShowsModel(true), Is.True);
+            Assert.That(DepositRefill.ShowsModel(false), Is.False);
+        }
+
         [Test]
         public void SecondsLeft_CountsDownAndStopsAtZero()
         {

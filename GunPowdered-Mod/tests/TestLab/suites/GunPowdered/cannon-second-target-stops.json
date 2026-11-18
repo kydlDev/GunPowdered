@@ -1,0 +1,21 @@
+{
+  "name": "cannon-second-target-stops",
+  "description": "Hand Cannon (D-054): the ball passes the first creature, the second one stops it; the second takes half the damage (lost momentum)",
+  "timeout": 90,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "cannonStock" },
+    { "do": "cannonLoaded" },
+    { "do": "hook", "name": "GunPowdered.cannonPlaceOnLine", "args": { "prefab": "Lox", "distance": 9 }, "expect": "placed Lox", "label": "a Lox 9 m out" },
+    { "do": "hook", "name": "GunPowdered.cannonPlaceOnLine", "args": { "prefab": "Lox", "distance": 17 }, "expect": "placed Lox", "label": "a second Lox 17 m out" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "cannonFire30" },
+    { "do": "hook", "name": "GunPowdered.cannonShot", "contains": "second target", "label": "the second Lox stopped the ball" },
+    { "do": "hook", "name": "GunPowdered.cannonPassed", "expect": 1, "label": "only one pass-through" },
+    { "do": "hook", "name": "GunPowdered.cannonDamages", "expect": "130.0, 65.0", "label": "full damage on the first, half on the second" },
+    { "do": "hook", "name": "GunPowdered.cannonHurt", "args": { "prefab": "Lox" }, "expect": 2, "label": "both are hurt" },
+    { "do": "hook", "name": "GunPowdered.cannonBallsAtStop", "expect": 1, "label": "the ball lies at the second Lox" },
+    { "do": "cannonClean" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

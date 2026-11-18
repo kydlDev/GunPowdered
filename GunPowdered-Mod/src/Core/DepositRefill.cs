@@ -25,6 +25,12 @@ namespace GunPowdered.Core
             return !double.IsNaN(at) && !double.IsNaN(now) && now >= at;
         }
 
+        /// <summary>Expected outcome: what a pick gives - the full amount from a full deposit, nothing from one that is not full (D-056 d: a deposit is hidden and gives nothing until its refill time).</summary>
+        internal static int Gives(bool full, int amount) => full && amount > 0 ? amount : 0;
+
+        /// <summary>Expected outcome: true when the deposit's model is shown (only while it is full).</summary>
+        internal static bool ShowsModel(bool full) => full;
+
         /// <summary>Expected outcome: seconds until the refill, 0 when already full or the input is bad.</summary>
         internal static double SecondsLeft(double emptiedAt, double now, double days, double dayLengthSeconds)
         {

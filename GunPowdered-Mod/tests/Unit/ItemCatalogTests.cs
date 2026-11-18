@@ -65,6 +65,33 @@ namespace GunPowdered.Tests.Unit
             }
 
         [Test]
+        public void HandCannon_Items_AreTheApprovedOnes()
+        {
+            // D-051 addendum 2: cannon 20 Iron + 5 Wood + 5 Resin at a Forge level 2; D-053: carried items never stack
+            var cannon = ItemCatalog.Cannon;
+            Assert.That(cannon.Station, Is.EqualTo(ItemCatalog.Forge));
+            Assert.That(cannon.StationLevel, Is.EqualTo(2));
+            Assert.That(cannon.Cost.Select(c => c.Prefab + ":" + c.Amount), Is.EquivalentTo(new[] { "Iron:20", "Wood:5", "Resin:5" }));
+            Assert.That(cannon.Stack, Is.EqualTo(1));
+            Assert.That(cannon.Kind, Is.EqualTo(ItemKind.Material), "a Material cannot be equipped, so it cannot be shot in the hand");
+
+            var ball = ItemCatalog.CannonBall;
+            Assert.That(ball.Station, Is.EqualTo(ItemCatalog.Forge));
+            Assert.That(ball.StationLevel, Is.EqualTo(2), "user 2026-11-18: the ball is made at a Forge level 2");
+            Assert.That(ball.Cost.Select(c => c.Prefab + ":" + c.Amount), Is.EquivalentTo(new[] { "Iron:2" }));
+            Assert.That(ball.Stack, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void CannonStock_IsABuildPiece_OfTenWoodAndFourResin_AtTheWorkbench()
+        {
+            var stock = ItemCatalog.CannonStock;
+            Assert.That(stock.Kind, Is.EqualTo(ItemKind.Piece));
+            Assert.That(stock.Station, Is.EqualTo(ItemCatalog.Workbench));
+            Assert.That(stock.Cost.Select(c => c.Prefab + ":" + c.Amount), Is.EquivalentTo(new[] { "Wood:10", "Resin:4" }));
+        }
+
+        [Test]
         public void ConstantsCoverEveryPrefabName()
         {
             var catalog = ItemCatalog.All.Select(i => i.Id).ToList();

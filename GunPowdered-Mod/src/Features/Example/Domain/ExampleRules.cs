@@ -15,8 +15,9 @@ namespace GunPowdered.Features.Example.Domain
         internal static OperationResponse<float> Decide(float requested)
         {
             if (float.IsNaN(requested) || float.IsInfinity(requested)) return OperationResponse<float>.Rejected(NotANumber);
-            float value = requested < Min ? Min : requested > Max ? Max : requested;
-            return OperationResponse<float>.Success(value, value == requested ? InRange : Clamped);
+            bool clamped = requested < Min || requested > Max;   // Sonar S1244: decided by the comparison, not by float equality
+            float value = System.Math.Max(Min, System.Math.Min(Max, requested));
+            return OperationResponse<float>.Success(value, clamped ? Clamped : InRange);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace GunPowdered.Features.Guano.Infrastructure
         /// <summary>Same, and says how many deposits the roll asked for (a planned deposit that found no floor is the difference).</summary>
         internal static int Place(CaveKind kind, IList<Vector3> spots, int seed, out int planned)
         {
-            var rng = new System.Random(seed ^ 0x6A09E667);
+            var rng = new SeededRandom(seed ^ 0x6A09E667);
             int[] plan = GuanoDepositRules.Plan(kind, () => rng.NextDouble());
             planned = plan.Length;
             if (plan.Length == 0 || spots.Count == 0) return 0;

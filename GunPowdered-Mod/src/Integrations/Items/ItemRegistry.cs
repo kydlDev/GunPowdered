@@ -7,9 +7,12 @@ using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
+using GunPowdered.Features.Cannon.Infrastructure;
+using GunPowdered.Features.Grenades.Infrastructure;
 using GunPowdered.Features.Gunpowder.Infrastructure;
 using GunPowdered.Features.Saltpeter.Infrastructure;
 using GunPowdered.Features.Water.Infrastructure;
+using GunPowdered.Integrations.KyRegistry;
 
 namespace GunPowdered.Integrations.Items
 {
@@ -66,7 +69,7 @@ namespace GunPowdered.Integrations.Items
                 try
                 {
                     // items first (the guano deposit points at the Bat Guano item), then pieces, then deposits
-                    foreach (var s in pair.Value.Specs) if (s.Kind == ItemKind.Material || s.Kind == ItemKind.Tool) CreateItem(s, pair.Value);
+                    foreach (var s in pair.Value.Specs) if (s.Kind == ItemKind.Material || s.Kind == ItemKind.Tool || s.Kind == ItemKind.Weapon) CreateItem(s, pair.Value);
                 }
                 catch (Exception e) { ModLog.Warn("ItemRegistry: creating the items of " + pair.Key + " failed (" + e.GetType().Name + "): " + e.Message); }
             }
@@ -81,6 +84,7 @@ namespace GunPowdered.Integrations.Items
                 catch (Exception e) { ModLog.Warn("ItemRegistry: creating the pieces of " + pair.Key + " failed (" + e.GetType().Name + "): " + e.Message); }
             }
             foreach (var pair in Sets) SetEnabled(pair.Key, IsOn(pair.Key));
+            KyItemsContributions.Start();          // the item viewer lists every item and piece of the mod
         }
 
         // The Enable switch of each feature, read at call time.
@@ -93,6 +97,8 @@ namespace GunPowdered.Integrations.Items
                 case "saltpeter": return ModSettings.FeatureOn(ModSettings.EnableSaltpeter);
                 case "sulfur": return ModSettings.FeatureOn(ModSettings.EnableSulfur);
                 case "gunpowder": return ModSettings.FeatureOn(ModSettings.EnableGunpowder);
+                case "grenades": return ModSettings.FeatureOn(ModSettings.EnableGrenades);
+                case "cannon": return ModSettings.FeatureOn(ModSettings.EnableCannon);
                 default: return false;
             }
         }
@@ -106,6 +112,7 @@ namespace GunPowdered.Integrations.Items
                 Description = s.Description,
                 Weight = s.Weight,
                 CraftingStation = s.HasRecipe ? s.Station : null,
+                MinStationLevel = s.StationLevel,
                 Amount = Yield(s),
                 Requirements = ToRequirements(cost)
             };
@@ -118,7 +125,9 @@ namespace GunPowdered.Integrations.Items
             Sprite icon = BundleVisuals.Icon(s.Id);
             if (icon != null) shared.m_icons = new[] { icon };
             if (item.Recipe != null && item.Recipe.Recipe != null) set.Recipes.Add(item.Recipe.Recipe);
-            ModLog.Verbose("ItemRegistry: item " + s.Id + " cloned from " + s.CloneOf + ", stack " + s.Stack + ", recipe " + (item.Recipe != null));
+            if (s.Id == GunPowderedPrefabs.SpikedGrenade) GrenadeSetup.Configure(item.ItemPrefab);
+            if (s.Id == GunPowderedPrefabs.CannonBall) CannonSetup.ConfigureBall(item.ItemPrefab);
+            ModLog.Verbose("ItemRegistry: item " + s.Id + " cloned from " + s.CloneOf + ", stack " + s.Stack + ", recipe " + (item.Recipe != null) + " at station level " + s.StationLevel);
         }
 
         static void CreatePiece(ItemSpec s, FeatureSet set)
@@ -128,7 +137,7 @@ namespace GunPowdered.Integrations.Items
                 Name = s.Name,
                 Description = s.Description,
                 PieceTable = "Hammer",
-                Category = s.Id == GunPowderedPrefabs.RainBarrel ? "Misc" : "Crafting",
+                Category = s.Id == GunPowderedPrefabs.CannonStock ? KyCategory.For(s.Id) : s.Id == GunPowderedPrefabs.RainBarrel ? "Misc" : "Crafting",
                 CraftingStation = ItemCatalog.Workbench,
                 Requirements = ToRequirements(Costs(s))
             };
@@ -139,6 +148,7 @@ namespace GunPowdered.Integrations.Items
             if (station != null) station.m_name = s.Name;          // the station's own name must differ from the workbench or recipes mix up
             AddBehaviour(s, piece.PiecePrefab);
             BundleVisuals.Apply(s.Id, piece.PiecePrefab);
+            if (s.Id == GunPowderedPrefabs.CannonStock) CannonSetup.ConfigureStock(piece.PiecePrefab);     // needs the bundle look in place
             Sprite icon = BundleVisuals.Icon(s.Id);
             if (icon != null) piece.Piece.m_icon = icon;
             set.Pieces.Add(piece.Piece);
@@ -162,6 +172,12 @@ namespace GunPowdered.Integrations.Items
                 CraftingStation station = prefab.GetComponent<CraftingStation>();
                 if (station != null) station.m_craftRequireRoof = false;
                 ModLog.Verbose("ItemRegistry: Powder Mill needs no roof (station " + (station != null ? "found" : "missing") + ")");
+            }
+            else if (s.Id == GunPowderedPrefabs.CannonStock)
+            {
+                // cloned from the chest: the stock holds no items, the cannon is mounted by interacting (CannonMount, added by CannonSetup after the bundle look)
+                Container chest = prefab.GetComponent<Container>();
+                if (chest != null) UnityEngine.Object.DestroyImmediate(chest);
             }
             else if (s.Id == GunPowderedPrefabs.RainBarrel)
             {
@@ -198,11 +214,16 @@ namespace GunPowdered.Integrations.Items
                 pick.m_hideWhenPicked = null;
             }
             BundleVisuals.Apply(s.Id, prefab);
+            // a deposit is hidden while it is not full (D-056 d): the Pickable hides its model when picked and shows it again at the refill
+            Transform model = prefab.transform.Find("gp_model");
+            if (pick != null && model != null) pick.m_hideWhenPicked = model.gameObject;
             PrefabManager.Instance.AddPrefab(new CustomPrefab(prefab, true));
             ModLog.Verbose("ItemRegistry: deposit " + s.Id + " cloned from " + s.CloneOf + ", respawn " + (pick != null ? pick.m_respawnTimeMinutes.ToString("0.#") + " min" : "no Pickable"));
         }
 
         // The Powder Mill reads its numbers from the Tunables (D-014); everything else uses the catalog values.
+        internal static IList<CostLine> CostsOf(ItemSpec s) => Costs(s);
+
         static IList<CostLine> Costs(ItemSpec s)
         {
             if (s.Id != GunPowderedPrefabs.Gunpowder) return s.Cost;
@@ -213,6 +234,8 @@ namespace GunPowdered.Integrations.Items
                 new CostLine(ItemCatalog.Sulfur, ModSettings.MillSulfur.Value)
             };
         }
+
+        internal static int YieldOf(ItemSpec s) => Yield(s);
 
         static int Yield(ItemSpec s)
         {

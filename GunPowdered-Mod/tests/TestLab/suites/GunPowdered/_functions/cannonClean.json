@@ -1,0 +1,9 @@
+{
+  "params": [],
+  "actions": [
+    { "do": "hook", "name": "GunPowdered.cannonCleanup", "contains": "cleaned", "label": "stock and targets removed" },
+    { "do": "console", "command": "killall" },
+    { "do": "console", "command": "removedrops" }
+  ],
+  "asserts": []
+}

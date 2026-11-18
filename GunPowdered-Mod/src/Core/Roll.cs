@@ -18,7 +18,9 @@ namespace GunPowdered.Core
         /// </summary>
         internal static int IntInclusive(int min, int max, double roll01)
         {
+            // Stryker disable once Equality : max == min gives min on both paths (the formula adds (int)(r * 1) = 0 for every r below 1)
             if (max <= min) return min;
+            // Stryker disable once Equality : roll01 == 0 maps to 0 on both paths
             double clamped = roll01 < 0d ? 0d : roll01 >= 1d ? 0.9999999999d : roll01;
             return min + (int)(clamped * (max - min + 1));
         }

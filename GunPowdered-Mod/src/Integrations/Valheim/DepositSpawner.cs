@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GunPowdered.Core;
 using KydlCore.Common;
 using UnityEngine;
 
@@ -55,7 +56,7 @@ namespace GunPowdered.Integrations.Valheim
         }
 
         /// <summary>A random point on the ring [minR, maxR] around the centre, from a seeded source of numbers.</summary>
-        internal static Vector3 OnRing(Vector3 centre, float minR, float maxR, System.Random rng)
+        internal static Vector3 OnRing(Vector3 centre, float minR, float maxR, SeededRandom rng)
         {
             float angle = (float)(rng.NextDouble() * Math.PI * 2d);
             float r = minR + (float)rng.NextDouble() * (maxR - minR);
@@ -63,7 +64,7 @@ namespace GunPowdered.Integrations.Valheim
         }
 
         /// <summary>Picks the given number of distinct entries (or all when there are fewer) from a list, using the seeded source.</summary>
-        internal static List<T> Pick<T>(IList<T> source, int count, System.Random rng)
+        internal static List<T> Pick<T>(IList<T> source, int count, SeededRandom rng)
         {
             var pool = new List<T>(source);
             var picked = new List<T>();

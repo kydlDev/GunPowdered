@@ -70,7 +70,9 @@ namespace GunPowdered.Integrations.HarmonyPatches
                                        : SulfurRules.Amount(SulfurSource.SulfurousMud, () => UnityEngine.Random.value);
                         view.GetZDO().Set(DepositSpawner.KeyAmount, amount);
                     }
-                    __instance.m_amount = amount;
+                    bool full = !view.GetZDO().GetBool(ZDOVars.s_picked);           // a pick on a deposit that is not full gives nothing
+                    __instance.m_amount = DepositRefill.Gives(full, amount);
+                    if (!full) ModLog.Decision("deposit picked", "nothing, not full", Utils.GetPrefabName(__instance.gameObject));
                     ModLog.Decision("deposit picked", amount + " " + (guano ? "Bat Guano" : "Sulfur"), Utils.GetPrefabName(__instance.gameObject) + " at " + __instance.transform.position.ToString("0") + ", extra drops " + (__instance.m_extraDrops != null && __instance.m_extraDrops.m_drops != null ? __instance.m_extraDrops.m_drops.Count : 0));
                 }
                 catch (Exception e)

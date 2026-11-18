@@ -54,8 +54,8 @@ namespace GunPowdered.Features.Saltpeter.Domain
         /// <summary>How many full batches the loaded guano and water make. Expected outcome: 0 or more; never more than either input allows.</summary>
         internal static int Batches(int guano, int water, int guanoPerBatch, int waterPerBatch)
         {
-            if (guano < 0 || water < 0 || guanoPerBatch < 1 || waterPerBatch < 1) return 0;
-            return Math.Min(guano / guanoPerBatch, water / waterPerBatch);
+            if (guanoPerBatch < 1 || waterPerBatch < 1) return 0;
+            return Math.Max(0, Math.Min(guano / guanoPerBatch, water / waterPerBatch));   // a negative amount (bad input) gives 0
         }
 
         /// <summary>Saltpeter for a number of batches. Expected outcome: batches x perBatch, 0 for no batches or a negative setting.</summary>
@@ -80,7 +80,7 @@ namespace GunPowdered.Features.Saltpeter.Domain
         internal static double SecondsLeft(double startSeconds, double nowSeconds, double dayLengthSeconds, double days)
         {
             double left = ReadyAt(startSeconds, dayLengthSeconds, days) - nowSeconds;
-            return left > 0d ? left : 0d;
+            return Math.Max(0d, left);
         }
     }
 }

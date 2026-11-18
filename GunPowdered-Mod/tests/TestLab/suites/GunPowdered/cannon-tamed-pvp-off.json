@@ -1,0 +1,20 @@
+{
+  "name": "cannon-tamed-pvp-off",
+  "description": "Hand Cannon (D-055 addendum 2): with PvP off the ball flies through a tamed animal (no hit, no pass)",
+  "timeout": 90,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "cannonStock" },
+    { "do": "cannonLoaded" },
+    { "do": "hook", "name": "GunPowdered.setPvp", "args": { "on": false }, "expect": false, "label": "PvP is off" },
+    { "do": "hook", "name": "GunPowdered.cannonPlaceOnLine", "args": { "prefab": "Lox", "distance": 14 }, "expect": "placed Lox", "label": "a Lox 14 m out" },
+    { "do": "hook", "name": "GunPowdered.cannonTame", "args": { "prefab": "Lox" }, "expect": 1, "label": "the Lox is tamed" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "cannonFire30" },
+    { "do": "hook", "name": "GunPowdered.cannonHurt", "args": { "prefab": "Lox" }, "expect": 0, "label": "the tamed Lox is not hurt" },
+    { "do": "hook", "name": "GunPowdered.cannonPassed", "expect": 0, "label": "the ball passed nothing" },
+    { "do": "hook", "name": "GunPowdered.cannonLandedNear", "args": { "distance": 29.5, "tolerance": 2.5 }, "expect": true, "label": "the ball flew on to the aimed 30 m" },
+    { "do": "cannonClean" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

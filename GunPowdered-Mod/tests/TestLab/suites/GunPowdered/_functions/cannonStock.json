@@ -1,0 +1,8 @@
+{
+  "params": [],
+  "actions": [
+    { "do": "grenadeArena" },
+    { "do": "hook", "name": "GunPowdered.cannonSpawnStock", "args": { "dz": 2 }, "contains": "stock at", "label": "a Cannon Stock stands 2 m in front" }
+  ],
+  "asserts": []
+}

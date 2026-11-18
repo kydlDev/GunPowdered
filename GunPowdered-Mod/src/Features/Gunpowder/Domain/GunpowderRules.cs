@@ -13,8 +13,8 @@ namespace GunPowdered.Features.Gunpowder.Domain
         /// <summary>How many full batches the loaded ingredients make. Expected outcome: 0 or more; limited by the scarcest ingredient; 0 for a bad (below 1) recipe amount.</summary>
         internal static int Batches(int saltpeter, int charcoal, int sulfur, int saltpeterPer, int charcoalPer, int sulfurPer)
         {
-            if (saltpeter < 0 || charcoal < 0 || sulfur < 0 || saltpeterPer < 1 || charcoalPer < 1 || sulfurPer < 1) return 0;
-            return Math.Min(saltpeter / saltpeterPer, Math.Min(charcoal / charcoalPer, sulfur / sulfurPer));
+            if (saltpeterPer < 1 || charcoalPer < 1 || sulfurPer < 1) return 0;
+            return Math.Max(0, Math.Min(saltpeter / saltpeterPer, Math.Min(charcoal / charcoalPer, sulfur / sulfurPer)));   // a negative amount (bad input) gives 0
         }
 
         /// Degrees per second the sweep arm turns while the mill works, and how long after the last "in use" stamp it keeps turning (D-026).

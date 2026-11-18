@@ -1,0 +1,11 @@
+{
+  "params": [],
+  "actions": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.removeStationsNearby", "contains": "removed", "label": "no station piece of an earlier test stands in the line of fire" },
+    { "do": "give", "prefab": "GP_SpikedGrenade", "count": 5, "equip": true },
+    { "do": "face", "dz": 10, "pitch": 30 },
+    { "do": "wait", "seconds": 1 }
+  ],
+  "asserts": []
+}
