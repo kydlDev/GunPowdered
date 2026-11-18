@@ -3,9 +3,24 @@ guid: 1e1884b0de926d74f83f0e8f3cb8ac8a
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: harness_brass
+    second: {fileID: 2100000, guid: e1c2b2dccee1a4d42bf506d46eb12226, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: harness_iron
+    second: {fileID: 2100000, guid: a383e63cfa33ad64ebbf8dee4c0c6fa4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: harness_leather
+    second: {fileID: 2100000, guid: 6361647f85be6a2488639e18cca50511, type: 2}
   materials:
-    materialImportMode: 2
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1

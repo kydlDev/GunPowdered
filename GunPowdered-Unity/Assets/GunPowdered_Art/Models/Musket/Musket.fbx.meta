@@ -3,9 +3,29 @@ guid: 3d4dd250bec8d0b4898e41b4d3f63855
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: musket_brass
+    second: {fileID: 2100000, guid: 3d6e741fb8bd54049855b29777e27989, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: musket_iron
+    second: {fileID: 2100000, guid: 0da814de72219754ab8386cc391bc2e1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: musket_steel
+    second: {fileID: 2100000, guid: 2e50903db9304c148a21ea489215816c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: musket_wood
+    second: {fileID: 2100000, guid: 9465fe9a91b31fa419bdf21438baf4ab, type: 2}
   materials:
-    materialImportMode: 2
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1

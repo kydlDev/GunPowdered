@@ -3,9 +3,39 @@ guid: e6d9c3bd664a493409fcc6cfd21eb08a
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: dyn_band
+    second: {fileID: 2100000, guid: 13fc02c15acba4547ab6a9560425b42f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: dyn_cap
+    second: {fileID: 2100000, guid: 2964d691f6fe7204697f3ff03aa7ffd0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: dyn_fuse
+    second: {fileID: 2100000, guid: 68b84cc5825ee9c46a8ab4c1ead000f9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: dyn_iron
+    second: {fileID: 2100000, guid: 898a285b0d5535c4da9510e33ee40334, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: dyn_red
+    second: {fileID: 2100000, guid: 7022ee0b60d08254890d0dcd87985a30, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: dyn_tip
+    second: {fileID: 2100000, guid: 55bdf5ce630f7074dbbfa4186743daee, type: 2}
   materials:
-    materialImportMode: 2
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1

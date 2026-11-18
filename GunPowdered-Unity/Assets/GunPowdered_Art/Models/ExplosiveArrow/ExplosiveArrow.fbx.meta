@@ -3,9 +3,49 @@ guid: 2a02473db76e81d45bef6b96ee9b1b56
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: arrow_ash
+    second: {fileID: 2100000, guid: 3aa71e72f79b47a409290052d354f6b6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: arrow_blackmetal
+    second: {fileID: 2100000, guid: 38e8326b557189b4388a28ce4f604080, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: arrow_feather
+    second: {fileID: 2100000, guid: b1063e535604fc24389719e5386bd60c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: arrow_horn
+    second: {fileID: 2100000, guid: c90c2ce8be1434940b57ab07a7573823, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: arrow_leather
+    second: {fileID: 2100000, guid: da2a6471fc2bb9e479ac8d819a5d4aa8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: arrow_powder
+    second: {fileID: 2100000, guid: d1f87c9c68d16e14dafd98bb702dbb3b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: arrow_twine
+    second: {fileID: 2100000, guid: ab832445b45bfda4f96a7f57ee9838eb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: arrow_wax
+    second: {fileID: 2100000, guid: c4d3765c86c0ab34cbdee704136da44a, type: 2}
   materials:
-    materialImportMode: 2
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1

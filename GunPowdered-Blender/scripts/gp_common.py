@@ -42,8 +42,27 @@ def put(name, bm, material, matrix=Matrix.Identity(4), smooth=True):
     me.materials.append(material)
     for p in me.polygons:
         p.use_smooth = smooth
+    box_uv(me, matrix)
     o.matrix_world = matrix
     return o
+
+
+def box_uv(me, matrix=Matrix.Identity(4), tile_cap=0.5):
+    """Cube-projection UVs (D-029): one texture tile = min(biggest size of the part, 0.5 m), so the small procedural textures repeat evenly."""
+    co = [matrix @ v.co for v in me.vertices]
+    if not co:
+        return
+    size = max(max(c[i] for c in co) - min(c[i] for c in co) for i in range(3))
+    tile = max(min(size, tile_cap), 0.03)
+    uv = me.uv_layers.new(name="UVMap")
+    m3 = matrix.to_3x3()
+    for p in me.polygons:
+        n = m3 @ p.normal
+        ax = max(range(3), key=lambda i: abs(n[i]))
+        ui, vi = ((1, 2), (0, 2), (0, 1))[ax]
+        for li in p.loop_indices:
+            c = co[me.loops[li].vertex_index]
+            uv.data[li].uv = (c[ui] / tile, c[vi] / tile)
 
 
 def lathe(bm, profile, matrix=Matrix.Identity(4), segs=32, caps=True):

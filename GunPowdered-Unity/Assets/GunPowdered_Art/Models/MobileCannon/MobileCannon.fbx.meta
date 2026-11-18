@@ -3,9 +3,29 @@ guid: 0c2f0486de5717641b4225b8cdc91b8b
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ashwood
+    second: {fileID: 2100000, guid: 4394d3d5d4a694549a651368bd1e71c7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: carriage_blackiron
+    second: {fileID: 2100000, guid: 529b55cce2e2f2043929abf282ed5407, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: flametal
+    second: {fileID: 2100000, guid: db31ac2d757a0b445b0d8ba87559d9e6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: flametal_glow
+    second: {fileID: 2100000, guid: dd782f06e11e1eb4b89097dd6c4944b4, type: 2}
   materials:
-    materialImportMode: 2
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1
