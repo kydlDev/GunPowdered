@@ -33,6 +33,14 @@ namespace GunPowdered
             public const string GuanoDeposit = Core.GunPowderedPrefabs.GuanoDeposit;
             public const string SulfurousMud = Core.GunPowderedPrefabs.SulfurousMud;
             public const string SpikedGrenade = Core.GunPowderedPrefabs.SpikedGrenade;
+            public const string CannonBall = Core.GunPowderedPrefabs.CannonBall;
+            public const string Cannon = Core.GunPowderedPrefabs.Cannon;
+            public const string CannonStock = Core.GunPowderedPrefabs.CannonStock;
+            public const string Musket = Core.GunPowderedPrefabs.Musket;
+            public const string ExplosiveArrow = Core.GunPowderedPrefabs.ExplosiveArrow;
+            public const string Dynamite = Core.GunPowderedPrefabs.Dynamite;
+            public const string MobileCannon = Core.GunPowderedPrefabs.MobileCannon;
+            public const string AsksvinHarness = Core.GunPowderedPrefabs.AsksvinHarness;
         }
 
         /// <summary>Every prefab name the mod adds.</summary>

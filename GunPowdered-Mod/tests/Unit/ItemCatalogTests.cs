@@ -91,6 +91,46 @@ namespace GunPowdered.Tests.Unit
             Assert.That(stock.Cost.Select(c => c.Prefab + ":" + c.Amount), Is.EquivalentTo(new[] { "Wood:10", "Resin:4" }));
         }
 
+        static string[] Cost(ItemSpec s) { return s.Cost.Select(c => c.Prefab + ":" + c.Amount).ToArray(); }
+
+        [Test]
+        public void Musket_IsAnIronItem_AtTheForgeLevel2()
+        {
+            var s = ItemCatalog.Musket;
+            Assert.That(s.Kind, Is.EqualTo(ItemKind.Material));
+            Assert.That(s.Stack, Is.EqualTo(1));
+            Assert.That(s.Station, Is.EqualTo(ItemCatalog.Forge));
+            Assert.That(Cost(s), Is.EquivalentTo(new[] { "Iron:15", "Wood:10", "Bronze:2" }));
+        }
+
+        [Test]
+        public void ExplosiveArrow_IsCraftedTenAtATime_AtForgeLevel4_WithGunpowder()
+        {
+            var s = ItemCatalog.ExplosiveArrow;
+            Assert.That(s.Stack, Is.EqualTo(50));
+            Assert.That(s.Yield, Is.EqualTo(10));
+            Assert.That(Cost(s), Is.EquivalentTo(new[] { "Wood:8", "BlackMetal:1", "Feathers:2", "GP_Gunpowder:2" }));
+        }
+
+        [Test]
+        public void Dynamite_StacksTwenty_AndNeedsGunpowder()
+        {
+            var s = ItemCatalog.Dynamite;
+            Assert.That(s.Stack, Is.EqualTo(20));
+            Assert.That(s.Yield, Is.EqualTo(5));
+            Assert.That(Cost(s), Is.EquivalentTo(new[] { "Iron:2", "GP_Gunpowder:5", "Resin:1" }));
+        }
+
+        [Test]
+        public void MobileCannon_IsABuildPiece_AndTheHarnessAnItem()
+        {
+            Assert.That(ItemCatalog.MobileCannon.Kind, Is.EqualTo(ItemKind.Piece));
+            Assert.That(ItemCatalog.MobileCannon.Station, Is.EqualTo(ItemCatalog.Forge));
+            Assert.That(Cost(ItemCatalog.MobileCannon), Is.EquivalentTo(new[] { "FlametalNew:20", "Blackwood:30", "Iron:10" }));
+            Assert.That(ItemCatalog.AsksvinHarness.Kind, Is.EqualTo(ItemKind.Material));
+            Assert.That(Cost(ItemCatalog.AsksvinHarness), Is.EquivalentTo(new[] { "LeatherScraps:10", "Chain:3", "Bronze:2" }));
+        }
+
         [Test]
         public void ConstantsCoverEveryPrefabName()
         {

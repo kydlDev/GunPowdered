@@ -1,0 +1,20 @@
+{
+  "name": "weapons-items",
+  "description": "The five weapon items in the game are the proposed ones (D-076): Iron Musket (Forge level 2, never stacks), Explosive Arrow (Forge level 4, 10 per craft, stacks of 50), Dynamite (Forge level 2, 5 per craft, stacks of 20), the Asksvin Harness (Workbench level 2, never stacks) and the Mobile Cannon build piece in the KY-Items category beside a Forge; all of them are listed in KydlCore's KY-Items registry",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_Musket" }, "expect": "forge level 2, makes 1, enabled True: Iron x15, Wood x10, Bronze x2", "label": "the musket recipe in the game" },
+    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_Musket" }, "expect": "stack 1, weight 4, type Material", "label": "the musket never stacks" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_ExplosiveArrow" }, "expect": "forge level 4, makes 10, enabled True: Wood x8, BlackMetal x1, Feathers x2, GP_Gunpowder x2", "label": "the explosive arrow recipe in the game" },
+    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_ExplosiveArrow" }, "expect": "stack 50, weight 0.1, type Material", "label": "explosive arrows stack to 50" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_Dynamite" }, "expect": "forge level 2, makes 5, enabled True: Iron x2, GP_Gunpowder x5, Resin x1", "label": "the dynamite recipe in the game" },
+    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_Dynamite" }, "expect": "stack 20, weight 0.5, type Material", "label": "dynamite stacks to 20" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_AsksvinHarness" }, "expect": "piece_workbench level 2, makes 1, enabled True: LeatherScraps x10, Chain x3, Bronze x2", "label": "the harness recipe in the game" },
+    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_AsksvinHarness" }, "expect": "stack 1, weight 5, type Material", "label": "the harness never stacks" },
+    { "do": "hook", "name": "GunPowdered.pieceOf", "args": { "prefab": "GP_MobileCannon" }, "expect": "category KY-Items, station forge, enabled True: FlametalNew x20, Blackwood x30, Iron x10, in KY-Items True", "label": "the mobile cannon is in the KY-Items build category and listed in KY-Items" },
+    { "do": "hook", "name": "GunPowdered.kyItemsListed", "contains": "all ", "label": "every item and piece of the mod is in the KY-Items list" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

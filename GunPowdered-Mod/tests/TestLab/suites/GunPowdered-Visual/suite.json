@@ -62,6 +62,30 @@
         },
         {
             "guid": "com.kydldev.GunPowdered",
+            "section": "General",
+            "key": "Enable Musket",
+            "value": "true"
+        },
+        {
+            "guid": "com.kydldev.GunPowdered",
+            "section": "General",
+            "key": "Enable Explosive Arrows",
+            "value": "true"
+        },
+        {
+            "guid": "com.kydldev.GunPowdered",
+            "section": "General",
+            "key": "Enable Dynamite",
+            "value": "true"
+        },
+        {
+            "guid": "com.kydldev.GunPowdered",
+            "section": "General",
+            "key": "Enable Mobile Cannon",
+            "value": "true"
+        },
+        {
+            "guid": "com.kydldev.GunPowdered",
             "section": "DebugLog",
             "key": "Enable",
             "value": "true"

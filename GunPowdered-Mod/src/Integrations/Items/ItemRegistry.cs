@@ -99,6 +99,10 @@ namespace GunPowdered.Integrations.Items
                 case "gunpowder": return ModSettings.FeatureOn(ModSettings.EnableGunpowder);
                 case "grenades": return ModSettings.FeatureOn(ModSettings.EnableGrenades);
                 case "cannon": return ModSettings.FeatureOn(ModSettings.EnableCannon);
+                case "musket": return ModSettings.FeatureOn(ModSettings.EnableMusket);
+                case "arrows": return ModSettings.FeatureOn(ModSettings.EnableExplosiveArrows);
+                case "dynamite": return ModSettings.FeatureOn(ModSettings.EnableDynamite);
+                case "mobilecannon": return ModSettings.FeatureOn(ModSettings.EnableMobileCannon);
                 default: return false;
             }
         }
@@ -137,8 +141,8 @@ namespace GunPowdered.Integrations.Items
                 Name = s.Name,
                 Description = s.Description,
                 PieceTable = "Hammer",
-                Category = s.Id == GunPowderedPrefabs.CannonStock ? KyCategory.For(s.Id) : s.Id == GunPowderedPrefabs.RainBarrel ? "Misc" : "Crafting",
-                CraftingStation = ItemCatalog.Workbench,
+                Category = s.Id == GunPowderedPrefabs.CannonStock || s.Id == GunPowderedPrefabs.MobileCannon ? KyCategory.For(s.Id) : s.Id == GunPowderedPrefabs.RainBarrel ? "Misc" : "Crafting",
+                CraftingStation = s.HasRecipe ? s.Station : ItemCatalog.Workbench,           // the Mobile Cannon is built beside a Forge, the other pieces at a Workbench
                 Requirements = ToRequirements(Costs(s))
             };
             var piece = new CustomPiece(s.Id, s.CloneOf, cfg);
@@ -173,9 +177,10 @@ namespace GunPowdered.Integrations.Items
                 if (station != null) station.m_craftRequireRoof = false;
                 ModLog.Verbose("ItemRegistry: Powder Mill needs no roof (station " + (station != null ? "found" : "missing") + ")");
             }
-            else if (s.Id == GunPowderedPrefabs.CannonStock)
+            else if (s.Id == GunPowderedPrefabs.CannonStock || s.Id == GunPowderedPrefabs.MobileCannon)
             {
-                // cloned from the chest: the stock holds no items, the cannon is mounted by interacting (CannonMount, added by CannonSetup after the bundle look)
+                // cloned from the chest: the stock holds no items, the cannon is mounted by interacting (CannonMount, added by CannonSetup after the bundle look);
+                // the Mobile Cannon holds none either (its behaviour comes with the T-009f stages)
                 Container chest = prefab.GetComponent<Container>();
                 if (chest != null) UnityEngine.Object.DestroyImmediate(chest);
             }

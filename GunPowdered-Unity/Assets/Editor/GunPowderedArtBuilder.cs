@@ -182,6 +182,7 @@ public static class GunPowderedArtBuilder
         string p = Art + "/Models/" + model + "/" + model + ".fbx";
         var imp = (ModelImporter)AssetImporter.GetAtPath(p);
         imp.materialImportMode = ModelImporterMaterialImportMode.ImportStandard;
+        imp.isReadable = true;                                                 // the game's navmesh builder needs readable meshes on pieces (like the older models)
         var go = AssetDatabase.LoadAssetAtPath<GameObject>(p);
         var seen = new HashSet<string>();
         foreach (var r in go.GetComponentsInChildren<Renderer>(true))
@@ -213,12 +214,10 @@ public static class GunPowderedArtBuilder
         model.name = "model";
         model.transform.SetParent(root.transform, false);
         var b = Measure(root);
-        if (it.Prefab != "GP_AsksvinHarness")
-        {
-            var box = root.AddComponent<BoxCollider>();
-            box.center = root.transform.InverseTransformPoint(b.center);
-            box.size = b.size;
-        }
+        // every prefab gets the box: the mod copies it onto the item, and an item without one falls through the ground when dropped
+        var box = root.AddComponent<BoxCollider>();
+        box.center = root.transform.InverseTransformPoint(b.center);
+        box.size = b.size;
         if (it.Rigid) { var rb = root.AddComponent<Rigidbody>(); rb.mass = it.Mass; }
         string path = Art + "/Prefabs/" + it.Prefab + ".prefab";
         PrefabUtility.SaveAsPrefabAsset(root, path);

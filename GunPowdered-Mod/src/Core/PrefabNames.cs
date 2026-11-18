@@ -21,5 +21,10 @@ namespace GunPowdered.Core
         public const string CannonBall = "GP_CannonBall";
         public const string Cannon = "GP_Cannon";
         public const string CannonStock = "GP_CannonStock";
+        public const string Musket = "GP_Musket";
+        public const string ExplosiveArrow = "GP_ExplosiveArrow";
+        public const string Dynamite = "GP_Dynamite";
+        public const string MobileCannon = "GP_MobileCannon";
+        public const string AsksvinHarness = "GP_AsksvinHarness";
     }
 }

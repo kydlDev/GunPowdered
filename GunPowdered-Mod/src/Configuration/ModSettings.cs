@@ -16,7 +16,7 @@ namespace GunPowdered.Configuration
         // [General]
         public static ConfigEntry<bool> EnableMod;
         // One functionality = one [General] switch "Enable <Category>" (PROJECT_RULES 11): on only when EnableMod AND its own switch are on
-        public static ConfigEntry<bool> EnableGuano, EnableWater, EnableSaltpeter, EnableSulfur, EnableGunpowder, EnableGrenades, EnableCannon;
+        public static ConfigEntry<bool> EnableGuano, EnableWater, EnableSaltpeter, EnableSulfur, EnableGunpowder, EnableGrenades, EnableCannon, EnableMusket, EnableExplosiveArrows, EnableDynamite, EnableMobileCannon;
         // no MenuKey: the mod's menu is a set of tabs in the KY hub (F6, KydlCore), see src/Presentation/Hub/Registration/HubTabs.cs
         // One functionality = one [General] switch "Enable <Category>" (PROJECT_RULES 11), only when the mod has several of them, e.g.:
         //   public static ConfigEntry<bool> ColoursEnable;   // bound in General as "Enable Colours" with the value of the old Colours Enable entry;  on only when On && ColoursEnable.Value
@@ -75,6 +75,14 @@ namespace GunPowdered.Configuration
                 "The Spiked Grenade and its throwing arc. Off: grenades cannot be crafted and no arc is drawn; grenades you already have stay.");
             EnableCannon = c.Bind("General", "Enable Cannon", true,
                 "The Hand Cannon, its wooden Cannon Stock and the Cannon Ball. Off: cannons and stocks cannot be crafted or built and mounted cannons do not fire; what you already own or built stays.");
+            EnableMusket = c.Bind("General", "Enable Musket", true,
+                "The Iron Musket. Off: muskets cannot be crafted; muskets you already own stay.");
+            EnableExplosiveArrows = c.Bind("General", "Enable Explosive Arrows", true,
+                "The Explosive Arrow. Off: explosive arrows cannot be crafted; arrows you already own stay.");
+            EnableDynamite = c.Bind("General", "Enable Dynamite", true,
+                "Dynamite. Off: dynamite cannot be crafted; dynamite you already own stays.");
+            EnableMobileCannon = c.Bind("General", "Enable Mobile Cannon", true,
+                "The Mobile Cannon and the Asksvin Harness. Off: they cannot be crafted or built; what you already own or built stays.");
             DebugLog = c.Bind("DebugLog", "Enable", false,
                 "Writes detailed lines about everything the mod does to the BepInEx log (for bug reports). Leave off while playing normally.");
 
@@ -83,7 +91,8 @@ namespace GunPowdered.Configuration
 
             EnableMod.SettingChanged += (s, e) => ModLog.Info("Config: Enable Mod = " + EnableMod.Value + (EnableMod.Value ? ", the mod is on" : ", the mod is inert (no effects)"));
             ModLog.Verbose("Config: bound (Enable Mod " + EnableMod.Value + ", debug log " + DebugLog.Value + ")");
-            return EnableMod != null && EnableGuano != null && EnableWater != null && EnableSaltpeter != null && EnableSulfur != null && EnableGunpowder != null && EnableGrenades != null && EnableCannon != null && DebugLog != null;
+            return EnableMod != null && EnableGuano != null && EnableWater != null && EnableSaltpeter != null && EnableSulfur != null && EnableGunpowder != null && EnableGrenades != null && EnableCannon != null
+                && EnableMusket != null && EnableExplosiveArrows != null && EnableDynamite != null && EnableMobileCannon != null && DebugLog != null;
         }
     }
 }

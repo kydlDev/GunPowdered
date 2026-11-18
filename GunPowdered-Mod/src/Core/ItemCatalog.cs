@@ -143,12 +143,46 @@ namespace GunPowdered.Core
             ItemKind.Piece, "piece_chest_wood", 1, 0f, Workbench, 1,
             new CostLine(Wood, 10), new CostLine(Resin, 4));
 
+        // D-076 (Claude-Agent-5, PROPOSED recipes and tiers, the user approves or changes them): the other D-045 weapons, items only for now (the behaviour comes
+        // with their own stages). Like the Hand Cannon they are carried items that never stack as a weapon and cannot be equipped yet (Material placeholder).
+        public const string BlackMetal = "BlackMetal", Feathers = "Feathers", Chain = "Chain", Flametal = "FlametalNew", Ashwood = "Blackwood";
+
+        // T-009c iron musket (D-045 item 3): Swamp (iron) tier like the Hand Cannon, Forge level 2
+        public static readonly ItemSpec Musket = new ItemSpec(GunPowderedPrefabs.Musket, "Iron Musket",
+            "A long iron-barrelled gun with a matchlock and a brass-bound stock. Loaded with gunpowder and iron bullets, five shots at a time.",
+            ItemKind.Material, Iron, 1, 4f, Forge, 1,
+            new CostLine(Iron, 15), new CostLine(Wood, 10), new CostLine(Bronze, 2)).AtStationLevel(2);
+
+        // T-009d explosive arrows (D-045 item 5): Plains tier (black metal) so they are no early advantage; like the vanilla arrows 10 per craft
+        public static readonly ItemSpec ExplosiveArrow = new ItemSpec(GunPowderedPrefabs.ExplosiveArrow, "Explosive Arrow",
+            "A black metal arrowhead with a bundle of gunpowder tied behind it. It bursts where it hits.",
+            ItemKind.Material, BlackMetal, 50, 0.1f, Forge, 10,
+            new CostLine(Wood, 8), new CostLine(BlackMetal, 1), new CostLine(Feathers, 2), new CostLine(GunPowderedPrefabs.Gunpowder, 2)).AtStationLevel(4);
+
+        // T-009e dynamite (D-045 item 6): iron age, a metal tube of gunpowder lit with the Torch; for gathering, not for fighting
+        public static readonly ItemSpec Dynamite = new ItemSpec(GunPowderedPrefabs.Dynamite, "Dynamite",
+            "A metal tube packed with gunpowder and a long fuse. Light it with a Torch. It tears holes in rock and ground and wrecks buildings, but barely hurts creatures.",
+            ItemKind.Material, Charcoal, 20, 0.5f, Forge, 5,
+            new CostLine(Iron, 2), new CostLine(GunPowderedPrefabs.Gunpowder, 5), new CostLine(Resin, 1)).AtStationLevel(2);
+
+        // T-009f mobile cannon (D-045 item 4): Ashlands (Flametal + Ashwood); a build piece like the Cannon Stock, built beside a Forge
+        public static readonly ItemSpec MobileCannon = new ItemSpec(GunPowderedPrefabs.MobileCannon, "Mobile Cannon",
+            "A Flametal cannon on an ashwood carriage with big spoked wheels and an elevation crank. One shot is loaded at a time; an Asksvin with a harness can pull it.",
+            ItemKind.Piece, "piece_chest_wood", 1, 0f, Forge, 1,
+            new CostLine(Flametal, 20), new CostLine(Ashwood, 30), new CostLine(Iron, 10));
+
+        // D-063 / D-068: the harness that hangs on an Asksvin's saddle and tows the Mobile Cannon
+        public static readonly ItemSpec AsksvinHarness = new ItemSpec(GunPowderedPrefabs.AsksvinHarness, "Asksvin Harness",
+            "Leather straps and a chain that hang on an Asksvin's saddle, so the rider can tow a Mobile Cannon.",
+            ItemKind.Material, Chain, 1, 5f, Workbench, 1,
+            new CostLine(LeatherScraps, 10), new CostLine(Chain, 3), new CostLine(Bronze, 2)).AtStationLevel(2);
+
         /// <summary>Every entry, in the order they are registered.</summary>
         public static IList<ItemSpec> All
         {
             get
             {
-                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud, SpikedGrenade, CannonBall, Cannon, CannonStock };
+                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud, SpikedGrenade, CannonBall, Cannon, CannonStock, Musket, ExplosiveArrow, Dynamite, MobileCannon, AsksvinHarness };
             }
         }
     }
