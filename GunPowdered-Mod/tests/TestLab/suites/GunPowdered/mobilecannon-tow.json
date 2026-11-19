@@ -149,20 +149,7 @@
       "contains": "free camera"
     },
     {
-      "do": "hook",
-      "name": "GunPowdered.asksvinRemove",
-      "contains": "removed"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.mobileCannonRemove",
-      "contains": "removed"
-    },
-    {
-      "do": "clearInventory"
-    },
-    {
-      "do": "cleanArena"
+      "do": "mobileCannonAsksvinCleanup"
     }
   ],
   "asserts": [

@@ -1,0 +1,150 @@
+{
+  "name": "mobilecannon-relog",
+  "description": "D-113 / D-114 / D-116: after a relog the Mobile Cannon is still loaded and keeps its elevation, the Asksvin still wears the harness and the cannon is still hitched to it (ZDO values).",
+  "timeout": 180,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "mobileCannonPlaced"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonCrank",
+      "args": {
+        "notches": 10
+      },
+      "contains": "turned 10",
+      "label": "elevation 10 degrees"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Gunpowder",
+      "count": 3
+    },
+    {
+      "do": "give",
+      "prefab": "GP_CannonBall",
+      "count": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonLoad",
+      "expect": "loading",
+      "label": "load at the muzzle"
+    },
+    {
+      "do": "wait",
+      "seconds": 5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonGunState",
+      "contains": "loaded True",
+      "label": "loaded before the relog"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinSpawn",
+      "contains": "tamed True",
+      "label": "a tame Asksvin behind the trail"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinSaddle",
+      "expect": "saddled True"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_AsksvinHarness",
+      "count": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinHarnessOn",
+      "expect": "harnessed True, harness items 0"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonHitch",
+      "expect": "hitch True"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "contains": "towed True, joint True",
+      "label": "hitched before the relog"
+    },
+    {
+      "do": "relog",
+      "timeout": 120
+    },
+    {
+      "do": "wait",
+      "seconds": 4
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonFind",
+      "regex": "found at \\d+ m",
+      "label": "the cannon is still there"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinFind",
+      "regex": "found at \\d+ m",
+      "label": "the Asksvin is still there"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonGunState",
+      "contains": "loaded True",
+      "label": "still loaded after the relog"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonPitch",
+      "regex": "pitch 10\\.0 deg",
+      "label": "still at 10 degrees"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinHarnessState",
+      "contains": "harnessed True",
+      "label": "still wears the harness"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "contains": "towed True, joint True, model True",
+      "label": "still hitched, joint rebuilt, harness model shows"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonHitch",
+      "expect": "hitch True",
+      "label": "unhitch"
+    },
+    {
+      "do": "mobileCannonAsksvinCleanup"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

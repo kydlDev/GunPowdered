@@ -13,7 +13,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
     /// </summary>
     internal sealed class MobileCannonTow : MonoBehaviour
     {
-        internal const string KeyTow = "gp_mc_tow";
+        internal const string KeyTow = "gp_mc_towkey";        // the towing Asksvin's harness key (AsksvinHarness.TowKey), not a ZDOID: ZDOIDs change on world load
         const string RpcHitch = "GP_MC_Hitch", RpcUnhitch = "GP_MC_Unhitch", RingName = "gp_towring";
 
         ZNetView _nview;
@@ -22,11 +22,11 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         ConfigurableJoint _joint;
         AsksvinHarness _animal;
         Character _massOn;
-        float _lostSince = -1f;
+        float _lostSince = -1f, _nextSearch;
 
         internal bool IsValid => _nview != null && _nview.IsValid();
 
-        internal bool Towed => IsValid && !_nview.GetZDO().GetZDOID(KeyTow).IsNone();
+        internal bool Towed => IsValid && _nview.GetZDO().GetLong(KeyTow, 0L) != 0L;
 
         internal bool Jointed => _joint != null;
 
@@ -58,7 +58,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             }
             if (IsValid)
             {
-                _nview.Register<ZDOID>(RpcHitch, RPC_Hitch);
+                _nview.Register<ZDOID>(RpcHitch, RPC_Hitch);          // the animal's current ZDOID; the owner stores its harness key
                 _nview.Register(RpcUnhitch, RPC_Unhitch);
             }
             ModLog.Verbose("MobileCannonTow: " + name + " tow ring " + (_ring != null) + ", towed " + Towed);
@@ -114,10 +114,11 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (!_nview.IsOwner() || Towed) return;
             GameObject go = ZNetScene.instance.FindInstance(animal);
             AsksvinHarness h = go != null ? go.GetComponent<AsksvinHarness>() : null;
-            if (h == null || !h.Harnessed || (_vagon != null && _vagon.IsAttached())) return;
-            _nview.GetZDO().Set(KeyTow, animal);
+            if (h == null || !h.Harnessed || h.TowKey == 0L || (_vagon != null && _vagon.IsAttached())) return;
+            _nview.GetZDO().Set(KeyTow, h.TowKey);
+            _animal = h;
             PlaceBehind(h);
-            ModLog.Info("MobileCannonTow: " + name + " hitched to " + go.name + " " + animal);
+            ModLog.Info("MobileCannonTow: " + name + " hitched to " + go.name + " " + animal + ", tow key " + h.TowKey);
         }
 
         void RPC_Unhitch(long sender)
@@ -129,7 +130,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         void Unhitch(string why)
         {
             DropJoint();
-            if (IsValid && _nview.IsOwner()) _nview.GetZDO().Set(KeyTow, ZDOID.None);
+            if (IsValid && _nview.IsOwner()) _nview.GetZDO().Set(KeyTow, 0L);
             _animal = null;
             ModLog.Info("MobileCannonTow: " + name + " unhitched (" + why + ")");
         }
@@ -154,37 +155,42 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         void Update()
         {
             if (!IsValid) return;
-            ZDOID id = _nview.GetZDO().GetZDOID(KeyTow);
-            if (id.IsNone())
+            long key = _nview.GetZDO().GetLong(KeyTow, 0L);
+            if (key == 0L)
             {
                 if (_joint != null) DropJoint();
                 _animal = null;
                 return;
             }
-            GameObject go = ZNetScene.instance.FindInstance(id);
-            _animal = go != null ? go.GetComponent<AsksvinHarness>() : null;
+            if ((_animal == null || _animal.TowKey != key) && Time.time >= _nextSearch)
+            {
+                _nextSearch = Time.time + 0.5f;                      // searching all characters is cheap, but not every frame
+                AsksvinHarness found = AsksvinHarness.WithKey(key);
+                if (found != _animal && _joint != null) DropJoint();
+                _animal = found;
+            }
+            if (_animal != null && _animal.TowKey != key) _animal = null;
             if (_animal != null) _animal.ShowHitched();
             if (!_nview.IsOwner())
             {
                 if (_joint != null) DropJoint();
                 return;
             }
-            OwnerTick(id);
-            ModLog.Every("mc-tow-" + GetInstanceID(), 5d, "MobileCannonTow: " + name + " towed by " + id + ", joint " + (_joint != null) + ", speed " + Speed().ToString("0.0") + " m/s");
+            OwnerTick();
+            ModLog.Every("mc-tow-" + GetInstanceID(), 5d, "MobileCannonTow: " + name + " towed by key " + key + (_animal != null ? " (" + _animal.name + ")" : " (not loaded)") + ", joint " + (_joint != null) + ", speed " + Speed().ToString("0.0") + " m/s");
         }
 
-        void OwnerTick(ZDOID id)
+        void OwnerTick()
         {
-            bool exists = ZDOMan.instance.GetZDO(id) != null;
             if (_animal == null)
             {
-                // the animal is not loaded here (yet): give it a few seconds before giving up, unless its ZDO is gone (dead, removed)
+                // the animal is not loaded here (yet, e.g. right after a world load): give it some seconds before giving up
                 if (_lostSince < 0f) _lostSince = Time.time;
-                if (!exists || Time.time - _lostSince > 10f) Unhitch(exists ? "animal not loaded for 10 s" : "animal gone");
+                if (Time.time - _lostSince > 10f) Unhitch("no Asksvin with this harness loaded for 10 s");
                 return;
             }
             _lostSince = -1f;
-            if (!AsksvinTowRules.KeepsTowing(exists, _animal.Animal == null || _animal.Animal.IsDead(), _animal.Harnessed))
+            if (!AsksvinTowRules.KeepsTowing(_animal.View != null && _animal.View.IsValid(), _animal.Animal == null || _animal.Animal.IsDead(), _animal.Harnessed))
             {
                 Unhitch("animal dead or without harness");
                 return;

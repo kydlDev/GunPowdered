@@ -13,7 +13,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
     /// </summary>
     internal sealed class AsksvinHarness : MonoBehaviour
     {
-        internal const string AnimalPrefab = "Asksvin", KeyHarness = "gp_harness";
+        internal const string AnimalPrefab = "Asksvin", KeyHarness = "gp_harness", KeyTowKey = "gp_tow_key";
         const string RpcOn = "GP_HarnessOn", VisualName = "gp_harness_model", HookName = "CannonHook";
         static readonly Vector3 HookFallback = new Vector3(0f, 0.395f, -3.5f);
         static Vector3? _hook;
@@ -24,6 +24,12 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         float _shownUntil;
 
         internal bool Harnessed => _nview != null && _nview.IsValid() && _nview.GetZDO().GetBool(KeyHarness, false);
+
+        /// <summary>
+        /// The harness's own random key (ZDO, set when it is put on). A towing cannon stores this key, not the ZDOID: the game gives every ZDO a new id
+        /// when a world loads (lab a8relog1: 68212842:33848 became 1:28668), so only the key finds the same Asksvin after a relog.
+        /// </summary>
+        internal long TowKey => _nview != null && _nview.IsValid() ? _nview.GetZDO().GetLong(KeyTowKey, 0L) : 0L;
 
         internal Character Animal => _character;
 
@@ -60,7 +66,8 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         {
             if (!_nview.IsOwner() || Harnessed) return;
             _nview.GetZDO().Set(KeyHarness, true);
-            ModLog.Info("AsksvinHarness: harness on " + name);
+            if (TowKey == 0L) _nview.GetZDO().Set(KeyTowKey, NewKey());
+            ModLog.Info("AsksvinHarness: harness on " + name + ", tow key " + TowKey);
         }
 
         /// <summary>Takes the harness off and drops it as an item beside the animal (with the saddle or on death). Expected outcome: true when one was dropped.</summary>
@@ -72,6 +79,25 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (prefab != null) Instantiate(prefab, transform.position + Vector3.up * 1.2f, Quaternion.identity);
             ModLog.Info("AsksvinHarness: harness dropped by " + name + (prefab == null ? " (no prefab, nothing spawned)" : ""));
             return true;
+        }
+
+        static long NewKey()
+        {
+            long key = 0L;
+            while (key == 0L) key = ((long)UnityEngine.Random.Range(int.MinValue, int.MaxValue) << 32) ^ (uint)UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+            return key;
+        }
+
+        /// <summary>The loaded, harnessed Asksvin with this tow key. Expected outcome: it, or null when none is loaded here.</summary>
+        internal static AsksvinHarness WithKey(long key)
+        {
+            if (key == 0L) return null;
+            foreach (Character c in Character.GetAllCharacters())
+            {
+                AsksvinHarness h = c != null ? c.GetComponent<AsksvinHarness>() : null;
+                if (h != null && h.TowKey == key) return h;
+            }
+            return null;
         }
 
         void OnDeath()

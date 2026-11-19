@@ -221,5 +221,21 @@ namespace GunPowdered.Testing.TestHooks
                 body.linearVelocity = Vector3.zero;
             }
         }
+        /// <summary>After a relog: takes the Mobile Cannon nearest to the local player (within 40 m) as the lab's cannon. Returns "found at D m" or "none".</summary>
+        [TestHook("GunPowdered.mobileCannonFind")]
+        static string Find()
+        {
+            Player p = Player.m_localPlayer;
+            if (p == null) return "no player";
+            GameObject best = null;
+            float bestDist = 40f;
+            foreach (MobileCannonGun gun in Object.FindObjectsByType<MobileCannonGun>(FindObjectsSortMode.None))
+            {
+                float d = Vector3.Distance(gun.transform.position, p.transform.position);
+                if (d < bestDist) { best = gun.gameObject; bestDist = d; }
+            }
+            _cannon = best;
+            return best == null ? "none" : "found at " + bestDist.ToString("0") + " m";
+        }
     }
 }

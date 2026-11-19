@@ -194,6 +194,23 @@ namespace GunPowdered.Testing.TestHooks
             return s;
         }
 
+        /// <summary>After a relog: takes the Asksvin nearest to the local player (within 40 m) as the lab's Asksvin. Returns "found at D m" or "none".</summary>
+        [TestHook("GunPowdered.asksvinFind")]
+        static string Find()
+        {
+            Player p = Player.m_localPlayer;
+            if (p == null) return "no player";
+            GameObject best = null;
+            float bestDist = 40f;
+            foreach (AsksvinHarness h in Object.FindObjectsByType<AsksvinHarness>(FindObjectsSortMode.None))
+            {
+                float d = Vector3.Distance(h.transform.position, p.transform.position);
+                if (d < bestDist) { best = h.gameObject; bestDist = d; }
+            }
+            _animal = best;
+            return best == null ? "none" : "found at " + bestDist.ToString("0") + " m";
+        }
+
         static Vector3 Flat(Vector3 v) => new Vector3(v.x, 0f, v.z);
     }
 
