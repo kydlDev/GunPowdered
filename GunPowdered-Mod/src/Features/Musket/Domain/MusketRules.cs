@@ -12,7 +12,7 @@ namespace GunPowdered.Features.Musket.Domain
         /// <summary>The most cartridges the musket holds (user: "the player loads 5 cartridges at any time ... they never go above 5").</summary>
         internal const int Capacity = 5;
 
-        internal const string Full = "The Iron Musket is fully loaded", NoCartridges = "You need Paper Cartridges", Empty = "The Iron Musket is empty: reload it";
+        internal const string Full = "The Iron Musket is fully loaded", NoCartridges = "You need Cartridges", Empty = "The Iron Musket is empty: reload it";
 
         /// <summary>How many cartridges one reload moves from the backpack into the musket: as many as fit and as many as the player carries. Never below 0.</summary>
         internal static int CartridgesToLoad(int loaded, int carried)

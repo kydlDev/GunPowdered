@@ -254,11 +254,25 @@ public static class GunPowderedArtBuilder
             pru.lights[0].intensity = 1.3f; pru.lights[0].transform.rotation = Quaternion.Euler(40f, -35f, 0f);
             pru.lights[1].intensity = 0.7f; pru.lights[1].transform.rotation = Quaternion.Euler(340f, 150f, 0f);
             RenderSettings.ambientLight = new Color(0.55f, 0.55f, 0.6f);
+            // EndStaticPreview returns an RGB texture (no alpha: the icons had a black background, user 2026-11-19), so the preview renders into our
+            // own ARGB target and is read back as RGBA
             pru.BeginStaticPreview(new Rect(0, 0, 256, 256));
+            var rt = new RenderTexture(256, 256, 24, RenderTextureFormat.ARGB32) { antiAliasing = 4 };
+            cam.targetTexture = rt;
             pru.Render(true);
-            var tex = pru.EndStaticPreview();
+            var prev = RenderTexture.active;
+            RenderTexture.active = rt;
+            var tex = new Texture2D(256, 256, TextureFormat.RGBA32, false);
+            tex.ReadPixels(new Rect(0, 0, 256, 256), 0, 0);
+            tex.Apply();
+            RenderTexture.active = prev;
+            cam.targetTexture = null;
+            pru.EndStaticPreview();
+            rt.Release();
+            Object.DestroyImmediate(rt);
             string path = Art + "/Icons/" + it.Icon + ".png";
             File.WriteAllBytes(path, tex.EncodeToPNG());
+            Object.DestroyImmediate(tex);
             Object.DestroyImmediate(inst);
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
             var imp = (TextureImporter)AssetImporter.GetAtPath(path);

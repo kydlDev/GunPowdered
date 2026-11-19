@@ -9,7 +9,7 @@
     { "do": "wait", "seconds": 1 },
     { "do": "hook", "name": "GunPowdered.musketLoaded", "expect": 0, "label": "a new musket is empty" },
     { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": false }, "contains": "is empty: reload it; loaded 0", "label": "an empty musket refuses to fire" },
-    { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": true }, "contains": "You need Paper Cartridges; loaded 0; reloading False", "label": "no cartridges, no reload" },
+    { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": true }, "contains": "You need Cartridges; loaded 0; reloading False", "label": "no cartridges, no reload" },
     { "do": "give", "prefab": "GP_PaperCartridge", "count": 7 },
     { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": true }, "expect": "reloading; loaded 0; reloading True", "label": "the reload key starts the strokes" },
     { "do": "wait", "seconds": 0.6 },

@@ -188,7 +188,7 @@ namespace GunPowdered.Core
             "A small cast iron ball for the Iron Musket. Wrap it with gunpowder in paper to make a cartridge.",
             ItemKind.Material, Iron, 50, 0.1f, Forge, 5, new CostLine(Iron, 1)).AtStationLevel(2);
 
-        public static readonly ItemSpec PaperCartridge = new ItemSpec(GunPowderedPrefabs.PaperCartridge, "Paper Cartridge",
+        public static readonly ItemSpec PaperCartridge = new ItemSpec(GunPowderedPrefabs.PaperCartridge, "Cartridge",   // shown as "Cartridge" (user 2026-11-19 11:52); the prefab keeps its name
             "Gunpowder and an iron bullet wrapped in paper. Load it into the Iron Musket: the bullet flies, the paper burns away in the pan.",
             ItemKind.Material, Resin, 50, 0.15f, Workbench, 1,
             new CostLine(GunPowderedPrefabs.Gunpowder, 1), new CostLine(GunPowderedPrefabs.IronBullet, 1), new CostLine(GunPowderedPrefabs.Paper, 1)).AtStationLevel(2);
