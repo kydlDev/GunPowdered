@@ -164,7 +164,7 @@ namespace GunPowdered.Testing.TestHooks
             AsksvinHarness h = _animal != null ? _animal.GetComponent<AsksvinHarness>() : null;
             float moved = Vector3.Distance(Flat(cannon.transform.position), Flat(_cannonStart));
             string s = "towed " + tow.Towed + ", joint " + tow.Jointed + ", model " + (h != null && h.ModelShown) + ", moved " + moved.ToString("0.0") + " m, max speed "
-                + tow.MaxSpeedSeen.ToString("0.0") + " m/s (asksvin " + tow.AnimalMaxSpeed.ToString("0.0") + "), gap " + (h != null && tow.Ring != null ? Vector3.Distance(tow.Ring.position, h.transform.TransformPoint(AsksvinHarness.HookLocal)).ToString("0.00") : "?") + " m, upright " + (cannon.transform.up.y > 0.7f) + ", tilt max roll " + tow.MaxRollSeen.ToString("0") + " pitch " + tow.MaxPitchSeen.ToString("0") + " spin " + tow.MaxSpinSeen.ToString("0.0") + ", holds " + tow.Holds + ", flips " + tow.Flips;
+                + tow.MaxSpeedSeen.ToString("0.0") + " m/s (asksvin " + tow.AnimalMaxSpeed.ToString("0.0") + "), gap " + (h != null && tow.Ring != null ? Vector3.Distance(tow.Ring.position, h.transform.TransformPoint(AsksvinHarness.HookLocal)).ToString("0.00") : "?") + " m, upright " + (cannon.transform.up.y > 0.7f) + ", tilt max roll " + tow.MaxRollSeen.ToString("0") + " pitch " + tow.MaxPitchSeen.ToString("0") + " spin " + tow.MaxSpinSeen.ToString("0.0") + ", holds " + tow.Holds + ", flips " + tow.Flips + ", cannon at " + cannon.transform.position.ToString("0.0") + (_animal != null ? ", asksvin at " + _animal.transform.position.ToString("0.0") : "") + (Player.m_localPlayer != null ? ", player at " + Player.m_localPlayer.transform.position.ToString("0.0") : "");
             ModLog.Info("AsksvinTowTestHooks: " + s + "; " + tow.ClevisReport(_animal != null ? _animal.transform : null));
             return s;
         }
@@ -331,6 +331,236 @@ namespace GunPowdered.Testing.TestHooks
                 foreach (ZNetPeer peer in ZNet.instance.GetPeers())
                     if (peer.m_uid == owner) return peer.m_playerName.Contains("Player2") || peer.m_playerName.Contains("Bjornita") ? "Bjornita's" : peer.m_playerName + "'s";
             return "other";
+        }
+
+        // ---- T-009 missing cases: saddle off, death, joint break, slopes, trees ----
+
+        /// <summary>Takes the saddle off the lab's Asksvin with the game's own DropSaddle (as the owner's "remove saddle"). Returns "saddle dropped True/False".</summary>
+        [TestHook("GunPowdered.asksvinDropSaddle")]
+        static string DropSaddle()
+        {
+            Tameable t = _animal != null ? _animal.GetComponent<Tameable>() : null;
+            if (t == null || Player.m_localPlayer == null) return "no asksvin";
+            _lastAnimalPos = t.transform.position;
+            var m = HarmonyLib.AccessTools.Method(typeof(Tameable), "DropSaddle");
+            object r = m.GetParameters().Length == 1 ? m.Invoke(t, new object[] { Player.m_localPlayer.transform.position }) : m.Invoke(t, new object[0]);
+            ModLog.Info("AsksvinTowTestHooks: saddle dropped " + r);
+            return "saddle dropped " + r;
+        }
+
+        /// <summary>Kills the lab's Asksvin (a hit with no attacker, so no tame protection is in the way). Returns "dead True".</summary>
+        [TestHook("GunPowdered.asksvinKill")]
+        static string Kill()
+        {
+            Character c = _animal != null ? _animal.GetComponent<Character>() : null;
+            if (c == null) return "no asksvin";
+            _lastAnimalPos = c.transform.position;
+            var hit = new HitData { m_point = c.transform.position, m_dir = Vector3.down };
+            hit.m_damage.m_blunt = c.GetHealth() * 10f + 10000f;
+            c.Damage(hit);
+            ModLog.Info("AsksvinTowTestHooks: asksvin hit for " + hit.m_damage.m_blunt.ToString("0") + ", dead " + c.IsDead());
+            return "killed";
+        }
+
+        /// <summary>Asksvin Harness items lying within 8 m of where the lab's Asksvin is or was. Returns "harness items on the ground N".</summary>
+        [TestHook("GunPowdered.harnessItemsNear")]
+        static string HarnessItemsNear()
+        {
+            Vector3 at = _animal != null ? _animal.transform.position : _lastAnimalPos;
+            int n = 0;
+            foreach (ItemDrop d in Object.FindObjectsByType<ItemDrop>(FindObjectsSortMode.None))
+                if (d != null && Utils.GetPrefabName(d.gameObject) == GunPowderedPrefabs.AsksvinHarness && Vector3.Distance(d.transform.position, at) < 8f) n += d.m_itemData.m_stack;
+            ModLog.Info("AsksvinTowTestHooks: harness items on the ground " + n);
+            return "harness items on the ground " + n;
+        }
+
+        static Vector3 _lastAnimalPos;
+
+        /// <summary>Sets the live tow joint's break force (N), so the next pull breaks it. Returns "break force N" or why not.</summary>
+        [TestHook("GunPowdered.mobileCannonBreakForce")]
+        static string BreakForce(double newtons)
+        {
+            GameObject cannon = MobileCannonTestHooks.Cannon;
+            ConfigurableJoint j = cannon != null ? cannon.GetComponent<ConfigurableJoint>() : null;
+            if (j == null) return "no tow joint";
+            j.breakForce = (float)newtons;
+            if (_animal != null) _lastAnimalPos = _animal.transform.position;
+            return "break force " + newtons.ToString("0");
+        }
+
+        /// <summary>
+        /// Sends the towing Asksvin onto the steepest ground near it: the player (its follow target) goes <paramref name="metres"/> away, uphill
+        /// (<paramref name="mode"/> "up") or along the slope ("across", the side-slope case that tips carts). Returns "slope mode, rise R m over M m (G deg)".
+        /// </summary>
+        [TestHook("GunPowdered.asksvinFollowSlope")]
+        static string FollowSlope(string mode, double metres)
+        {
+            Player p = Player.m_localPlayer;
+            MonsterAI ai = _animal != null ? _animal.GetComponent<MonsterAI>() : null;
+            if (p == null || ai == null || ZoneSystem.instance == null) return "no player or no asksvin";
+            Vector3 from = _animal.transform.position;
+            float h0, best = -1f;
+            h0 = GroundY(from);
+            Vector3 up = Vector3.forward, at;
+            if (mode == "across")
+            {
+                // the local fall line from height differences 4 m around the animal; run along the contour (90 degrees to it)
+                float hx1, hx0, hz1, hz0;
+                hx1 = GroundY(from + Vector3.right * 4f); hx0 = GroundY(from - Vector3.right * 4f);
+                hz1 = GroundY(from + Vector3.forward * 4f); hz0 = GroundY(from - Vector3.forward * 4f);
+                Vector3 grad = new Vector3(hx1 - hx0, 0f, hz1 - hz0);
+                best = grad.magnitude / 8f * 12f;
+                up = grad.sqrMagnitude > 0.0001f ? grad.normalized : Vector3.forward;
+                Vector3 along = Vector3.Cross(Vector3.up, up).normalized;
+                if (Vector3.Dot(along, _animal.transform.forward) < 0f) along = -along;     // the contour way the animal already faces, not back past the cannon (a9slope5)
+                at = from + along * (float)metres;
+            }
+            else
+            {
+                // the highest ground within 2x metres (the arena itself is flat): the animal runs there, uphill
+                at = from + Vector3.forward * (float)metres;
+                for (float r = 10f; r <= 2f * (float)metres; r += 5f)
+                    for (int i = 0; i < 24; i++)
+                    {
+                        Vector3 d = Quaternion.Euler(0f, i * 15f, 0f) * Vector3.forward;
+                        float h;
+                        h = GroundY(from + d * r); if ((h - h0) / r * 12f > best) { best = (h - h0) / r * 12f; up = d; at = from + d * r; }
+                    }
+            }
+            at.y = GroundY(at);
+            Rigidbody body = p.GetComponent<Rigidbody>();
+            p.transform.position = at;
+            if (body != null) { body.position = at; body.linearVelocity = Vector3.zero; }
+            GameObject cannon = MobileCannonTestHooks.Cannon;
+            if (cannon != null) _cannonStart = cannon.transform.position;
+            ai.SetFollowTarget(p.gameObject);
+            string s = "slope " + mode + ", rise " + (at.y - h0).ToString("0.0") + " m over " + Vector3.Distance(Flat(at), Flat(from)).ToString("0") + " m, gradient as rise per 12 m " + best.ToString("0.0") + " m ("
+                + (Mathf.Atan2(best, 12f) * Mathf.Rad2Deg).ToString("0") + " deg), asksvin " + from.ToString("0.0") + " facing " + _animal.transform.forward.ToString("0.0") + " -> player " + at.ToString("0.0");
+            ModLog.Info("AsksvinTowTestHooks: " + s);
+            return s;
+        }
+
+        /// <summary>The real (loaded) ground slope under the player, from heights 4 m around: "ground slope S deg". For checking goToSlope after the zone loaded.</summary>
+        [TestHook("GunPowdered.groundSlopeHere")]
+        static string GroundSlopeHere()
+        {
+            Player p = Player.m_localPlayer;
+            if (p == null) return "no player";
+            Vector3 c = p.transform.position;
+            float dx = GroundY(c + Vector3.right * 4f) - GroundY(c - Vector3.right * 4f), dz = GroundY(c + Vector3.forward * 4f) - GroundY(c - Vector3.forward * 4f);
+            float deg = Mathf.Atan(new Vector2(dx, dz).magnitude / 8f) * Mathf.Rad2Deg;
+            ModLog.Info("AsksvinTowTestHooks: ground slope " + deg.ToString("0") + " deg at " + c.ToString("0"));
+            return "ground slope " + deg.ToString("0") + " deg";
+        }
+
+        /// <summary>Diagnostics: ground heights in rings round the player by three methods (ZoneSystem.GetGroundHeight, a terrain raycast, the world generator). Logged; returns the summary.</summary>
+        [TestHook("GunPowdered.groundProfile")]
+        static string GroundProfile()
+        {
+            Player p = Player.m_localPlayer;
+            if (p == null) return "no player";
+            Vector3 o = p.transform.position;
+            var sb = new System.Text.StringBuilder("ground profile at " + o.ToString("0") + ":");
+            int mask = LayerMask.GetMask("terrain");
+            for (float r = 0f; r <= 90f; r += 15f)
+                for (int i = 0; i < (r == 0f ? 1 : 8); i++)
+                {
+                    Vector3 c = o + Quaternion.Euler(0f, i * 45f, 0f) * Vector3.forward * r;
+                    float zs;
+                    bool ok = ZoneSystem.instance.GetGroundHeight(c, out zs);
+                    RaycastHit hit;
+                    string ray = Physics.Raycast(new Vector3(c.x, 1000f, c.z), Vector3.down, out hit, 2000f, mask) ? hit.point.y.ToString("0.0") : "-";
+                    sb.Append(" [r" + r.ToString("0") + " a" + (i * 45) + " zs " + (ok ? zs.ToString("0.0") : "-") + " ray " + ray + " gen " + WorldGenerator.instance.GetHeight(c.x, c.z).ToString("0.0") + "]");
+                }
+            ModLog.Info("AsksvinTowTestHooks: " + sb);
+            return sb.ToString();
+        }
+
+        /// <summary>Ground height: the loaded ground where there is one, else the world generator's (GetGroundHeight answered false everywhere in a9slope1).</summary>
+        static float GroundY(Vector3 at)
+        {
+            float h;
+            if (ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(at, out h) && h != 0f) return h;
+            return WorldGenerator.instance != null ? WorldGenerator.instance.GetHeight(at.x, at.z) : at.y;
+        }
+
+        static GameObject _ramp;
+
+        /// <summary>
+        /// The lab world is levelled flat for a long way round the arena (groundProfile, a9slope4: 53.0 m everywhere), so the slope test builds its own hillside:
+        /// a 14 x 90 m slab on the terrain layer, tilted <paramref name="degrees"/> sideways, its low edge in the ground, centred on the player, who stands on it. The cannon and the Asksvin placed next land on it (their placing uses the ground height). Returns "ramp D deg".
+        /// </summary>
+        [TestHook("GunPowdered.rampHere")]
+        static string RampHere(double degrees)
+        {
+            Player p = Player.m_localPlayer;
+            if (p == null) return "no player";
+            RampRemove();
+            Vector3 dir = Vector3.ProjectOnPlane(p.transform.forward, Vector3.up).normalized;
+            float g = GroundY(p.transform.position), a = (float)degrees * Mathf.Deg2Rad;
+            _ramp = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            _ramp.name = "gp_lab_ramp";
+            _ramp.layer = LayerMask.NameToLayer("terrain");
+            _ramp.transform.localScale = new Vector3(14f, 1f, 90f);          // 45 m each way: the Asksvin stands behind the player and runs away from the cannon (a9slope6)
+            _ramp.transform.rotation = Quaternion.LookRotation(dir) * Quaternion.Euler(0f, 0f, (float)degrees);
+            Vector3 centre = p.transform.position;
+            centre.y = g - 0.2f + 7f * Mathf.Sin(a) - 0.5f * Mathf.Cos(a);
+            _ramp.transform.position = centre;
+            Physics.SyncTransforms();
+            Vector3 stand = p.transform.position - dir * 0f;
+            stand.y = GroundY(stand) + 0.3f;
+            p.transform.position = stand;
+            Rigidbody body = p.GetComponent<Rigidbody>();
+            if (body != null) { body.position = stand; body.linearVelocity = Vector3.zero; }
+            ModLog.Info("AsksvinTowTestHooks: ramp " + degrees.ToString("0") + " deg, centre " + centre.ToString("0.0") + ", player on it at height " + (stand.y - g).ToString("0.0") + " m");
+            return "ramp " + degrees.ToString("0") + " deg";
+        }
+
+        /// <summary>Removes the lab ramp. Returns "ramp removed".</summary>
+        [TestHook("GunPowdered.rampRemove")]
+        static string RampRemove()
+        {
+            if (_ramp != null) Object.Destroy(_ramp);
+            _ramp = null;
+            return "ramp removed";
+        }
+
+        static readonly System.Collections.Generic.List<GameObject> Trees = new System.Collections.Generic.List<GameObject>();
+
+        /// <summary>Spawns <paramref name="count"/> trees (Beech1) on both sides of the line from the Asksvin to the player, 1.2-1.8 m off it, so the cannon's wheels and trail brush them. Returns "trees N".</summary>
+        [TestHook("GunPowdered.treesOnPath")]
+        static string TreesOnPath(double count)
+        {
+            Player p = Player.m_localPlayer;
+            GameObject prefab = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab("Beech1") : null;
+            if (p == null || _animal == null || prefab == null) return "no player, asksvin or tree prefab";
+            Vector3 a = _animal.transform.position, b = p.transform.position;
+            Vector3 side = Vector3.Cross(Vector3.up, Vector3.ProjectOnPlane(b - a, Vector3.up).normalized);
+            int n = (int)count;
+            for (int i = 0; i < n; i++)
+            {
+                Vector3 at = Vector3.Lerp(a, b, (i + 1f) / (n + 1f)) + side * ((i % 2 == 0 ? 1f : -1f) * (1.2f + 0.3f * (i % 3)));
+                float h;
+                if (ZoneSystem.instance.GetGroundHeight(at, out h)) at.y = h;
+                Trees.Add(Object.Instantiate(prefab, at, Quaternion.identity));
+            }
+            ModLog.Info("AsksvinTowTestHooks: " + n + " trees beside the path");
+            return "trees " + n;
+        }
+
+        /// <summary>Removes the trees treesOnPath spawned. Returns "trees removed N".</summary>
+        [TestHook("GunPowdered.treesRemove")]
+        static string TreesRemove()
+        {
+            int n = 0;
+            foreach (GameObject t in Trees)
+            {
+                if (t == null) continue;
+                ZNetView v = t.GetComponent<ZNetView>();
+                if (v != null && v.IsValid()) { v.ClaimOwnership(); ZNetScene.instance.Destroy(t); n++; }
+            }
+            Trees.Clear();
+            return "trees removed " + n;
         }
 
         /// <summary>Tames the Asksvin that asksvinFind took (one the lab spawned, so that it can be a lab target for the second client). Returns "tamed True".</summary>

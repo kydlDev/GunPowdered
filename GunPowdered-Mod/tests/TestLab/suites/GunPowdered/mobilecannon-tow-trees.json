@@ -1,0 +1,64 @@
+{
+  "name": "mobilecannon-tow-trees",
+  "description": "T-009: towing at full speed between trees that stand right beside the path (wheels and trail brush them): the cannon gets through or unhitches cleanly, never flips, no errors.",
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "towReady"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinFollow",
+      "args": {
+        "metres": 30
+      },
+      "contains": "following",
+      "label": "run 30 m"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.treesOnPath",
+      "args": {
+        "count": 8
+      },
+      "contains": "trees 8",
+      "label": "8 trees beside the path"
+    },
+    {
+      "do": "wait",
+      "seconds": 6
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "regex": "moved ([5-9]|[1-9]\\d)\\.\\d m.*upright True.*flips 0",
+      "label": "through the trees, upright"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.treesRemove",
+      "contains": "trees removed"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonOwners",
+      "contains": "cannon owner",
+      "label": "state logged"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonHitch",
+      "expect": "hitch True",
+      "label": "unhitch"
+    },
+    {
+      "do": "mobileCannonAsksvinCleanup"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

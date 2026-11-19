@@ -1,0 +1,12 @@
+{
+  "name": "asksvin-harness-recipe",
+  "description": "T-009: the Asksvin Harness recipe exists in the game as specified (Workbench level 2, makes 1: Lox Pelt x10, Chain x3, Flametal x2, Bronze x2) and is enabled.",
+  "timeout": 30,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_AsksvinHarness" }, "regex": "level 2, makes 1, enabled True: .*x10, .*x3, .*x2, .*x2", "label": "the harness recipe in the game" },
+    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_AsksvinHarness" }, "contains": "weight 5, type Material", "label": "the harness item exists (weight 5, a material)" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

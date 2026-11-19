@@ -1,0 +1,58 @@
+{
+  "name": "mobilecannon-tow-death",
+  "description": "T-009: a towing Asksvin dies: the harness drops on the ground (one item, not two with the saddle drop) and the cannon unhitches by itself.",
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "towReady"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinKill",
+      "expect": "killed",
+      "label": "the Asksvin is hit to death"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.countCreatures",
+      "args": {
+        "prefab": "Asksvin"
+      },
+      "expect": 0,
+      "label": "the Asksvin is dead"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.harnessItemsNear",
+      "expect": "harness items on the ground 1",
+      "label": "exactly one harness item lies on the ground"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "contains": "towed False, joint False, model False",
+      "label": "the cannon unhitched itself"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

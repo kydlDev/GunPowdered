@@ -1,0 +1,12 @@
+{
+  "params": [],
+  "actions": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "mobileCannonPlaced" },
+    { "do": "hook", "name": "GunPowdered.asksvinSpawn", "contains": "tamed True", "label": "a tame Asksvin behind the trail" },
+    { "do": "asksvinHitched" },
+    { "do": "wait", "seconds": 1.5 },
+    { "do": "hook", "name": "GunPowdered.mobileCannonTowState", "regex": "towed True, joint True, model True, .*upright True", "label": "hitched, harness model shows, upright" }
+  ],
+  "asserts": []
+}

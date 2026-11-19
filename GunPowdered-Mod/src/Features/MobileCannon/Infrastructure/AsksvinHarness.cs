@@ -75,6 +75,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         {
             if (!Harnessed) return false;
             _nview.GetZDO().Set(KeyHarness, false);
+            MobileCannonTow.AnimalGone(TowKey, _character != null && _character.IsDead() ? "the towing Asksvin died" : "the harness came off with the saddle");
             GameObject prefab = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(GunPowderedPrefabs.AsksvinHarness) : null;
             if (prefab != null) Instantiate(prefab, transform.position + Vector3.up * 1.2f, Quaternion.identity);
             ModLog.Info("AsksvinHarness: harness dropped by " + name + (prefab == null ? " (no prefab, nothing spawned)" : ""));

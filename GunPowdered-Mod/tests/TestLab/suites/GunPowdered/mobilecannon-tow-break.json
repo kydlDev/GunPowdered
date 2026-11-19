@@ -1,0 +1,66 @@
+{
+  "name": "mobilecannon-tow-break",
+  "description": "T-009: the tow joint breaks (break force lowered for the test, then a full-speed pull): the cannon unhitches cleanly, stays upright, the harness stays on the animal.",
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "towReady"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonBreakForce",
+      "args": {
+        "newtons": 300
+      },
+      "contains": "break force 300",
+      "label": "a weak joint"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinFollow",
+      "args": {
+        "metres": 25
+      },
+      "contains": "following",
+      "label": "the Asksvin runs off"
+    },
+    {
+      "do": "wait",
+      "seconds": 4
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "regex": "towed False, joint False, model False, .*upright True",
+      "label": "the joint broke: unhitched, upright"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinHarnessState",
+      "contains": "harnessed True",
+      "label": "the harness is still on the animal"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

@@ -127,6 +127,22 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             Unhitch("E on the tow ring");
         }
 
+        /// <summary>
+        /// The towing animal died or lost its harness (AsksvinHarness.Drop): every cannon towed by this key lets go now. On death the animal's object is gone
+        /// a frame later, and a cannon would otherwise wait the 10 s "not loaded" grace with a joint to nothing (lab a9miss1). The owner unhitches; any other
+        /// client drops its joint and asks the owner.
+        /// </summary>
+        internal static void AnimalGone(long key, string why)
+        {
+            if (key == 0L) return;
+            foreach (MobileCannonTow t in FindObjectsByType<MobileCannonTow>(FindObjectsSortMode.None))
+            {
+                if (t == null || !t.IsValid || t._nview.GetZDO().GetLong(KeyTow, 0L) != key) continue;
+                if (t._nview.IsOwner()) t.Unhitch(why);
+                else { t.DropJoint(); t._nview.InvokeRPC(RpcUnhitch); }
+            }
+        }
+
         void Unhitch(string why)
         {
             DropJoint();
@@ -210,7 +226,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         internal float MaxSpinSeen { get; private set; }
         internal int Holds { get; private set; }
         internal int Flips { get; private set; }
-        float _lastHoldLog = -99f;
+        float _lastHoldLog = -99f, _lastAnimalYaw, _animalTurnRate;
         Rigidbody _body;
 
         internal void ResetTiltStats() { MaxRollSeen = 0f; MaxPitchSeen = 0f; MaxSpinSeen = 0f; Holds = 0; Flips = 0; }
@@ -222,11 +238,14 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (_body == null) return;
             Vector3 ground = Vector3.up;
             RaycastHit hit;
-            if (Physics.Raycast(_body.worldCenterOfMass + Vector3.up * 0.5f, Vector3.down, out hit, 3f, LayerMask.GetMask("terrain", "Default", "static_solid"), QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(_body.worldCenterOfMass + Vector3.up * 0.5f, Vector3.down, out hit, 3f, LayerMask.GetMask("terrain"), QueryTriggerInteraction.Ignore))
                 ground = hit.normal;
             Vector3 fwd = transform.forward, right = transform.right, up = transform.up;
             float roll = Vector3.SignedAngle(Vector3.ProjectOnPlane(ground, fwd), Vector3.ProjectOnPlane(up, fwd), fwd);
             float pitch = Vector3.SignedAngle(Vector3.ProjectOnPlane(ground, right), Vector3.ProjectOnPlane(up, right), right);
+            float animalYaw = _animal.transform.eulerAngles.y;
+            _animalTurnRate = Mathf.DeltaAngle(_lastAnimalYaw, animalYaw) / Time.fixedDeltaTime;     // the animal turns by transform, its body reports no angular velocity
+            _lastAnimalYaw = animalYaw;
             Vector3 w = _body.angularVelocity;
             float rollRate = Vector3.Dot(w, fwd), pitchRate = Vector3.Dot(w, right);
             MaxRollSeen = Mathf.Max(MaxRollSeen, Mathf.Abs(roll));
@@ -238,7 +257,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             float rollOver = AsksvinTowRules.Excess(roll, AsksvinTowRules.MaxRoll), pitchOver = AsksvinTowRules.Excess(pitch, AsksvinTowRules.MaxPitch);
             if (rollOver == 0f && pitchOver == 0f) return;
             Quaternion back = Quaternion.AngleAxis(-rollOver, fwd) * Quaternion.AngleAxis(-pitchOver, right);
-            _body.MoveRotation(back * _body.rotation);
+            _body.rotation = back * _body.rotation;          // at once: MoveRotation waits a step, and a tree or the joint pushes it past again meanwhile (a9miss1: 56 deg)
             if (rollOver != 0f && rollRate * rollOver > 0f) w -= fwd * rollRate;
             if (pitchOver != 0f && pitchRate * pitchOver > 0f) w -= right * pitchRate;
             _body.angularVelocity = w;
@@ -248,7 +267,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             Rigidbody ab = _animal.GetComponent<Rigidbody>();
             ModLog.Info("MobileCannonTow: " + name + " tilt held - roll " + roll.ToString("0") + " deg (rate " + (rollRate * Mathf.Rad2Deg).ToString("0") + " deg/s), pitch " + pitch.ToString("0")
                 + " deg, spin " + w.magnitude.ToString("0.0") + " rad/s, cannon " + Vector3.ProjectOnPlane(_body.linearVelocity, Vector3.up).magnitude.ToString("0.0") + " m/s, asksvin "
-                + (ab != null ? Vector3.ProjectOnPlane(ab.linearVelocity, Vector3.up).magnitude.ToString("0.0") + " m/s turning " + (ab.angularVelocity.y * Mathf.Rad2Deg).ToString("0") + " deg/s" : "?")
+                + (ab != null ? Vector3.ProjectOnPlane(ab.linearVelocity, Vector3.up).magnitude.ToString("0.0") + " m/s turning " + _animalTurnRate.ToString("0") + " deg/s" : "?")
                 + ", yaw to the animal " + Vector3.SignedAngle(Vector3.ProjectOnPlane(fwd, Vector3.up), Vector3.ProjectOnPlane(_animal.transform.forward, Vector3.up), Vector3.up).ToString("0")
                 + " deg, joint force " + _joint.currentForce.magnitude.ToString("0") + " N, holds " + Holds);
         }

@@ -1,0 +1,60 @@
+{
+  "name": "mobilecannon-tow-saddle-off",
+  "description": "T-009: taking the saddle off a towing Asksvin drops the harness on the ground (one item), the animal no longer wears it and the cannon unhitches by itself.",
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "towReady"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinDropSaddle",
+      "expect": "saddle dropped True",
+      "label": "the game's own DropSaddle"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinHarnessState",
+      "contains": "harnessed False",
+      "label": "the harness came off with the saddle"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.harnessItemsNear",
+      "expect": "harness items on the ground 1",
+      "label": "exactly one harness item lies on the ground"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "contains": "towed False, joint False, model False",
+      "label": "the cannon unhitched itself (no joint, model hidden)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}
