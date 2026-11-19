@@ -57,7 +57,7 @@
         {
             "guid": "com.kydldev.GunPowdered",
             "section": "General",
-            "key": "Enable Cannon",
+            "key": "Enable Cannons",
             "value": "true"
         },
         {
@@ -76,12 +76,6 @@
             "guid": "com.kydldev.GunPowdered",
             "section": "General",
             "key": "Enable Dynamite",
-            "value": "true"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "General",
-            "key": "Enable Mobile Cannon",
             "value": "true"
         },
         {

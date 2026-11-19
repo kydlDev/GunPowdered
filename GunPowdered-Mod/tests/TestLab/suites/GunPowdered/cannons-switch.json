@@ -1,0 +1,20 @@
+{
+  "name": "cannons-switch",
+  "description": "One [General] switch per weapon type (user 2026-11-19 12:00): 'Enable Cannons' turns BOTH cannon types off and on together - the Hand Cannon feature (with Cannon Stock and Cannon Ball) and the Mobile Cannon feature (with the Asksvin Harness); the cannon ball recipe follows it.",
+  "timeout": 40,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.featureRunning", "args": { "id": "cannon" }, "expect": true, "label": "the hand cannon runs at start" },
+    { "do": "hook", "name": "GunPowdered.featureRunning", "args": { "id": "mobilecannon" }, "expect": true, "label": "the mobile cannon runs at start" },
+    { "do": "setConfig", "values": { "General/Enable Cannons": false } },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.featureRunning", "args": { "id": "cannon" }, "expect": false }, "timeout": 5 },
+    { "do": "hook", "name": "GunPowdered.featureRunning", "args": { "id": "mobilecannon" }, "expect": false, "label": "one switch stops the mobile cannon too" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_CannonBall" }, "contains": "enabled False", "label": "cannon balls cannot be crafted" },
+    { "do": "setConfig", "values": { "General/Enable Cannons": true } },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.featureRunning", "args": { "id": "cannon" }, "expect": true }, "timeout": 5 },
+    { "do": "hook", "name": "GunPowdered.featureRunning", "args": { "id": "mobilecannon" }, "expect": true, "label": "and both come back" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_CannonBall" }, "contains": "enabled True", "label": "the recipe is back" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

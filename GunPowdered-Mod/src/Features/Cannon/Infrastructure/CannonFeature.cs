@@ -9,7 +9,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
 {
     /// <summary>
     /// The mounted Hand Cannon (D-051, D-052, D-053): the Cannon item, the Cannon Ball and the Cannon Stock it is mounted on. The items and the piece are cloned
-    /// from vanilla placeholders by the ItemRegistry; this adapter queues them and turns their recipes and the piece on and off with [General] Enable Cannon.
+    /// from vanilla placeholders by the ItemRegistry; this adapter queues them and turns their recipes and the piece on and off with [General] Enable Cannons (shared with the Mobile Cannon).
     /// The behaviour (mounting, loading at the muzzle, aiming, the torch fuse, the flight) comes with the next T-009b stages.
     /// </summary>
     internal sealed class CannonFeature : IFeature

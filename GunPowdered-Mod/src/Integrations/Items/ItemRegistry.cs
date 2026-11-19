@@ -103,7 +103,7 @@ namespace GunPowdered.Integrations.Items
                 case "musket": return ModSettings.FeatureOn(ModSettings.EnableMusket);
                 case "arrows": return ModSettings.FeatureOn(ModSettings.EnableExplosiveArrows);
                 case "dynamite": return ModSettings.FeatureOn(ModSettings.EnableDynamite);
-                case "mobilecannon": return ModSettings.FeatureOn(ModSettings.EnableMobileCannon);
+                case "mobilecannon": return ModSettings.FeatureOn(ModSettings.EnableCannon);   // one switch for both cannon types
                 default: return false;
             }
         }

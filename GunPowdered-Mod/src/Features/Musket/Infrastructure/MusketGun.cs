@@ -31,6 +31,12 @@ namespace GunPowdered.Features.Musket.Infrastructure
             if (metres > LastBulletReach) LastBulletReach = metres;
         }
 
+        /// <summary>
+        /// Raised on the shooter's client after every shot: shooter, musket, muzzle, direction, cartridges left, bullet. The public API passes it on
+        /// (GunPowderedApi.Musket.ShotFired, D-097); a failing listener is logged and does not stop the shot.
+        /// </summary>
+        internal static event System.Action<Player, ItemDrop.ItemData, Vector3, Vector3, int, GameObject> Fired;
+
         /// <summary>True for the Iron Musket item.</summary>
         internal static bool IsMusket(ItemDrop.ItemData item) => item != null && item.m_dropPrefab != null && item.m_dropPrefab.name == GunPowderedPrefabs.Musket;
 
@@ -118,6 +124,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             if (rig != null) rig.Play(MusketAction.Fire);
             LastShot = "fired from " + muzzle.ToString("0.00") + " along " + dir.ToString("0.00") + ", flight " + (flight != null) + ", effects " + fx + ", " + left + " left";
             ModLog.Info("MusketGun: " + player.GetPlayerName() + " " + LastShot);
+            RaiseFired(player, musket, muzzle, dir, left, bullet);
             return "fired, " + left + " left";
         }
 
@@ -130,6 +137,17 @@ namespace GunPowdered.Features.Musket.Infrastructure
             {
                 NoteReach(Vector3.Distance(transform.position, From));
                 ModLog.Every("musket-bullet", 0.5f, "MusketGun: bullet " + LastBulletReach.ToString("0.0") + " m from the muzzle");
+            }
+        }
+
+        static void RaiseFired(Player player, ItemDrop.ItemData musket, Vector3 muzzle, Vector3 dir, int left, GameObject bullet)
+        {
+            System.Action<Player, ItemDrop.ItemData, Vector3, Vector3, int, GameObject> listeners = Fired;
+            if (listeners == null) return;
+            foreach (System.Delegate d in listeners.GetInvocationList())
+            {
+                try { ((System.Action<Player, ItemDrop.ItemData, Vector3, Vector3, int, GameObject>)d)(player, musket, muzzle, dir, left, bullet); }
+                catch (System.Exception e) { ModLog.Warn("MusketGun: a shot listener failed (" + d.Method.DeclaringType + "." + d.Method.Name + "): " + e.GetType().Name + ": " + e.Message); }
             }
         }
 

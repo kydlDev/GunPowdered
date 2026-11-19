@@ -61,5 +61,26 @@ namespace GunPowdered.Tests.Unit
             Assert.That(GunPowderedApi.GuanoDeposits(CaveKind.TrollCaveOrBurialChamber, () => 0.99), Is.EqualTo(0));
             Assert.That(GunPowderedApi.GuanoDeposits(CaveKind.TrollCaveOrBurialChamber, () => 0.01), Is.EqualTo(1));
         }
+
+        // D-097: the weapons part (the game-side members are checked in game by the TestLab test api-musket)
+        [Test]
+        public void Musket_StatsAreTheGameRules()
+        {
+            Assert.That(GunPowderedApi.Musket.Capacity, Is.EqualTo(5));
+            Assert.That(GunPowderedApi.Musket.BulletPierce, Is.EqualTo(55f));
+            Assert.That(GunPowderedApi.Musket.BulletSpeed, Is.GreaterThan(0f));
+            Assert.That(GunPowderedApi.Musket.ShotIntervalSeconds, Is.EqualTo(0.8f));
+            Assert.That(GunPowderedApi.Musket.ReloadSecondsPerCartridge, Is.EqualTo(1.2f));
+            Assert.That(GunPowderedApi.Musket.Ammunition, Is.EqualTo(GunPowderedApi.Prefabs.PaperCartridge));
+        }
+
+        [TestCase(0, 9, 5)]
+        [TestCase(3, 9, 2)]
+        [TestCase(5, 9, 0)]
+        [TestCase(1, 2, 2)]
+        public void Musket_CartridgesToLoad_NeverAboveCapacity(int loaded, int carried, int expected)
+        {
+            Assert.That(GunPowderedApi.Musket.CartridgesToLoad(loaded, carried), Is.EqualTo(expected));
+        }
     }
 }

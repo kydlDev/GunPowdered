@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using KydlCore.Core;
 using GunPowdered.Features.Gunpowder.Domain;
+using GunPowdered.Features.Musket.Domain;
 using GunPowdered.Features.Guano.Domain;
 using GunPowdered.Features.Saltpeter.Domain;
 using GunPowdered.Features.Water.Domain;
@@ -12,8 +13,9 @@ namespace GunPowdered
     /// <summary>
     /// The public API of GunPowdered (D-006), for other mods. Reference GunPowdered.dll and call these static members; nothing here needs the game
     /// to be running, so a mod can use it from its own Awake. Prefab names never change after the first release (worlds store them).
+    /// The weapons part that touches game objects (a musket's load, the shot event) is in src/Integrations/Api/GunPowderedApi.Weapons.cs (D-097).
     /// </summary>
-    public static class GunPowderedApi
+    public static partial class GunPowderedApi
     {
         /// <summary>Bumped when a member is removed or changes meaning; adding members does not change it.</summary>
         public const int ApiVersion = 1;
@@ -84,6 +86,40 @@ namespace GunPowdered
         {
             var r = RainBarrelRules.Fill(current, RainBarrelRules.DefaultCapacity, RainBarrelRules.DefaultRatePerMinute, seconds, raining, covered);
             return r.Status == ResponseStatus.Success ? r.Value : current;
+        }
+
+        /// <summary>
+        /// The Iron Musket (D-095, D-097): its magazine and its stats. The members here need no running game; reading or setting the load of a musket item
+        /// and the shot event are in the game-side part of this class.
+        /// </summary>
+        public static partial class Musket
+        {
+            /// <summary>The most cartridges a musket holds; a reload never goes above it.</summary>
+            public const int Capacity = MusketRules.Capacity;
+
+            /// <summary>Pierce damage of one bullet (before the target's resistances).</summary>
+            public const float BulletPierce = MusketRules.BulletPierce;
+
+            /// <summary>The bullet's speed out of the muzzle (m/s).</summary>
+            public const float BulletSpeed = MusketRules.BulletSpeed;
+
+            /// <summary>The largest random turn of a shot away from the aim, each way (degrees).</summary>
+            public const float BulletSpreadDegrees = MusketRules.BulletSpreadDegrees;
+
+            /// <summary>How long a bullet flies before it is gone (s).</summary>
+            public const float BulletSeconds = MusketRules.BulletSeconds;
+
+            /// <summary>The shortest time between two shots (s).</summary>
+            public const float ShotIntervalSeconds = MusketRules.ShotIntervalSeconds;
+
+            /// <summary>One cartridge goes in per this many seconds of reloading.</summary>
+            public const float ReloadSecondsPerCartridge = MusketRules.ReloadSecondsPerCartridge;
+
+            /// <summary>The prefab name of the ammunition the musket loads (shown to players as "Cartridge").</summary>
+            public const string Ammunition = Core.GunPowderedPrefabs.PaperCartridge;
+
+            /// <summary>How many cartridges a reload moves in from <paramref name="carried"/>, starting at <paramref name="loaded"/> (never above <see cref="Capacity"/>).</summary>
+            public static int CartridgesToLoad(int loaded, int carried) => MusketRules.CartridgesToLoad(loaded, carried);
         }
 
         /// <summary>Rolls how many guano deposits a cave of this kind gets (0 to 3) from a source of numbers in [0, 1).</summary>

@@ -187,6 +187,40 @@ namespace GunPowdered.Testing.TestHooks
             return Vector3.Distance(b.transform.position, MusketGun.LastMuzzle) >= metres || MusketGun.LastBulletReach >= metres;
         }
 
+        static int _apiShots, _apiLastLeft = -1;
+        static bool _apiListening;
+
+        /// <summary>
+        /// Listens to the public GunPowderedApi.Musket.ShotFired like another mod would (D-097), plus one listener that always throws (it must not stop
+        /// the shot). Returns "listening".
+        /// </summary>
+        [TestHook("GunPowdered.apiShotListen")]
+        static string ApiShotListen()
+        {
+            _apiShots = 0;
+            _apiLastLeft = -1;
+            if (!_apiListening)
+            {
+                GunPowderedApi.Musket.ShotFired += s => { _apiShots++; _apiLastLeft = s.CartridgesLeft; };
+                GunPowderedApi.Musket.ShotFired += s => { throw new System.InvalidOperationException("test listener that fails on purpose"); };
+                _apiListening = true;
+            }
+            return "listening";
+        }
+
+        /// <summary>The shots the API listener saw since apiShotListen: "N shot(s), last left L".</summary>
+        [TestHook("GunPowdered.apiShots")]
+        static string ApiShots() => _apiShots + " shot(s), last left " + _apiLastLeft;
+
+        /// <summary>Sets the held musket's load through the public API and reads it back: "set S, read R" (-1 = not a musket).</summary>
+        [TestHook("GunPowdered.apiSetLoaded")]
+        static string ApiSetLoaded(int loaded)
+        {
+            ItemDrop.ItemData m = GunPowderedApi.Musket.HeldBy(Player.m_localPlayer);
+            int set = GunPowderedApi.Musket.SetLoaded(m, loaded);
+            return "set " + set + ", read " + GunPowderedApi.Musket.GetLoaded(m);
+        }
+
         /// <summary>What the last shot did (muzzle, direction, flight, effects, load left).</summary>
         [TestHook("GunPowdered.musketLastShot")]
         static string LastShot() => MusketGun.LastShot;
