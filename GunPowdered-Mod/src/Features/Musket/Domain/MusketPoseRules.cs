@@ -73,6 +73,24 @@ namespace GunPowdered.Features.Musket.Domain
         /// <summary>How far the ramrod's top end stands above the muzzle at this moment of a reload (m): from <see cref="MusketPoses.RodHigh"/> down to <see cref="MusketPoses.RodLow"/> and back, once per cartridge.</summary>
         internal static float RodAboveMuzzle(float seconds) => MusketPoses.RodLow + (MusketPoses.RodHigh - MusketPoses.RodLow) * Stroke(seconds);
 
+        /// <summary>
+        /// How steady the spine is held (0 = the animation as it is, 1 = only its slow average, D-099): full while aiming, none while running or
+        /// reloading (the spine moves on purpose there), in between while the carry blends.
+        /// </summary>
+        internal static float SpineSteadiness(MusketAction action, float carry)
+        {
+            if (action == MusketAction.Reload) return 0f;
+            return 1f - Clamp01(carry);
+        }
+
+        /// <summary>The share of the way a slow follower moves towards its target in <paramref name="dt"/> seconds with time constant <paramref name="seconds"/> (0 .. 1).</summary>
+        internal static float FollowFactor(float dt, float seconds)
+        {
+            if (dt <= 0f) return 0f;
+            if (seconds <= 0f) return 1f;
+            return Clamp01(1f - (float)Math.Exp(-dt / seconds));
+        }
+
         internal static float Clamp01(float v) => v < 0f ? 0f : v > 1f ? 1f : v;
 
         static void Blend(float[] a, float[] b, float w, float[] into)

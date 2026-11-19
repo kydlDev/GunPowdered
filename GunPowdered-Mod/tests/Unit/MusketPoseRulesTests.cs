@@ -92,5 +92,33 @@ namespace GunPowdered.Tests.Unit
             Assert.That(MusketPoses.GripHold.Length, Is.EqualTo(6));
             Assert.That(MusketPoses.GripReload.Length, Is.EqualTo(6));
         }
-    }
+
+        // D-099: the steadied spine while aiming
+        [TestCase(0, 0f, 1f)]
+        [TestCase(1, 0f, 1f)]
+        [TestCase(0, 1f, 0f)]
+        [TestCase(0, 0.25f, 0.75f)]
+        [TestCase(2, 0f, 0f)]
+        public void SpineSteadiness_FullWhileAiming_NoneWhileRunningOrReloading(int action, float carry, float expected)
+        {
+            Assert.That(MusketPoseRules.SpineSteadiness((MusketAction)action, carry), Is.EqualTo(expected).Within(1e-5f));
+        }
+
+        [TestCase(0f, 1.5f, 0f)]
+        [TestCase(-1f, 1.5f, 0f)]
+        [TestCase(0.1f, 0f, 1f)]
+        [TestCase(1.5f, 1.5f, 0.6321f)]
+        [TestCase(100f, 1.5f, 1f)]
+        public void FollowFactor_IsTheExponentialShareOfTheWay(float dt, float seconds, float expected)
+        {
+            Assert.That(MusketPoseRules.FollowFactor(dt, seconds), Is.EqualTo(expected).Within(1e-3f));
+        }
+
+        [Test]
+        public void FollowFactor_ManySmallStepsEqualOneBigStep()
+        {
+            float left = 1f;
+            for (int i = 0; i < 100; i++) left *= 1f - MusketPoseRules.FollowFactor(0.015f, 1.5f);
+            Assert.That(1f - left, Is.EqualTo(MusketPoseRules.FollowFactor(1.5f, 1.5f)).Within(1e-3f));
+        }    }
 }

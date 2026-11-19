@@ -1,3 +1,4 @@
+using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using KydlCore.Common;
@@ -29,6 +30,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             bool hand = AttachHandModel(itemPrefab);
             bool gun = MakeGun(itemPrefab);
             if (_bullet == null) _bullet = MakeBullet();
+            AddKeyHints();
             ModLog.Verbose("MusketSetup: configured - hand model " + hand + ", own magazine " + gun + ", bullet " + (_bullet != null));
             return hand && gun && _bullet != null;
         }
@@ -53,6 +55,26 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 }
                 return _bullet;
             }
+        }
+
+        static bool _hints;
+
+        // the key hints at the bottom right while the musket is in hand (user 2026-11-19 12:32: "there is no UI item that tells you how to reload"):
+        // the game's own buttons, so they show whatever the player bound
+        static void AddKeyHints()
+        {
+            if (_hints) return;
+            _hints = KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = GunPowderedPrefabs.Musket,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", Hint = MusketRules.HintFire },
+                    new ButtonConfig { Name = "SecondaryAttack", Hint = MusketRules.HintReload },
+                    new ButtonConfig { Name = "Block", Hint = MusketRules.HintBlock }
+                }
+            });
+            ModLog.Verbose("MusketSetup: key hints " + _hints);
         }
 
         // D-095: the musket keeps its own magazine (MusketGun); the Arbalest's one-bolt reload and its bolt ammo are switched off

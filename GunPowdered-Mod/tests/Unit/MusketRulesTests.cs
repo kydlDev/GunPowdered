@@ -138,6 +138,35 @@ namespace GunPowdered.Tests.Unit
             Assert.That(MusketRules.ParseLoaded(stored), Is.EqualTo(expected));
         }
 
+        [TestCase(0.25f, 50f, 0f, 25f)]
+        [TestCase(0.25f, 50f, -0.5f, 50f)]
+        [TestCase(0.25f, 50f, 0.3f, 25f)]
+        [TestCase(0f, 50f, 0f, 0f)]
+        [TestCase(0.25f, 0f, 0f, 0f)]
+        [TestCase(0.25f, 50f, -1f, 0f)]
+        public void RecoilPushForce_GivesTheGameTheForceForTheShove(float metres, float mass, float modifier, float expected)
+        {
+            Assert.That(MusketRules.RecoilPushForce(metres, mass, modifier), Is.EqualTo(expected).Within(0.001f));
+        }
+
+        [Test]
+        public void RecoilPushForce_RoundTripsThroughTheGameFormula()
+        {
+            // the game: push = F x clamp01(1 + modifier) / mass x 2.5, slide ~ push / 5 m
+            float force = MusketRules.RecoilPushForce(0.25f, 72f, -0.1f);
+            float push = force * 0.9f / 72f * 2.5f;
+            Assert.That(push / 5f, Is.EqualTo(0.25f).Within(0.0001f));
+        }
+
+        [TestCase(3, "3/5")]
+        [TestCase(0, "0/5")]
+        [TestCase(9, "5/5")]
+        [TestCase(-2, "0/5")]
+        public void LoadText_IsLoadedOverCapacity(int loaded, string expected)
+        {
+            Assert.That(MusketRules.LoadText(loaded), Is.EqualTo(expected));
+        }
+
         [Test]
         public void FiveShots_EmptyTheMusket_ThenFiringIsRefused()
         {

@@ -221,6 +221,47 @@ namespace GunPowdered.Testing.TestHooks
             return "set " + set + ", read " + GunPowderedApi.Musket.GetLoaded(m);
         }
 
+        /// <summary>What the load counter next to the crosshair shows ("3/5"), or "hidden".</summary>
+        [TestHook("GunPowdered.musketLoadText")]
+        static string LoadText() => MusketAmmoHud.Current;
+
+        /// <summary>The key hint texts shown at the bottom right right now (active ones only), joined with " | ".</summary>
+        [TestHook("GunPowdered.keyHintTexts")]
+        static string KeyHintTexts()
+        {
+            if (KeyHints.instance == null) return "no key hints";
+            var texts = new System.Collections.Generic.List<string>();
+            foreach (TMPro.TMP_Text t in KeyHints.instance.GetComponentsInChildren<TMPro.TMP_Text>(false))
+                if (!string.IsNullOrWhiteSpace(t.text) && !texts.Contains(t.text.Trim())) texts.Add(t.text.Trim());
+            return string.Join(" | ", texts);
+        }
+
+        /// <summary>Starts a new shake measurement on the local player's musket rig (D-099).</summary>
+        [TestHook("GunPowdered.musketShakeReset")]
+        static string ShakeReset()
+        {
+            var rig = Player.m_localPlayer != null ? Player.m_localPlayer.GetComponent<MusketRig>() : null;
+            if (rig == null) return "no musket rig";
+            rig.ResetMeasure();
+            return "measuring";
+        }
+
+        /// <summary>How much the musket moved up and down since musketShakeReset: "frames N, skipped S, range R mm, max step M mm".</summary>
+        [TestHook("GunPowdered.musketShake")]
+        static string Shake()
+        {
+            var rig = Player.m_localPlayer != null ? Player.m_localPlayer.GetComponent<MusketRig>() : null;
+            return rig == null ? "no musket rig" : rig.ShakeReport();
+        }
+
+        /// <summary>Test switch: off = the old behaviour (the pose is read back and written every frame) to compare. Returns the state.</summary>
+        [TestHook("GunPowdered.musketSkipGuard")]
+        static string SkipGuard(bool on)
+        {
+            MusketRig.NoSkipGuard = !on;
+            return "skip guard " + (on ? "on" : "off");
+        }
+
         /// <summary>What the last shot did (muzzle, direction, flight, effects, load left).</summary>
         [TestHook("GunPowdered.musketLastShot")]
         static string LastShot() => MusketGun.LastShot;

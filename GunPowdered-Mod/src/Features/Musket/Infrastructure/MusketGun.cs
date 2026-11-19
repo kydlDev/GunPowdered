@@ -122,7 +122,8 @@ namespace GunPowdered.Features.Musket.Infrastructure
             bullet.AddComponent<MusketBulletTrace>().From = muzzle;
             int fx = PlayMuzzle(muzzle, dir);
             if (rig != null) rig.Play(MusketAction.Fire);
-            LastShot = "fired from " + muzzle.ToString("0.00") + " along " + dir.ToString("0.00") + ", flight " + (flight != null) + ", effects " + fx + ", " + left + " left";
+            float push = Shove(player, dir);
+            LastShot = "fired from " + muzzle.ToString("0.00") + " along " + dir.ToString("0.00") + ", flight " + (flight != null) + ", effects " + fx + ", shove " + push.ToString("0.0") + ", " + left + " left";
             ModLog.Info("MusketGun: " + player.GetPlayerName() + " " + LastShot);
             RaiseFired(player, musket, muzzle, dir, left, bullet);
             return "fired, " + left + " left";
@@ -138,6 +139,15 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 NoteReach(Vector3.Distance(transform.position, From));
                 ModLog.Every("musket-bullet", 0.5f, "MusketGun: bullet " + LastBulletReach.ToString("0.0") + " m from the muzzle");
             }
+        }
+
+        // the recoil shoves the shooter back along the flat shot direction (D-087 "recoil pushback"), through the game's own pushback
+        static float Shove(Player player, Vector3 dir)
+        {
+            Rigidbody body = player.GetComponent<Rigidbody>();
+            float push = MusketRules.RecoilPushForce(MusketRules.RecoilShoveMetres, body != null ? body.mass : 0f, player.GetEquipmentMovementModifier());
+            if (push > 0f) player.ApplyPushback(-dir, push);
+            return push;
         }
 
         static void RaiseFired(Player player, ItemDrop.ItemData musket, Vector3 muzzle, Vector3 dir, int left, GameObject bullet)

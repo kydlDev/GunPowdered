@@ -12,6 +12,9 @@ namespace GunPowdered.Features.Musket.Domain
         /// <summary>The most cartridges the musket holds (user: "the player loads 5 cartridges at any time ... they never go above 5").</summary>
         internal const int Capacity = 5;
 
+        /// <summary>The key hints while the musket is in hand.</summary>
+        internal const string HintFire = "Fire", HintReload = "Reload", HintBlock = "Block";
+
         internal const string Full = "The Iron Musket is fully loaded", NoCartridges = "You need Cartridges", Empty = "The Iron Musket is empty: reload it";
 
         /// <summary>How many cartridges one reload moves from the backpack into the musket: as many as fit and as many as the player carries. Never below 0.</summary>
@@ -57,6 +60,22 @@ namespace GunPowdered.Features.Musket.Domain
         /// <summary>The bullet (D-087 proposal, D-095): pierce damage, muzzle speed (m/s), spread (degrees each way), gravity (m/s2), life (s).</summary>
         internal const float BulletPierce = 55f, BulletSpeed = 110f, BulletSpreadDegrees = 0.6f, BulletGravity = 4f, BulletSeconds = 3f;
 
+        /// <summary>How far the recoil shoves the shooter back (m; D-087 "recoil pushback", proposal).</summary>
+        internal const float RecoilShoveMetres = 0.25f;
+
+        /// <summary>
+        /// The push force to hand Character.ApplyPushback so the shooter slides back about <paramref name="metres"/>. The game (1.0.21) turns a push
+        /// force F into a push of F x clamp01(1 + equipment movement modifier) / mass x 2.5, which drives the body at up to 20 m/s while it fades at
+        /// 100 per second: the slide is about push / 5 metres. Expected outcome: 0 for no shove, a heavy body or a modifier of -1 or less.
+        /// </summary>
+        internal static float RecoilPushForce(float metres, float mass, float equipmentModifier)
+        {
+            float factor = 1f + equipmentModifier;
+            if (factor > 1f) factor = 1f;
+            if (metres <= 0f || mass <= 0f || factor <= 0f) return 0f;
+            return 5f * metres * mass / (2.5f * factor);
+        }
+
         /// <summary>Whether enough time has passed since the last shot (<paramref name="lastShot"/>, s) to fire again at <paramref name="now"/>.</summary>
         internal static bool ShotIntervalOver(float now, float lastShot)
         {
@@ -75,6 +94,12 @@ namespace GunPowdered.Features.Musket.Domain
         {
             int v;
             return int.TryParse(stored, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out v) ? ClampLoaded(v) : 0;
+        }
+
+        /// <summary>The load counter next to the crosshair: "3/5" (user 2026-11-19 12:32).</summary>
+        internal static string LoadText(int loaded)
+        {
+            return ClampLoaded(loaded).ToString(System.Globalization.CultureInfo.InvariantCulture) + "/" + Capacity.ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
         /// <summary>A stored load outside 0..Capacity (a damaged save, a changed constant) counts as the nearest valid load.</summary>

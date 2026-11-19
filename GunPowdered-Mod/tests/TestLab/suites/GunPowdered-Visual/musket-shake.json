@@ -1,0 +1,21 @@
+{
+  "name": "musket-shake",
+  "description": "D-099 diagnosis (user 12:32: 'the weapon is shaking up and down all the time'): measures how far the held musket moves up and down frame to frame while standing still, first the old way (pose read back every frame), then with the skip guard (frames the animator did not run are left alone). Numbers go to the report.",
+  "timeout": 40,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at" },
+    { "do": "give", "prefab": "GP_Musket", "count": 1, "equip": true },
+    { "do": "wait", "seconds": 2 },
+    { "do": "hook", "name": "GunPowdered.musketSkipGuard", "args": { "on": false }, "expect": "skip guard off" },
+    { "do": "hook", "name": "GunPowdered.musketShakeReset", "expect": "measuring" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "hook", "name": "GunPowdered.musketShake", "contains": "frames", "label": "old way: shake numbers" },
+    { "do": "hook", "name": "GunPowdered.musketSkipGuard", "args": { "on": true }, "expect": "skip guard on" },
+    { "do": "hook", "name": "GunPowdered.musketShakeReset", "expect": "measuring" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "hook", "name": "GunPowdered.musketShake", "contains": "frames", "label": "with the guard: shake numbers" },
+    { "do": "clearInventory" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}
