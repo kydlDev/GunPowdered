@@ -18,7 +18,14 @@ Make gunpowder, then build weapons with it.
 - **Iron Musket**: holds 5 cartridges, fires at least 0.8 s apart, **R** reloads one cartridge per 1.2 s (key can be changed). Recoil pushes you back. Counter next to the crosshair; key hints in the bottom right.
 - **Explosive Arrow**: ammo for any bow; bursts on impact (3 m) and damages buildings too.
 - **Dynamite**: set it down, light it with a Torch (4 s fuse), 4 m blast for buildings, rocks, trees and ore; creatures take a fifth of that; leaves a round crater.
-- **Mobile Cannon** and **Asksvin Harness**: items and recipes only so far, no behaviour yet.
+- **Mobile Cannon** (Ashlands): a field gun on wheels.
+  - **Move it by hand**: E on the push handle. It is slow (about 3.5 m/s) and uses stamina.
+  - **Aim**: look at the crank and turn the mouse wheel to set the elevation (-5 to 25 degrees). Turn the whole carriage to aim left or right.
+  - **Load and fire**: E at the muzzle loads 3 Gunpowder and 1 Cannon Ball. Then E on the touch hole with a Torch in hand lights the fuse. A loaded cannon stays loaded after a relog.
+- **Asksvin Harness**: put it on a tame, saddled Asksvin, the same way as the saddle. Then E on the cannon's tow ring hitches the cannon behind the Asksvin.
+  - The Asksvin tows the cannon at its full speed, ridden or following you.
+  - E on the tow ring again unhitches it.
+  - The harness drops when the saddle comes off or the Asksvin dies.
 
 All pieces and items are listed in the KY-Items viewer (grid or list view).
 
