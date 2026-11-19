@@ -145,12 +145,12 @@ namespace GunPowdered.Core
 
         // D-076 (Claude-Agent-5, PROPOSED recipes and tiers, the user approves or changes them): the other D-045 weapons, items only for now (the behaviour comes
         // with their own stages). Like the Hand Cannon they are carried items that never stack as a weapon and cannot be equipped yet (Material placeholder).
-        public const string BlackMetal = "BlackMetal", Feathers = "Feathers", Chain = "Chain", Flametal = "FlametalNew", Ashwood = "Blackwood";
+        public const string BlackMetal = "BlackMetal", Feathers = "Feathers", Chain = "Chain", Flametal = "FlametalNew", Ashwood = "Blackwood", Arbalest = "CrossbowArbalest";
 
-        // T-009c iron musket (D-045 item 3): Swamp (iron) tier like the Hand Cannon, Forge level 2
+        // T-009c iron musket (D-045 item 3): Swamp (iron) tier like the Hand Cannon, Forge level 2. D-087: a real two-handed weapon cloned from the vanilla Arbalest (attack, reload, animation state); the musket's own clips come with D-088
         public static readonly ItemSpec Musket = new ItemSpec(GunPowderedPrefabs.Musket, "Iron Musket",
             "A long iron-barrelled gun with a matchlock and a brass-bound stock. Loaded with gunpowder and iron bullets, five shots at a time.",
-            ItemKind.Material, Iron, 1, 4f, Forge, 1,
+            ItemKind.Weapon, Arbalest, 1, 4f, Forge, 1,
             new CostLine(Iron, 15), new CostLine(Wood, 10), new CostLine(Bronze, 2)).AtStationLevel(2);
 
         // T-009d explosive arrows (D-045 item 5): Plains tier (black metal) so they are no early advantage; like the vanilla arrows 10 per craft
@@ -177,12 +177,28 @@ namespace GunPowdered.Core
             ItemKind.Material, Chain, 1, 5f, Workbench, 1,
             new CostLine(LoxPelt, 10), new CostLine(Chain, 3), new CostLine(Flametal, 2), new CostLine(Bronze, 2)).AtStationLevel(2);
 
+        // D-080 / D-081 (user): the musket ammunition chain. Paper (2 Resin + 1 Leather Scraps, Workbench; the user gave no yield, so 1 per craft: my reading), iron bullets
+        // (1 Iron makes 5, Forge level 2), paper cartridges (1 Gunpowder + 1 bullet + 1 paper, Workbench level 2). The musket loads cartridges, never loose bullets.
+        public static readonly ItemSpec Paper = new ItemSpec(GunPowderedPrefabs.Paper, "Paper",
+            "Plain sheets pressed from resin and leather scraps. Wrapped round gunpowder and a bullet they make a cartridge.",
+            ItemKind.Material, Feathers, 50, 0.05f, Workbench, 1,
+            new CostLine(Resin, 2), new CostLine(LeatherScraps, 1));
+
+        public static readonly ItemSpec IronBullet = new ItemSpec(GunPowderedPrefabs.IronBullet, "Iron Bullet",
+            "A small cast iron ball for the Iron Musket. Wrap it with gunpowder in paper to make a cartridge.",
+            ItemKind.Material, Iron, 50, 0.1f, Forge, 5, new CostLine(Iron, 1)).AtStationLevel(2);
+
+        public static readonly ItemSpec PaperCartridge = new ItemSpec(GunPowderedPrefabs.PaperCartridge, "Paper Cartridge",
+            "Gunpowder and an iron bullet wrapped in paper. Load it into the Iron Musket: the bullet flies, the paper burns away in the pan.",
+            ItemKind.Material, Resin, 50, 0.15f, Workbench, 1,
+            new CostLine(GunPowderedPrefabs.Gunpowder, 1), new CostLine(GunPowderedPrefabs.IronBullet, 1), new CostLine(GunPowderedPrefabs.Paper, 1)).AtStationLevel(2);
+
         /// <summary>Every entry, in the order they are registered.</summary>
         public static IList<ItemSpec> All
         {
             get
             {
-                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud, SpikedGrenade, CannonBall, Cannon, CannonStock, Musket, ExplosiveArrow, Dynamite, MobileCannon, AsksvinHarness };
+                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud, SpikedGrenade, CannonBall, Cannon, CannonStock, Musket, ExplosiveArrow, Dynamite, MobileCannon, AsksvinHarness, Paper, IronBullet, PaperCartridge };
             }
         }
     }

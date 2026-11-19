@@ -26,5 +26,8 @@ namespace GunPowdered.Core
         public const string Dynamite = "GP_Dynamite";
         public const string MobileCannon = "GP_MobileCannon";
         public const string AsksvinHarness = "GP_AsksvinHarness";
+        public const string Paper = "GP_Paper";
+        public const string IronBullet = "GP_IronBullet";
+        public const string PaperCartridge = "GP_PaperCartridge";
     }
 }

@@ -52,7 +52,7 @@ namespace GunPowdered.Testing.TestHooks
             ItemDrop drop = go != null ? go.GetComponent<ItemDrop>() : null;
             if (drop == null) return "no item " + prefab;
             ItemDrop.ItemData.SharedData s = drop.m_itemData.m_shared;
-            return "stack " + s.m_maxStackSize.ToString(CultureInfo.InvariantCulture) + ", weight " + s.m_weight.ToString("0.#", CultureInfo.InvariantCulture) + ", type " + s.m_itemType;
+            return "stack " + s.m_maxStackSize.ToString(CultureInfo.InvariantCulture) + ", weight " + s.m_weight.ToString("0.##", CultureInfo.InvariantCulture) + ", type " + s.m_itemType;
         }
 
         /// "all N listed" when KY-Items lists every item and piece of the mod, else "M of N listed".

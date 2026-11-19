@@ -1,0 +1,20 @@
+{
+  "name": "musket-ammo-items",
+  "description": "The musket ammunition chain in the game is the approved one (D-080 / D-081): Paper (Workbench, 2 Resin + 1 Leather Scraps), Iron Bullet (Forge level 2, 1 Iron makes 5) and Paper Cartridge (Workbench level 2, 1 Gunpowder + 1 Iron Bullet + 1 Paper); all three stack to 50, are Material items with the mod's own prefab, and are listed in KydlCore's KY-Items registry.",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_Paper" }, "expect": "piece_workbench level 1, makes 1, enabled True: Resin x2, LeatherScraps x1", "label": "the paper recipe in the game" },
+    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_Paper" }, "expect": "stack 50, weight 0.05, type Material", "label": "paper stacks to 50" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_IronBullet" }, "expect": "forge level 2, makes 5, enabled True: Iron x1", "label": "1 iron makes 5 bullets at forge level 2" },
+    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_IronBullet" }, "expect": "stack 50, weight 0.1, type Material", "label": "bullets stack to 50" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_PaperCartridge" }, "expect": "piece_workbench level 2, makes 1, enabled True: GP_Gunpowder x1, GP_IronBullet x1, GP_Paper x1", "label": "the cartridge needs gunpowder, a bullet and paper" },
+    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_PaperCartridge" }, "expect": "stack 50, weight 0.15, type Material", "label": "cartridges stack to 50" },
+    { "do": "give", "prefab": "GP_PaperCartridge", "count": 5 },
+    { "do": "check", "check": "hasItem", "prefab": "GP_PaperCartridge", "count": 5, "label": "five cartridges can be carried (the model prefab loads)" },
+    { "do": "hook", "name": "GunPowdered.kyItemsListed", "contains": "all ", "label": "every item and piece of the mod is in the KY-Items list" },
+    { "do": "clearInventory" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

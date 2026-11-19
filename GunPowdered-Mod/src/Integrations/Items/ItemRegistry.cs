@@ -10,6 +10,7 @@ using GunPowdered.Core;
 using GunPowdered.Features.Cannon.Infrastructure;
 using GunPowdered.Features.Grenades.Infrastructure;
 using GunPowdered.Features.Gunpowder.Infrastructure;
+using GunPowdered.Features.Musket.Infrastructure;
 using GunPowdered.Features.Saltpeter.Infrastructure;
 using GunPowdered.Features.Water.Infrastructure;
 using GunPowdered.Integrations.KyRegistry;
@@ -131,6 +132,7 @@ namespace GunPowdered.Integrations.Items
             if (item.Recipe != null && item.Recipe.Recipe != null) set.Recipes.Add(item.Recipe.Recipe);
             if (s.Id == GunPowderedPrefabs.SpikedGrenade) GrenadeSetup.Configure(item.ItemPrefab);
             if (s.Id == GunPowderedPrefabs.CannonBall) CannonSetup.ConfigureBall(item.ItemPrefab);
+            if (s.Id == GunPowderedPrefabs.Musket) MusketSetup.Configure(item.ItemPrefab);
             ModLog.Verbose("ItemRegistry: item " + s.Id + " cloned from " + s.CloneOf + ", stack " + s.Stack + ", recipe " + (item.Recipe != null) + " at station level " + s.StationLevel);
         }
 

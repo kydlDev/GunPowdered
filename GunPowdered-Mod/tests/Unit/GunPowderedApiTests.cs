@@ -10,7 +10,7 @@ namespace GunPowdered.Tests.Unit
         [Test]
         public void AllPrefabs_AreTheGpNames()
         {
-            Assert.That(GunPowderedApi.AllPrefabs.Count, Is.EqualTo(20), "12 before the hand cannon + Cannon Ball, Cannon, Cannon Stock + Musket, Explosive Arrow, Dynamite, Mobile Cannon, Asksvin Harness");
+            Assert.That(GunPowderedApi.AllPrefabs.Count, Is.EqualTo(23), "3 musket ammunition items (Paper, Iron Bullet, Paper Cartridge) + 12 before the hand cannon + Cannon Ball, Cannon, Cannon Stock + Musket, Explosive Arrow, Dynamite, Mobile Cannon, Asksvin Harness");
             Assert.That(GunPowderedApi.AllPrefabs, Does.Contain(GunPowderedApi.Prefabs.Gunpowder));
             Assert.That(GunPowderedApi.AllPrefabs.All(p => p.StartsWith("GP_")), Is.True);
         }

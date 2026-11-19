@@ -1,0 +1,224 @@
+{
+  "name": "visual-musket-poses",
+  "description": "D-092: the musket's own arm poses on the player (hold from 4 sides, reload from 2), GameProbe shots into the session's _testruns folder.",
+  "timeout": 150,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Musket",
+      "count": 1,
+      "equip": true
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketRig",
+      "contains": "Hold",
+      "label": "the rig poses the hold"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 35,
+        "elevation": 8,
+        "metres": 2.6
+      },
+      "contains": "free camera at"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 90,
+        "elevation": 5,
+        "metres": 2.6
+      },
+      "contains": "free camera at"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 270,
+        "elevation": 5,
+        "metres": 2.6
+      },
+      "contains": "free camera at"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 320,
+        "elevation": 10,
+        "metres": 2.6
+      },
+      "contains": "free camera at"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 35,
+        "elevation": 8,
+        "metres": 2.6
+      },
+      "contains": "free camera at"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketAction",
+      "args": {
+        "action": "reload"
+      },
+      "contains": "playing Reload"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 90,
+        "elevation": 5,
+        "metres": 2.6
+      },
+      "contains": "free camera at"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.6
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketRig",
+      "contains": "Reload",
+      "label": "the rig is reloading"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketAction",
+      "args": {
+        "action": "fire"
+      },
+      "contains": "playing Fire"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 35,
+        "elevation": 8,
+        "metres": 2.6
+      },
+      "contains": "free camera at"
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCamOff",
+      "contains": "free camera"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

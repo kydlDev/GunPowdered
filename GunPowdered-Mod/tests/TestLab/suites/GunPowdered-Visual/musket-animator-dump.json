@@ -1,0 +1,43 @@
+{
+  "name": "musket-animator-dump",
+  "description": "Writes the player's Animator layout (clips, parameters, humanoid bone paths) to _agent/lab for authoring the custom musket clips (D-088); reads only.",
+  "timeout": 60,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Musket",
+      "count": 1,
+      "equip": true
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketAnimatorDump",
+      "args": {
+        "file": "E:\\\\Projects\\\\Valheim\\\\GunPowdered\\\\_agent\\\\lab\\\\animator-dump.txt"
+      },
+      "contains": "animator dump written",
+      "label": "dump the animator"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

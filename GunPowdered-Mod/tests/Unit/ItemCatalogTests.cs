@@ -97,10 +97,27 @@ namespace GunPowdered.Tests.Unit
         public void Musket_IsAnIronItem_AtTheForgeLevel2()
         {
             var s = ItemCatalog.Musket;
-            Assert.That(s.Kind, Is.EqualTo(ItemKind.Material));
+            Assert.That(s.Kind, Is.EqualTo(ItemKind.Weapon), "D-087: a real two-handed weapon cloned from the Arbalest");
+            Assert.That(s.CloneOf, Is.EqualTo(ItemCatalog.Arbalest));
             Assert.That(s.Stack, Is.EqualTo(1));
             Assert.That(s.Station, Is.EqualTo(ItemCatalog.Forge));
             Assert.That(Cost(s), Is.EquivalentTo(new[] { "Iron:15", "Wood:10", "Bronze:2" }));
+        }
+
+        [Test]
+        public void MusketAmmunition_IsPaperThenBulletThenCartridge()
+        {
+            Assert.That(Cost(ItemCatalog.Paper), Is.EquivalentTo(new[] { "Resin:2", "LeatherScraps:1" }));
+            Assert.That(ItemCatalog.Paper.Station, Is.EqualTo(ItemCatalog.Workbench));
+            Assert.That(ItemCatalog.IronBullet.Yield, Is.EqualTo(5), "1 Iron makes 5 bullets (user, D-081)");
+            Assert.That(ItemCatalog.IronBullet.Station, Is.EqualTo(ItemCatalog.Forge));
+            Assert.That(ItemCatalog.IronBullet.StationLevel, Is.EqualTo(2));
+            Assert.That(Cost(ItemCatalog.IronBullet), Is.EquivalentTo(new[] { "Iron:1" }));
+            var c = ItemCatalog.PaperCartridge;
+            Assert.That(c.Station, Is.EqualTo(ItemCatalog.Workbench));
+            Assert.That(c.StationLevel, Is.EqualTo(2));
+            Assert.That(Cost(c), Is.EquivalentTo(new[] { "GP_Gunpowder:1", "GP_IronBullet:1", "GP_Paper:1" }));
+            Assert.That(new[] { ItemCatalog.Paper, ItemCatalog.IronBullet, c }.All(s => s.Kind == ItemKind.Material && s.Stack == 50), Is.True);
         }
 
         [Test]

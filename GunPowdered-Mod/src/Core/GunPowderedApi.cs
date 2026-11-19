@@ -41,6 +41,9 @@ namespace GunPowdered
             public const string Dynamite = Core.GunPowderedPrefabs.Dynamite;
             public const string MobileCannon = Core.GunPowderedPrefabs.MobileCannon;
             public const string AsksvinHarness = Core.GunPowderedPrefabs.AsksvinHarness;
+            public const string Paper = Core.GunPowderedPrefabs.Paper;
+            public const string IronBullet = Core.GunPowderedPrefabs.IronBullet;
+            public const string PaperCartridge = Core.GunPowderedPrefabs.PaperCartridge;
         }
 
         /// <summary>Every prefab name the mod adds.</summary>

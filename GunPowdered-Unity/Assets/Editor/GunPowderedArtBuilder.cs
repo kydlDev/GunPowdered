@@ -46,6 +46,10 @@ public static class GunPowderedArtBuilder
         new MatDef("harness_leather", Kind.Leather, 0.58f, 0.40f, 0.26f, 0.35f),
         new MatDef("harness_brass", Kind.Metal, 0.90f, 0.77f, 0.48f, 0.65f),
         new MatDef("harness_iron", Kind.Iron, 0.25f, 0.25f, 0.26f, 0.40f),
+        new MatDef("ammo_paper", Kind.Paper, 0.93f, 0.91f, 0.82f, 0.05f),
+        new MatDef("ammo_iron", Kind.Iron, 0.33f, 0.33f, 0.35f, 0.45f),
+        new MatDef("ammo_cartridge", Kind.Paper, 0.91f, 0.85f, 0.73f, 0.05f),
+        new MatDef("ammo_thread", Kind.Twine, 0.57f, 0.48f, 0.38f, 0.05f),
     };
 
     private sealed class ItemDef
@@ -62,6 +66,9 @@ public static class GunPowderedArtBuilder
         new ItemDef("ExplosiveArrow", "GP_ExplosiveArrow", "ExplosiveArrow", new Vector3(1f, 0.35f, -0.40f), true, 0.3f),
         new ItemDef("Dynamite", "GP_Dynamite", "Dynamite", new Vector3(1f, 0.55f, -0.65f), true, 0.5f),
         new ItemDef("Harness", "GP_AsksvinHarness", "AsksvinHarness", new Vector3(1f, 0.55f, -0.80f), false, 0f),
+        new ItemDef("Paper", "GP_Paper", "Paper", new Vector3(0.4f, 1.0f, -0.9f), true, 0.1f),
+        new ItemDef("IronBullet", "GP_IronBullet", "IronBullet", new Vector3(1f, 0.55f, -0.65f), true, 0.05f),
+        new ItemDef("Cartridge", "GP_PaperCartridge", "PaperCartridge", new Vector3(1f, 0.55f, -0.65f), true, 0.05f),
     };
 
     [MenuItem("GunPowdered/Build weapon art")]

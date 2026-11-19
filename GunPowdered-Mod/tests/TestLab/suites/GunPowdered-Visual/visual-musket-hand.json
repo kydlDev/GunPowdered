@@ -1,0 +1,124 @@
+{
+  "name": "visual-musket-hand",
+  "description": "D-088 step 0: the Iron Musket in the player's hands on the vanilla crossbow animation (a first look, no firing yet): equipped from the back, from the front and close, to judge how far the crossbow hold is from a musket hold.",
+  "timeout": 90,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketHandPose",
+      "args": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "rx": 0,
+        "ry": 0,
+        "rz": 0
+      },
+      "contains": "pose",
+      "label": "hand pose at the origin of the attach point"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Musket",
+      "count": 1,
+      "equip": true
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketHeld",
+      "contains": "Crossbow",
+      "label": "the musket is held with the crossbow animation state"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketHandAxes",
+      "contains": "hand X",
+      "label": "log where the right hand points in the crossbow hold"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cameraDistance",
+      "args": {
+        "metres": 3
+      },
+      "label": "camera closer"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: musket-hand-back"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "face",
+      "yawOffset": 90
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: musket-hand-side"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "face",
+      "yawOffset": 90
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: musket-hand-front"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cameraDistance",
+      "args": {
+        "metres": 4
+      },
+      "label": "camera distance back to the default"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

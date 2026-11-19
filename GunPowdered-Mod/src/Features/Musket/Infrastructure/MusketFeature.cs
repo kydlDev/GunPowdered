@@ -8,7 +8,7 @@ using GunPowdered.Integrations.Items;
 namespace GunPowdered.Features.Musket.Infrastructure
 {
     /// <summary>
-    /// The Iron Musket (D-045 item 3, D-076): the item, cloned from a vanilla placeholder by the ItemRegistry. This adapter queues it and turns its recipe on and
+    /// The Iron Musket (D-045 item 3, D-076): the item and its ammunition chain (Paper, Iron Bullet, Paper Cartridge: D-080 / D-081), cloned from vanilla placeholders by the ItemRegistry. This adapter queues them and turns its recipe on and
     /// off with [General] Enable Musket. Loading, aiming and the shot come with the next T-009c stages.
     /// </summary>
     internal sealed class MusketFeature : IFeature
@@ -18,7 +18,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
 
         internal MusketFeature()
         {
-            ItemRegistry.Register(FeatureId, ItemCatalog.Musket);
+            ItemRegistry.Register(FeatureId, ItemCatalog.Musket, ItemCatalog.Paper, ItemCatalog.IronBullet, ItemCatalog.PaperCartridge);
         }
 
         public string Id { get { return _lifecycle.Id; } }
