@@ -7,8 +7,8 @@ using GunPowdered.Features.Musket.Infrastructure;
 namespace GunPowdered.Integrations.HarmonyPatches
 {
     /// <summary>
-    /// With the Iron Musket in hand, the local player's attack button fires one loaded cartridge and the secondary attack (the reload key, D-087) loads
-    /// cartridges from the backpack (D-095). Every other weapon and every other character attacks as usual.
+    /// With the Iron Musket in hand, the local player's attack button fires one loaded cartridge (D-095); the secondary attack does nothing with the musket
+    /// (the reload has its own key, [Musket] Reload Key, D-100). Every other weapon and every other character attacks as usual.
     /// </summary>
     [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.StartAttack))]
     internal static class MusketAttackPatch
@@ -19,8 +19,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
             {
                 Player player = __instance as Player;
                 if (player == null || player != Player.m_localPlayer || MusketGun.Held(player) == null) return true;
-                if (secondaryAttack) MusketReloader.Begin(player);
-                else MusketGun.Fire(player);
+                if (!secondaryAttack) MusketGun.Fire(player);     // the secondary attack does nothing with the musket: reload has its own key (D-100)
                 __result = false;
                 return false;
             }

@@ -19,6 +19,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         internal MusketFeature()
         {
             ItemRegistry.Register(FeatureId, ItemCatalog.Musket, ItemCatalog.Paper, ItemCatalog.IronBullet, ItemCatalog.PaperCartridge);
+            MusketInput.Register();     // the reload key (D-100) - registered once at start, so the key hint and the binding exist before the HUD
         }
 
         public string Id { get { return _lifecycle.Id; } }

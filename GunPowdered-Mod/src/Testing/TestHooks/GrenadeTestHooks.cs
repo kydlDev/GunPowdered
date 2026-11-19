@@ -96,6 +96,39 @@ namespace GunPowdered.Testing.TestHooks
             return flat <= Tolerance ? "ok" : "bad: " + nums;
         }
 
+        /// <summary>
+        /// D-100 diagnosis: what a blast of <paramref name="radius"/> m at the last burst point collects with the game's Aoe masks (characters, and
+        /// props: Default, static_solid, Default_small, piece, hitbox, character_noenv, vehicle). The game's Aoe keeps only the first 100 colliders.
+        /// Returns "chars C, props P, first: name, name, ...".
+        /// </summary>
+        [TestHook("GunPowdered.blastProbe")]
+        static string BlastProbe(double radius)
+        {
+            if (!_blast.HasValue) return "no burst seen";
+            int chars = Physics.OverlapSphere(_blast.Value, (float)radius, LayerMask.GetMask("character", "character_net", "character_ghost")).Length;
+            Collider[] props = Physics.OverlapSphere(_blast.Value, (float)radius, LayerMask.GetMask("Default", "static_solid", "Default_small", "piece", "hitbox", "character_noenv", "vehicle"));
+            var names = new System.Collections.Generic.Dictionary<string, int>();
+            foreach (Collider c in props)
+            {
+                string n = LayerMask.LayerToName(c.gameObject.layer) + ":" + Utils.GetPrefabName(Projectile.FindHitObject(c) ?? c.gameObject);
+                names[n] = names.TryGetValue(n, out int k) ? k + 1 : 1;
+            }
+            var top = new System.Collections.Generic.List<string>();
+            foreach (var kv in names) top.Add(kv.Key + " x" + kv.Value);
+            top.Sort((a, b) => string.CompareOrdinal(a, b));
+            string r = "chars " + chars + ", props " + props.Length + ", first: " + string.Join(", ", top.GetRange(0, System.Math.Min(12, top.Count)).ToArray());
+            ModLog.Info("GrenadeTestHooks: blastProbe " + r);
+            return r;
+        }
+
+        /// <summary>True when the nearest piece of this prefab (within 20 m) has lost health (D-100: blasts damage buildings); false when it is whole or missing.</summary>
+        [TestHook("GunPowdered.pieceDamaged")]
+        static bool PieceDamaged(string prefab)
+        {
+            float pct = PieceHealth(prefab);
+            return pct >= 0f && pct < 99.9f;
+        }
+
         /// Health of the nearest piece of a prefab within 20 m, in percent (100 = untouched), or -1 when there is none.
         [TestHook("GunPowdered.pieceHealth")]
         static float PieceHealth(string prefab)

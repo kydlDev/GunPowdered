@@ -119,7 +119,7 @@ namespace GunPowdered.Testing
         }
 
         /// The Spiked Grenade (D-047) is wired as approved: its own flight and blast prefabs are registered, the throw has no random spread, the blast
-        /// spares buildings, and the hand shows the clay pot.
+        /// damages buildings, trees and rocks normally (D-100) but not the terrain, and the hand shows the clay pot.
         static string World_GrenadeReady()
         {
             var scene = ZNetScene.instance;
@@ -135,7 +135,7 @@ namespace GunPowdered.Testing
             if (item == null || flight == null || blast == null) return "FAIL: missing prefab - item " + (item != null) + ", flight " + (flight != null) + ", blast " + (blast != null);
             if (attack.m_attackProjectile != flight) return "FAIL: the grenade throws " + (attack.m_attackProjectile != null ? attack.m_attackProjectile.name : "nothing") + ", not its own flight";
             if (attack.m_projectileAccuracy > 0f || attack.m_projectileAccuracyMin > 0f || attack.m_randomVelocity) return "FAIL: the throw has random spread, it would not follow the arc";
-            if (aoe == null || aoe.m_hitProps || aoe.m_hitTerrain) return "FAIL: the blast " + (aoe == null ? "has no Aoe" : "hits buildings or terrain");
+            if (aoe == null || !aoe.m_hitProps || aoe.m_hitTerrain) return "FAIL: the blast " + (aoe == null ? "has no Aoe" : (!aoe.m_hitProps ? "spares buildings (D-100: it must damage them)" : "changes the terrain"));
             if (attack.m_recoilPushback <= 0f) return "FAIL: the throw has no recoil (D-045: every weapon has some)";
             if (attach == null || attach.Find("gp_model") == null) return "FAIL: no clay pot in the hand model (attach)";
             return "PASS: grenade, flight and blast ready (radius " + aoe.m_radius + " m, speed " + attack.m_projectileVel + " m/s, no spread, recoil " + attack.m_recoilPushback + ", buildings spared)";

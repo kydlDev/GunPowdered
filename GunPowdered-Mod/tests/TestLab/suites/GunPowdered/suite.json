@@ -80,6 +80,12 @@
         },
         {
             "guid": "com.kydldev.GunPowdered",
+            "section": "Musket",
+            "key": "Reload Key",
+            "value": "R"
+        },
+        {
+            "guid": "com.kydldev.GunPowdered",
             "section": "DebugLog",
             "key": "Enable",
             "value": "true"
@@ -110,6 +116,7 @@
         "musket-fire-reload",
         "api-musket",
         "cannons-switch",
+        "explosive-arrow-burst",
         "cannon-mount-dismantle",
         "cannon-load-fire",
         "cannon-pass-creature",
@@ -123,7 +130,7 @@
         "grenade-follows-arc",
         "meta-grenade-arc-check-fails",
         "grenade-hurts-creature",
-        "grenade-spares-buildings",
+        "grenade-damages-buildings",
         "grenade-aim-throw",
         "grenade-aim-cancel",
         "grenade-aim-block-only",

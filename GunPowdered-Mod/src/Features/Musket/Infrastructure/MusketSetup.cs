@@ -70,7 +70,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = "Attack", Hint = MusketRules.HintFire },
-                    new ButtonConfig { Name = "SecondaryAttack", Hint = MusketRules.HintReload },
+                    MusketInput.ReloadButton ?? new ButtonConfig { Name = "SecondaryAttack", Hint = MusketRules.HintReload },
                     new ButtonConfig { Name = "Block", Hint = MusketRules.HintBlock }
                 }
             });

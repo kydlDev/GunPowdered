@@ -120,7 +120,11 @@ namespace GunPowdered.Features.Musket.Infrastructure
 
         void LateUpdate()
         {
-            if (_character != null && _character == Player.m_localPlayer) MusketAmmoHud.Refresh(Player.m_localPlayer);
+            if (_character != null && _character == Player.m_localPlayer)
+            {
+                MusketAmmoHud.Refresh(Player.m_localPlayer);
+                MusketInput.Poll(Player.m_localPlayer);
+            }
             bool holding = _character != null && _vis != null && _vis.m_rightHand != null && FindModel();
             if (holding != _wasHolding) ModLog.Verbose($"MusketRig: {_character?.name} {(holding ? "holds" : "no longer holds")} the musket");
             _wasHolding = holding;

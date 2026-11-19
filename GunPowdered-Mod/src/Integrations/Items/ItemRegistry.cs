@@ -133,6 +133,7 @@ namespace GunPowdered.Integrations.Items
             if (s.Id == GunPowderedPrefabs.SpikedGrenade) GrenadeSetup.Configure(item.ItemPrefab);
             if (s.Id == GunPowderedPrefabs.CannonBall) CannonSetup.ConfigureBall(item.ItemPrefab);
             if (s.Id == GunPowderedPrefabs.Musket) MusketSetup.Configure(item.ItemPrefab);
+            if (s.Id == GunPowderedPrefabs.ExplosiveArrow) GunPowdered.Features.ExplosiveArrows.Infrastructure.ExplosiveArrowSetup.Configure(item.ItemPrefab);
             ModLog.Verbose("ItemRegistry: item " + s.Id + " cloned from " + s.CloneOf + ", stack " + s.Stack + ", recipe " + (item.Recipe != null) + " at station level " + s.StationLevel);
         }
 

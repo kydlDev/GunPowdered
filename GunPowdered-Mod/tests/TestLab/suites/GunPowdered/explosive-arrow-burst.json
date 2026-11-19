@@ -1,0 +1,25 @@
+{
+  "name": "explosive-arrow-burst",
+  "description": "Explosive Arrow (D-100): real arrow ammunition (the bow's arrow ammo, cloned from the Iron Arrow), 30 pierce on a direct hit, used up on the hit; the hit sets off a 3 m burst (40 blunt + 20 fire) that kills a Boar and damages a wood wall like any other damage (only the dynamite is special).",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.explosiveArrowInfo", "contains": "ammo $ammo_arrows, item Ammo, pierce 30", "label": "arrow ammunition for any bow, 30 pierce" },
+    { "do": "hook", "name": "GunPowdered.explosiveArrowInfo", "contains": "burst GP_ExplosiveArrow_explosion, radius 3, props True, after life False, respawn item False", "label": "3 m burst that hits buildings, at once, arrow used up" },
+    { "do": "spawn", "prefab": "Boar", "dz": 12 },
+    { "do": "wait", "seconds": 1.5 },
+    { "do": "hook", "name": "GunPowdered.shootExplosiveArrowAt", "args": { "prefab": "Boar" }, "contains": "shot at", "label": "an arrow is shot at the Boar" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.explosiveArrowBurstSeen", "expect": true }, "timeout": 5 },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.countCreatures", "args": { "prefab": "Boar" }, "expect": 0, "label": "the burst kills the Boar" },
+    { "do": "hook", "name": "GunPowdered.placePieceAhead", "args": { "prefab": "woodwall", "metres": 10 }, "contains": "placed woodwall", "label": "a wood wall 10 m ahead" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.shootExplosiveArrowAt", "args": { "prefab": "woodwall" }, "contains": "shot at", "label": "an arrow is shot at the wall" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.explosiveArrowBurstSeen", "expect": true }, "timeout": 5 },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.pieceDamaged", "args": { "prefab": "woodwall" }, "expect": true, "label": "the wall is damaged" },
+    { "do": "hook", "name": "GunPowdered.removePiecesAhead", "args": { "prefab": "woodwall" }, "contains": "removed", "label": "the wall is taken away" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

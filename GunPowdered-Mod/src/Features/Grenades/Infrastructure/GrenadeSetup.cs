@@ -117,18 +117,19 @@ namespace GunPowdered.Features.Grenades.Infrastructure
                 m_fire = ModSettings.GrenadeFire.Value
             };
             blast.m_toolTier = 0;
-            blast.m_hitProps = false;                // no buildings, trees or rocks: that is the dynamite's job (D-045 item 6, D-047)
+            blast.m_hitProps = true;                 // buildings, trees and rocks take the normal damage (user D-100: only the dynamite is special)
             blast.m_hitTerrain = false;
             blast.m_spawnOnHitTerrain = null;
             blast.m_statusEffect = "";
             blast.m_hitOwner = true;                 // the red ring warns of it
+            blast.m_hitAfterTtl = false;             // hit WITH the burst: the dynamite base hits only when its 3 s life ends (bombdynamite_explosion m_hitAfterTtl 1, D-100)
 
             Read(Applied);
             _everApplied = true;
             ModLog.Verbose("GrenadeSetup: applied - speed " + speed + " m/s, gravity " + flight.m_gravity + ", fuse " + flight.m_ttl + " s, burst offset " + flight.m_spawnOffset + ", radius " + blast.m_radius
                 + " m, damage blunt " + blast.m_damage.m_blunt + " pierce " + blast.m_damage.m_pierce + " fire " + blast.m_damage.m_fire + ", recoil " + attack.m_recoilPushback
                 + (TestFlightDrag > 0f ? ", TEST flight drag " + TestFlightDrag : ""));
-            return Mathf.Approximately(attack.m_projectileVel, speed) && Mathf.Approximately(blast.m_radius, ModSettings.GrenadeRadius.Value) && !blast.m_hitProps;
+            return Mathf.Approximately(attack.m_projectileVel, speed) && Mathf.Approximately(blast.m_radius, ModSettings.GrenadeRadius.Value) && blast.m_hitProps;
         }
 
         static GameObject CloneFirst(string id, string[] bases)

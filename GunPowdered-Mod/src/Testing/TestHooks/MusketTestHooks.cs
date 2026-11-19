@@ -150,18 +150,34 @@ namespace GunPowdered.Testing.TestHooks
         }
 
         /// <summary>
-        /// Presses the attack button (secondary = false: fire) or the reload key (secondary = true) the way the game does (Humanoid.StartAttack, so
-        /// MusketAttackPatch runs). Returns what the press did, the load and whether a reload runs: "&lt;result&gt;; loaded N; reloading B" (D-095).
+        /// Presses the attack button (secondary = false: fire, the way the game does: Humanoid.StartAttack, so MusketAttackPatch runs) or the reload key
+        /// (secondary = true: the same code the [Musket] Reload Key runs, D-100). Returns what the press did, the load and whether a reload runs:
+        /// "&lt;result&gt;; loaded N; reloading B" (D-095).
         /// </summary>
         [TestHook("GunPowdered.musketPress")]
         static string Press(bool secondary)
         {
             Player p = Player.m_localPlayer;
             if (p == null) return "no player";
-            p.StartAttack(null, secondary);
+            if (secondary) MusketInput.ReloadPressed(p);
+            else p.StartAttack(null, false);
             string result = secondary ? MusketReloader.LastBegin : MusketGun.LastAttempt;
             return result + "; loaded " + MusketGun.Loaded(MusketGun.Held(p)) + "; reloading " + MusketReloader.IsReloading(p);
         }
+
+        /// <summary>Presses the game's secondary attack (middle mouse) with the musket in hand: it must do nothing now (D-100). Returns "loaded N; reloading B".</summary>
+        [TestHook("GunPowdered.musketSecondaryAttack")]
+        static string SecondaryAttack()
+        {
+            Player p = Player.m_localPlayer;
+            if (p == null) return "no player";
+            p.StartAttack(null, true);
+            return "loaded " + MusketGun.Loaded(MusketGun.Held(p)) + "; reloading " + MusketReloader.IsReloading(p);
+        }
+
+        /// <summary>The key bound to the musket reload ([Musket] Reload Key).</summary>
+        [TestHook("GunPowdered.musketReloadKey")]
+        static string ReloadKey() => GunPowdered.Configuration.ModSettings.MusketReloadKey != null ? GunPowdered.Configuration.ModSettings.MusketReloadKey.Value.ToString() : "none";
 
         /// <summary>How many cartridges the musket in hand holds (-1 without a musket in hand).</summary>
         [TestHook("GunPowdered.musketLoaded")]

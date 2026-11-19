@@ -1,0 +1,66 @@
+using Jotunn.Configs;
+using Jotunn.Managers;
+using KydlCore.Common;
+using GunPowdered.Bootstrap;
+using GunPowdered.Configuration;
+using GunPowdered.Features.Musket.Domain;
+
+namespace GunPowdered.Features.Musket.Infrastructure
+{
+    /// <summary>
+    /// The musket's own reload key (user 2026-11-19 13:14, D-100: "a separate reload key (R) instead of middle mouse"): [Musket] Reload Key, default R,
+    /// registered with Jotunn's input manager so the key hint shows whatever key the player bound. Read once per frame for the local player while the
+    /// musket is in hand and no chat, console, menu, inventory, text box or map is open.
+    /// </summary>
+    internal static class MusketInput
+    {
+        internal const string ReloadButtonName = "GunPowdered_MusketReload";
+        static ButtonConfig _reload;
+        static bool _registered;
+
+        /// <summary>The reload button (also used by the key hint).</summary>
+        internal static ButtonConfig ReloadButton
+        {
+            get
+            {
+                if (_reload == null && ModSettings.MusketReloadKey != null)
+                    _reload = new ButtonConfig { Name = ReloadButtonName, Config = ModSettings.MusketReloadKey, Hint = MusketRules.HintReload, ActiveInCustomGUI = false };
+                return _reload;
+            }
+        }
+
+        /// <summary>Registers the button with Jotunn (once, at start). Expected outcome: true when it is registered.</summary>
+        internal static bool Register()
+        {
+            if (_registered) return true;
+            if (ReloadButton == null)
+            {
+                ModLog.Warn("MusketInput: no [Musket] Reload Key setting - the musket has no reload key");
+                return false;
+            }
+            InputManager.Instance.AddButton(Plugin.ModGuid, ReloadButton);
+            _registered = true;
+            ModLog.Verbose("MusketInput: reload key " + ModSettings.MusketReloadKey.Value + " registered");
+            return true;
+        }
+
+        /// <summary>Once per frame for the local player: the reload key starts a reload. Expected outcome: what the press did, or null without a press.</summary>
+        internal static string Poll(Player local)
+        {
+            if (!_registered || MusketGun.Held(local) == null || !Free()) return null;
+            return ZInput.GetButtonDown(ReloadButtonName) ? ReloadPressed(local) : null;
+        }
+
+        /// <summary>The reload key pressed (test hooks call this too). Expected outcome: what MusketReloader.Begin answered.</summary>
+        internal static string ReloadPressed(Player local)
+        {
+            return MusketReloader.Begin(local);
+        }
+
+        static bool Free()
+        {
+            if (Chat.instance != null && Chat.instance.HasFocus()) return false;
+            return !Console.IsVisible() && !Menu.IsVisible() && !InventoryGui.IsVisible() && !TextInput.IsVisible() && !Minimap.IsOpen();
+        }
+    }
+}

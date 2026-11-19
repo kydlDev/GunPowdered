@@ -80,6 +80,12 @@
         },
         {
             "guid": "com.kydldev.GunPowdered",
+            "section": "Musket",
+            "key": "Reload Key",
+            "value": "R"
+        },
+        {
+            "guid": "com.kydldev.GunPowdered",
             "section": "DebugLog",
             "key": "Enable",
             "value": "true"
