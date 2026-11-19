@@ -47,6 +47,15 @@ namespace GunPowdered.Features.Musket.Infrastructure
             return rig;
         }
 
+        /// <summary>Where the muzzle of the musket in this player's hand is (world). Expected outcome: false while the player holds no musket model.</summary>
+        internal bool TryMuzzle(out Vector3 at)
+        {
+            at = Vector3.zero;
+            if (_model == null || !_wasHolding) return false;
+            at = _model.TransformPoint(new Vector3(0f, 0f, MusketPoses.MuzzleZ));
+            return true;
+        }
+
         /// <summary>Starts an action (a shot's recoil, a reload) for this player; Hold ends it.</summary>
         internal void Play(MusketAction action)
         {

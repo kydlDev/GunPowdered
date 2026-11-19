@@ -1,3 +1,5 @@
+using System;
+
 namespace GunPowdered.Features.Musket.Domain
 {
     /// <summary>
@@ -44,6 +46,35 @@ namespace GunPowdered.Features.Musket.Domain
         internal static int AfterReload(int loaded, int carried)
         {
             return ClampLoaded(loaded) + CartridgesToLoad(loaded, carried);
+        }
+
+        /// <summary>The shortest time between two shots (s): holding the attack button fires again only after it (D-095).</summary>
+        internal const float ShotIntervalSeconds = 0.8f;
+
+        /// <summary>One cartridge goes in per ramrod stroke (D-087: "one cartridge per 1.2 s").</summary>
+        internal const float ReloadSecondsPerCartridge = 1.2f;
+
+        /// <summary>The bullet (D-087 proposal, D-095): pierce damage, muzzle speed (m/s), spread (degrees each way), gravity (m/s2), life (s).</summary>
+        internal const float BulletPierce = 55f, BulletSpeed = 110f, BulletSpreadDegrees = 0.6f, BulletGravity = 4f, BulletSeconds = 3f;
+
+        /// <summary>Whether enough time has passed since the last shot (<paramref name="lastShot"/>, s) to fire again at <paramref name="now"/>.</summary>
+        internal static bool ShotIntervalOver(float now, float lastShot)
+        {
+            return now - lastShot >= ShotIntervalSeconds;
+        }
+
+        /// <summary>How many cartridges a reload that began at <paramref name="started"/> should have moved in by <paramref name="now"/>: one at the end of each 1.2 s stroke.</summary>
+        internal static int CartridgesDue(float started, float now)
+        {
+            if (now <= started) return 0;
+            return (int)Math.Floor((now - started) / ReloadSecondsPerCartridge + 1e-4);
+        }
+
+        /// <summary>Reads a stored load ("0".."5"); anything unreadable counts as empty, anything outside 0..Capacity as the nearest valid load.</summary>
+        internal static int ParseLoaded(string stored)
+        {
+            int v;
+            return int.TryParse(stored, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out v) ? ClampLoaded(v) : 0;
         }
 
         /// <summary>A stored load outside 0..Capacity (a damaged save, a changed constant) counts as the nearest valid load.</summary>

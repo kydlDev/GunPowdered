@@ -149,6 +149,48 @@ namespace GunPowdered.Testing.TestHooks
             return "playing " + rig.CurrentAction;
         }
 
+        /// <summary>
+        /// Presses the attack button (secondary = false: fire) or the reload key (secondary = true) the way the game does (Humanoid.StartAttack, so
+        /// MusketAttackPatch runs). Returns what the press did, the load and whether a reload runs: "&lt;result&gt;; loaded N; reloading B" (D-095).
+        /// </summary>
+        [TestHook("GunPowdered.musketPress")]
+        static string Press(bool secondary)
+        {
+            Player p = Player.m_localPlayer;
+            if (p == null) return "no player";
+            p.StartAttack(null, secondary);
+            string result = secondary ? MusketReloader.LastBegin : MusketGun.LastAttempt;
+            return result + "; loaded " + MusketGun.Loaded(MusketGun.Held(p)) + "; reloading " + MusketReloader.IsReloading(p);
+        }
+
+        /// <summary>How many cartridges the musket in hand holds (-1 without a musket in hand).</summary>
+        [TestHook("GunPowdered.musketLoaded")]
+        static int Loaded()
+        {
+            ItemDrop.ItemData m = MusketGun.Held(Player.m_localPlayer);
+            return m != null ? MusketGun.Loaded(m) : -1;
+        }
+
+        /// <summary>Why the last reload ended and how many cartridges it moved in.</summary>
+        [TestHook("GunPowdered.musketReloadEnd")]
+        static string ReloadEnd() => MusketReloader.LastEnd;
+
+        /// <summary>
+        /// Whether the last bullet flew at least <paramref name="metres"/> from where it was fired (it may have hit something since: then false unless it got
+        /// that far before). Returns true / false.
+        /// </summary>
+        [TestHook("GunPowdered.musketBulletFlew")]
+        static bool BulletFlew(double metres)
+        {
+            GameObject b = MusketGun.LastBullet;
+            if (b == null) return MusketGun.LastBulletReach >= metres;
+            return Vector3.Distance(b.transform.position, MusketGun.LastMuzzle) >= metres || MusketGun.LastBulletReach >= metres;
+        }
+
+        /// <summary>What the last shot did (muzzle, direction, flight, effects, load left).</summary>
+        [TestHook("GunPowdered.musketLastShot")]
+        static string LastShot() => MusketGun.LastShot;
+
         /// <summary>What the local player's musket rig did in the last frame.</summary>
         [TestHook("GunPowdered.musketRig")]
         static string Rig()

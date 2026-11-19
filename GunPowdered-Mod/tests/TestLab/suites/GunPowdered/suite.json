@@ -113,6 +113,7 @@
         "cannon-items",
         "weapons-items",
         "musket-ammo-items",
+        "musket-fire-reload",
         "cannon-mount-dismantle",
         "cannon-load-fire",
         "cannon-pass-creature",

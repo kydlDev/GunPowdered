@@ -98,5 +98,57 @@ namespace GunPowdered.Tests.Unit
             Assert.That(MusketRules.WhyNotReload(9, 10), Is.EqualTo(MusketRules.Full));
             Assert.That(MusketRules.AfterReload(-2, 10), Is.EqualTo(5));
         }
+
+        // D-095: firing and the timed reload
+        [TestCase(10f, 9.3f, false)]
+        [TestCase(10f, 9.2f, true)]
+        [TestCase(10f, -99f, true)]
+        [TestCase(10f, 10f, false)]
+        public void ShotInterval_AllowsTheNextShotOnlyAfter08Seconds(float now, float lastShot, bool expected)
+        {
+            Assert.That(MusketRules.ShotIntervalOver(now, lastShot), Is.EqualTo(expected));
+        }
+
+        [TestCase(5f, 5f, 0)]
+        [TestCase(5f, 4f, 0)]
+        [TestCase(5f, 6.19f, 0)]
+        [TestCase(5f, 6.2f, 1)]
+        [TestCase(5f, 8.6f, 3)]
+        [TestCase(5f, 11f, 5)]
+        public void CartridgesDue_OnePerFinishedStroke(float started, float now, int expected)
+        {
+            Assert.That(MusketRules.CartridgesDue(started, now), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ReloadTiming_MatchesTheRamrodStroke()
+        {
+            Assert.That(MusketRules.ReloadSecondsPerCartridge, Is.EqualTo(MusketPoseRules.ReloadSecondsPerCartridge));
+        }
+
+        [TestCase("3", 3)]
+        [TestCase("0", 0)]
+        [TestCase("7", 5)]
+        [TestCase("-1", 0)]
+        [TestCase("", 0)]
+        [TestCase(null, 0)]
+        [TestCase("x", 0)]
+        public void ParseLoaded_ReadsTheStoredLoadSafely(string stored, int expected)
+        {
+            Assert.That(MusketRules.ParseLoaded(stored), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void FiveShots_EmptyTheMusket_ThenFiringIsRefused()
+        {
+            int loaded = MusketRules.AfterReload(0, 9);
+            for (int i = 0; i < 5; i++)
+            {
+                Assert.That(MusketRules.WhyNotFire(loaded), Is.Null);
+                loaded = MusketRules.AfterShot(loaded);
+            }
+            Assert.That(loaded, Is.EqualTo(0));
+            Assert.That(MusketRules.WhyNotFire(loaded), Is.EqualTo(MusketRules.Empty));
+        }
     }
 }
