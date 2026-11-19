@@ -40,5 +40,44 @@ namespace GunPowdered.Tests.Unit
         {
             Assert.That(AsksvinTowRules.Nearer(candidate, best, range), Is.EqualTo(expected));
         }
+
+        [TestCase(0f, 1f)]
+        [TestCase(-1f, 1f)]
+        [TestCase(-1.775f, 0.5f)]
+        [TestCase(-2.55f, 0f)]
+        [TestCase(-3.5f, 0f)]
+        public void SaddleWeight_FrontOnTheSaddleRearOnTheRoot(float z, float expected)
+        {
+            Assert.That(AsksvinTowRules.SaddleWeight(z, -1f, -2.55f), Is.EqualTo(expected).Within(0.001f));
+        }
+
+        [TestCase(0f, 25f, 0f)]
+        [TestCase(20f, 25f, 0f)]
+        [TestCase(-25f, 25f, 0f)]
+        [TestCase(40f, 25f, 15f)]
+        [TestCase(-90f, 25f, -65f)]
+        public void Excess_OnlyPastTheLimit(float angle, float limit, float expected)
+        {
+            Assert.That(AsksvinTowRules.Excess(angle, limit), Is.EqualTo(expected).Within(0.001f));
+        }
+
+        [Test]
+        public void UprightAccel_PullsBackAndDamps()
+        {
+            Assert.That(AsksvinTowRules.UprightAccel(0f, 0f), Is.EqualTo(0f));
+            Assert.That(AsksvinTowRules.UprightAccel(10f, 0f), Is.LessThan(0f), "tilted right: pulled left");
+            Assert.That(AsksvinTowRules.UprightAccel(-10f, 0f), Is.GreaterThan(0f), "tilted left: pulled right");
+            Assert.That(AsksvinTowRules.UprightAccel(0f, 2f), Is.LessThan(0f), "rolling: damped");
+        }
+
+        [TestCase(1L, 1L, 2L, "push")]
+        [TestCase(1L, 2L, 1L, "pull")]
+        [TestCase(1L, 1L, 1L, null)]
+        [TestCase(1L, 2L, 2L, null)]
+        [TestCase(1L, 2L, 0L, null)]
+        public void OwnerMove_TheAnimalsOwnerSimulatesTheCannon(long me, long cannon, long animal, string expected)
+        {
+            Assert.That(AsksvinTowRules.OwnerMove(me, cannon, animal), Is.EqualTo(expected));
+        }
     }
 }

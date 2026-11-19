@@ -54,28 +54,7 @@
       "label": "a tame Asksvin behind the trail"
     },
     {
-      "do": "hook",
-      "name": "GunPowdered.asksvinSaddle",
-      "expect": "saddled True"
-    },
-    {
-      "do": "give",
-      "prefab": "GP_AsksvinHarness",
-      "count": 1
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.asksvinHarnessOn",
-      "expect": "harnessed True, harness items 0"
-    },
-    {
-      "do": "wait",
-      "seconds": 0.5
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.mobileCannonHitch",
-      "expect": "hitch True"
+      "do": "asksvinHitched"
     },
     {
       "do": "wait",

@@ -36,5 +36,49 @@ namespace GunPowdered.Features.MobileCannon.Domain
 
         /// <summary>The nearer of two candidates (distance in m; a negative distance means "none yet"). Expected outcome: true when the new one wins.</summary>
         public static bool Nearer(float candidate, float best, float range) => candidate <= range && (best < 0f || candidate < best);
+
+        /// <summary>
+        /// How much of a harness vertex rides the saddle's spine bone (the rest stays on the animal's root), by its position along the animal (z, m; forward is +).
+        /// Expected outcome: 1 at or in front of <paramref name="front"/> (the trace anchors), 0 at or behind <paramref name="rear"/> (the spreader), linear between.
+        /// </summary>
+        public static float SaddleWeight(float z, float front, float rear)
+        {
+            if (front <= rear) return z >= front ? 1f : 0f;
+            float t = (z - rear) / (front - rear);
+            return t <= 0f ? 0f : t >= 1f ? 1f : t;
+        }
+
+        /// <summary>Roll (about the cannon's length) a towed cannon may take before it is held: side slopes still tilt it, a yank cannot tip it over (deg).</summary>
+        public const float MaxRoll = 25f;
+
+        /// <summary>Pitch (nose up or down) a towed cannon may take before it is held (deg): the trail end is on the hook, so more than this is a somersault.</summary>
+        public const float MaxPitch = 40f;
+
+        /// <summary>
+        /// The angular acceleration (rad/s^2, about the tilt axis) that pulls a towed cannon back towards the ground's tilt: a spring on the angle (deg) and a damper
+        /// on its rate (rad/s). Expected outcome: 0 when level and still; against the tilt and against the rate otherwise.
+        /// </summary>
+        public static float UprightAccel(float angleDeg, float rateRad) => -angleDeg * 0.0174533f * 60f - rateRad * 14f;
+
+        /// <summary>How far (deg) a tilt is past its limit. Expected outcome: 0 inside +-limit, else the signed excess the cannon is turned back by.</summary>
+        public static float Excess(float angleDeg, float limit)
+        {
+            if (angleDeg > limit) return angleDeg - limit;
+            if (angleDeg < -limit) return angleDeg + limit;
+            return 0f;
+        }
+
+        /// <summary>
+        /// The client that owns the towing animal simulates the cannon too. Expected outcome: "push" when this client owns the cannon but another client owns the
+        /// animal (hand the cannon over), "pull" when this client owns the animal but not the cannon (take it, also when the old owner never hands it back),
+        /// null when nothing changes.
+        /// </summary>
+        public static string OwnerMove(long me, long cannonOwner, long animalOwner)
+        {
+            if (animalOwner == 0L) return null;
+            if (cannonOwner == me && animalOwner != me) return "push";
+            if (cannonOwner != me && animalOwner == me) return "pull";
+            return null;
+        }
     }
 }

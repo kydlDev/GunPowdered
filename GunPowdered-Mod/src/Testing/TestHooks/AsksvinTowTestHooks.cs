@@ -150,6 +150,7 @@ namespace GunPowdered.Testing.TestHooks
             MobileCannonTow tow = cannon != null ? cannon.GetComponent<MobileCannonTow>() : null;
             if (p == null || tow == null) return "no player or no cannon";
             _cannonStart = cannon.transform.position;
+            tow.ResetTiltStats();
             return "hitch " + tow.Use(p);
         }
 
@@ -163,7 +164,7 @@ namespace GunPowdered.Testing.TestHooks
             AsksvinHarness h = _animal != null ? _animal.GetComponent<AsksvinHarness>() : null;
             float moved = Vector3.Distance(Flat(cannon.transform.position), Flat(_cannonStart));
             string s = "towed " + tow.Towed + ", joint " + tow.Jointed + ", model " + (h != null && h.ModelShown) + ", moved " + moved.ToString("0.0") + " m, max speed "
-                + tow.MaxSpeedSeen.ToString("0.0") + " m/s (asksvin " + tow.AnimalMaxSpeed.ToString("0.0") + "), gap " + (h != null && tow.Ring != null ? Vector3.Distance(tow.Ring.position, h.transform.TransformPoint(AsksvinHarness.HookLocal)).ToString("0.00") : "?") + " m, upright " + (cannon.transform.up.y > 0.7f);
+                + tow.MaxSpeedSeen.ToString("0.0") + " m/s (asksvin " + tow.AnimalMaxSpeed.ToString("0.0") + "), gap " + (h != null && tow.Ring != null ? Vector3.Distance(tow.Ring.position, h.transform.TransformPoint(AsksvinHarness.HookLocal)).ToString("0.00") : "?") + " m, upright " + (cannon.transform.up.y > 0.7f) + ", tilt max roll " + tow.MaxRollSeen.ToString("0") + " pitch " + tow.MaxPitchSeen.ToString("0") + " spin " + tow.MaxSpinSeen.ToString("0.0") + ", holds " + tow.Holds + ", flips " + tow.Flips;
             ModLog.Info("AsksvinTowTestHooks: " + s + "; " + tow.ClevisReport(_animal != null ? _animal.transform : null));
             return s;
         }
@@ -190,6 +191,25 @@ namespace GunPowdered.Testing.TestHooks
             if (cannon != null) _cannonStart = cannon.transform.position;           // after the hitch snap: only the towing counts
             ai.SetFollowTarget(p.gameObject);
             return "following, player " + metres.ToString("0") + " m ahead";
+        }
+
+        /// <summary>A sharp turn for the towing Asksvin: the player (its follow target) jumps <paramref name="metres"/> ahead of it, turned <paramref name="degrees"/> from its heading (+ right), and the animal runs there. Returns "turn D deg, player M m".</summary>
+        [TestHook("GunPowdered.asksvinTurn")]
+        static string Turn(double degrees, double metres)
+        {
+            Player p = Player.m_localPlayer;
+            MonsterAI ai = _animal != null ? _animal.GetComponent<MonsterAI>() : null;
+            if (p == null || ai == null) return "no player or no asksvin";
+            Vector3 dir = Quaternion.Euler(0f, (float)degrees, 0f) * Vector3.ProjectOnPlane(_animal.transform.forward, Vector3.up).normalized;
+            Vector3 at = _animal.transform.position + dir * (float)metres;
+            float h;
+            if (ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(at, out h)) at.y = h;
+            Rigidbody body = p.GetComponent<Rigidbody>();
+            p.transform.position = at;
+            if (body != null) { body.position = at; body.linearVelocity = Vector3.zero; }
+            ai.SetFollowTarget(p.gameObject);
+            ModLog.Info("AsksvinTowTestHooks: turn " + degrees.ToString("0") + " deg, player " + metres.ToString("0") + " m ahead of the asksvin");
+            return "turn " + degrees.ToString("0") + " deg, player " + metres.ToString("0") + " m";
         }
 
         /// <summary>Removes the spawned Asksvin (and its harness flag with it). Returns "removed".</summary>
@@ -279,6 +299,38 @@ namespace GunPowdered.Testing.TestHooks
             }
             _animal = best;
             return best == null ? "none" : "found at " + bestDist.ToString("0") + " m";
+        }
+
+        /// <summary>
+        /// Two-client diagnostics: "cannon owner C, animal owner A, me M, cannon is X, animal is Y" (X/Y = mine / Bjornita's / other / none) plus every peer's
+        /// uid and reference position and its distance to the animal (the server takes back objects whose owner's reference position is not near them). Logged.
+        /// </summary>
+        [TestHook("GunPowdered.mobileCannonOwners")]
+        static string Owners()
+        {
+            GameObject cannon = MobileCannonTestHooks.Cannon;
+            ZNetView cv = cannon != null ? cannon.GetComponent<ZNetView>() : null;
+            ZNetView av = _animal != null ? _animal.GetComponent<ZNetView>() : null;
+            long me = ZDOMan.GetSessionID();
+            long c = cv != null && cv.IsValid() ? cv.GetZDO().GetOwner() : 0L, a = av != null && av.IsValid() ? av.GetZDO().GetOwner() : 0L;
+            string s = "cannon owner " + c + ", animal owner " + a + ", me " + me + ", cannon is " + Who(c, me) + ", animal is " + Who(a, me);
+            if (ZNet.instance != null)
+                foreach (ZNetPeer peer in ZNet.instance.GetPeers())
+                    s += "; peer " + peer.m_playerName + " uid " + peer.m_uid + " ref " + peer.GetRefPos().ToString("0") + (_animal != null ? " (" + Vector3.Distance(peer.GetRefPos(), _animal.transform.position).ToString("0") + " m from the animal)" : "");
+            AsksvinHarness h = _animal != null ? _animal.GetComponent<AsksvinHarness>() : null;
+            if (h != null) s += "; " + h.SkinReport();
+            ModLog.Info("AsksvinTowTestHooks: " + s);
+            return s;
+        }
+
+        static string Who(long owner, long me)
+        {
+            if (owner == 0L) return "none";
+            if (owner == me) return "mine";
+            if (ZNet.instance != null)
+                foreach (ZNetPeer peer in ZNet.instance.GetPeers())
+                    if (peer.m_uid == owner) return peer.m_playerName.Contains("Player2") || peer.m_playerName.Contains("Bjornita") ? "Bjornita's" : peer.m_playerName + "'s";
+            return "other";
         }
 
         /// <summary>Tames the Asksvin that asksvinFind took (one the lab spawned, so that it can be a lab target for the second client). Returns "tamed True".</summary>

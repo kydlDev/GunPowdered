@@ -20,8 +20,13 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
     {
         internal const string StickId = "GP_DynamiteStick", ExplosionId = "GP_Dynamite_explosion", CraterId = "GP_Dynamite_crater";
         const string ExplosionBase = "bombdynamite_explosion", CraterBase = "digg_bombdynamite", CreatureChild = "gp_creature_blast";
-        /// <summary>How far (m) the hand model is moved back along its tube so the fist closes round the middle of the 0.20 m casing, not round its bottom end.</summary>
-        const float HandGripShift = 0.10f;
+        /// <summary>
+        /// The hand model under the item's "attach" (= RightHand_Attach when held). The vanilla Club's handle runs along attach +Z through the origin (radius 0.017),
+        /// so the fist closes round that axis. The Dynamite model stands along its own +Y with its origin at the bottom of the tube (bounds centre (-0.016, 0.152, 0)):
+        /// turn +Y onto +Z (90 deg about X) and move the tube's middle to (0, 0, 0.02), fuse forward. Fitted in Valheim-Unity-AssetRipper (scene _GunPowderedPreview/DynamiteGrip,
+        /// vanilla Player with "Standing Torch Idle right" sampled, Club attach as reference).
+        /// </summary>
+        static readonly Vector3 HandGripPosition = new Vector3(0.016f, 0f, -0.132f), HandGripEuler = new Vector3(90f, 0f, 0f);
         static GameObject _item, _stick, _explosion, _crater;
         static float _lastPlaced = -99f;
 
@@ -235,8 +240,8 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             foreach (Renderer old in attach.GetComponentsInChildren<Renderer>(true)) old.enabled = false;
             GameObject copy = Object.Instantiate(model.gameObject, attach);
             copy.name = "gp_model";
-            copy.transform.localPosition = new Vector3(0f, -HandGripShift, 0f);      // the model's origin is the bottom of the tube: put its middle into the fist (T-009j)
-            copy.transform.localRotation = Quaternion.identity;
+            copy.transform.localPosition = HandGripPosition;      // values fitted on the vanilla Player + Club attach in the AssetRipper project (T-009j)
+            copy.transform.localRotation = Quaternion.Euler(HandGripEuler);
             copy.transform.localScale = Vector3.one;
             foreach (Collider c in copy.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c);
             foreach (Transform t in copy.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = attach.gameObject.layer;
@@ -247,7 +252,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
                 r.enabled = true;
                 if (any) b.Encapsulate(r.bounds); else { b = r.bounds; any = true; }
             }
-            ModLog.Info("DynamiteSetup: hand model on the attach point, local position " + copy.transform.localPosition.ToString("0.000") + " (grip shift " + HandGripShift.ToString("0.00")
+            ModLog.Info("DynamiteSetup: hand model on the attach point, local position " + copy.transform.localPosition.ToString("0.000") + " rot " + HandGripEuler.ToString("0") + " (expected: centre near (0, 0, 0.02), long axis along +Z"
                 + "), bounds centre in attach space " + (any ? attach.InverseTransformPoint(b.center).ToString("0.000") : "none") + ", size " + (any ? b.size.ToString("0.000") : "none"));
             return true;
         }

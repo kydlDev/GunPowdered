@@ -181,7 +181,15 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 _animal = found;
             }
             if (_animal != null && _animal.TowKey != key) _animal = null;
-            if (_animal != null) _animal.ShowHitched();
+            if (_animal != null) _animal.ShowHitched(_ring);
+            LogOwners();
+            if (!_nview.IsOwner() && _animal != null && _animal.View != null && _animal.View.IsValid()
+                && AsksvinTowRules.OwnerMove(ZDOMan.GetSessionID(), _nview.GetZDO().GetOwner(), _animal.View.GetZDO().GetOwner()) == "pull")
+            {
+                // this client moves the animal: it takes the cannon too, also when the client that had it never hands it back (left, lagging, a lab puppet)
+                _nview.ClaimOwnership();
+                ModLog.Info("MobileCannonTow: " + name + " taken over from " + _lastCannonOwner + " because this client owns the towing animal");
+            }
             if (!_nview.IsOwner())
             {
                 if (_joint != null) DropJoint();
@@ -189,6 +197,74 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             }
             OwnerTick();
             ModLog.Every("mc-tow-" + GetInstanceID(), 5d, "MobileCannonTow: " + name + " towed by key " + key + (_animal != null ? " (" + _animal.name + ")" : " (not loaded)") + ", joint " + (_joint != null) + ", speed " + Speed().ToString("0.0") + " m/s");
+        }
+
+        // ---- upright keeper (T-009: no flips at full speed or in 90 degree turns) ----
+        // The hook sits 3.5 m behind the Asksvin's root, 0.4 m up: when the animal turns, the hook swings sideways fast and yanks the trail end above the wheels'
+        // contact, which rolls the cannon over. While towed, the owner holds roll (about the cannon's length) towards the ground's sideways tilt and pitch inside
+        // a band: a spring and damper first, a hard limit (the excess turned back, the rate taken out) when a yank still gets past it. Every hard hold is logged.
+
+        /// <summary>Largest roll / pitch (deg, from the ground's tilt) and angular speed (rad/s) seen while towed here, and how often the hard limit held it.</summary>
+        internal float MaxRollSeen { get; private set; }
+        internal float MaxPitchSeen { get; private set; }
+        internal float MaxSpinSeen { get; private set; }
+        internal int Holds { get; private set; }
+        internal int Flips { get; private set; }
+        float _lastHoldLog = -99f;
+        Rigidbody _body;
+
+        internal void ResetTiltStats() { MaxRollSeen = 0f; MaxPitchSeen = 0f; MaxSpinSeen = 0f; Holds = 0; Flips = 0; }
+
+        void FixedUpdate()
+        {
+            if (_joint == null || _animal == null || !IsValid || !_nview.IsOwner()) return;
+            if (_body == null) _body = GetComponent<Rigidbody>();
+            if (_body == null) return;
+            Vector3 ground = Vector3.up;
+            RaycastHit hit;
+            if (Physics.Raycast(_body.worldCenterOfMass + Vector3.up * 0.5f, Vector3.down, out hit, 3f, LayerMask.GetMask("terrain", "Default", "static_solid"), QueryTriggerInteraction.Ignore))
+                ground = hit.normal;
+            Vector3 fwd = transform.forward, right = transform.right, up = transform.up;
+            float roll = Vector3.SignedAngle(Vector3.ProjectOnPlane(ground, fwd), Vector3.ProjectOnPlane(up, fwd), fwd);
+            float pitch = Vector3.SignedAngle(Vector3.ProjectOnPlane(ground, right), Vector3.ProjectOnPlane(up, right), right);
+            Vector3 w = _body.angularVelocity;
+            float rollRate = Vector3.Dot(w, fwd), pitchRate = Vector3.Dot(w, right);
+            MaxRollSeen = Mathf.Max(MaxRollSeen, Mathf.Abs(roll));
+            MaxPitchSeen = Mathf.Max(MaxPitchSeen, Mathf.Abs(pitch));
+            MaxSpinSeen = Mathf.Max(MaxSpinSeen, w.magnitude);
+            if (up.y < 0.3f) Flips++;
+            _body.AddTorque(fwd * AsksvinTowRules.UprightAccel(roll, rollRate), ForceMode.Acceleration);
+            if (Mathf.Abs(pitch) > AsksvinTowRules.MaxPitch * 0.6f) _body.AddTorque(right * AsksvinTowRules.UprightAccel(pitch - Mathf.Sign(pitch) * AsksvinTowRules.MaxPitch * 0.6f, pitchRate), ForceMode.Acceleration);
+            float rollOver = AsksvinTowRules.Excess(roll, AsksvinTowRules.MaxRoll), pitchOver = AsksvinTowRules.Excess(pitch, AsksvinTowRules.MaxPitch);
+            if (rollOver == 0f && pitchOver == 0f) return;
+            Quaternion back = Quaternion.AngleAxis(-rollOver, fwd) * Quaternion.AngleAxis(-pitchOver, right);
+            _body.MoveRotation(back * _body.rotation);
+            if (rollOver != 0f && rollRate * rollOver > 0f) w -= fwd * rollRate;
+            if (pitchOver != 0f && pitchRate * pitchOver > 0f) w -= right * pitchRate;
+            _body.angularVelocity = w;
+            Holds++;
+            if (Time.time - _lastHoldLog < 0.5f) return;
+            _lastHoldLog = Time.time;
+            Rigidbody ab = _animal.GetComponent<Rigidbody>();
+            ModLog.Info("MobileCannonTow: " + name + " tilt held - roll " + roll.ToString("0") + " deg (rate " + (rollRate * Mathf.Rad2Deg).ToString("0") + " deg/s), pitch " + pitch.ToString("0")
+                + " deg, spin " + w.magnitude.ToString("0.0") + " rad/s, cannon " + Vector3.ProjectOnPlane(_body.linearVelocity, Vector3.up).magnitude.ToString("0.0") + " m/s, asksvin "
+                + (ab != null ? Vector3.ProjectOnPlane(ab.linearVelocity, Vector3.up).magnitude.ToString("0.0") + " m/s turning " + (ab.angularVelocity.y * Mathf.Rad2Deg).ToString("0") + " deg/s" : "?")
+                + ", yaw to the animal " + Vector3.SignedAngle(Vector3.ProjectOnPlane(fwd, Vector3.up), Vector3.ProjectOnPlane(_animal.transform.forward, Vector3.up), Vector3.up).ToString("0")
+                + " deg, joint force " + _joint.currentForce.magnitude.ToString("0") + " N, holds " + Holds);
+        }
+
+        long _lastCannonOwner = -1L, _lastAnimalOwner = -1L;
+
+        /// <summary>Diagnostics for the two-client hand-over: logs every change of the cannon's or the towing animal's owner as this client sees it.</summary>
+        void LogOwners()
+        {
+            long cannon = _nview.GetZDO().GetOwner();
+            long animal = _animal != null && _animal.View != null && _animal.View.IsValid() ? _animal.View.GetZDO().GetOwner() : 0L;
+            if (cannon == _lastCannonOwner && animal == _lastAnimalOwner) return;
+            ModLog.Info("MobileCannonTow: " + name + " owners - cannon " + _lastCannonOwner + " -> " + cannon + ", animal " + _lastAnimalOwner + " -> " + animal
+                + " (me " + ZDOMan.GetSessionID() + ", joint " + (_joint != null) + ")");
+            _lastCannonOwner = cannon;
+            _lastAnimalOwner = animal;
         }
 
         void OwnerTick()
@@ -207,7 +283,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 return;
             }
             long animalOwner = _animal.View.GetZDO().GetOwner();
-            if (animalOwner != 0L && animalOwner != ZDOMan.GetSessionID())
+            if (AsksvinTowRules.OwnerMove(ZDOMan.GetSessionID(), ZDOMan.GetSessionID(), animalOwner) == "push")
             {
                 // the client that moves the animal simulates the cannon too
                 DropJoint();
@@ -231,11 +307,14 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             _joint.anchor = transform.InverseTransformPoint(_ring.position);
             _joint.connectedAnchor = AsksvinHarness.HookLocal;
             _joint.breakForce = _vagon != null ? _vagon.m_breakForce * 4f : 40000f;
+            // x and y stay Limited with the cart's soft spring (Locked was tried in a9fix1: the snap's 0.15 m correction kicked the cannon over at the hitch).
+            // The few cm of sag are hidden: the harness model's hook ring and chain end ride the cannon's tow ring (AsksvinHarness skin, third bone).
             _joint.xMotion = ConfigurableJointMotion.Limited;
             _joint.yMotion = ConfigurableJointMotion.Limited;
             _joint.zMotion = ConfigurableJointMotion.Locked;
             _joint.linearLimit = new SoftJointLimit { limit = 0.001f };
-            _joint.linearLimitSpring = new SoftJointLimitSpring { spring = _vagon != null ? _vagon.m_spring : 5000f, damper = _vagon != null ? _vagon.m_springDamping : 1000f };
+            // 4x the cart's spring: with the cart's own the ring stretched up to 1 m off the hook in 90 degree turns at full speed (a9fix2 log)
+            _joint.linearLimitSpring = new SoftJointLimitSpring { spring = (_vagon != null ? _vagon.m_spring : 5000f) * 4f, damper = (_vagon != null ? _vagon.m_springDamping : 1000f) * 2f };
             _joint.connectedBody = animalBody;
             _massOn = _animal.Animal;
             if (_massOn != null) _massOn.SetExtraMass(ModSettings.MobileCannonTowExtraMass.Value);     // like the cart's m_playerExtraPullMass: the cannon must not hold the Asksvin back (D-105)

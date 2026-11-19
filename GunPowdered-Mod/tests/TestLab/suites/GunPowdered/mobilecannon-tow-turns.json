@@ -1,0 +1,129 @@
+{
+  "name": "mobilecannon-tow-turns",
+  "description": "T-009: the Asksvin tows the Mobile Cannon at full speed and makes sharp 90 degree turns right, left and a 135 degree turn; the cannon follows round the corners and never flips (upright keeper; every hold is logged with roll, pitch, spin, speeds, turn rate and joint force).",
+  "timeout": 150,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "mobileCannonPlaced"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinSpawn",
+      "contains": "tamed True",
+      "label": "a tame Asksvin behind the trail"
+    },
+    {
+      "do": "asksvinHitched"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "regex": "towed True, joint True, .*upright True",
+      "label": "hitched and upright"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinFollow",
+      "args": {
+        "metres": 30
+      },
+      "contains": "following",
+      "label": "straight run at full speed"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "regex": "upright True.*flips 0",
+      "label": "upright at full speed"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinTurn",
+      "args": {
+        "degrees": 90,
+        "metres": 18
+      },
+      "contains": "turn 90",
+      "label": "sharp turn right"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "regex": "upright True.*flips 0",
+      "label": "upright after the right turn"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinTurn",
+      "args": {
+        "degrees": -90,
+        "metres": 18
+      },
+      "contains": "turn -90",
+      "label": "sharp turn left"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "regex": "upright True.*flips 0",
+      "label": "upright after the left turn"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinTurn",
+      "args": {
+        "degrees": 135,
+        "metres": 18
+      },
+      "contains": "turn 135",
+      "label": "very sharp turn back"
+    },
+    {
+      "do": "wait",
+      "seconds": 4
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "regex": "towed True, joint True, model True, moved \\d+\\.\\d m, max speed ([4-9]|1[0-9])\\.\\d m/s .*upright True.*flips 0",
+      "label": "still hitched, kept up (4+ m/s), never flipped"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonHitch",
+      "expect": "hitch True",
+      "label": "unhitch"
+    },
+    {
+      "do": "mobileCannonAsksvinCleanup"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}
