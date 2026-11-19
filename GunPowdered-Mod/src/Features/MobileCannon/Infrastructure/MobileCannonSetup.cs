@@ -51,6 +51,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (piece.GetComponent<MobileCannonPull>() == null) piece.AddComponent<MobileCannonPull>();
             if (piece.GetComponent<MobileCannonAim>() == null) piece.AddComponent<MobileCannonAim>();
             if (piece.GetComponent<MobileCannonGun>() == null) piece.AddComponent<MobileCannonGun>();
+            if (piece.GetComponent<MobileCannonTow>() == null) piece.AddComponent<MobileCannonTow>();
             ModLog.Verbose("MobileCannonSetup: cart colliders on " + colliders + ", cart looks hidden " + hidden + ", pull point "
                 + (pull ? vagon.m_attachPoint.localPosition.ToString("0.00") : "missing") + ", wheels " + (vagon.m_wheels != null ? vagon.m_wheels.Length : 0));
             return pull && colliders > 0;

@@ -15,6 +15,8 @@ namespace GunPowdered.Testing.TestHooks
         static GameObject _cannon;
         static Vector3 _placedAt;
 
+        internal static GameObject Cannon => _cannon;
+
         /// <summary>The built prefab: "cart True, pull (x, y, z), colliders N, model True, wheels W".</summary>
         [TestHook("GunPowdered.mobileCannonInfo")]
         static string Info()

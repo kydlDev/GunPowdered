@@ -25,5 +25,9 @@ namespace GunPowdered.Configuration
             "Seconds from the torch on the touch hole to the shot (0.2-6).");
         public static readonly Tunable<float> MobileCannonRecoil = new Tunable<float>("MobileCannon", "MobileCannonRecoil", 1.5f, 0f, 6f,
             "Speed in m/s the cannon rolls back when it fires (0-6).");
+        public static readonly Tunable<float> MobileCannonHitchRange = new Tunable<float>("MobileCannon", "MobileCannonHitchRange", 6f, 1f, 20f,
+            "Farthest a harnessed Asksvin's tow hook may be from the cannon's tow ring to hitch it, in m (1-20; D-116).");
+        public static readonly Tunable<float> MobileCannonTowExtraMass = new Tunable<float>("MobileCannon", "MobileCannonTowExtraMass", 200f, 0f, 1000f,
+            "Mass added to a towing Asksvin while the cannon is hitched (0-1000; the game does the same for a player pulling a cart). Without it the cannon holds the Asksvin back to about 5 of its 9 m/s (lab a8tow5); D-105 wants its full speed.");
     }
 }

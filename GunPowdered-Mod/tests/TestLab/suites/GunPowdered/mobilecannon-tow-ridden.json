@@ -1,0 +1,174 @@
+{
+  "name": "mobilecannon-tow-ridden",
+  "description": "D-105 / D-116: a ridden, harnessed Asksvin running tows the Mobile Cannon at the Asksvin's own run speed (the cannon keeps up with the animal, far above the 3.5 m/s hand limit) and the cannon stays upright.",
+  "timeout": 150,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "mobileCannonPlaced"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinSpawn",
+      "contains": "tamed True",
+      "label": "a tame Asksvin behind the trail"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinSaddle",
+      "expect": "saddled True"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_AsksvinHarness",
+      "count": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinHarnessOn",
+      "expect": "harnessed True, harness items 0",
+      "label": "the harness goes on"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonHitch",
+      "expect": "hitch True",
+      "label": "E on the tow ring hitches"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinMount",
+      "expect": "riding True",
+      "label": "the player rides the Asksvin through its saddle"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinRide",
+      "args": {
+        "how": "run"
+      },
+      "contains": "run sent, riding True",
+      "label": "run, straight away from the cannon"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: riding with the cannon"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "regex": "towed True, joint True, model True, moved ([3-9][0-9])\\.\\d m, max speed ([8-9]|1[0-9])\\.\\d m/s \\(asksvin ([8-9]|1[0-9])\\.\\d\\), .*upright True",
+      "label": "towed 20+ m at the Asksvin run speed (8+ m/s; free run is 9.0, lab a8tow5), still hitched and upright, still hitched and upright"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinRide",
+      "args": {
+        "how": "stop"
+      },
+      "contains": "stop sent"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonHitch",
+      "expect": "hitch True",
+      "label": "unhitch (still riding)"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinRide",
+      "args": {
+        "how": "run"
+      },
+      "contains": "run sent",
+      "label": "run again without the cannon"
+    },
+    {
+      "do": "wait",
+      "seconds": 4
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinTopSpeed",
+      "regex": "asksvin top ([8-9]|1[0-9])\\.\\d m/s",
+      "label": "the Asksvin's own run speed without the cannon (compare with the towed speed)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinRide",
+      "args": {
+        "how": "stop"
+      },
+      "contains": "stop sent"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinDismount",
+      "expect": "riding False"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

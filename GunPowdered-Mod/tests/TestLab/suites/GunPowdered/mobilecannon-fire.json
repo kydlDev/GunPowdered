@@ -10,20 +10,7 @@
       "label": "start on the arena spot"
     },
     {
-      "do": "clearInventory"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.mobileCannonPlace",
-      "args": {
-        "metres": 4
-      },
-      "contains": "placed at",
-      "label": "build one in front"
-    },
-    {
-      "do": "wait",
-      "seconds": 2
+      "do": "mobileCannonPlaced"
     },
     {
       "do": "hook",

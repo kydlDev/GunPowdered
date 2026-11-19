@@ -1,0 +1,174 @@
+{
+  "name": "mobilecannon-tow",
+  "description": "D-116: the Asksvin Harness goes on a saddled tame Asksvin only (refused without a saddle), E on the cannon's tow ring hitches it, the harness model shows, the following Asksvin tows the cannon at its own speed (above the 3.5 m/s hand limit), E again unhitches.",
+  "timeout": 150,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "mobileCannonPlaced"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinSpawn",
+      "contains": "tamed True, harness state True",
+      "label": "a tame Asksvin behind the trail, with the harness state"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "give",
+      "prefab": "GP_AsksvinHarness",
+      "count": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinHarnessOn",
+      "expect": "harnessed False, harness items 1",
+      "label": "no saddle: the harness is refused and kept"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinSaddle",
+      "expect": "saddled True"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinHarnessOn",
+      "expect": "harnessed True, harness items 0",
+      "label": "saddled: the harness goes on and is used up"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonHitch",
+      "expect": "hitch True",
+      "label": "E on the tow ring hitches"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "regex": "towed True, joint True, model True, .*gap 0\\.[0-4]\\d m, upright True",
+      "label": "hitched: joint on, harness model shows, ring on the hook, cannon upright"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonGrab",
+      "contains": "grab asked",
+      "label": "E on the cart while towed"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonAttached",
+      "expect": false,
+      "label": "a towed cannon cannot be grabbed by hand"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinFollow",
+      "args": {
+        "metres": 22
+      },
+      "contains": "following",
+      "label": "the Asksvin follows the player 22 m away from the cannon"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 100,
+        "elevation": 15,
+        "metres": 9
+      },
+      "contains": "free camera at"
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: towing"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "wait",
+      "seconds": 7
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "regex": "towed True, joint True, model True, moved (1[0-9]|2[0-9])\\.\\d m, max speed ([4-9]|1[0-9])\\.\\d m/s \\(asksvin \\d+\\.\\d\\), .*upright True",
+      "label": "towed at least 10 m after the follow started, faster than by hand (4+ m/s), still upright"
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: after towing"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonHitch",
+      "expect": "hitch True",
+      "label": "E on the tow ring again unhitches"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "contains": "towed False, joint False, model False",
+      "label": "unhitched: no joint, harness model hidden"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCamOff",
+      "contains": "free camera"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

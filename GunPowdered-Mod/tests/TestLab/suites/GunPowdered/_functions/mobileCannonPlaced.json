@@ -1,0 +1,22 @@
+{
+  "params": [],
+  "actions": [
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonPlace",
+      "args": {
+        "metres": 4
+      },
+      "contains": "placed at",
+      "label": "build a Mobile Cannon 4 m in front"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    }
+  ],
+  "asserts": []
+}

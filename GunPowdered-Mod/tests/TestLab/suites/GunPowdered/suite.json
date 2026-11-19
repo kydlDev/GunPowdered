@@ -121,6 +121,8 @@
         "mobilecannon-pull",
         "mobilecannon-crank",
         "mobilecannon-fire",
+        "mobilecannon-tow",
+        "mobilecannon-tow-ridden",
         "cannon-mount-dismantle",
         "cannon-load-fire",
         "cannon-pass-creature",
