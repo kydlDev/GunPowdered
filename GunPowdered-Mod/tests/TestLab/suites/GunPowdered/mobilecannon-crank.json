@@ -1,0 +1,143 @@
+{
+  "name": "mobilecannon-crank",
+  "description": "D-104: the Mobile Cannon's elevation crank - the crank has a hover text, notches raise / lower the barrel inside -5..25 degrees, the pitch is stored in the piece and the barrel follows.",
+  "timeout": 90,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonPlace",
+      "args": {
+        "metres": 4
+      },
+      "contains": "placed at",
+      "label": "build one in front"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonPitch",
+      "contains": "pitch 0.0 deg",
+      "label": "starts level"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonPitch",
+      "contains": "hover Elevation crank: 0 deg",
+      "label": "the crank shows its elevation"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonCrank",
+      "args": {
+        "notches": 15
+      },
+      "contains": "turned 15"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonPitch",
+      "regex": "pitch 15\\.0 deg, barrel 1[4-6]\\.\\d deg, carriage -?[0-3]\\.\\d deg, muzzle back True",
+      "label": "15 notches: muzzle 15 degrees up against the carriage, the parked carriage stands about level (within 4 degrees), muzzle back"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 90,
+        "elevation": 10,
+        "metres": 3.5
+      },
+      "contains": "free camera at"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.4
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: crank 15 degrees from the side"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonCrank",
+      "args": {
+        "notches": 40
+      },
+      "contains": "turned 40"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonPitch",
+      "contains": "pitch 25.0 deg",
+      "label": "never above 25 degrees"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonCrank",
+      "args": {
+        "notches": -60
+      },
+      "contains": "turned -60"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonPitch",
+      "regex": "pitch -5\\.0 deg, barrel -[4-6]\\.\\d deg",
+      "label": "never below -5 degrees, the barrel follows down"
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: crank -5 degrees"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCamOff",
+      "contains": "free camera"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

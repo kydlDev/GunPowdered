@@ -45,9 +45,12 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 if (vagon.m_lineAttachPoints0 != null) vagon.m_lineAttachPoints0.localPosition = local + new Vector3(0.12f, 0f, 0f);
                 if (vagon.m_lineAttachPoints1 != null) vagon.m_lineAttachPoints1.localPosition = local - new Vector3(0.12f, 0f, 0f);
             }
+            AddTrailFoot(piece);
             vagon.m_name = "Mobile Cannon";
             if (piece.GetComponent<MobileCannonWheels>() == null) piece.AddComponent<MobileCannonWheels>();
             if (piece.GetComponent<MobileCannonPull>() == null) piece.AddComponent<MobileCannonPull>();
+            if (piece.GetComponent<MobileCannonAim>() == null) piece.AddComponent<MobileCannonAim>();
+            if (piece.GetComponent<MobileCannonGun>() == null) piece.AddComponent<MobileCannonGun>();
             ModLog.Verbose("MobileCannonSetup: cart colliders on " + colliders + ", cart looks hidden " + hidden + ", pull point "
                 + (pull ? vagon.m_attachPoint.localPosition.ToString("0.00") : "missing") + ", wheels " + (vagon.m_wheels != null ? vagon.m_wheels.Length : 0));
             return pull && colliders > 0;
@@ -93,6 +96,22 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             Container chest = ContainerRef(vagon);
             if (chest != null) Object.DestroyImmediate(chest.gameObject);
             ContainerRef(vagon) = null;
+        }
+        /// <summary>
+        /// The cart rests on its shafts and tips about 12 degrees (lab a8crank2: barrel 27.5 deg at crank 15). A field gun rests on its trail: a box under the
+        /// trail end reaches the ground at the same height as the wheels, so a parked cannon stands level; the cart's own shaft colliders go.
+        /// </summary>
+        static void AddTrailFoot(GameObject piece)
+        {
+            foreach (Collider c in piece.GetComponentsInChildren<Collider>(true))
+                if (c.name.StartsWith("handle")) c.enabled = false;
+            if (piece.transform.Find("gp_trail_foot") != null) return;
+            var foot = new GameObject("gp_trail_foot");
+            foot.layer = piece.layer;
+            foot.transform.SetParent(piece.transform, false);
+            foot.transform.localPosition = new Vector3(0f, 0.17f, 1.52f);
+            BoxCollider box = foot.AddComponent<BoxCollider>();
+            box.size = new Vector3(0.5f, 0.34f, 0.3f);
         }
     }
 }

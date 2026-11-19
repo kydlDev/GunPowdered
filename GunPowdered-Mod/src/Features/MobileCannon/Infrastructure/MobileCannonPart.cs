@@ -1,0 +1,49 @@
+using UnityEngine;
+
+namespace GunPowdered.Features.MobileCannon.Infrastructure
+{
+    /// <summary>A part of the Mobile Cannon the player looks at and uses (muzzle: load, touch hole: light the fuse). The cart itself keeps its own E (grab).</summary>
+    internal abstract class MobileCannonPart : MonoBehaviour, Hoverable, Interactable
+    {
+        internal MobileCannonGun Gun { get; set; }
+
+        public abstract string GetHoverName();
+
+        public abstract string GetHoverText();
+
+        public float GetHoverOffset() => 0f;
+
+        public bool Interact(Humanoid user, bool hold, bool alt)
+        {
+            Player p = user as Player;
+            if (hold || p == null || Gun == null) return false;
+            return Use(p);
+        }
+
+        public bool UseItem(Humanoid user, ItemDrop.ItemData item) => false;
+
+        protected abstract bool Use(Player p);
+
+        protected string LoadState() => Gun == null ? "?" : Gun.Loading ? "loading..." : Gun.Lit ? "fuse burning!" : Gun.Loaded ? "loaded" : "empty";
+    }
+
+    /// <summary>The muzzle: E loads gunpowder and one Cannon Ball.</summary>
+    internal sealed class MobileCannonMuzzle : MobileCannonPart
+    {
+        public override string GetHoverName() => "Mobile Cannon muzzle";
+
+        public override string GetHoverText() => Localization.instance.Localize("Mobile Cannon (" + LoadState() + ")\n[<color=yellow><b>$KEY_Use</b></color>] Load gunpowder and a Cannon Ball");
+
+        protected override bool Use(Player p) => Gun.Load(p);
+    }
+
+    /// <summary>The touch hole: E with a torch in hand lights the fuse.</summary>
+    internal sealed class MobileCannonTouchHole : MobileCannonPart
+    {
+        public override string GetHoverName() => "Mobile Cannon touch hole";
+
+        public override string GetHoverText() => Localization.instance.Localize("Mobile Cannon (" + LoadState() + ")\n[<color=yellow><b>$KEY_Use</b></color>] Light the fuse (torch in hand)");
+
+        protected override bool Use(Player p) => Gun.Light(p) == null;
+    }
+}

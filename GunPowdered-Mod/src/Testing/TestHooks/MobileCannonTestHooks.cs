@@ -138,5 +138,86 @@ namespace GunPowdered.Testing.TestHooks
             ModLog.Info("MobileCannonTestHooks: " + s);
             return s;
         }
+        /// <summary>Turns the placed cannon's crank by <paramref name="notches"/> wheel notches through the same RPC as the mouse wheel. Returns "turned N".</summary>
+        [TestHook("GunPowdered.mobileCannonCrank")]
+        static string Crank(int notches)
+        {
+            MobileCannonAim aim = _cannon != null ? _cannon.GetComponent<MobileCannonAim>() : null;
+            if (aim == null) return "no cannon";
+            return aim.Turn(notches) ? "turned " + notches : "not sent";
+        }
+
+        /// <summary>"pitch P deg, barrel B deg, hover H": the stored elevation, the barrel's real tilt (+ = muzzle up) and whether a crank handle with a hover text exists.</summary>
+        [TestHook("GunPowdered.mobileCannonPitch")]
+        static string PitchInfo()
+        {
+            MobileCannonAim aim = _cannon != null ? _cannon.GetComponent<MobileCannonAim>() : null;
+            if (aim == null || aim.BarrelPart == null) return "no cannon";
+            Vector3 muzzleDir = -_cannon.transform.forward;                       // the model is turned: the muzzle points to the cart's back
+            Vector3 barrelDir = aim.BarrelPart.forward;
+            float tilt = Mathf.Asin(Mathf.Clamp(Vector3.Dot(barrelDir, _cannon.transform.up), -1f, 1f)) * Mathf.Rad2Deg;     // against the carriage
+            float carriage = Mathf.Asin(Mathf.Clamp(Vector3.Dot(muzzleDir, Vector3.up), -1f, 1f)) * Mathf.Rad2Deg;           // the carriage's own lean, muzzle side up = +
+            MobileCannonCrank crank = _cannon.GetComponentInChildren<MobileCannonCrank>();
+            string s = "pitch " + aim.Pitch.ToString("0.0") + " deg, barrel " + tilt.ToString("0.0") + " deg, carriage " + carriage.ToString("0.0") + " deg, muzzle back " + (Vector3.Dot(Vector3.ProjectOnPlane(barrelDir, Vector3.up).normalized, muzzleDir) > 0.9f)
+                + ", hover " + (crank != null ? crank.GetHoverText().Split('\n')[0] : "none");
+            ModLog.Info("MobileCannonTestHooks: " + s);
+            return s;
+        }
+        /// <summary>Stands the local player next to the placed cannon's muzzle (1.2 m in front of it, facing it) and starts loading there. Returns "loading" or the reason.</summary>
+        [TestHook("GunPowdered.mobileCannonLoad")]
+        static string Load()
+        {
+            Player p = Player.m_localPlayer;
+            MobileCannonGun gun = _cannon != null ? _cannon.GetComponent<MobileCannonGun>() : null;
+            if (p == null || gun == null || gun.MuzzlePoint == null) return "no player or no cannon";
+            Vector3 outward = Vector3.ProjectOnPlane(gun.MuzzlePoint.forward, Vector3.up).normalized;
+            StandAt(p, gun.MuzzlePoint.position + outward * 1.2f, -outward);
+            return gun.Load(p) ? "loading" : "refused";
+        }
+
+        /// <summary>"loaded L, lit F, loading G".</summary>
+        [TestHook("GunPowdered.mobileCannonGunState")]
+        static string GunState()
+        {
+            MobileCannonGun gun = _cannon != null ? _cannon.GetComponent<MobileCannonGun>() : null;
+            return gun == null ? "no cannon" : "loaded " + gun.Loaded + ", lit " + gun.Lit + ", loading " + gun.Loading;
+        }
+
+        /// <summary>Stands the local player beside the touch hole and lights the fuse with the torch in hand. Returns "lit" or the reason.</summary>
+        [TestHook("GunPowdered.mobileCannonLight")]
+        static string Light()
+        {
+            Player p = Player.m_localPlayer;
+            MobileCannonGun gun = _cannon != null ? _cannon.GetComponent<MobileCannonGun>() : null;
+            if (p == null || gun == null || gun.TouchHolePoint == null) return "no player or no cannon";
+            Vector3 side = _cannon.transform.right;
+            StandAt(p, gun.TouchHolePoint.position + side * 1.3f, -side);
+            string why = gun.Light(p);
+            return why ?? "lit";
+        }
+
+        /// <summary>The last cannon ball's flight report (CannonBallFlight): "flew D m, stopped at ...".</summary>
+        [TestHook("GunPowdered.mobileCannonLastShot")]
+        static string LastShot()
+        {
+            string s = "flew " + GunPowdered.Features.Cannon.Infrastructure.CannonBallFlight.LastDistance.ToString("0") + " m, " + GunPowdered.Features.Cannon.Infrastructure.CannonBallFlight.LastReport;
+            ModLog.Info("MobileCannonTestHooks: " + s);
+            return s;
+        }
+
+        static void StandAt(Player p, Vector3 at, Vector3 facing)
+        {
+            float h;
+            if (ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(at, out h)) at.y = h;
+            Rigidbody body = p.GetComponent<Rigidbody>();
+            p.transform.position = at;
+            p.transform.rotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(facing, Vector3.up).normalized);
+            if (body != null)
+            {
+                body.position = at;
+                body.rotation = p.transform.rotation;
+                body.linearVelocity = Vector3.zero;
+            }
+        }
     }
 }
