@@ -1,3 +1,4 @@
+using System.Linq;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Core;
@@ -12,6 +13,75 @@ namespace GunPowdered.Testing.TestHooks
     internal static class AsksvinTowTestHooks
     {
         static GameObject _animal;
+
+        /// <summary>A second camera drawn over the game camera, looking at the Asksvin's saddle (shared name with the musket's free camera, so freeCamOff removes it). Returns its position.</summary>
+        [TestHook("GunPowdered.freeCamOnAsksvin")]
+        static string FreeCamOnAsksvin(double azimuth, double elevation, double metres)
+        {
+            Camera main = Camera.main;
+            if (_animal == null || main == null) return "no Asksvin or main camera";
+            GameObject go = GameObject.Find("gp_freecam");
+            if (go == null)
+            {
+                go = new GameObject("gp_freecam");
+                go.AddComponent<Camera>();
+            }
+            Camera cam = go.GetComponent<Camera>();
+            cam.CopyFrom(main);
+            cam.depth = main.depth + 1f;
+            Vector3 centre = _animal.transform.position + Vector3.up * 1.5f;
+            Vector3 dir = Quaternion.AngleAxis((float)azimuth, Vector3.up) * Vector3.ProjectOnPlane(_animal.transform.forward, Vector3.up).normalized;
+            Vector3 offset = Quaternion.AngleAxis(-(float)elevation, Vector3.Cross(Vector3.up, dir)) * dir;
+            go.transform.position = centre + offset * (float)metres;
+            go.transform.LookAt(centre);
+            return "free camera at " + go.transform.position.ToString("0.0");
+        }
+
+        /// <summary>Where the saddle really sits on the Asksvin, in the Asksvin's own space (x right, y up, z forward): centre, size and the pitch of its up axis, for every renderer of the saddle. T-009i fit check.</summary>
+        [TestHook("GunPowdered.asksvinSaddleFit")]
+        static string SaddleFit()
+        {
+            if (_animal == null) return "no Asksvin";
+            var sb = new System.Text.StringBuilder();
+            foreach (Renderer r in _animal.GetComponentsInChildren<Renderer>(true))
+            {
+                string path = r.transform.name + "/" + (r.transform.parent != null ? r.transform.parent.name : "");
+                if (r is ParticleSystemRenderer || r.GetComponentsInParent<Transform>(true).Any(t => t.name == "gp_harness_model")) continue;
+                Bounds b = r.bounds;
+                Vector3 c = _animal.transform.InverseTransformPoint(b.center);
+                Vector3 up = _animal.transform.InverseTransformDirection(r.transform.up);
+                Vector3 lp = _animal.transform.InverseTransformPoint(r.transform.position);
+                sb.Append(path).Append(": bounds centre ").Append(c.ToString("0.00")).Append(" world size ").Append(b.size.ToString("0.00"))
+                  .Append(", origin ").Append(lp.ToString("0.00")).Append(", up ").Append(up.ToString("0.00")).Append("; ");
+            }
+            SkinnedMeshRenderer saddle = null;
+            foreach (SkinnedMeshRenderer s in _animal.GetComponentsInChildren<SkinnedMeshRenderer>(true)) if (s.name == "Sadel") saddle = s;
+            if (saddle != null)
+            {
+                var baked = new Mesh();
+                saddle.BakeMesh(baked, true);
+                Matrix4x4 toAnimal = _animal.transform.worldToLocalMatrix * Matrix4x4.TRS(saddle.transform.position, saddle.transform.rotation, Vector3.one);
+                Vector3 lo = new Vector3(9f, 9f, 9f), hi = -lo;
+                float[] zs = { -1.25f, -1.1f, -0.9f, -0.6f, -0.3f, -0.1f };
+                var xmax = new float[zs.Length];
+                var ytop = new float[zs.Length];
+                foreach (Vector3 v in baked.vertices)
+                {
+                    Vector3 p = toAnimal.MultiplyPoint3x4(v);
+                    lo = Vector3.Min(lo, p);
+                    hi = Vector3.Max(hi, p);
+                    for (int i = 0; i < zs.Length; i++)
+                        if (Mathf.Abs(p.z - zs[i]) < 0.06f) { xmax[i] = Mathf.Max(xmax[i], Mathf.Abs(p.x)); ytop[i] = Mathf.Max(ytop[i], p.y); }
+                }
+                sb.Append(" BAKED saddle in Asksvin space: min ").Append(lo.ToString("0.00")).Append(" max ").Append(hi.ToString("0.00")).Append("; half-width / top by z:");
+                for (int i = 0; i < zs.Length; i++) sb.Append(" z ").Append(zs[i].ToString("0.00")).Append(" -> x ").Append(xmax[i].ToString("0.00")).Append(" y ").Append(ytop[i].ToString("0.00")).Append(";");
+                Object.Destroy(baked);
+            }
+            string answer = sb.Length == 0 ? "no saddle renderer" : sb.ToString();
+            ModLog.Info("AsksvinTowTestHooks: saddle fit - " + answer);
+            return answer;
+        }
+
         static Vector3 _cannonStart;
 
         /// <summary>Spawns a tame Asksvin (no saddle) in line behind the placed cannon's trail, its tow hook about 1 m from the tow ring, facing away. Returns "asksvin at ...".</summary>

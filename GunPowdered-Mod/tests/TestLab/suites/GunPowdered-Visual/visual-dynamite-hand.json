@@ -1,0 +1,22 @@
+{
+  "name": "visual-dynamite-hand",
+  "description": "T-009j: the Dynamite in the player's hand, close-ups from the side, front and above, to judge its position and angle in the grip.",
+  "timeout": 90,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "give", "prefab": "GP_Dynamite", "count": 1, "equip": true },
+    { "do": "wait", "seconds": 3 },
+    { "do": "hook", "name": "GunPowdered.freeCam", "args": { "azimuth": 70, "elevation": 5, "metres": 1.4 }, "contains": "free camera", "label": "close, right side" },
+    { "do": "wait", "seconds": 0.5 },
+    { "do": "screenshot", "name": "dynamite-hand-right" },
+    { "do": "hook", "name": "GunPowdered.freeCam", "args": { "azimuth": 180, "elevation": 10, "metres": 1.6 }, "contains": "free camera", "label": "from the front" },
+    { "do": "wait", "seconds": 0.5 },
+    { "do": "screenshot", "name": "dynamite-hand-front" },
+    { "do": "hook", "name": "GunPowdered.freeCam", "args": { "azimuth": 20, "elevation": 55, "metres": 1.5 }, "contains": "free camera", "label": "from above" },
+    { "do": "wait", "seconds": 0.5 },
+    { "do": "screenshot", "name": "dynamite-hand-above" },
+    { "do": "hook", "name": "GunPowdered.freeCamOff", "label": "free camera removed" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

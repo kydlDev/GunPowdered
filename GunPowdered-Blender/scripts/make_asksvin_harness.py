@@ -125,7 +125,7 @@ def ghost_cannon(exports):
         if o.parent is None:
             o.parent = root
     root.rotation_euler.z = math.pi
-    root.location = Vector((0.0, U(*HOOK).y + 1.80, 0.0))              # tow ring (0, 1.80, 0.395 in the cannon file) lands on the hook
+    root.location = Vector((0.0, U(*HOOK).y + 1.78, 0.0))              # tow ring (0, 1.78, 0.395 in the cannon file) lands on the hook
 
 
 exports, photos = g.script_args()
@@ -158,3 +158,4 @@ g.shoot(sc, cam, os.path.join(photos, "%s_asksvin-harness-saddle.png" % stamp), 
 g.shoot(sc, cam, os.path.join(photos, "%s_asksvin-harness-rear.png" % stamp), Vector((2.4, 4.9, 1.9)), Vector((0.0, 2.3, 0.9)), 50)
 g.shoot(sc, cam, os.path.join(photos, "%s_asksvin-harness-joint-girth.png" % stamp), Vector((1.7, -0.1, 2.0)), U(0.43, 1.57, -0.33), 50)     # close-ups of the two saddle joints
 g.shoot(sc, cam, os.path.join(photos, "%s_asksvin-harness-joint-rear.png" % stamp), Vector((1.7, 2.0, 2.0)), U(0.28, 1.57, -1.14), 50)
+g.shoot(sc, cam, os.path.join(photos, "%s_asksvin-harness-clevis.png" % stamp), U(*HOOK) + Vector((0.32, -0.42, 0.30)), U(*HOOK), 60)       # the tow clevis: harness ring between the two eye plates, one pin

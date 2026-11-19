@@ -20,6 +20,8 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
     {
         internal const string StickId = "GP_DynamiteStick", ExplosionId = "GP_Dynamite_explosion", CraterId = "GP_Dynamite_crater";
         const string ExplosionBase = "bombdynamite_explosion", CraterBase = "digg_bombdynamite", CreatureChild = "gp_creature_blast";
+        /// <summary>How far (m) the hand model is moved back along its tube so the fist closes round the middle of the 0.20 m casing, not round its bottom end.</summary>
+        const float HandGripShift = 0.10f;
         static GameObject _item, _stick, _explosion, _crater;
         static float _lastPlaced = -99f;
 
@@ -233,7 +235,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             foreach (Renderer old in attach.GetComponentsInChildren<Renderer>(true)) old.enabled = false;
             GameObject copy = Object.Instantiate(model.gameObject, attach);
             copy.name = "gp_model";
-            copy.transform.localPosition = Vector3.zero;
+            copy.transform.localPosition = new Vector3(0f, -HandGripShift, 0f);      // the model's origin is the bottom of the tube: put its middle into the fist (T-009j)
             copy.transform.localRotation = Quaternion.identity;
             copy.transform.localScale = Vector3.one;
             foreach (Collider c in copy.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c);

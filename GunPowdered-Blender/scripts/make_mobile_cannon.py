@@ -81,8 +81,16 @@ def build_iron(iron):
     g.cyl(bm, 0.032, 1.44, Matrix.Translation((0.0, 0.0, AXLE_Z)) @ TO_X, 12)                                  # axle
     for x in (-0.60, 0.60):
         g.cyl(bm, 0.012, 0.10, Matrix.Translation((x, 0.0, AXLE_Z + 0.04)), 8)                                 # linchpin
-    g.ring(bm, 0.058, 0.032, 0.05, Matrix.Translation((0.0, 1.73, 0.395)) @ TO_X, 20)                         # tow ring (harness hook) on the trail end
-    g.cyl(bm, 0.020, 0.08, Matrix.Translation((0.0, 1.66, 0.395)) @ Matrix.Rotation(math.radians(90), 4, "X"), 10)       # its shank
+    # tow clevis (user 2026-11-19 16:35): TWO eye plates stand apart on the trail end and the harness's last ring runs BETWEEN them; one iron pin goes through
+    # all three eyes (the harness ring is 0.030 wide, centred on x 0: the plates touch it, no gap). Everything overlaps its neighbour so it reads as one welded piece.
+    CLEVIS_Y, CLEVIS_Z = 1.78, 0.395
+    for s in (-1, 1):
+        g.ring(bm, 0.058, 0.0175, 0.026, Matrix.Translation((s * 0.0285, CLEVIS_Y, CLEVIS_Z)) @ TO_X, 20)           # eye plate (inner face at x +-0.0155, touching the harness ring)
+        g.box(bm, (0.026, 0.150, 0.056), Vector((s * 0.0285, 1.72, CLEVIS_Z)))                                    # its web down to the trail
+    g.box(bm, (0.110, 0.060, 0.070), Vector((0.0, 1.665, CLEVIS_Z)))                                              # cross block joining both plates and the trail end
+    g.cyl(bm, 0.0125, 0.130, Matrix.Translation((0.0, CLEVIS_Y, CLEVIS_Z)) @ TO_X, 12)                           # the pin through all three eyes
+    for s in (-1, 1):
+        g.cyl(bm, 0.022, 0.014, Matrix.Translation((s * 0.067, CLEVIS_Y, CLEVIS_Z)) @ TO_X, 12)                   # pin head / retaining cap, flush on the plate side
     for y in (-0.20, 0.45, 1.20, 1.55):                                                                        # bolt heads along the cheeks
         for x in (-0.275, 0.275):
             g.cyl(bm, 0.016, 0.012, Matrix.Translation((x, y, 0.62 if y < 1.0 else 0.43)) @ TO_X, 8)
@@ -164,7 +172,7 @@ exports, photos = g.script_args()
 sc, cam = g.stage((5.0, 4.0))
 NAMES = build()
 EM = [g.empty("Muzzle", (0.0, BREECH_Y - 1.24, BARREL_Z)).name, g.empty("TouchHole", (0.0, BREECH_Y - 0.06, BARREL_Z + 0.14)).name,
-      g.empty("HarnessPoint", (0.0, 1.80, 0.395)).name, g.empty("AxleCentre", (0.0, 0.0, AXLE_Z)).name,
+      g.empty("HarnessPoint", (0.0, 1.78, 0.395)).name, g.empty("AxleCentre", (0.0, 0.0, AXLE_Z)).name,
       g.empty("ElevationPivot", (0.0, TRUNNION_Y, BARREL_Z)).name, g.empty("CrankAxis", (-0.41, 0.50, 0.40)).name,
       g.empty("HandleGripA", (0.16, 1.97, 1.16)).name, g.empty("HandleGripB", (-0.16, 1.97, 1.16)).name,   # D-107: where the hands hold the push handle
       g.empty("PushPoint", (0.0, 2.33, 0.80)).name]                                                       # where the player stands (hips) while pushing / pulling

@@ -115,7 +115,41 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             bool show = Time.time < _shownUntil;
             if (show && _visual == null) _visual = MakeVisual();
             if (_visual != null && _visual.activeSelf != show) _visual.SetActive(show);
+            if (show && _visual != null) FollowSaddle();
             if (show) ModLog.Every("asksvin-harness-" + GetInstanceID(), 10d, "AsksvinHarness: " + name + " towing, harness model " + (_visual != null) + ", harnessed " + Harnessed);
+        }
+
+        // T-009i: the saddle is skinned to a spine bone that moves with the animation, the harness model is a rigid copy under the animal's root: its straps then
+        // hung away from the saddle. The model now rides with the saddle's bone: its rest pose (under the root) is carried by the same matrix that moves the saddle
+        // mesh from its rest pose to its current pose.
+        SkinnedMeshRenderer _saddle;
+        int _saddleBone = -1;
+        Vector3 _restPos;
+        Quaternion _restRot;
+        bool _saddleSearched;
+
+        void FollowSaddle()
+        {
+            if (!_saddleSearched)
+            {
+                _saddleSearched = true;
+                foreach (SkinnedMeshRenderer s in GetComponentsInChildren<SkinnedMeshRenderer>(true))
+                    if (s.name == "Sadel" && s.sharedMesh != null && s.bones != null && s.bones.Length > 0) _saddle = s;
+                if (_saddle != null)
+                {
+                    Transform[] bones = _saddle.bones;
+                    _saddleBone = 0;
+                    for (int i = 0; i < bones.Length; i++) if (bones[i] != null && bones[i].name == "Bone.019") _saddleBone = i;
+                    _restPos = _visual.transform.localPosition;
+                    _restRot = _visual.transform.localRotation;
+                }
+                ModLog.Info("AsksvinHarness: " + name + " harness follows the saddle bone " + (_saddle != null ? _saddle.bones[_saddleBone].name : "(no saddle skin found, model stays on the root)"));
+            }
+            if (_saddle == null || _saddle.bones[_saddleBone] == null) return;
+            Matrix4x4 pose = _saddle.bones[_saddleBone].localToWorldMatrix * _saddle.sharedMesh.bindposes[_saddleBone] * _saddle.transform.worldToLocalMatrix;
+            Matrix4x4 restWorld = transform.localToWorldMatrix * Matrix4x4.TRS(_restPos, _restRot, Vector3.one);
+            Matrix4x4 now = pose * restWorld;
+            _visual.transform.SetPositionAndRotation(now.GetColumn(3), now.rotation);
         }
 
         GameObject MakeVisual()
