@@ -164,7 +164,7 @@ namespace GunPowdered.Testing.TestHooks
             float moved = Vector3.Distance(Flat(cannon.transform.position), Flat(_cannonStart));
             string s = "towed " + tow.Towed + ", joint " + tow.Jointed + ", model " + (h != null && h.ModelShown) + ", moved " + moved.ToString("0.0") + " m, max speed "
                 + tow.MaxSpeedSeen.ToString("0.0") + " m/s (asksvin " + tow.AnimalMaxSpeed.ToString("0.0") + "), gap " + (h != null && tow.Ring != null ? Vector3.Distance(tow.Ring.position, h.transform.TransformPoint(AsksvinHarness.HookLocal)).ToString("0.00") : "?") + " m, upright " + (cannon.transform.up.y > 0.7f);
-            ModLog.Info("AsksvinTowTestHooks: " + s);
+            ModLog.Info("AsksvinTowTestHooks: " + s + "; " + tow.ClevisReport(_animal != null ? _animal.transform : null));
             return s;
         }
 
@@ -279,6 +279,16 @@ namespace GunPowdered.Testing.TestHooks
             }
             _animal = best;
             return best == null ? "none" : "found at " + bestDist.ToString("0") + " m";
+        }
+
+        /// <summary>Tames the Asksvin that asksvinFind took (one the lab spawned, so that it can be a lab target for the second client). Returns "tamed True".</summary>
+        [TestHook("GunPowdered.asksvinTame")]
+        static string Tame()
+        {
+            Character c = _animal != null ? _animal.GetComponent<Character>() : null;
+            if (c == null) return "no asksvin";
+            c.SetTamed(true);
+            return "tamed " + c.IsTamed();
         }
 
         static Vector3 Flat(Vector3 v) => new Vector3(v.x, 0f, v.z);

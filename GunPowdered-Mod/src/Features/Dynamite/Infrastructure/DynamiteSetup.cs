@@ -240,7 +240,15 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             copy.transform.localScale = Vector3.one;
             foreach (Collider c in copy.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c);
             foreach (Transform t in copy.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = attach.gameObject.layer;
-            foreach (Renderer r in copy.GetComponentsInChildren<Renderer>(true)) r.enabled = true;
+            Bounds b = default;
+            bool any = false;
+            foreach (Renderer r in copy.GetComponentsInChildren<Renderer>(true))
+            {
+                r.enabled = true;
+                if (any) b.Encapsulate(r.bounds); else { b = r.bounds; any = true; }
+            }
+            ModLog.Info("DynamiteSetup: hand model on the attach point, local position " + copy.transform.localPosition.ToString("0.000") + " (grip shift " + HandGripShift.ToString("0.00")
+                + "), bounds centre in attach space " + (any ? attach.InverseTransformPoint(b.center).ToString("0.000") : "none") + ", size " + (any ? b.size.ToString("0.000") : "none"));
             return true;
         }
     }

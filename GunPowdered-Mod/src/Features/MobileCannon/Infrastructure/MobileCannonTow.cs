@@ -150,6 +150,17 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 b.angularVelocity = Vector3.zero;
             }
             Physics.SyncTransforms();
+            ModLog.Info("MobileCannonTow: " + name + " snapped behind " + h.name + ", " + ClevisReport(h.transform));
+        }
+
+        /// <summary>Diagnostics for the clevis (T-009i): the tow ring (between the two eye plates, x = 0) and the harness hook ring, both in the cannon's own space (x sideways, y up, z along the cannon), and the gap between them. The harness ring is 0.030 wide and the plates' inner faces are at x +-0.0155, so |dx| above about 0.01 means the ring is not between the plates.</summary>
+        internal string ClevisReport(Transform animal)
+        {
+            if (_ring == null || animal == null) return "clevis: no ring or no animal";
+            Vector3 ring = transform.InverseTransformPoint(_ring.position);
+            Vector3 hook = transform.InverseTransformPoint(animal.TransformPoint(AsksvinHarness.HookLocal));
+            Vector3 gap = hook - ring;
+            return "clevis ring " + ring.ToString("0.000") + ", harness hook " + hook.ToString("0.000") + ", gap " + gap.ToString("0.000") + " (" + gap.magnitude.ToString("0.000") + " m), plates " + (Mathf.Abs(gap.x) < 0.01f ? "hold the hook ring" : "MISS the hook ring");
         }
 
         void Update()
@@ -228,7 +239,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             _joint.connectedBody = animalBody;
             _massOn = _animal.Animal;
             if (_massOn != null) _massOn.SetExtraMass(ModSettings.MobileCannonTowExtraMass.Value);     // like the cart's m_playerExtraPullMass: the cannon must not hold the Asksvin back (D-105)
-            ModLog.Info("MobileCannonTow: " + name + " joint to " + _animal.name + ", ring " + _joint.anchor.ToString("0.00") + ", hook " + _joint.connectedAnchor.ToString("0.00"));
+            ModLog.Info("MobileCannonTow: " + name + " joint to " + _animal.name + ", ring " + _joint.anchor.ToString("0.00") + ", hook " + _joint.connectedAnchor.ToString("0.00") + ", " + ClevisReport(_animal.transform));
         }
 
         void DropJoint()

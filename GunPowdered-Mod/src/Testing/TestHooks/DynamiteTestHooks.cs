@@ -30,6 +30,36 @@ namespace GunPowdered.Testing.TestHooks
                 + ", crater " + (dig != null ? (dig.m_settings.m_raiseRadius * 2f).ToString("0.0") + " x " + (-dig.m_settings.m_raiseDelta).ToString("0.0") : "none");
         }
 
+        /// <summary>Diagnostics for the dynamite in the hand (T-009j): where the equipped stick's model is, in the world, in the hand joint's space and against the forearm. Logged too. Returns the same text.</summary>
+        [TestHook("GunPowdered.dynamiteHandState")]
+        static string HandState()
+        {
+            Player p = Player.m_localPlayer;
+            VisEquipment vis = p != null ? p.GetComponent<VisEquipment>() : null;
+            if (vis == null) return "no player";
+            GameObject inst = HarmonyLib.AccessTools.Field(typeof(VisEquipment), "m_rightItemInstance")?.GetValue(vis) as GameObject;      // private in the game
+            if (inst == null) inst = HarmonyLib.AccessTools.Field(typeof(VisEquipment), "m_leftItemInstance")?.GetValue(vis) as GameObject;
+            if (inst == null) return "nothing in the hand";
+            Transform model = inst.transform.Find("gp_model");
+            if (model == null) model = inst.GetComponentInChildren<Renderer>() != null ? inst.GetComponentInChildren<Renderer>().transform : null;
+            Transform hand = inst.transform.parent;
+            string s = "hand item " + inst.name + ", on " + (hand != null ? hand.name : "?") + " local " + inst.transform.localPosition.ToString("0.000") + " rot " + inst.transform.localEulerAngles.ToString("0")
+                + ", model " + (model != null ? model.name : "none");
+            if (model != null)
+            {
+                Bounds b = default;
+                bool any = false;
+                foreach (Renderer r in model.GetComponentsInChildren<Renderer>())
+                    if (r.enabled) { if (any) b.Encapsulate(r.bounds); else { b = r.bounds; any = true; } }
+                Vector3 fore = hand != null && hand.parent != null ? (hand.position - hand.parent.position).normalized : Vector3.zero;
+                Vector3 axis = model.up;
+                s += ", model local " + model.localPosition.ToString("0.000") + ", centre in hand space " + (any && hand != null ? hand.InverseTransformPoint(b.center).ToString("0.000") : "?")
+                    + ", length axis " + axis.ToString("0.00") + ", angle to forearm " + (fore != Vector3.zero ? Vector3.Angle(axis, fore).ToString("0") : "?") + " deg, hand world " + (hand != null ? hand.position.ToString("0.00") : "?");
+            }
+            ModLog.Info("DynamiteTestHooks: " + s);
+            return s;
+        }
+
         /// <summary>Sets one stick down <paramref name="metres"/> in front of the local player with the real attack code. Returns "placed at (...)" or why not.</summary>
         [TestHook("GunPowdered.dynamitePlaceAt")]
         static string PlaceAt(double metres)
