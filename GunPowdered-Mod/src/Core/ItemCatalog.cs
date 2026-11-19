@@ -145,7 +145,7 @@ namespace GunPowdered.Core
 
         // D-076 (Claude-Agent-5, PROPOSED recipes and tiers, the user approves or changes them): the other D-045 weapons, items only for now (the behaviour comes
         // with their own stages). Like the Hand Cannon they are carried items that never stack as a weapon and cannot be equipped yet (Material placeholder).
-        public const string BlackMetal = "BlackMetal", Feathers = "Feathers", Chain = "Chain", Flametal = "FlametalNew", Ashwood = "Blackwood", Arbalest = "CrossbowArbalest", IronArrow = "ArrowIron", Club = "Club";
+        public const string BlackMetal = "BlackMetal", Feathers = "Feathers", Chain = "Chain", Flametal = "FlametalNew", Ashwood = "Blackwood", Arbalest = "CrossbowArbalest", IronArrow = "ArrowIron", Club = "Club", Cart = "Cart";
 
         // T-009c iron musket (D-045 item 3): Swamp (iron) tier like the Hand Cannon, Forge level 2. D-087: a real two-handed weapon cloned from the vanilla Arbalest (attack, reload, animation state); the musket's own clips come with D-088
         public static readonly ItemSpec Musket = new ItemSpec(GunPowderedPrefabs.Musket, "Iron Musket",
@@ -168,7 +168,7 @@ namespace GunPowdered.Core
         // T-009f mobile cannon (D-045 item 4): Ashlands (Flametal + Ashwood); a build piece like the Cannon Stock, built beside a Forge
         public static readonly ItemSpec MobileCannon = new ItemSpec(GunPowderedPrefabs.MobileCannon, "Mobile Cannon",
             "A Flametal cannon on an ashwood carriage with big spoked wheels and an elevation crank. One shot is loaded at a time; an Asksvin with a harness can pull it.",
-            ItemKind.Piece, "piece_chest_wood", 1, 0f, Forge, 1,
+            ItemKind.Piece, Cart, 1, 0f, Forge, 1,               // the game's cart: pulled by the player (and later the Asksvin) with its own joint (D-104)
             new CostLine(Flametal, 20), new CostLine(Ashwood, 30), new CostLine(Iron, 10));
 
         // D-063 / D-068: the harness that hangs on an Asksvin's saddle and tows the Mobile Cannon

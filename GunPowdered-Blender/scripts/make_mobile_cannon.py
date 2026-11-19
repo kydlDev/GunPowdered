@@ -7,7 +7,8 @@ The cannon points along -Y, up = +Z, the ground is z = 0, origin = on the ground
 cannon_barrel and cannon_bands (the trunnions, for elevation and recoil: rotate round X, a NEGATIVE angle raises the muzzle), wheel_left / wheel_right (the axle centre,
 they spin round X; their tyres are children), elevation_screw (moves along Z: goes DOWN by about 0.43 m x sin(elevation) when the muzzle goes up), elevation_crank (rotates
 round X on the left cheek, its wooden grip elevation_crank_grip is a child).
-Empties: Muzzle, TouchHole, HarnessPoint (where the harness chain hooks on), AxleCentre, ElevationPivot (the trunnion axis), CrankAxis.
+Empties: Muzzle, TouchHole, HarnessPoint (where the harness chain hooks on), AxleCentre, ElevationPivot (the trunnion axis), CrankAxis,
+HandleGripA / HandleGripB (hands on the push handle, D-107), PushPoint (where the player stands while moving it by hand).
 Objects: cannon_barrel, cannon_bands (glow), carriage (cheeks, trail, axle beam, screw housing, staff), carriage_iron (tow ring, linchpins, bolts), wheel_left, wheel_right,
 wheel_left_tyre, wheel_right_tyre, elevation_screw, elevation_crank, elevation_crank_grip.
 """
@@ -67,6 +68,11 @@ def build_carriage(ash):
     g.box(bm, (0.44, 0.07, 0.07), Vector((0.0, -0.30, 0.70)))                                                  # front transom
     g.cyl(bm, 0.017, 1.35, Matrix.Translation((-0.31, 0.32, 0.64)) @ Matrix.Rotation(math.radians(90), 4, "X"), 8)   # rammer staff on the left cheek
     g.cyl(bm, 0.036, 0.16, Matrix.Translation((-0.31, -0.37, 0.64)) @ Matrix.Rotation(math.radians(90), 4, "X"), 12)  # sponge head
+    # D-107 push handle: an inverted U of ashwood rising back from the cheek ends; the player grabs the cross bar to push or pull by hand
+    handle = [Vector((-0.23, 1.60, 0.47)), Vector((-0.23, 1.80, 0.84)), Vector((-0.22, 1.93, 1.12)), Vector((-0.17, 1.97, 1.16)),
+              Vector((0.17, 1.97, 1.16)), Vector((0.22, 1.93, 1.12)), Vector((0.23, 1.80, 0.84)), Vector((0.23, 1.60, 0.47))]
+    g.tube(bm, handle, 0.028, 10)
+    g.box(bm, (0.42, 0.05, 0.05), Vector((0.0, 1.80, 0.84)))                                                  # brace between the handle legs
     return g.put("carriage", bm, ash)
 
 
@@ -159,12 +165,15 @@ sc, cam = g.stage((5.0, 4.0))
 NAMES = build()
 EM = [g.empty("Muzzle", (0.0, BREECH_Y - 1.24, BARREL_Z)).name, g.empty("TouchHole", (0.0, BREECH_Y - 0.06, BARREL_Z + 0.14)).name,
       g.empty("HarnessPoint", (0.0, 1.80, 0.395)).name, g.empty("AxleCentre", (0.0, 0.0, AXLE_Z)).name,
-      g.empty("ElevationPivot", (0.0, TRUNNION_Y, BARREL_Z)).name, g.empty("CrankAxis", (-0.41, 0.50, 0.40)).name]
+      g.empty("ElevationPivot", (0.0, TRUNNION_Y, BARREL_Z)).name, g.empty("CrankAxis", (-0.41, 0.50, 0.40)).name,
+      g.empty("HandleGripA", (0.16, 1.97, 1.16)).name, g.empty("HandleGripB", (-0.16, 1.97, 1.16)).name,   # D-107: where the hands hold the push handle
+      g.empty("PushPoint", (0.0, 2.33, 0.80)).name]                                                       # where the player stands (hips) while pushing / pulling
 print("MOBILE CANNON TRIANGLES", g.tris(NAMES))
 g.export(os.path.join(exports, "MobileCannon.fbx"), NAMES + EM)
 g.views(photos, "mobile-cannon", (0.0, 0.55, 0.55), 3.4, 0.4)
 g.views(photos, "mobile-cannon-barrel", (0.0, 0.0, 0.72), 1.7, 0.2)
 g.shoot(sc, cam, os.path.join(photos, "%s_mobile-cannon-crank.png" % g.stamp()), (-1.15, 1.35, 0.95), (-0.15, 0.5, 0.45), 50)
+g.shoot(sc, cam, os.path.join(photos, "%s_mobile-cannon-handle.png" % g.stamp()), (1.6, 3.4, 1.5), (0.0, 1.6, 0.7), 50)
 # demo pose, AFTER the export: muzzle raised 20 degrees (barrel turns on the trunnions, the screw sinks by the breech drop, the crank turns)
 rise = math.radians(20)
 bpy.data.objects["cannon_barrel"].rotation_euler.x = -rise

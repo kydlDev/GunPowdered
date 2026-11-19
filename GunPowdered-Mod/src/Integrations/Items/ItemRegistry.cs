@@ -157,6 +157,7 @@ namespace GunPowdered.Integrations.Items
             AddBehaviour(s, piece.PiecePrefab);
             BundleVisuals.Apply(s.Id, piece.PiecePrefab);
             if (s.Id == GunPowderedPrefabs.CannonStock) CannonSetup.ConfigureStock(piece.PiecePrefab);     // needs the bundle look in place
+            if (s.Id == GunPowderedPrefabs.MobileCannon) GunPowdered.Features.MobileCannon.Infrastructure.MobileCannonSetup.Configure(piece.PiecePrefab);   // cart clone, D-104
             Sprite icon = BundleVisuals.Icon(s.Id);
             if (icon != null) piece.Piece.m_icon = icon;
             set.Pieces.Add(piece.Piece);
