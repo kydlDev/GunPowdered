@@ -9,7 +9,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 {
     /// <summary>
     /// Dynamite (D-045 item 6, D-076): the item, cloned from a vanilla placeholder by the ItemRegistry. This adapter queues it and turns its recipe on and off
-    /// with [General] Enable Dynamite. Lighting it with a Torch, the blast and the round burnt crater come with the next T-009e stages.
+    /// with [General] Enable Dynamite. Setting it down, lighting it with a Torch, the blast and the crater: DynamiteSetup / DynamiteCharge (D-100).
     /// </summary>
     internal sealed class DynamiteFeature : IFeature
     {

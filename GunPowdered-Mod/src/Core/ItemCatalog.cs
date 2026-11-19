@@ -145,7 +145,7 @@ namespace GunPowdered.Core
 
         // D-076 (Claude-Agent-5, PROPOSED recipes and tiers, the user approves or changes them): the other D-045 weapons, items only for now (the behaviour comes
         // with their own stages). Like the Hand Cannon they are carried items that never stack as a weapon and cannot be equipped yet (Material placeholder).
-        public const string BlackMetal = "BlackMetal", Feathers = "Feathers", Chain = "Chain", Flametal = "FlametalNew", Ashwood = "Blackwood", Arbalest = "CrossbowArbalest", IronArrow = "ArrowIron";
+        public const string BlackMetal = "BlackMetal", Feathers = "Feathers", Chain = "Chain", Flametal = "FlametalNew", Ashwood = "Blackwood", Arbalest = "CrossbowArbalest", IronArrow = "ArrowIron", Club = "Club";
 
         // T-009c iron musket (D-045 item 3): Swamp (iron) tier like the Hand Cannon, Forge level 2. D-087: a real two-handed weapon cloned from the vanilla Arbalest (attack, reload, animation state); the musket's own clips come with D-088
         public static readonly ItemSpec Musket = new ItemSpec(GunPowderedPrefabs.Musket, "Iron Musket",
@@ -161,8 +161,8 @@ namespace GunPowdered.Core
 
         // T-009e dynamite (D-045 item 6): iron age, a metal tube of gunpowder lit with the Torch; for gathering, not for fighting
         public static readonly ItemSpec Dynamite = new ItemSpec(GunPowderedPrefabs.Dynamite, "Dynamite",
-            "A metal tube packed with gunpowder and a long fuse. Light it with a Torch. It tears holes in rock and ground and wrecks buildings, but barely hurts creatures.",
-            ItemKind.Material, Charcoal, 20, 0.5f, Forge, 5,
+            "A metal tube packed with gunpowder and a long fuse. Set it down, then light it with a Torch and get away: it tears holes in rock and ground and wrecks buildings, but hurts creatures only a fifth as much.",
+            ItemKind.Weapon, Club, 20, 0.5f, Forge, 5,       // held in one hand; the attack button sets it down (D-100)
             new CostLine(Iron, 2), new CostLine(GunPowderedPrefabs.Gunpowder, 5), new CostLine(Resin, 1)).AtStationLevel(2);
 
         // T-009f mobile cannon (D-045 item 4): Ashlands (Flametal + Ashwood); a build piece like the Cannon Stock, built beside a Forge
