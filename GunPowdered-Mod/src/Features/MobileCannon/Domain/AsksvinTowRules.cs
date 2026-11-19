@@ -60,6 +60,12 @@ namespace GunPowdered.Features.MobileCannon.Domain
         /// </summary>
         public static float UprightAccel(float angleDeg, float rateRad) => -angleDeg * 0.0174533f * 60f - rateRad * 14f;
 
+        /// <summary>Roll / pitch against world up a towed cannon may never pass (deg), however the ground under it slopes: past these it would go over.</summary>
+        public const float MaxWorldRoll = 30f, MaxWorldPitch = 45f;
+
+        /// <summary>Of two signed excesses, the larger one (it needs the bigger correction). Expected outcome: 0 only when both are 0.</summary>
+        public static float Tighter(float a, float b) => System.Math.Abs(a) >= System.Math.Abs(b) ? a : b;
+
         /// <summary>How far (deg) a tilt is past its limit. Expected outcome: 0 inside +-limit, else the signed excess the cannon is turned back by.</summary>
         public static float Excess(float angleDeg, float limit)
         {

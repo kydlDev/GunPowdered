@@ -254,18 +254,23 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (up.y < 0.3f) Flips++;
             _body.AddTorque(fwd * AsksvinTowRules.UprightAccel(roll, rollRate), ForceMode.Acceleration);
             if (Mathf.Abs(pitch) > AsksvinTowRules.MaxPitch * 0.6f) _body.AddTorque(right * AsksvinTowRules.UprightAccel(pitch - Mathf.Sign(pitch) * AsksvinTowRules.MaxPitch * 0.6f, pitchRate), ForceMode.Acceleration);
-            float rollOver = AsksvinTowRules.Excess(roll, AsksvinTowRules.MaxRoll), pitchOver = AsksvinTowRules.Excess(pitch, AsksvinTowRules.MaxPitch);
+            // the hard limit is against WORLD up as well: relative to the ground alone a 39 degree side slope allowed 25 + 39 = 64 degrees and the cannon went
+            // over on the template's mountain cliff (a9cliff4: roll 61, pitch 75, 12 flipped frames). The tighter of the two wins.
+            float rollW = Vector3.SignedAngle(Vector3.ProjectOnPlane(Vector3.up, fwd), Vector3.ProjectOnPlane(up, fwd), fwd);
+            float pitchW = Vector3.SignedAngle(Vector3.ProjectOnPlane(Vector3.up, right), Vector3.ProjectOnPlane(up, right), right);
+            float rollOver = AsksvinTowRules.Tighter(AsksvinTowRules.Excess(roll, AsksvinTowRules.MaxRoll), AsksvinTowRules.Excess(rollW, AsksvinTowRules.MaxWorldRoll));
+            float pitchOver = AsksvinTowRules.Tighter(AsksvinTowRules.Excess(pitch, AsksvinTowRules.MaxPitch), AsksvinTowRules.Excess(pitchW, AsksvinTowRules.MaxWorldPitch));
             if (rollOver == 0f && pitchOver == 0f) return;
             Quaternion back = Quaternion.AngleAxis(-rollOver, fwd) * Quaternion.AngleAxis(-pitchOver, right);
             _body.rotation = back * _body.rotation;          // at once: MoveRotation waits a step, and a tree or the joint pushes it past again meanwhile (a9miss1: 56 deg)
             if (rollOver != 0f && rollRate * rollOver > 0f) w -= fwd * rollRate;
             if (pitchOver != 0f && pitchRate * pitchOver > 0f) w -= right * pitchRate;
-            _body.angularVelocity = w;
+            _body.angularVelocity = w * 0.6f;          // a held yank loses its spin too, or the next step tips it again
             Holds++;
             if (Time.time - _lastHoldLog < 0.5f) return;
             _lastHoldLog = Time.time;
             Rigidbody ab = _animal.GetComponent<Rigidbody>();
-            ModLog.Info("MobileCannonTow: " + name + " tilt held - roll " + roll.ToString("0") + " deg (rate " + (rollRate * Mathf.Rad2Deg).ToString("0") + " deg/s), pitch " + pitch.ToString("0")
+            ModLog.Info("MobileCannonTow: " + name + " tilt held - roll " + roll.ToString("0") + " deg (world " + rollW.ToString("0") + ") (rate " + (rollRate * Mathf.Rad2Deg).ToString("0") + " deg/s), pitch " + pitch.ToString("0") + " (world " + pitchW.ToString("0") + ")"
                 + " deg, spin " + w.magnitude.ToString("0.0") + " rad/s, cannon " + Vector3.ProjectOnPlane(_body.linearVelocity, Vector3.up).magnitude.ToString("0.0") + " m/s, asksvin "
                 + (ab != null ? Vector3.ProjectOnPlane(ab.linearVelocity, Vector3.up).magnitude.ToString("0.0") + " m/s turning " + _animalTurnRate.ToString("0") + " deg/s" : "?")
                 + ", yaw to the animal " + Vector3.SignedAngle(Vector3.ProjectOnPlane(fwd, Vector3.up), Vector3.ProjectOnPlane(_animal.transform.forward, Vector3.up), Vector3.up).ToString("0")

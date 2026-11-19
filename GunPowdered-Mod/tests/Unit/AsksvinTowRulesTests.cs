@@ -61,6 +61,15 @@ namespace GunPowdered.Tests.Unit
             Assert.That(AsksvinTowRules.Excess(angle, limit), Is.EqualTo(expected).Within(0.001f));
         }
 
+        [TestCase(0f, 0f, 0f)]
+        [TestCase(5f, 0f, 5f)]
+        [TestCase(5f, -9f, -9f)]
+        [TestCase(-3f, 2f, -3f)]
+        public void Tighter_TakesTheLargerExcess(float a, float b, float expected)
+        {
+            Assert.That(AsksvinTowRules.Tighter(a, b), Is.EqualTo(expected));
+        }
+
         [Test]
         public void UprightAccel_PullsBackAndDamps()
         {

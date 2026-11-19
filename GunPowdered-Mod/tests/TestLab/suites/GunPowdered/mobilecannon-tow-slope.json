@@ -1,28 +1,138 @@
 {
   "name": "mobilecannon-tow-slope",
-  "description": "T-009: on an 18 degree side slope (a lab-built slab on the terrain layer: the lab world is level for hundreds of metres) the Asksvin tows the Mobile Cannon along the slope at full speed, the case that tips carts over sideways: the cannon keeps up and never flips (the upright keeper logs every hold).",
-  "timeout": 120,
+  "description": "T-009: on the KydlFlat template mountain cliff (20 m rise over a 25 m run, about 39 degrees; the template own slope, nothing built) the Asksvin tows the Mobile Cannon down the face, turns round below and tows it back up onto the top: the cannon never flips (the upright keeper logs every hold) and stays hitched.",
+  "timeout": 150,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "hook", "name": "GunPowdered.rampHere", "args": { "degrees": 18 }, "contains": "ramp 18 deg", "label": "an 18 degree side slope ahead" },
-    { "do": "wait", "seconds": 1 },
-    { "do": "hook", "name": "GunPowdered.groundSlopeHere", "regex": "ground slope 1[5-9] deg", "label": "the ground under the player slopes about 18 degrees" },
-    { "do": "mobileCannonPlaced" },
-    { "do": "hook", "name": "GunPowdered.asksvinSpawn", "contains": "tamed True", "label": "a tame Asksvin behind the trail, on the slope" },
-    { "do": "asksvinHitched" },
-    { "do": "wait", "seconds": 1.5 },
-    { "do": "hook", "name": "GunPowdered.mobileCannonTowState", "regex": "towed True, joint True, .*upright True", "label": "hitched on the slope, upright" },
-    { "do": "hook", "name": "GunPowdered.asksvinFollowSlope", "args": { "mode": "across", "metres": 30 }, "regex": "slope across, .*\\((1[0-9]|2[0-9]) deg\\)", "label": "along the side slope" },
-    { "do": "wait", "seconds": 2.5 },
-    { "do": "hook", "name": "GunPowdered.freeCamOnAsksvin", "args": { "azimuth": 90, "elevation": 20, "metres": 10 }, "contains": "free camera" },
-    { "do": "invoke", "method": "Kydl.GameProbe.ProbeApi.Screenshot", "label": "GameProbe shot: towing along the side slope" },
-    { "do": "hook", "name": "GunPowdered.mobileCannonTowState", "contains": "towed", "label": "mid-run state (logged)" },
-    { "do": "wait", "seconds": 6 },
-    { "do": "hook", "name": "GunPowdered.mobileCannonTowState", "regex": "towed True, joint True, model True, moved (1[2-9]|[2-9]\\d)\\.\\d m.*upright True.*flips 0", "label": "towed 12+ m along the side slope at full speed, upright" },
-    { "do": "hook", "name": "GunPowdered.freeCamOff", "contains": "free camera" },
-    { "do": "hook", "name": "GunPowdered.mobileCannonHitch", "expect": "hitch True", "label": "unhitch" },
-    { "do": "hook", "name": "GunPowdered.rampRemove", "contains": "removed" },
-    { "do": "mobileCannonAsksvinCleanup" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.goToMountainCliffTop",
+      "label": "on the cliff top, 15 m from the edge",
+      "args": {
+        "metres": 15
+      },
+      "contains": "on the mountain cliff top"
+    },
+    {
+      "do": "wait",
+      "seconds": 6
+    },
+    {
+      "do": "mobileCannonPlaced"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinSpawn",
+      "label": "a tame Asksvin north of the cannon, facing the edge",
+      "contains": "tamed True"
+    },
+    {
+      "do": "asksvinHitched"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "label": "hitched on the top, upright",
+      "regex": "towed True, joint True, .*upright True"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinFollowTo",
+      "label": "down the cliff face",
+      "args": {
+        "x": 200,
+        "z": -112
+      },
+      "contains": "going to"
+    },
+    {
+      "do": "wait",
+      "seconds": 4
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCamOnAsksvin",
+      "label": "camera beside",
+      "args": {
+        "azimuth": 90,
+        "elevation": 15,
+        "metres": 12
+      },
+      "contains": "free camera"
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: towing down the cliff"
+    },
+    {
+      "do": "wait",
+      "seconds": 10
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "label": "came down the 20 m cliff (cannon below 59 m), never flipped",
+      "regex": "towed True, joint True, .*upright True.*flips 0, cannon at \\(\\d+\\.\\d, 5[2-8]\\."
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinFollowTo",
+      "label": "turn round below and back up onto the top",
+      "args": {
+        "x": 200,
+        "z": -160
+      },
+      "contains": "going to"
+    },
+    {
+      "do": "wait",
+      "seconds": 5
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: towing up the cliff"
+    },
+    {
+      "do": "wait",
+      "seconds": 7
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "label": "towed back up onto the top (cannon above 70 m), never flipped",
+      "regex": "towed True, joint True, .*upright True.*flips 0, cannon at \\(\\d+\\.\\d, 7[0-5]\\."
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCamOff",
+      "label": "camera back",
+      "contains": "free camera"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonHitch",
+      "label": "unhitch",
+      "expect": "hitch True"
+    },
+    {
+      "do": "mobileCannonAsksvinCleanup"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

@@ -484,47 +484,48 @@ namespace GunPowdered.Testing.TestHooks
             return WorldGenerator.instance != null ? WorldGenerator.instance.GetHeight(at.x, at.z) : at.y;
         }
 
-        static GameObject _ramp;
+        // ---- slopes: the KydlFlat template's baked cliffs ----
+        // The test world is levelled on purpose (KydlFlat, Claude\shared\TestLab\templates\README.md: "tests do not build terrain ... they use the flat ground
+        // and the baked cliffs"). a9slope5..8 built a tilted slab instead: the game's grass threw ~800 NullReferenceExceptions on it (ClutterSystem.GetGroundInfo
+        // wants a Heightmap under every terrain hit). The slope test now uses the template's mountain cliff: bottom (200, -116), top (200, -145), 20 m rise over a
+        // 25 m run (about 39 degrees), flat top 20 m wide (bake.txt).
+        static readonly Vector3 MountainCliffBottom = new Vector3(200f, 53f, -116f), MountainCliffTop = new Vector3(200f, 73f, -145f);
 
         /// <summary>
-        /// The lab world is levelled flat for a long way round the arena (groundProfile, a9slope4: 53.0 m everywhere), so the slope test builds its own hillside:
-        /// a 14 x 90 m slab on the terrain layer, tilted <paramref name="degrees"/> sideways, its low edge in the ground, centred on the player, who stands on it. The cannon and the Asksvin placed next land on it (their placing uses the ground height). Returns "ramp D deg".
+        /// Teleports the player onto the mountain cliff's flat top, <paramref name="metres"/> back from its edge (z -145). The cannon is always placed south of the
+        /// player and the Asksvin north of it, facing north (a9cliff1/2: the teleport's facing is not used), so on the top the Asksvin faces the edge: the test
+        /// first tows DOWN the 39 degree face, turns round on the flat ground below and tows back UP. Returns "on the mountain cliff top, M m from the edge".
         /// </summary>
-        [TestHook("GunPowdered.rampHere")]
-        static string RampHere(double degrees)
+        [TestHook("GunPowdered.goToMountainCliffTop")]
+        static string GoToMountainCliffTop(double metres)
         {
             Player p = Player.m_localPlayer;
             if (p == null) return "no player";
-            RampRemove();
-            Vector3 dir = Vector3.ProjectOnPlane(p.transform.forward, Vector3.up).normalized;
-            float g = GroundY(p.transform.position), a = (float)degrees * Mathf.Deg2Rad;
-            _ramp = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            _ramp.name = "gp_lab_ramp";
-            _ramp.layer = LayerMask.NameToLayer("terrain");
-            _ramp.transform.localScale = new Vector3(14f, 1f, 90f);          // 45 m each way: the Asksvin stands behind the player and runs away from the cannon (a9slope6)
-            _ramp.transform.rotation = Quaternion.LookRotation(dir) * Quaternion.Euler(0f, 0f, (float)degrees);
-            Vector3 centre = p.transform.position;
-            centre.y = g - 0.2f + 7f * Mathf.Sin(a) - 0.5f * Mathf.Cos(a);
-            _ramp.transform.position = centre;
-            Physics.SyncTransforms();
-            Vector3 stand = p.transform.position - dir * 0f;
-            stand.y = GroundY(stand) + 0.3f;
-            p.transform.position = stand;
-            Rigidbody body = p.GetComponent<Rigidbody>();
-            if (body != null) { body.position = stand; body.linearVelocity = Vector3.zero; }
-            ModLog.Info("AsksvinTowTestHooks: ramp " + degrees.ToString("0") + " deg, centre " + centre.ToString("0.0") + ", player on it at height " + (stand.y - g).ToString("0.0") + " m");
-            return "ramp " + degrees.ToString("0") + " deg";
+            Vector3 at = MountainCliffTop + Vector3.back * (float)metres;
+            p.TeleportTo(at + Vector3.up * 0.5f, p.transform.rotation, true);
+            ModLog.Info("AsksvinTowTestHooks: teleport to " + at.ToString("0") + ", " + metres.ToString("0") + " m behind the mountain cliff's edge");
+            return "on the mountain cliff top, " + metres.ToString("0") + " m from the edge";
         }
-
-        /// <summary>Removes the lab ramp. Returns "ramp removed".</summary>
-        [TestHook("GunPowdered.rampRemove")]
-        static string RampRemove()
+        /// <summary>Sends the towing Asksvin to a world point (x, z) on the ground: the player, its follow target, goes there. "top" / "foot" variants are the cliff's.
+        /// Returns "going to (x, z), ground y".</summary>
+        [TestHook("GunPowdered.asksvinFollowTo")]
+        static string FollowTo(double x, double z)
         {
-            if (_ramp != null) Object.Destroy(_ramp);
-            _ramp = null;
-            return "ramp removed";
+            Player p = Player.m_localPlayer;
+            MonsterAI ai = _animal != null ? _animal.GetComponent<MonsterAI>() : null;
+            if (p == null || ai == null) return "no player or no asksvin";
+            Vector3 at = new Vector3((float)x, 0f, (float)z);
+            at.y = GroundY(new Vector3(at.x, MountainCliffTop.y + 5f, at.z));
+            Rigidbody body = p.GetComponent<Rigidbody>();
+            p.transform.position = at;
+            if (body != null) { body.position = at; body.linearVelocity = Vector3.zero; }
+            GameObject cannon = MobileCannonTestHooks.Cannon;
+            if (cannon != null) _cannonStart = cannon.transform.position;
+            ai.SetFollowTarget(p.gameObject);
+            string s = "going to (" + x.ToString("0") + ", " + z.ToString("0") + "), ground y " + at.y.ToString("0.0");
+            ModLog.Info("AsksvinTowTestHooks: " + s + ", asksvin at " + _animal.transform.position.ToString("0.0"));
+            return s;
         }
-
         static readonly System.Collections.Generic.List<GameObject> Trees = new System.Collections.Generic.List<GameObject>();
 
         /// <summary>Spawns <paramref name="count"/> trees (Beech1) on both sides of the line from the Asksvin to the player, 1.2-1.8 m off it, so the cannon's wheels and trail brush them. Returns "trees N".</summary>
