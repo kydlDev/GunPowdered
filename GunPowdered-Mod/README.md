@@ -10,7 +10,8 @@ Make gunpowder, then build weapons with it.
 - **Water**: fill a Bucket in any water, or collect it in a **Rain Barrel** (fills only while it rains and nothing roofs it).
 - **Leaching Station**: guano + water (+ wood for the hearth) make Saltpeter in one in-game day. It runs by itself while it holds at least 10 guano + 10 water + 4 wood, can be filled at any time, and the Saltpeter piles up until you take it. Five extension pieces, one per biome from the Swamp to the Ashlands, upgrade it: each makes the batch bigger and the run 5 minutes shorter (biggest: 60 guano + 60 water -> 30 Saltpeter in 5 minutes).
 - **Sulfur**: Sulfurous Mud in the swamp, plus Blob and Oozer drops.
-- **Powder Mill**: saltpeter + sulfur + charcoal make Gunpowder.
+- **Powder Mill**: fill it with Saltpeter, Charcoal and Sulfur (3 + 1 + 1 per 5 Gunpowder) and it grinds by itself in 10 minutes; the Gunpowder piles up until you take it. Three extension pieces (Obsidian Grindstone, Dvergr Powder Sieve, Flametal Drying Oven) each make the batch bigger and the run 2.5 minutes shorter.
+- **Extensions** count within 5 m of their station, above and below too. They snap side by side to their own station and can never stand on top of it.
 
 **Weapons**
 - **Spiked Grenade**: hold the attack button to aim the landing spot (arc and ring shown), release to throw, block to cancel. Damages creatures, buildings, trees and rocks.
