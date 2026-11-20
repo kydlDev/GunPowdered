@@ -1,6 +1,6 @@
 {
   "name": "asksvin-lead-rope",
-  "description": "D-144 (T-014): on foot, E on the saddle chest rope of a saddled Asksvin takes it by the rope (toggle); standing close in front of the rope backs it up (half its walk speed, facing ahead), standing further off leads it forward, E again lets go. (A Mobile Cannon is placed only because the Asksvin spawn hook puts the animal beside one; it is not hitched.)",
+  "description": "D-144 (T-014, user 21:46): on foot, E on the saddle chest rope of a saddled Asksvin takes it by the rope (toggle); holding it, the Asksvin moves WITH the player along its own axis - the player moves towards its back, it walks backwards (half its walk speed, facing ahead); the player moves forward, it walks forward; E again lets go. (A Mobile Cannon is placed only because the spawn hook needs one; not hitched.)",
   "timeout": 90,
   "steps": [
     {
@@ -48,7 +48,7 @@
     {
       "do": "hook",
       "name": "GunPowdered.asksvinLead",
-      "regex": "lead sent True, rope at .*Lead \\(walk into it",
+      "regex": "lead sent True, rope at .*Lead \\(walk back or forward with it",
       "label": "E on the chest rope: the hover offers Lead, the request is sent"
     },
     {
@@ -73,7 +73,7 @@
         "metres": 0.5
       },
       "contains": "before the rope",
-      "label": "step into it"
+      "label": "move towards its back (0.9 m from where the rope was taken)"
     },
     {
       "do": "wait",
@@ -128,7 +128,7 @@
         "metres": 3.5
       },
       "contains": "before the rope",
-      "label": "walk off in front of it"
+      "label": "move forward along it (2.1 m)"
     },
     {
       "do": "wait",
@@ -138,7 +138,7 @@
       "do": "hook",
       "name": "GunPowdered.asksvinBackState",
       "regex": "back -([1-9]|0\\.[3-9])",
-      "label": "it followed forward on the rope"
+      "label": "it walked forward with the player"
     },
     {
       "do": "hook",

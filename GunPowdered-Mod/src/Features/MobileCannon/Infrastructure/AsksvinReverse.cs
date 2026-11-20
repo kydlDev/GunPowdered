@@ -118,31 +118,36 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (_rideBack && Ridden()) { Back(dt, _rideTurn); { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Drive:118", 2d, "AsksvinReverse.Drive: returns true (line 118)"); return true; } }
             _rideBack = _rideBack && Ridden();
             ZDOID leader = Leader;
-            if (leader == ZDOID.None || !Saddled || Ridden()) { EndLeadWalk(); StopBacking(); if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Drive:ai", 2d, "AsksvinReverse.Drive: not backed nor led - returns false"); return false; }
+            if (leader == ZDOID.None || !Saddled || Ridden()) { _ledBy = ZDOID.None; EndLeadWalk(); StopBacking(); if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Drive:ai", 2d, "AsksvinReverse.Drive: not backed nor led - returns false"); return false; }
             GameObject go = ZNetScene.instance != null ? ZNetScene.instance.FindInstance(leader) : null;
             if (go == null) { LetGo("the leader is not loaded"); { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Drive:123", 2d, "AsksvinReverse.Drive: returns false (line 123)"); return false; } }
-            bool led = Lead(go.transform.position, dt);
+            bool led = Lead(leader, go.transform.position, dt);
             if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Drive:lead", 2d, "AsksvinReverse.Drive: led - returns " + led);
             return led;
         }
 
-        bool Lead(Vector3 player, float dt)
+        // user 21:46: holding the rope, the Asksvin moves WITH the player along its own axis (towards its back -> it walks backwards, forward -> forward),
+        // measured from where the player stood when taking the rope; it keeps its heading (no turning towards the player: leading, not following)
+        ZDOID _ledBy = ZDOID.None;
+        float _grabAhead;
+
+        bool Lead(ZDOID leader, Vector3 player, float dt)
         {
             Vector3 rope = AsksvinLeadRope.WorldPoint(this);
             Vector3 fwd = Flat(transform.forward);
             Vector3 toPlayer = player - rope;
             toPlayer.y = 0f;
-            string what = AsksvinReverseRules.Lead(Vector3.Dot(player - rope, fwd), toPlayer.magnitude);
-            if (ModLog.IsDue("asksvin-lead-" + GetInstanceID(), 2d)) ModLog.Every("asksvin-lead-" + GetInstanceID(), 2d, $"AsksvinReverse: {name} led, player {Vector3.Dot(player - rope, fwd):0.00} m ahead of the rope - {what}");
-            if (what == "let go") { LetGo("the player walked off"); return false; }
-            float turn = toPlayer.sqrMagnitude > 0.01f ? Mathf.Clamp(Vector3.SignedAngle(fwd, toPlayer, Vector3.up) / 30f, -1f, 1f) : 0f;
-            if (what == "back") { Back(dt, turn); { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Lead:139", 2d, "AsksvinReverse.Lead: returns true (line 139)"); return true; } }
+            float ahead = Vector3.Dot(toPlayer, fwd);
+            if (leader != _ledBy) { _ledBy = leader; _grabAhead = ahead; ModLog.Info($"AsksvinReverse: {name} rope taken, player {ahead:0.00} m ahead of the rope"); }
+            string what = AsksvinReverseRules.Lead(ahead, _grabAhead, toPlayer.magnitude);
+            if (ModLog.IsDue("asksvin-lead-" + GetInstanceID(), 2d)) ModLog.Every("asksvin-lead-" + GetInstanceID(), 2d, $"AsksvinReverse: {name} led, player moved {ahead - _grabAhead:0.00} m along it since taking the rope - {what}");
+            if (what == "let go") { LetGo("the player walked off"); { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Lead:letgo", 2d, "AsksvinReverse.Lead: returns false (let go)"); return false; } }
+            if (what == "back") { EndLeadWalk(); Back(dt, 0f); { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Lead:back", 2d, "AsksvinReverse.Lead: returns true (back)"); return true; } }
             StopBacking();
-            if (what == "forward") { _character.SetWalk(true); _leadWalk = true; _ai.MoveTowards(toPlayer, false); { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Lead:141", 2d, "AsksvinReverse.Lead: returns true (line 141)"); return true; } }
+            if (what == "forward") { _character.SetWalk(true); _leadWalk = true; _ai.MoveTowards(fwd, false); { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Lead:forward", 2d, "AsksvinReverse.Lead: returns true (forward)"); return true; } }
             EndLeadWalk();
             _ai.StopMoving();
-            if (toPlayer.sqrMagnitude > 0.01f) _ai.LookTowards(toPlayer);
-            { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Lead:145", 2d, "AsksvinReverse.Lead: returns true (line 145)"); return true; }
+            { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Lead:stay", 2d, "AsksvinReverse.Lead: returns true (stay)"); return true; }
         }
 
         bool _leadWalk;

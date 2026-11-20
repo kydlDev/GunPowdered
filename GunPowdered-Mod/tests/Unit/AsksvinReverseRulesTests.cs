@@ -39,17 +39,18 @@ namespace GunPowdered.Tests.Unit
             Assert.That(AsksvinReverseRules.TurnStep(turn, dt), Is.EqualTo(expected).Within(1e-4f));
         }
 
-        [TestCase(1.4f, 1.4f, "stay", TestName = "Lead: at rest")]
-        [TestCase(1.15f, 1.2f, "stay", TestName = "Lead: on the back edge stays")]
-        [TestCase(1.14f, 1.2f, "back", TestName = "Lead: stepping in backs it up")]
-        [TestCase(-0.5f, 1f, "back", TestName = "Lead: beside or behind the rope backs it up")]
-        [TestCase(2f, 2f, "stay", TestName = "Lead: on the forward edge stays")]
-        [TestCase(2.01f, 2.1f, "forward", TestName = "Lead: walking off leads it forward")]
-        [TestCase(5f, 6f, "forward", TestName = "Lead: at the let-go distance still leads")]
-        [TestCase(5f, 6.01f, "let go", TestName = "Lead: too far lets go")]
-        public void Lead(float ahead, float distance, string expected)
+        [TestCase(1.4f, 1.4f, 1.4f, "stay", TestName = "Lead: where the rope was taken")]
+        [TestCase(1.1f, 1.4f, 1.1f, "stay", TestName = "Lead: on the back edge stays")]
+        [TestCase(1.09f, 1.4f, 1.1f, "back", TestName = "Lead: the player moved towards its back - it backs up")]
+        [TestCase(-0.5f, 1.4f, 1f, "back", TestName = "Lead: the player well behind the grab point - back")]
+        [TestCase(1.69f, 1.4f, 1.7f, "stay", TestName = "Lead: just inside the forward edge stays")]
+        [TestCase(1.71f, 1.4f, 1.8f, "forward", TestName = "Lead: the player moved forward - it walks forward")]
+        [TestCase(5f, 0f, 6f, "forward", TestName = "Lead: at the let-go distance still led")]
+        [TestCase(5f, 0f, 6.01f, "let go", TestName = "Lead: too far lets go")]
+        [TestCase(-1f, -1f, 1f, "stay", TestName = "Lead: taken from beside or behind the rope works the same")]
+        public void Lead(float ahead, float grabAhead, float distance, string expected)
         {
-            Assert.That(AsksvinReverseRules.Lead(ahead, distance), Is.EqualTo(expected));
+            Assert.That(AsksvinReverseRules.Lead(ahead, grabAhead, distance), Is.EqualTo(expected));
         }
 
         [TestCase(0f, 2f, 0f)]
@@ -70,9 +71,7 @@ namespace GunPowdered.Tests.Unit
             {
                 Assert.That(AsksvinReverseRules.BackSpeedFactor, Is.EqualTo(0.5f), "half the walk speed (user, D-144)");
                 Assert.That(AsksvinReverseRules.BackTurnRate, Is.EqualTo(30f));
-                Assert.That(AsksvinReverseRules.LeadRest, Is.EqualTo(1.4f));
-                Assert.That(AsksvinReverseRules.LeadBackBand, Is.EqualTo(0.25f));
-                Assert.That(AsksvinReverseRules.LeadForwardBand, Is.EqualTo(0.6f));
+                Assert.That(AsksvinReverseRules.LeadBand, Is.EqualTo(0.3f));
                 Assert.That(AsksvinReverseRules.LeadLetGo, Is.EqualTo(6f));
             });
         }
