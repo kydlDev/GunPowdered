@@ -46,6 +46,7 @@ namespace GunPowdered
             public const string Paper = Core.GunPowderedPrefabs.Paper;
             public const string IronBullet = Core.GunPowderedPrefabs.IronBullet;
             public const string PaperCartridge = Core.GunPowderedPrefabs.PaperCartridge;
+            public const string DeepNorthPack = Core.GunPowderedPrefabs.DeepNorthPack;
         }
 
         /// <summary>Every prefab name the mod adds.</summary>

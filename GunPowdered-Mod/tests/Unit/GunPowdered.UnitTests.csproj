@@ -23,6 +23,7 @@
     <Compile Include="..\..\src\Core\DepositRefill.cs" Link="Mod\Core\DepositRefill.cs" Condition="'$(KydlQuality)' != 'true'" />
     <Compile Include="..\..\src\Core\SeededRandom.cs" Link="Mod\Core\SeededRandom.cs" Condition="'$(KydlQuality)' != 'true'" />
     <Compile Include="..\..\src\Core\BurnRules.cs" Link="Mod\Core\BurnRules.cs" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\src\Core\RecipeGate.cs" Link="Mod\Core\RecipeGate.cs" Condition="'$(KydlQuality)' != 'true'" />
     <Compile Include="..\..\src\Features\*\Domain\**\*.cs" Link="Mod\%(RecursiveDir)%(Filename)%(Extension)" Condition="'$(KydlQuality)' != 'true'" />
     <Compile Include="..\..\src\Features\*\Application\**\*.cs" Link="Mod\%(RecursiveDir)%(Filename)%(Extension)" Condition="'$(KydlQuality)' != 'true'" />
     <Compile Include="..\..\src\Features\*\Execution\**\*.cs" Link="Mod\%(RecursiveDir)%(Filename)%(Extension)" Condition="'$(KydlQuality)' != 'true'" />

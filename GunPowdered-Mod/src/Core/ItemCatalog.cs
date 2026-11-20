@@ -66,6 +66,16 @@ namespace GunPowdered.Core
         /// <summary>The level the crafting station needs for the recipe (1 = any).</summary>
         public int StationLevel { get; private set; } = 1;
 
+        /// <summary>A world (global) key the recipe waits for, e.g. "defeated_fader"; null = none. Until the key is set the recipe stays hidden (RecipeGate).</summary>
+        public string RequiredGlobalKey { get; private set; }
+
+        /// <summary>Hides the recipe until the world has the global key. Expected outcome: this entry, with <see cref="RequiredGlobalKey"/> = key.</summary>
+        public ItemSpec AfterGlobalKey(string key)
+        {
+            RequiredGlobalKey = string.IsNullOrEmpty(key) ? null : key;
+            return this;
+        }
+
         /// <summary>Sets the station level the recipe needs. Expected outcome: this entry, with <see cref="StationLevel"/> = level (at least 1).</summary>
         public ItemSpec AtStationLevel(int level)
         {
@@ -80,7 +90,10 @@ namespace GunPowdered.Core
         public const string Workbench = "piece_workbench";
         public const string Forge = "forge";
         /// <summary>Vanilla prefab names of the materials the recipes use (Charcoal is the prefab "Coal", Sulfur is the prefab "SulfurStone"; checked in the Unity rip 2026-11-17).</summary>
-        public const string Wood = "Wood", Iron = "Iron", Bronze = "Bronze", LeatherScraps = "LeatherScraps", Resin = "Resin", Stone = "Stone", Charcoal = "Coal", Sulfur = "SulfurStone", Obsidian = "Obsidian", LoxPelt = "LoxPelt";
+        public const string Wood = "Wood", Iron = "Iron", Bronze = "Bronze", LeatherScraps = "LeatherScraps", Resin = "Resin", Stone = "Stone", Charcoal = "Coal", Sulfur = "SulfurStone", Obsidian = "Obsidian", LoxPelt = "LoxPelt", SealHide = "SealHide";
+
+        /// <summary>The world key Fader's death sets (Ashlands boss); the Deep North Dynamite Pack waits for it.</summary>
+        public const string FaderKey = "defeated_fader";
 
         public static readonly ItemSpec BatGuano = new ItemSpec(GunPowderedPrefabs.BatGuano, "Bat Guano", "Dung of cave bats. Rich in nitrates: leach it with water in a Leaching Vat to get saltpeter.",
             ItemKind.Material, "Resin", 50, 0.5f, "", 1);
@@ -165,6 +178,13 @@ namespace GunPowdered.Core
             ItemKind.Weapon, Club, 20, 0.5f, Forge, 5,       // held in one hand; the attack button sets it down (D-100)
             new CostLine(Iron, 2), new CostLine(GunPowderedPrefabs.Gunpowder, 5), new CostLine(Resin, 1)).AtStationLevel(2);
 
+        // D-108 (user 2026-11-20): the Deep North Dynamite Pack - four sticks in the corners, two Spiked Grenades stacked in the middle, four SealHide straps round
+        // them. Made at the dynamite's Forge (level 2) from what it is made of, only after Fader is dead. Breaks tier 6 rock (the gammel trolls) in a 20 m blast.
+        public static readonly ItemSpec DeepNorthPack = new ItemSpec(GunPowderedPrefabs.DeepNorthPack, "Deep North Dynamite Pack",
+            "Four sticks of dynamite and two spiked grenades strapped together with seal hide. Set it down, light it with a Torch and run: the blast reaches 20 m and breaks even the frozen gammel trolls of the Deep North.",
+            ItemKind.Weapon, Club, 5, 4f, Forge, 1,
+            new CostLine(GunPowderedPrefabs.Dynamite, 4), new CostLine(GunPowderedPrefabs.SpikedGrenade, 2), new CostLine(SealHide, 4)).AtStationLevel(2).AfterGlobalKey(FaderKey);
+
         // T-009f mobile cannon (D-045 item 4): Ashlands (Flametal + Ashwood); a build piece like the Cannon Stock, built beside a Forge
         public static readonly ItemSpec MobileCannon = new ItemSpec(GunPowderedPrefabs.MobileCannon, "Mobile Cannon",
             "A Flametal cannon on an ashwood carriage with big spoked wheels and an elevation crank. One shot is loaded at a time; an Asksvin with a harness can pull it.",
@@ -198,7 +218,7 @@ namespace GunPowdered.Core
         {
             get
             {
-                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud, SpikedGrenade, CannonBall, Cannon, CannonStock, Musket, ExplosiveArrow, Dynamite, MobileCannon, AsksvinHarness, Paper, IronBullet, PaperCartridge };
+                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud, SpikedGrenade, CannonBall, Cannon, CannonStock, Musket, ExplosiveArrow, Dynamite, MobileCannon, AsksvinHarness, Paper, IronBullet, PaperCartridge, DeepNorthPack };
             }
         }
     }

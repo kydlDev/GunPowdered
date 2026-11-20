@@ -19,7 +19,48 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
     internal static class DynamiteSetup
     {
         internal const string StickId = "GP_DynamiteStick", ExplosionId = "GP_Dynamite_explosion", CraterId = "GP_Dynamite_crater";
+        internal const string PackChargeId = "GP_DeepNorthPackCharge", PackExplosionId = "GP_DeepNorthPack_explosion", PackCraterId = "GP_DeepNorthPack_crater";
         const string ExplosionBase = "bombdynamite_explosion", CraterBase = "digg_bombdynamite", CreatureChild = "gp_creature_blast";
+
+        /// <summary>
+        /// One kind of charge: the stick (D-100) or the Deep North Dynamite Pack (D-108). Each has its own item, the object set down, the blast and the crater;
+        /// the numbers come from its Tunables at <see cref="Apply"/>.
+        /// </summary>
+        internal sealed class ChargeKind
+        {
+            internal string ItemId, ChargeId, ExplosionId, CraterId, Name;
+            internal bool ShowsTimer;          // D-108: a burning pack shows its countdown on screen
+            internal float ExplosionScale = 1f;
+            internal GameObject Item, Charge, Explosion, Crater;
+            internal System.Func<float> Radius, Blunt, Chop, Pickaxe, CreatureFirePerSecond, CraterRadius, CraterDepth;
+            internal System.Func<int> ToolTier;
+        }
+
+        internal static readonly ChargeKind StickKind = new ChargeKind
+        {
+            ItemId = GunPowderedPrefabs.Dynamite, ChargeId = StickId, ExplosionId = ExplosionId, CraterId = CraterId, Name = "Dynamite",
+            Radius = () => ModSettings.DynamiteRadius.Value, Blunt = () => ModSettings.DynamiteDamage.Value, Chop = () => ModSettings.DynamiteDamage.Value,
+            Pickaxe = () => ModSettings.DynamiteDamage.Value, CreatureFirePerSecond = () => ModSettings.DynamiteCreatureFire.Value,
+            CraterRadius = () => ModSettings.DynamiteCraterRadius.Value, CraterDepth = () => ModSettings.DynamiteCraterDepth.Value, ToolTier = () => ModSettings.DynamiteToolTier.Value
+        };
+
+        internal static readonly ChargeKind PackKind = new ChargeKind
+        {
+            ItemId = GunPowderedPrefabs.DeepNorthPack, ChargeId = PackChargeId, ExplosionId = PackExplosionId, CraterId = PackCraterId, Name = "Deep North Dynamite Pack",
+            ShowsTimer = true, ExplosionScale = 3f,
+            Radius = () => ModSettings.PackRadius.Value, Blunt = () => ModSettings.PackDamage.Value, Chop = () => ModSettings.PackDamage.Value,
+            Pickaxe = () => ModSettings.PackPickaxe.Value, CreatureFirePerSecond = () => ModSettings.PackCreatureFire.Value,
+            CraterRadius = () => ModSettings.PackCraterRadius.Value, CraterDepth = () => ModSettings.PackCraterDepth.Value, ToolTier = () => ModSettings.PackToolTier.Value
+        };
+
+        static readonly ChargeKind[] Kinds = { StickKind, PackKind };
+
+        /// <summary>The kind whose charge prefab is <paramref name="chargeId"/> (the stick when unknown).</summary>
+        internal static ChargeKind KindOfCharge(string chargeId)
+        {
+            foreach (ChargeKind k in Kinds) if (k.ChargeId == chargeId) return k;
+            return StickKind;
+        }
         /// <summary>
         /// The hand model under the item's "attach" (= RightHand_Attach when held). The vanilla Club's handle runs along attach +Z through the origin (radius 0.017),
         /// so the fist closes round that axis. The Dynamite model stands along its own +Y with its origin at the bottom of the tube (bounds centre (-0.016, 0.152, 0)):
@@ -27,42 +68,51 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         /// vanilla Player with "Standing Torch Idle right" sampled, Club attach as reference).
         /// </summary>
         static readonly Vector3 HandGripPosition = new Vector3(0.016f, 0f, -0.132f), HandGripEuler = new Vector3(90f, 0f, 0f);
-        static GameObject _item, _stick, _explosion, _crater;
+        /// <summary>D-108: the pack hangs below the fist, upright, held by its top strap (model origin = bottom centre, about 0.3 m tall). First fit, to be checked in game.</summary>
+        static readonly Vector3 PackGripPosition = new Vector3(0f, -0.27f, 0.04f), PackGripEuler = new Vector3(0f, 0f, 0f);
         static float _lastPlaced = -99f;
 
-        internal static GameObject Item => _item;
-        internal static GameObject Stick => _stick;
-        internal static GameObject Explosion => _explosion;
-        internal static GameObject Crater => _crater;
+        internal static GameObject Item => StickKind.Item;
+        internal static GameObject Stick => StickKind.Charge;
+        internal static GameObject Explosion => StickKind.Explosion;
+        internal static GameObject Crater => StickKind.Crater;
 
         /// <summary>Called by the ItemRegistry right after the dynamite item exists. Expected outcome: the stick, the blast and the crater exist.</summary>
-        internal static bool Configure(GameObject itemPrefab)
+        internal static bool Configure(GameObject itemPrefab) => ConfigureKind(StickKind, itemPrefab);
+
+        /// <summary>D-108: the Deep North Dynamite Pack, set down and lit like a stick. Expected outcome: its charge, blast and crater exist.</summary>
+        internal static bool ConfigurePack(GameObject itemPrefab) => ConfigureKind(PackKind, itemPrefab);
+
+        static bool ConfigureKind(ChargeKind kind, GameObject itemPrefab)
         {
-            _item = itemPrefab;
+            kind.Item = itemPrefab;
             ItemDrop.ItemData.SharedData shared = itemPrefab.GetComponent<ItemDrop>().m_itemData.m_shared;
             shared.m_damages = new HitData.DamageTypes();   // held, it is not a club: the attack button sets it down
             shared.m_attack.m_attackStamina = 0f;
-            bool hand = AttachHandModel(itemPrefab);
-            if (_stick == null) _stick = MakeStick(itemPrefab);
-            if (_explosion == null) _explosion = MakeExplosion();
-            if (_crater == null) _crater = MakeCrater();
+            bool hand = AttachHandModel(itemPrefab, kind == StickKind);
+            if (kind.Charge == null) kind.Charge = MakeCharge(kind, itemPrefab);
+            if (kind.Explosion == null) kind.Explosion = MakeExplosion(kind);
+            if (kind.Crater == null) kind.Crater = MakeCrater(kind.CraterId);
             bool listed = ListCrater(ObjectDB.instance);   // later ObjectDB rebuilds: DynamiteTerrainPatch
-            ModLog.Verbose("DynamiteSetup: crater listed as a terrain operation now " + listed + " (ObjectDB " + (ObjectDB.instance != null) + ")");
-            bool applied = Apply();
-            ModLog.Verbose("DynamiteSetup: configured - hand model " + hand + ", stick " + (_stick != null) + ", blast " + (_explosion != null) + ", crater " + (_crater != null) + ", applied " + applied);
-            return hand && _stick != null && applied;
+            ModLog.Verbose("DynamiteSetup: " + kind.Name + " crater listed as a terrain operation now " + listed + " (ObjectDB " + (ObjectDB.instance != null) + ")");
+            bool applied = ApplyKind(kind);
+            ModLog.Verbose("DynamiteSetup: " + kind.Name + " configured - hand model " + hand + ", charge " + (kind.Charge != null) + ", blast " + (kind.Explosion != null) + ", crater " + (kind.Crater != null) + ", applied " + applied);
+            return hand && kind.Charge != null && applied;
         }
 
         /// <summary>Puts the Tunables on the blast (both parts) and the crater. Expected outcome: true when both exist and carry the values.</summary>
-        internal static bool Apply()
+        internal static bool Apply() => ApplyKind(StickKind) & (PackKind.Explosion == null || ApplyKind(PackKind));
+
+        static bool ApplyKind(ChargeKind kind)
         {
-            if (_explosion == null || _crater == null) return false;
-            float d = ModSettings.DynamiteDamage.Value, c = DynamiteRules.CreatureDamage(d), r = ModSettings.DynamiteRadius.Value;
-            Aoe props = _explosion.GetComponent<Aoe>();
+            if (kind.Explosion == null || kind.Crater == null) return false;
+            float r = kind.Radius(), blunt = kind.Blunt(), chop = kind.Chop(), pick = kind.Pickaxe();
+            float c = DynamiteRules.CreatureDamage(blunt);
+            Aoe props = kind.Explosion.GetComponent<Aoe>();
             props.m_useAttackSettings = false;
             props.m_radius = r;
-            props.m_damage = new HitData.DamageTypes { m_blunt = d, m_chop = d, m_pickaxe = d };
-            props.m_toolTier = ModSettings.DynamiteToolTier.Value;
+            props.m_damage = new HitData.DamageTypes { m_blunt = blunt, m_chop = chop, m_pickaxe = pick };
+            props.m_toolTier = kind.ToolTier();
             props.m_hitCharacters = false;       // creatures: the child part below, at a fifth of the damage
             props.m_hitProps = true;
             props.m_hitTerrain = false;          // the hole is the crater's work
@@ -70,12 +120,12 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             props.m_hitAfterTtl = false;         // with the bang (the base waits for its 3 s life to end)
             props.m_statusEffect = "";
 
-            Transform child = _explosion.transform.Find(CreatureChild);
+            Transform child = kind.Explosion.transform.Find(CreatureChild);
             Aoe creatures = child != null ? child.GetComponent<Aoe>() : null;
             if (creatures == null) return false;
             creatures.m_useAttackSettings = false;
             creatures.m_radius = r;
-            creatures.m_damage = new HitData.DamageTypes { m_blunt = c, m_chop = c, m_pickaxe = c, m_fire = GunPowdered.Core.BurnRules.Total(ModSettings.DynamiteCreatureFire.Value) };     // D-107: burns on top of the 20 %
+            creatures.m_damage = new HitData.DamageTypes { m_blunt = c, m_chop = DynamiteRules.CreatureDamage(chop), m_pickaxe = DynamiteRules.CreatureDamage(pick), m_fire = GunPowdered.Core.BurnRules.Total(kind.CreatureFirePerSecond()) };     // D-107: burns on top of the 20 %
             creatures.m_hitCharacters = true;
             creatures.m_hitProps = false;
             creatures.m_hitTerrain = false;
@@ -86,19 +136,19 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             creatures.m_dodgeable = false;
             creatures.m_blockable = false;
 
-            TerrainOp dig = _crater.GetComponent<TerrainOp>();
+            TerrainOp dig = kind.Crater.GetComponent<TerrainOp>();
             if (dig == null) return false;
             TerrainOp.Settings s = dig.m_settings;
             s.m_level = false;
             s.m_raise = true;
-            s.m_raiseRadius = ModSettings.DynamiteCraterRadius.Value;
-            s.m_raiseDelta = -ModSettings.DynamiteCraterDepth.Value;
+            s.m_raiseRadius = kind.CraterRadius();
+            s.m_raiseDelta = -kind.CraterDepth();
             s.m_square = false;                  // round
             s.m_smooth = true;
-            s.m_smoothRadius = ModSettings.DynamiteCraterRadius.Value * 1.4f;
+            s.m_smoothRadius = kind.CraterRadius() * 1.4f;
             s.m_paintCleared = true;
             s.m_paintType = TerrainModifier.PaintType.Dirt;    // the burnt, bare ground around the hole
-            s.m_paintRadius = ModSettings.DynamiteCraterRadius.Value * 1.5f;
+            s.m_paintRadius = kind.CraterRadius() * 1.5f;
             dig.m_settings = s;                  // the same object (Settings is a class); kept explicit
             return Mathf.Approximately(props.m_radius, r) && Mathf.Approximately(creatures.m_damage.m_blunt, c);
         }
@@ -109,19 +159,33 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         /// </summary>
         internal static bool ListCrater(ObjectDB db)
         {
-            TerrainOp op = _crater != null ? _crater.GetComponent<TerrainOp>() : null;
-            if (db == null || op == null) return false;
+            if (db == null || StickKind.Crater == null) return false;
+            bool all = true;
+            foreach (ChargeKind k in Kinds) if (k.Crater != null) all &= ListOne(db, k.Crater);
+            return all;
+        }
+
+        static bool ListOne(ObjectDB db, GameObject crater)
+        {
+            TerrainOp op = crater.GetComponent<TerrainOp>();
+            if (op == null) return false;
             if (!db.m_terrainOps.Contains(op)) db.m_terrainOps.Add(op);
-            int hash = Utils.GetPrefabName(_crater.name).GetStableHashCode();
+            int hash = Utils.GetPrefabName(crater.name).GetStableHashCode();
             db.m_terrainOpsByHash[hash] = op;
             return db.TryGetTerrainOp(hash, out TerrainOp found) && found == op;
         }
 
         /// <summary>True when the player holds dynamite.</summary>
-        internal static ItemDrop.ItemData Held(Player player)
+        internal static ItemDrop.ItemData Held(Player player) => HeldKind(player, out _);
+
+        /// <summary>The dynamite or pack the player holds, and its kind (null when neither).</summary>
+        internal static ItemDrop.ItemData HeldKind(Player player, out ChargeKind kind)
         {
+            kind = null;
             ItemDrop.ItemData item = player != null ? player.GetCurrentWeapon() : null;
-            return item != null && item.m_dropPrefab != null && item.m_dropPrefab.name == GunPowderedPrefabs.Dynamite ? item : null;
+            if (item == null || item.m_dropPrefab == null) return null;
+            foreach (ChargeKind k in Kinds) if (item.m_dropPrefab.name == k.ItemId) { kind = k; return item; }
+            return null;
         }
 
         /// <summary>
@@ -130,9 +194,9 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         /// </summary>
         internal static string Place(Player player, float metres = DynamiteRules.PlaceDistance)
         {
-            ItemDrop.ItemData held = Held(player);
+            ItemDrop.ItemData held = HeldKind(player, out ChargeKind kind);
             if (held == null) return "no dynamite in hand";
-            if (_stick == null) return "no stick prefab";
+            if (kind.Charge == null) return "no charge prefab for " + kind.Name;
             if (Time.time - _lastPlaced < 0.5f) return "too soon";
             Vector3 probe = player.transform.position + player.transform.forward * metres + Vector3.up * 2f;
             RaycastHit hit;
@@ -142,35 +206,37 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
                 player.Message(MessageHud.MessageType.Center, DynamiteRules.NoGround);
                 return DynamiteRules.NoGround;
             }
-            Object.Instantiate(_stick, hit.point, Quaternion.Euler(0f, player.transform.eulerAngles.y, 0f));
+            Object.Instantiate(kind.Charge, hit.point, Quaternion.Euler(0f, player.transform.eulerAngles.y, 0f));
             player.GetInventory().RemoveItem(held, 1);
             _lastPlaced = Time.time;
-            ModLog.Info("DynamiteSetup: " + player.GetPlayerName() + " set dynamite down at " + hit.point.ToString("0.00"));
+            ModLog.Info("DynamiteSetup: " + player.GetPlayerName() + " set " + kind.Name + " down at " + hit.point.ToString("0.00"));
             return "placed at " + hit.point.ToString("0.00");
         }
 
         /// <summary>The blast of one stick at <paramref name="at"/> (made by the stick's owner). Expected outcome: the number of objects made (blast + crater).</summary>
-        internal static int Blast(Vector3 at, Character owner)
+        internal static int Blast(Vector3 at, Character owner) => Blast(StickKind, at, owner);
+
+        internal static int Blast(ChargeKind kind, Vector3 at, Character owner)
         {
             int made = 0;
-            if (_explosion != null)
+            if (kind.Explosion != null)
             {
-                GameObject blast = Object.Instantiate(_explosion, at, Quaternion.identity);
+                GameObject blast = Object.Instantiate(kind.Explosion, at, Quaternion.identity);
                 foreach (Aoe a in blast.GetComponentsInChildren<Aoe>(true)) a.Setup(owner, Vector3.zero, -1f, null, null, null);
                 made++;
             }
-            if (_crater != null)
+            if (kind.Crater != null)
             {
-                Object.Instantiate(_crater, at - Vector3.up * 0.15f, Quaternion.identity);
+                Object.Instantiate(kind.Crater, at - Vector3.up * 0.15f, Quaternion.identity);
                 made++;
             }
             return made;
         }
 
-        static GameObject MakeStick(GameObject item)
+        static GameObject MakeCharge(ChargeKind kind, GameObject item)
         {
             Transform model = item.transform.Find("gp_model");
-            GameObject stick = PrefabManager.Instance.CreateEmptyPrefab(StickId, true);
+            GameObject stick = PrefabManager.Instance.CreateEmptyPrefab(kind.ChargeId, true);
             if (stick == null) return null;
             ZNetView nv = stick.GetComponent<ZNetView>();
             if (nv != null) nv.m_persistent = true;
@@ -200,34 +266,36 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             box.size = Vector3.Max(b.size, new Vector3(0.12f, 0.12f, 0.12f));
             int layer = LayerMask.NameToLayer("piece_nonsolid");
             if (layer >= 0) foreach (Transform t in stick.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = layer;
-            stick.AddComponent<DynamiteCharge>();
+            stick.AddComponent<DynamiteCharge>().m_kindId = kind.ChargeId;
             PrefabManager.Instance.AddPrefab(new CustomPrefab(stick, true));
             return stick;
         }
 
-        static GameObject MakeExplosion()
+        static GameObject MakeExplosion(ChargeKind kind)
         {
-            if (PrefabManager.Instance.GetPrefab(ExplosionBase) == null) { ModLog.Error("DynamiteSetup: no vanilla " + ExplosionBase + " - the dynamite has no blast"); return null; }
-            GameObject clone = PrefabManager.Instance.CreateClonedPrefab(ExplosionId, ExplosionBase);
+            if (PrefabManager.Instance.GetPrefab(ExplosionBase) == null) { ModLog.Error("DynamiteSetup: no vanilla " + ExplosionBase + " - the " + kind.Name + " has no blast"); return null; }
+            GameObject clone = PrefabManager.Instance.CreateClonedPrefab(kind.ExplosionId, ExplosionBase);
             if (clone == null) return null;
             foreach (TerrainOp op in clone.GetComponentsInChildren<TerrainOp>(true)) Object.DestroyImmediate(op);
             var child = new GameObject(CreatureChild);
             child.transform.SetParent(clone.transform, false);
             child.layer = clone.layer;
             child.AddComponent<Aoe>();
+            if (kind.ExplosionScale != 1f)        // the pack's bang looks bigger; the Aoe reach is its radius, not the scale
+                foreach (Transform t in clone.transform) if (t.name != CreatureChild) t.localScale *= kind.ExplosionScale;
             PrefabManager.Instance.AddPrefab(new CustomPrefab(clone, true));
             return clone;
         }
 
-        static GameObject MakeCrater()
+        static GameObject MakeCrater(string id)
         {
-            if (PrefabManager.Instance.GetPrefab(CraterBase) == null) { ModLog.Error("DynamiteSetup: no vanilla " + CraterBase + " - the dynamite digs no hole"); return null; }
-            GameObject clone = PrefabManager.Instance.CreateClonedPrefab(CraterId, CraterBase);
+            if (PrefabManager.Instance.GetPrefab(CraterBase) == null) { ModLog.Error("DynamiteSetup: no vanilla " + CraterBase + " - " + id + " digs no hole"); return null; }
+            GameObject clone = PrefabManager.Instance.CreateClonedPrefab(id, CraterBase);
             if (clone != null) PrefabManager.Instance.AddPrefab(new CustomPrefab(clone, true));
             return clone;
         }
 
-        static bool AttachHandModel(GameObject item)
+        static bool AttachHandModel(GameObject item, bool stickGrip)
         {
             Transform attach = item.transform.Find("attach");
             Transform model = item.transform.Find("gp_model");
@@ -240,8 +308,8 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             foreach (Renderer old in attach.GetComponentsInChildren<Renderer>(true)) old.enabled = false;
             GameObject copy = Object.Instantiate(model.gameObject, attach);
             copy.name = "gp_model";
-            copy.transform.localPosition = HandGripPosition;      // values fitted on the vanilla Player + Club attach in the AssetRipper project (T-009j)
-            copy.transform.localRotation = Quaternion.Euler(HandGripEuler);
+            copy.transform.localPosition = stickGrip ? HandGripPosition : PackGripPosition;      // values fitted on the vanilla Player + Club attach in the AssetRipper project (T-009j)
+            copy.transform.localRotation = Quaternion.Euler(stickGrip ? HandGripEuler : PackGripEuler);
             copy.transform.localScale = Vector3.one;
             foreach (Collider c in copy.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c);
             foreach (Transform t in copy.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = attach.gameObject.layer;

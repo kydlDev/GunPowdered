@@ -16,9 +16,14 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         const float SparkEvery = 0.35f;
         static readonly string[] SparkEffects = { "vfx_torch_hit", "sfx_FireAddFuel" };
 
+        /// <summary>The charge prefab this one was made from (DynamiteSetup.ChargeKind): the stick or the Deep North Dynamite Pack. Serialized, so clones keep it.</summary>
+        public string m_kindId = DynamiteSetup.StickId;
+
         ZNetView _nview;
-        float _nextSpark;
+        float _nextSpark, _nextTimer;
         bool _blown;
+
+        DynamiteSetup.ChargeKind Kind => DynamiteSetup.KindOfCharge(m_kindId);
 
         /// <summary>How many blasts this client set off, and where the last one was (test hooks).</summary>
         internal static int Blasts { get; private set; }
@@ -35,14 +40,14 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 
         internal bool IsLit => LitAt >= 0d;
 
-        public string GetHoverName() => "Dynamite";
+        public string GetHoverName() => Kind.Name;
 
         public float GetHoverOffset() => 0.2f;
 
         public string GetHoverText()
         {
-            if (IsLit) return "Dynamite\n" + DynamiteRules.Burning + " (" + DynamiteRules.FuseLeft(LitAt, Now()).ToString("0.0") + " s)";
-            return Localization.instance.Localize("Dynamite\n[<color=yellow><b>$KEY_Use</b></color>] Light the fuse (hold a Torch)");
+            if (IsLit) return Kind.Name + "\n" + DynamiteRules.Burning + " (" + DynamiteRules.FuseLeft(LitAt, Now()).ToString("0.0") + " s)";
+            return Localization.instance.Localize(Kind.Name + "\n[<color=yellow><b>$KEY_Use</b></color>] Light the fuse (hold a Torch)");
         }
 
         public bool Interact(Humanoid user, bool hold, bool alt)
@@ -65,7 +70,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             Player p = user as Player;
             _nview.InvokeRPC(LightRpc, p != null ? p.GetPlayerID() : 0L);
             user.Message(MessageHud.MessageType.Center, DynamiteRules.Burning);
-            ModLog.Info("DynamiteCharge: lit at " + transform.position.ToString("0.0"));
+            ModLog.Info("DynamiteCharge: " + Kind.Name + " lit at " + transform.position.ToString("0.0"));
             return null;
         }
 
@@ -79,7 +84,9 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 
         void Update()
         {
-            if (_blown || _nview == null || !_nview.IsValid() || !_nview.IsOwner()) return;
+            if (_blown || _nview == null || !_nview.IsValid()) return;
+            Countdown();
+            if (!_nview.IsOwner()) return;
             double lit = LitAt;
             if (lit < 0d) return;
             double now = Now();
@@ -92,15 +99,36 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             if (DynamiteRules.Blows(lit, now)) Blow();
         }
 
+        /// <summary>The text the local player last saw on screen for a burning pack (test hooks), and how often it was shown.</summary>
+        internal static string LastTimerText { get; private set; }
+        internal static int TimerShows { get; private set; }
+
+        // D-108 (user: "show timer on screen"): every client shows the countdown of a burning pack to its own player when they are within the blast or
+        // a little beyond it (DynamiteRules.ShowsTimer), as the big centre message, ten times a second.
+        void Countdown()
+        {
+            DynamiteSetup.ChargeKind kind = Kind;
+            if (!kind.ShowsTimer || Time.time < _nextTimer) return;
+            double lit = LitAt;
+            Player me = Player.m_localPlayer;
+            if (lit < 0d || me == null || MessageHud.instance == null) return;
+            _nextTimer = Time.time + 0.1f;
+            float d = Vector3.Distance(me.transform.position, transform.position);
+            if (!DynamiteRules.ShowsTimer(d, kind.Radius())) return;
+            LastTimerText = DynamiteRules.TimerText(kind.Name, DynamiteRules.FuseLeft(lit, Now()));
+            TimerShows++;
+            MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, LastTimerText);
+        }
+
         void Blow()
         {
             _blown = true;
             Vector3 at = transform.position + Vector3.up * 0.15f;
             Player lighter = Player.GetPlayer(_nview.GetZDO().GetLong(LighterKey, 0L));
-            int made = DynamiteSetup.Blast(at, lighter);
+            int made = DynamiteSetup.Blast(Kind, at, lighter);
             Blasts++;
             LastBlast = at;
-            ModLog.Info("DynamiteCharge: blast at " + at.ToString("0.0") + ", " + made + " object(s) made, lit by " + (lighter != null ? lighter.GetPlayerName() : "nobody known"));
+            ModLog.Info("DynamiteCharge: " + Kind.Name + " blast at " + at.ToString("0.0") + " (radius " + Kind.Radius().ToString("0.#") + " m)" + ", " + made + " object(s) made, lit by " + (lighter != null ? lighter.GetPlayerName() : "nobody known"));
             ZNetScene.instance.Destroy(gameObject);
         }
 

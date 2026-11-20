@@ -33,6 +33,8 @@ namespace GunPowdered.Integrations.Items
         }
 
         static readonly Dictionary<string, FeatureSet> Sets = new Dictionary<string, FeatureSet>();
+        /// <summary>Recipes that wait for a world key (D-108), with their feature and the key.</summary>
+        static readonly List<KeyValuePair<Recipe, KeyValuePair<string, string>>> Keyed = new List<KeyValuePair<Recipe, KeyValuePair<string, string>>>();
         static bool _hooked;
 
         /// <summary>Remembers what a feature adds; the game objects are created when the vanilla prefabs are available. Expected outcome: the feature's specs are queued.</summary>
@@ -55,12 +57,41 @@ namespace GunPowdered.Integrations.Items
         {
             FeatureSet set;
             if (!Sets.TryGetValue(featureId, out set)) return set == null;
-            foreach (var r in set.Recipes) r.m_enabled = on;
+            foreach (var r in set.Recipes) r.m_enabled = RecipeGate.IsOn(on, KeyOf(r), HasKey);
             foreach (var p in set.Pieces) p.m_enabled = on;
-            bool state = set.Recipes.TrueForAll(r => r.m_enabled == on) && set.Pieces.TrueForAll(p => p.m_enabled == on);
+            bool state = set.Recipes.TrueForAll(r => r.m_enabled == RecipeGate.IsOn(on, KeyOf(r), HasKey)) && set.Pieces.TrueForAll(p => p.m_enabled == on);
             ModLog.Verbose("ItemRegistry: " + featureId + " recipes and pieces " + (on ? "on" : "off") + ", state ok " + state);
             return state;
         }
+
+        /// <summary>
+        /// Puts the world-key state on the recipes that wait for a key (D-108). Called before the game discovers or lists recipes (RecipeGatePatch), so the
+        /// recipe shows up once Fader is dead and not a moment before. Expected outcome: the number of keyed recipes that are on.
+        /// </summary>
+        internal static int RefreshKeyed()
+        {
+            int on = 0;
+            foreach (var k in Keyed)
+            {
+                if (k.Key == null) continue;
+                bool want = RecipeGate.IsOn(IsOn(k.Value.Key), k.Value.Value, HasKey);
+                if (k.Key.m_enabled != want)
+                {
+                    k.Key.m_enabled = want;
+                    ModLog.Info("ItemRegistry: recipe " + (k.Key.m_item != null ? k.Key.m_item.name : "?") + " now " + (want ? "on" : "off") + " (world key " + k.Value.Value + " " + HasKey(k.Value.Value) + ")");
+                }
+                if (want) on++;
+            }
+            return on;
+        }
+
+        static string KeyOf(Recipe r)
+        {
+            foreach (var k in Keyed) if (k.Key == r) return k.Value.Value;
+            return null;
+        }
+
+        static bool HasKey(string key) => ZoneSystem.instance != null && ZoneSystem.instance.GetGlobalKey(key);
 
         static void CreateAll()
         {
@@ -86,6 +117,12 @@ namespace GunPowdered.Integrations.Items
             }
             foreach (var pair in Sets) SetEnabled(pair.Key, IsOn(pair.Key));
             KyItemsContributions.Start();          // the item viewer lists every item and piece of the mod
+        }
+
+        static string FeatureOf(FeatureSet set)
+        {
+            foreach (var pair in Sets) if (pair.Value == set) return pair.Key;
+            return null;
         }
 
         // The Enable switch of each feature, read at call time.
@@ -129,11 +166,17 @@ namespace GunPowdered.Integrations.Items
             BundleVisuals.Apply(s.Id, item.ItemPrefab);
             Sprite icon = BundleVisuals.Icon(s.Id);
             if (icon != null) shared.m_icons = new[] { icon };
-            if (item.Recipe != null && item.Recipe.Recipe != null) set.Recipes.Add(item.Recipe.Recipe);
+            if (item.Recipe != null && item.Recipe.Recipe != null)
+            {
+                set.Recipes.Add(item.Recipe.Recipe);
+                if (s.RequiredGlobalKey != null)
+                    Keyed.Add(new KeyValuePair<Recipe, KeyValuePair<string, string>>(item.Recipe.Recipe, new KeyValuePair<string, string>(FeatureOf(set), s.RequiredGlobalKey)));
+            }
             if (s.Id == GunPowderedPrefabs.SpikedGrenade) GrenadeSetup.Configure(item.ItemPrefab);
             if (s.Id == GunPowderedPrefabs.CannonBall) CannonSetup.ConfigureBall(item.ItemPrefab);
             if (s.Id == GunPowderedPrefabs.Musket) MusketSetup.Configure(item.ItemPrefab);
             if (s.Id == GunPowderedPrefabs.Dynamite) GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.Configure(item.ItemPrefab);
+            if (s.Id == GunPowderedPrefabs.DeepNorthPack) GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.ConfigurePack(item.ItemPrefab);
             if (s.Id == GunPowderedPrefabs.ExplosiveArrow) GunPowdered.Features.ExplosiveArrows.Infrastructure.ExplosiveArrowSetup.Configure(item.ItemPrefab);
             ModLog.Verbose("ItemRegistry: item " + s.Id + " cloned from " + s.CloneOf + ", stack " + s.Stack + ", recipe " + (item.Recipe != null) + " at station level " + s.StationLevel);
         }

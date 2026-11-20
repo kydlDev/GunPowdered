@@ -18,6 +18,22 @@ namespace GunPowdered.Features.Dynamite.Domain
 
         internal const string NeedTorch = "Hold a Torch to light the fuse", Burning = "The fuse is burning - get away!", NoGround = "No place for the dynamite here";
 
+        /// <summary>How far beyond its blast radius a player still sees a burning pack's countdown on screen (m).</summary>
+        internal const float TimerMargin = 10f;
+
+        /// <summary>Whether a player <paramref name="distance"/> m from a burning charge with a <paramref name="blastRadius"/> m blast sees the countdown (D-108).</summary>
+        internal static bool ShowsTimer(float distance, float blastRadius)
+        {
+            return distance >= 0f && distance <= blastRadius + TimerMargin;
+        }
+
+        /// <summary>The on-screen countdown of a burning charge, e.g. "Deep North Dynamite Pack: 3.2 s - get away!" (0.0 at the end).</summary>
+        internal static string TimerText(string name, float secondsLeft)
+        {
+            float s = secondsLeft > 0f ? secondsLeft : 0f;
+            return name + ": " + s.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " s - get away!";
+        }
+
         /// <summary>The damage a creature takes from a blast that does <paramref name="buildingDamage"/> to buildings (never below 0).</summary>
         internal static float CreatureDamage(float buildingDamage)
         {

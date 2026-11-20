@@ -29,5 +29,6 @@ namespace GunPowdered.Core
         public const string Paper = "GP_Paper";
         public const string IronBullet = "GP_IronBullet";
         public const string PaperCartridge = "GP_PaperCartridge";
+        public const string DeepNorthPack = "GP_DeepNorthPack";
     }
 }
