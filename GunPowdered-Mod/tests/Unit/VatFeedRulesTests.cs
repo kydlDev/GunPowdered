@@ -19,13 +19,7 @@ namespace GunPowdered.Tests.Unit
         [TestCase(null, 0, 0, 0, "Refused")]
         public void Accept_OneItemIntoItsSlotWhileThereIsRoom(string prefab, int guano, int water, int fuel, string expected)
         {
-            Assert.That(LeachingVatRules.Accept(prefab, true, new LeachingVatRules.VatAmounts(guano, water, fuel), Need).ToString(), Is.EqualTo(expected));
-        }
-
-        [Test]
-        public void Accept_NothingWhileTheStationIsBusy()
-        {
-            Assert.That(LeachingVatRules.Accept("GP_BatGuano", false, new LeachingVatRules.VatAmounts(0, 0, 0), Need), Is.EqualTo(LeachingVatRules.Feed.Refused));
+            Assert.That(LeachingVatRules.Accept(prefab, new LeachingVatRules.VatAmounts(guano, water, fuel), Need).ToString(), Is.EqualTo(expected));
         }
 
         [TestCase(10, 10, true)]

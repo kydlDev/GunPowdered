@@ -1,7 +1,7 @@
 {
   "name": "vat-batch",
-  "description": "Leaching Station without extensions (D-129): one use puts in half the batch (5 + 5 + 2), the second fills 10 Bat Guano + 10 Water + 4 Wood and the run starts by itself; it is measured on the world clock (D-129 addendum: sleeping counts), so skipping 1000 s of the 30 minutes leaves it leaching and another 900 s finishes it; then 5 Saltpeter are collected and the station is idle again",
-  "timeout": 90,
+  "description": "Leaching Station step 0 (D-129, D-132) without extensions: holds at most 10 Bat Guano + 10 Water + 4 Wood, one use puts in half (5 Bat Guano); from one base batch it starts by itself and a run takes the whole base batches inside (up to 1) for 5 Saltpeter each 5, in 30 min; filling goes on during the run up to the full batch; the finished Saltpeter piles up, the next run starts at once while a base batch is inside, and E takes the whole pile",
+  "timeout": 150,
   "steps": [
     {
       "do": "hook",
@@ -10,64 +10,26 @@
       "label": "start on the arena spot"
     },
     {
-      "do": "vatStepRun",
-      "level": "0",
-      "units": "1",
-      "guano": 10,
-      "water": 10,
-      "wood": 4,
-      "halfGuano": "5",
-      "halfWood": "2",
-      "saltpeter": "5",
-      "minutes": "30"
+      "do": "give",
+      "prefab": "GP_BatGuano",
+      "count": 30
     },
     {
-      "do": "check",
-      "check": "hoverText",
-      "target": "vat",
-      "contains": "Leaching 5 Saltpeter (",
-      "label": "the hover shows the running batch"
+      "do": "give",
+      "prefab": "GP_Water",
+      "count": 30
     },
     {
-      "do": "console",
-      "command": "skiptime 1000"
+      "do": "give",
+      "prefab": "Wood",
+      "count": 12
     },
     {
-      "do": "wait",
-      "seconds": 3
-    },
-    {
-      "do": "zdoIs",
-      "target": "vat",
-      "key": "gp_vat_state",
-      "value": "1",
-      "label": "after 1000 s of the 1800 s run it is still leaching"
-    },
-    {
-      "do": "console",
-      "command": "skiptime 900"
-    },
-    {
-      "do": "wait",
-      "seconds": 3
-    },
-    {
-      "do": "zdoIs",
-      "target": "vat",
-      "key": "gp_vat_state",
-      "value": "2",
-      "label": "1900 s on the world clock: the saltpeter is done"
-    },
-    {
-      "do": "check",
-      "check": "hoverText",
-      "target": "vat",
-      "contains": "Collect 5 Saltpeter",
-      "label": "the hover offers the 5 Saltpeter"
-    },
-    {
-      "do": "interact",
-      "target": "vat"
+      "do": "spawn",
+      "prefab": "GP_LeachingVat",
+      "dz": 4,
+      "owner": "me",
+      "as": "vat"
     },
     {
       "do": "wait",
@@ -75,17 +37,100 @@
     },
     {
       "do": "check",
-      "check": "hasItem",
-      "prefab": "GP_Saltpeter",
-      "count": 5,
-      "label": "5 Saltpeter collected"
+      "check": "hoverText",
+      "target": "vat",
+      "contains": "Upgrades 0/5: up to 10 Bat Guano + 10 Water + 4 Wood -> 5 Saltpeter, 30 min",
+      "label": "step 0: the hover names the step's full batch and run time"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "5",
+      "label": "use 1: 5 Bat Guano waiting inside (half a batch per use, at most 10)"
     },
     {
       "do": "zdoIs",
       "target": "vat",
       "key": "gp_vat_state",
+      "value": "none",
+      "label": "use 1: state none"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
       "value": "0",
-      "label": "the station is idle again"
+      "label": "use 2: 0 Bat Guano waiting inside (half a batch per use, at most 10), a run of 1 base batch(es) started by itself"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "use 2: state 1"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_units",
+      "value": "1",
+      "label": "the run takes 1 base batch(es) (up to 1 at step 0)"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "5",
+      "label": "use 3: 5 Bat Guano waiting inside (half a batch per use, at most 10)"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "use 3: state 1"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "10",
+      "label": "use 4: 10 Bat Guano waiting inside (half a batch per use, at most 10)"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "use 4: state 1"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_minutes",
+      "value": "30",
+      "label": "the run takes 30 minutes at step 0"
+    },
+    {
+      "do": "vatRunEnds",
+      "early": 1680,
+      "pile": "5",
+      "pileCount": 5,
+      "state": "1",
+      "units": "1"
     },
     {
       "do": "cleanArena"

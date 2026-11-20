@@ -1,0 +1,62 @@
+{
+  "params": [
+    {
+      "barrel": null
+    },
+    {
+      "tank": null
+    },
+    {
+      "boiler": null
+    },
+    {
+      "pipes": null
+    },
+    {
+      "heater": null
+    }
+  ],
+  "actions": [
+    {
+      "if": "{{barrel}}",
+      "do": "spawn",
+      "prefab": "GP_LeachBarrel",
+      "dx": 3,
+      "dz": 4,
+      "owner": "me"
+    },
+    {
+      "if": "{{tank}}",
+      "do": "spawn",
+      "prefab": "GP_SettlingTank",
+      "dx": -3,
+      "dz": 4,
+      "owner": "me"
+    },
+    {
+      "if": "{{boiler}}",
+      "do": "spawn",
+      "prefab": "GP_BlackMetalBoiler",
+      "dx": 0,
+      "dz": 7.5,
+      "owner": "me"
+    },
+    {
+      "if": "{{pipes}}",
+      "do": "spawn",
+      "prefab": "GP_DvergrDripPipes",
+      "dx": 3,
+      "dz": 7,
+      "owner": "me"
+    },
+    {
+      "if": "{{heater}}",
+      "do": "spawn",
+      "prefab": "GP_FlametalHeater",
+      "dx": -3,
+      "dz": 7,
+      "owner": "me"
+    }
+  ],
+  "asserts": []
+}

@@ -14,7 +14,8 @@ namespace GunPowdered.Features.Saltpeter.Domain
         internal const double DefaultDayLengthSeconds = 1800d;
         /// Wood the hearth burns for one batch (D-024).
         internal const int DefaultFuelPerBatch = 4;
-        /// The station's states (D-024): waiting for a load, burning for the in-game day, saltpeter ready to collect.
+        /// The station's states: idle (less than one base batch inside) or burning (a run is going, D-132). StateDone is only found in saves from before
+        /// D-132 (the old 'done, wait for a player' state): the owner moves its Saltpeter onto the pile and goes on as idle.
         internal const int StateIdle = 0, StateBurning = 1, StateDone = 2;
 
         /// <summary>Can the hearth be lit: the barrel is loaded and the hearth holds enough wood. Expected outcome: false for no load, a missing or negative fuel need, or too little wood.</summary>
@@ -37,13 +38,13 @@ namespace GunPowdered.Features.Saltpeter.Domain
         internal enum Feed { Refused, Guano, Water, Wood }
 
         /// <summary>
-        /// Does the station take one item of this prefab now. Expected outcome: Guano / Water / Wood when the station is idle and that slot still has room,
-        /// Refused for any other item, a full slot or a busy station.
+        /// Does the station take one item of this prefab now (D-132: at any time, also during a run, up to what it can hold). Expected outcome: Guano /
+        /// Water / Wood while that slot is below <paramref name="need"/>, Refused for any other item or a full slot.
         /// </summary>
-        internal static Feed Accept(string prefab, bool idle, VatAmounts have, VatAmounts need)
+        internal static Feed Accept(string prefab, VatAmounts have, VatAmounts need)
         {
-            if (RuleLog.On) RuleLog.Verbose($"VatAmounts.Accept(prefab={RuleLog.Shown(prefab)}, idle={RuleLog.Shown(idle)}, have={RuleLog.Shown(have)}, need={RuleLog.Shown(need)})");
-            if (!idle || string.IsNullOrEmpty(prefab)) { var returnedAt46 = Feed.Refused; if (RuleLog.On) RuleLog.Verbose($"VatAmounts.Accept: returns {RuleLog.Shown(returnedAt46)} (line 46)"); return returnedAt46; }
+            if (RuleLog.On) RuleLog.Verbose($"VatAmounts.Accept(prefab={RuleLog.Shown(prefab)}, have={RuleLog.Shown(have)}, need={RuleLog.Shown(need)})");
+            if (string.IsNullOrEmpty(prefab)) { var returnedAt46 = Feed.Refused; if (RuleLog.On) RuleLog.Verbose($"VatAmounts.Accept: returns {RuleLog.Shown(returnedAt46)} (line 46)"); return returnedAt46; }
             if (prefab == "GP_BatGuano") { var returnedAt47 = have.Guano < need.Guano ? Feed.Guano : Feed.Refused; if (RuleLog.On) RuleLog.Verbose($"VatAmounts.Accept: returns {RuleLog.Shown(returnedAt47)} (line 47)"); return returnedAt47; }
             if (prefab == "GP_Water") { var returnedAt48 = have.Water < need.Water ? Feed.Water : Feed.Refused; if (RuleLog.On) RuleLog.Verbose($"VatAmounts.Accept: returns {RuleLog.Shown(returnedAt48)} (line 48)"); return returnedAt48; }
             if (prefab == "Wood") { var returnedAt49 = have.Fuel < need.Fuel ? Feed.Wood : Feed.Refused; if (RuleLog.On) RuleLog.Verbose($"VatAmounts.Accept: returns {RuleLog.Shown(returnedAt49)} (line 49)"); return returnedAt49; }

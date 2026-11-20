@@ -120,11 +120,24 @@ namespace GunPowdered.Tests.Unit
         }
 
         [Test]
-        public void IsFull_OnlyWhenEveryMaterialReachedTheFullBatch()
+        public void StartsNow_IdleWithOneBaseUnitInside_WhateverTheStep()
         {
-            Assert.That(LeachingUpgradeRules.IsFull(A(20, 20, 8), A(20, 20, 8)), Is.True);
-            Assert.That(LeachingUpgradeRules.IsFull(A(20, 20, 7), A(20, 20, 8)), Is.False);
-            Assert.That(LeachingUpgradeRules.IsFull(A(0, 0, 0), A(0, 0, 0)), Is.False);
+            Assert.That(LeachingUpgradeRules.StartsNow(LeachingVatRules.StateIdle, A(10, 10, 4), A(10, 10, 4), 0), Is.True);
+            Assert.That(LeachingUpgradeRules.StartsNow(LeachingVatRules.StateIdle, A(10, 10, 4), A(10, 10, 4), 5), Is.True, "one base unit starts even at step 5 (D-132)");
+            Assert.That(LeachingUpgradeRules.StartsNow(LeachingVatRules.StateIdle, A(10, 10, 3), A(10, 10, 4), 5), Is.False, "less than a base unit never starts");
+            Assert.That(LeachingUpgradeRules.StartsNow(LeachingVatRules.StateIdle, A(9, 60, 24), A(10, 10, 4), 5), Is.False);
+            Assert.That(LeachingUpgradeRules.StartsNow(LeachingVatRules.StateBurning, A(60, 60, 24), A(10, 10, 4), 5), Is.False, "a running station does not start a second run");
+            Assert.That(LeachingUpgradeRules.StartsNow(LeachingVatRules.StateDone, A(60, 60, 24), A(10, 10, 4), 5), Is.False);
+        }
+
+        [TestCase(0, 5, 5)]
+        [TestCase(15, 10, 25)]
+        [TestCase(15, 0, 15)]
+        [TestCase(15, -3, 15)]
+        [TestCase(-2, 5, 5)]
+        public void Pile_AddsTheRunToWhatIsWaiting(int ready, int run, int expected)
+        {
+            Assert.That(LeachingUpgradeRules.Pile(ready, run), Is.EqualTo(expected));
         }
 
         [Test]

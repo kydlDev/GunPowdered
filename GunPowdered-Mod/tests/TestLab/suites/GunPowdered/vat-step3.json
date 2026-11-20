@@ -1,7 +1,7 @@
 {
   "name": "vat-step3",
-  "description": "Leaching Station upgrade step 3 (D-129): Second Leaching Barrel, Settling Tank, Black Metal-banded Boiler within 5 m of the station. Full batch 40 Bat Guano + 40 Water + 16 Wood -> 20 Saltpeter in 15 min; one use puts in half of it, the second use fills it and the run starts by itself",
-  "timeout": 60,
+  "description": "Leaching Station step 3 (D-129, D-132): Second Leaching Barrel, Settling Tank, Black Metal-banded Boiler within 5 m: holds at most 40 Bat Guano + 40 Water + 16 Wood, one use puts in half (20 Bat Guano); from one base batch it starts by itself and a run takes the whole base batches inside (up to 4) for 5 Saltpeter each 5, in 15 min; filling goes on during the run up to the full batch; the finished Saltpeter piles up, the next run starts at once while a base batch is inside, and E takes the whole pile",
+  "timeout": 150,
   "steps": [
     {
       "do": "hook",
@@ -10,19 +10,133 @@
       "label": "start on the arena spot"
     },
     {
-      "do": "vatStepRun",
-      "level": "3",
-      "units": "4",
-      "guano": 40,
-      "water": 40,
-      "wood": 16,
-      "halfGuano": "20",
-      "halfWood": "8",
-      "saltpeter": "20",
-      "minutes": "15",
+      "do": "vatExtensions",
       "barrel": true,
       "tank": true,
       "boiler": true
+    },
+    {
+      "do": "give",
+      "prefab": "GP_BatGuano",
+      "count": 120
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Water",
+      "count": 120
+    },
+    {
+      "do": "give",
+      "prefab": "Wood",
+      "count": 48
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_LeachingVat",
+      "dz": 4,
+      "owner": "me",
+      "as": "vat"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "vat",
+      "contains": "Upgrades 3/5: up to 40 Bat Guano + 40 Water + 16 Wood -> 20 Saltpeter, 15 min",
+      "label": "step 3: the hover names the step's full batch and run time"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "0",
+      "label": "use 1: 0 Bat Guano waiting inside (half a batch per use, at most 40), a run of 2 base batch(es) started by itself"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "use 1: state 1"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_units",
+      "value": "2",
+      "label": "the run takes 2 base batch(es) (up to 4 at step 3)"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "20",
+      "label": "use 2: 20 Bat Guano waiting inside (half a batch per use, at most 40)"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "use 2: state 1"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "40",
+      "label": "use 3: 40 Bat Guano waiting inside (half a batch per use, at most 40)"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "use 3: state 1"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "40",
+      "label": "use 4: 40 Bat Guano waiting inside (half a batch per use, at most 40)"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "use 4: state 1"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_minutes",
+      "value": "15",
+      "label": "the run takes 15 minutes at step 3"
+    },
+    {
+      "do": "vatRunEnds",
+      "early": 780,
+      "pile": "10",
+      "pileCount": 10,
+      "state": "1",
+      "units": "4"
     },
     {
       "do": "cleanArena"

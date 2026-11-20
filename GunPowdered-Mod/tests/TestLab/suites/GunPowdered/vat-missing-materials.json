@@ -1,6 +1,6 @@
 {
   "name": "vat-missing-materials",
-  "description": "Leaching Station start rule (D-129): with 10 Bat Guano + 7 Water + 4 Wood inside it does not start; using it with nothing more to add says exactly what is missing ('Needs 3 more Water'), on screen and in the hover; 3 more Water fill the batch and it starts by itself",
+  "description": "Leaching Station start rule (D-132): it never starts below one base batch - with 10 Bat Guano + 7 Water + 4 Wood inside it waits; using it with nothing to add says exactly what is missing ('Needs 3 more Water'), on screen and in the hover; 3 more Water make the base batch and it starts by itself",
   "timeout": 90,
   "steps": [
     {
@@ -32,12 +32,7 @@
       "as": "vat"
     },
     {
-      "do": "interact",
-      "target": "vat"
-    },
-    {
-      "do": "wait",
-      "seconds": 1
+      "do": "vatUse"
     },
     {
       "do": "check",
@@ -46,12 +41,7 @@
       "label": "the first use says what went in"
     },
     {
-      "do": "interact",
-      "target": "vat"
-    },
-    {
-      "do": "wait",
-      "seconds": 1
+      "do": "vatUse"
     },
     {
       "do": "zdoIs",
@@ -68,19 +58,21 @@
       "label": "and 10 Bat Guano"
     },
     {
-      "do": "interact",
-      "target": "vat"
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "none",
+      "label": "10 + 7 + 4 is less than a base batch: no start"
     },
     {
-      "do": "wait",
-      "seconds": 1
+      "do": "vatUse"
     },
     {
       "do": "check",
       "check": "message",
       "kind": "Center",
       "contains": "Needs 3 more Water",
-      "label": "nothing left to add: the start is refused and names the missing Water"
+      "label": "nothing to add: it names the missing Water"
     },
     {
       "do": "check",
@@ -90,31 +82,19 @@
       "label": "the hover names the missing Water too"
     },
     {
-      "do": "zdoIs",
-      "target": "vat",
-      "key": "gp_vat_state",
-      "value": "none",
-      "label": "it did not start"
-    },
-    {
       "do": "give",
       "prefab": "GP_Water",
       "count": 3
     },
     {
-      "do": "interact",
-      "target": "vat"
-    },
-    {
-      "do": "wait",
-      "seconds": 3
+      "do": "vatUse"
     },
     {
       "do": "zdoIs",
       "target": "vat",
       "key": "gp_vat_state",
       "value": "1",
-      "label": "with the 3 Water the batch is full and starts by itself"
+      "label": "with the 3 Water it starts by itself"
     },
     {
       "do": "cleanArena"

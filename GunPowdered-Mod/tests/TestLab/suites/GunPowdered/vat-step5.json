@@ -1,7 +1,7 @@
 {
   "name": "vat-step5",
-  "description": "Leaching Station upgrade step 5 (D-129): Second Leaching Barrel, Settling Tank, Black Metal-banded Boiler, Dvergr Drip Pipes, Flametal Heater within 5 m of the station. Full batch 60 Bat Guano + 60 Water + 24 Wood -> 30 Saltpeter in 5 min; one use puts in half of it, the second use fills it and the run starts by itself",
-  "timeout": 60,
+  "description": "Leaching Station step 5 (D-129, D-132): Second Leaching Barrel, Settling Tank, Black Metal-banded Boiler, Dvergr Drip Pipes, Flametal Heater within 5 m: holds at most 60 Bat Guano + 60 Water + 24 Wood, one use puts in half (30 Bat Guano); from one base batch it starts by itself and a run takes the whole base batches inside (up to 6) for 5 Saltpeter each 5, in 5 min; filling goes on during the run up to the full batch; the finished Saltpeter piles up, the next run starts at once while a base batch is inside, and E takes the whole pile",
+  "timeout": 150,
   "steps": [
     {
       "do": "hook",
@@ -10,21 +10,135 @@
       "label": "start on the arena spot"
     },
     {
-      "do": "vatStepRun",
-      "level": "5",
-      "units": "6",
-      "guano": 60,
-      "water": 60,
-      "wood": 24,
-      "halfGuano": "30",
-      "halfWood": "12",
-      "saltpeter": "30",
-      "minutes": "5",
+      "do": "vatExtensions",
       "barrel": true,
       "tank": true,
       "boiler": true,
       "pipes": true,
       "heater": true
+    },
+    {
+      "do": "give",
+      "prefab": "GP_BatGuano",
+      "count": 180
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Water",
+      "count": 180
+    },
+    {
+      "do": "give",
+      "prefab": "Wood",
+      "count": 72
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_LeachingVat",
+      "dz": 4,
+      "owner": "me",
+      "as": "vat"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "vat",
+      "contains": "Upgrades 5/5: up to 60 Bat Guano + 60 Water + 24 Wood -> 30 Saltpeter, 5 min",
+      "label": "step 5: the hover names the step's full batch and run time"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "0",
+      "label": "use 1: 0 Bat Guano waiting inside (half a batch per use, at most 60), a run of 3 base batch(es) started by itself"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "use 1: state 1"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_units",
+      "value": "3",
+      "label": "the run takes 3 base batch(es) (up to 6 at step 5)"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "30",
+      "label": "use 2: 30 Bat Guano waiting inside (half a batch per use, at most 60)"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "use 2: state 1"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "60",
+      "label": "use 3: 60 Bat Guano waiting inside (half a batch per use, at most 60)"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "use 3: state 1"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "60",
+      "label": "use 4: 60 Bat Guano waiting inside (half a batch per use, at most 60)"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "use 4: state 1"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_minutes",
+      "value": "5",
+      "label": "the run takes 5 minutes at step 5"
+    },
+    {
+      "do": "vatRunEnds",
+      "early": 180,
+      "pile": "15",
+      "pileCount": 15,
+      "state": "1",
+      "units": "6"
     },
     {
       "do": "cleanArena"

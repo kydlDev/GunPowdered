@@ -1,7 +1,7 @@
 {
   "name": "vat-remainder",
-  "description": "Leaching Station whole base batches only (D-129, user example): with one extension (step 1, full batch 20 + 20 + 8) and 15 Bat Guano + 15 Water + 6 Wood inside, Shift+E starts ONE base batch (10 + 10 + 4 -> 5 Saltpeter, 25 min) and 5 + 5 + 2 stay in for the next run; after the run the 5 Saltpeter are collected and the rest is still there",
-  "timeout": 90,
+  "description": "Leaching Station whole base batches only (D-129, D-132): at step 1 (one extension) with 15 Bat Guano + 15 Water + 6 Wood, the first use (10 + 10 + 4) starts one base batch by itself (5 Saltpeter, 25 min), the second use puts the other 5 + 5 + 2 in during the run; when the run ends its 5 Saltpeter pile up and the station STOPS (5 + 5 + 2 is less than a base batch); E takes the 5 Saltpeter and the 5 + 5 + 2 stay in",
+  "timeout": 120,
   "steps": [
     {
       "do": "hook",
@@ -10,11 +10,8 @@
       "label": "start on the arena spot"
     },
     {
-      "do": "spawn",
-      "prefab": "GP_LeachBarrel",
-      "dx": 3,
-      "dz": 4,
-      "owner": "me"
+      "do": "vatExtensions",
+      "barrel": true
     },
     {
       "do": "give",
@@ -39,71 +36,21 @@
       "as": "vat"
     },
     {
-      "do": "interact",
-      "target": "vat"
-    },
-    {
-      "do": "wait",
-      "seconds": 1
-    },
-    {
-      "do": "zdoIs",
-      "target": "vat",
-      "key": "gp_vat_guano",
-      "value": "10",
-      "label": "step 1: one use puts in 10 Bat Guano (half of 20)"
-    },
-    {
-      "do": "interact",
-      "target": "vat"
-    },
-    {
-      "do": "wait",
-      "seconds": 3
-    },
-    {
-      "do": "zdoIs",
-      "target": "vat",
-      "key": "gp_vat_guano",
-      "value": "15",
-      "label": "the second use puts in the other 5"
-    },
-    {
-      "do": "zdoIs",
-      "target": "vat",
-      "key": "gp_vat_state",
-      "value": "none",
-      "label": "15 + 15 + 6 is not the full batch of step 1: no start by itself"
-    },
-    {
-      "do": "check",
-      "check": "hoverText",
-      "target": "vat",
-      "contains": "Start: 1 batch -> 5 Saltpeter",
-      "label": "the hover offers a start of one batch"
-    },
-    {
-      "do": "interact",
-      "target": "vat",
-      "alt": true
-    },
-    {
-      "do": "wait",
-      "seconds": 1
+      "do": "vatUse"
     },
     {
       "do": "zdoIs",
       "target": "vat",
       "key": "gp_vat_state",
       "value": "1",
-      "label": "Shift+E starts it"
+      "label": "10 + 10 + 4 inside: it starts by itself"
     },
     {
       "do": "zdoIs",
       "target": "vat",
       "key": "gp_vat_units",
       "value": "1",
-      "label": "one whole base batch"
+      "label": "one base batch"
     },
     {
       "do": "zdoIs",
@@ -120,25 +67,28 @@
       "label": "in 25 minutes (step 1)"
     },
     {
+      "do": "vatUse"
+    },
+    {
       "do": "zdoIs",
       "target": "vat",
       "key": "gp_vat_guano",
       "value": "5",
-      "label": "5 Bat Guano stay in"
+      "label": "the second use puts 5 Bat Guano in during the run"
     },
     {
       "do": "zdoIs",
       "target": "vat",
       "key": "gp_vat_water",
       "value": "5",
-      "label": "5 Water stay in"
+      "label": "and 5 Water"
     },
     {
       "do": "zdoIs",
       "target": "vat",
       "key": "gp_vat_fuel",
       "value": "2",
-      "label": "2 Wood stay in"
+      "label": "and 2 Wood"
     },
     {
       "do": "console",
@@ -151,17 +101,26 @@
     {
       "do": "zdoIs",
       "target": "vat",
+      "key": "gp_vat_ready",
+      "value": "5",
+      "label": "the run's 5 Saltpeter piled up"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
       "key": "gp_vat_state",
-      "value": "2",
-      "label": "done after 25 minutes on the world clock"
+      "value": "0",
+      "label": "5 + 5 + 2 is less than a base batch: the station stopped"
     },
     {
-      "do": "interact",
-      "target": "vat"
+      "do": "check",
+      "check": "hoverText",
+      "target": "vat",
+      "contains": "Cannot start yet: Needs 5 more Bat Guano, 5 more Water and 2 more Wood",
+      "label": "the hover names what a base batch still needs"
     },
     {
-      "do": "wait",
-      "seconds": 1
+      "do": "vatUse"
     },
     {
       "do": "check",
@@ -173,9 +132,9 @@
     {
       "do": "zdoIs",
       "target": "vat",
-      "key": "gp_vat_state",
+      "key": "gp_vat_ready",
       "value": "0",
-      "label": "idle again"
+      "label": "the pile is empty"
     },
     {
       "do": "zdoIs",

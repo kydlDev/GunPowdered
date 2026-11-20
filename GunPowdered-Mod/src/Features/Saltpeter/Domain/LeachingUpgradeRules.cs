@@ -7,8 +7,9 @@ namespace GunPowdered.Features.Saltpeter.Domain
     /// <summary>
     /// The Leaching Station upgrades (D-129, user 2026-11-20). Each different extension piece built near the station is one step (0 = none, at most 5).
     /// A step makes the full batch one base unit bigger (base unit 10 Bat Guano + 10 Water + 4 Wood -> 5 Saltpeter) and the leaching 5 minutes shorter
-    /// (30 / 25 / 20 / 15 / 10 / 5 minutes). One use fills half of the full batch, or what the player has. A run leaches only whole base units (up to the
-    /// step's full batch); the rest stays in for the next run. The station does not start with less than one base unit.
+    /// (30 / 25 / 20 / 15 / 10 / 5 minutes). The station holds at most the full batch of its step; one use fills half of it, or what the player has.
+    /// D-132: whenever it is idle and holds at least one base unit it starts by itself (no button) and leaches the whole base units inside (up to the
+    /// step's full batch); the rest stays in. The Saltpeter of a finished run piles up until a player takes it all; below one base unit it stops.
     /// Pure: the game adapter passes in the amounts and the extension kinds it found, so every branch is unit-tested.
     /// </summary>
     internal static class LeachingUpgradeRules
@@ -106,12 +107,23 @@ namespace GunPowdered.Features.Saltpeter.Domain
             return used;
         }
 
-        /// <summary>The station starts by itself once it holds the whole full batch. Expected outcome: true only when every material reached the full batch.</summary>
-        internal static bool IsFull(LeachingVatRules.VatAmounts have, LeachingVatRules.VatAmounts full)
+        /// <summary>
+        /// D-132: does an idle station start a run now - at least one whole base unit inside, extensions or not; a running station never starts a second one.
+        /// Expected outcome: true only for the idle state with <see cref="Units"/> at least 1.
+        /// </summary>
+        internal static bool StartsNow(int state, LeachingVatRules.VatAmounts have, LeachingVatRules.VatAmounts unit, int step)
         {
-            bool isFull = full.Guano > 0 && have.Guano >= full.Guano && have.Water >= full.Water && have.Fuel >= full.Fuel;
-            if (RuleLog.On) RuleLog.Every("LeachingUpgradeRules.IsFull", 2d, $"LeachingUpgradeRules.IsFull(have={Text(have)}, full={Text(full)}): returns {isFull}");
-            return isFull;
+            bool starts = state == LeachingVatRules.StateIdle && Units(have, unit, step) >= 1;
+            if (RuleLog.On) RuleLog.Every("LeachingUpgradeRules.StartsNow", 2d, $"LeachingUpgradeRules.StartsNow(state={state}, have={Text(have)}, step={step}): returns {starts}");
+            return starts;
+        }
+
+        /// <summary>D-132: the Saltpeter waiting in the cauldron after a run of <paramref name="runSaltpeter"/> ended. Expected outcome: the pile plus the run, never less than the pile.</summary>
+        internal static int Pile(int ready, int runSaltpeter)
+        {
+            int pile = Math.Max(0, ready) + Math.Max(0, runSaltpeter);
+            if (RuleLog.On) RuleLog.Verbose($"LeachingUpgradeRules.Pile(ready={ready}, runSaltpeter={runSaltpeter}): returns {pile}");
+            return pile;
         }
 
         /// <summary>

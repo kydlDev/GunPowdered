@@ -1,0 +1,80 @@
+{
+  "params": [
+    "early",
+    "pile",
+    "pileCount",
+    "state",
+    "units"
+  ],
+  "actions": [
+    {
+      "do": "console",
+      "command": "skiptime {{early}}"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_ready",
+      "value": "none",
+      "label": "2 minutes before the end of the run nothing is in the cauldron yet"
+    },
+    {
+      "do": "console",
+      "command": "skiptime 240"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_ready",
+      "value": "{{pile}}",
+      "label": "the run's {{pile}} Saltpeter piled up in the cauldron"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "{{state}}",
+      "label": "after the run: state {{state}} (1 = the next run started at once, 0 = less than a base batch left)"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_units",
+      "value": "{{units}}",
+      "label": "the next run takes {{units}} base batch(es)"
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "vat",
+      "contains": "Collect {{pile}} Saltpeter",
+      "label": "the hover offers the pile"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "check",
+      "check": "hasItem",
+      "prefab": "GP_Saltpeter",
+      "count": "{{pileCount}}",
+      "label": "E took all {{pile}} Saltpeter"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_ready",
+      "value": "0",
+      "label": "the pile is empty"
+    }
+  ],
+  "asserts": []
+}

@@ -1,6 +1,6 @@
 {
   "name": "vat-bjornita",
-  "description": "Leaching Station in multiplayer (D-035, D-129): Bjornita's client feeds one item per request like the game's Smelter - a Stone and an 11th Bat Guano are refused, her start request without a base batch inside is refused; the full batch starts by itself on the host's station and her collect request gives HER the 5 Saltpeter",
+  "description": "Leaching Station in multiplayer (D-035, D-132): Bjornita's client feeds one item per request like the game's Smelter - a Stone and an 11th Bat Guano are refused; the base batch starts by itself on the host's station; she can fill during the run; her collect request gives HER the whole pile",
   "timeout": 120,
   "steps": [
     {
@@ -79,23 +79,7 @@
       "target": "vat",
       "key": "gp_vat_guano",
       "value": "10",
-      "label": "10 Bat Guano taken, the 11th refused (full batch of step 0)"
-    },
-    {
-      "do": "peerRpc",
-      "target": "vat",
-      "method": "GP_VatStart"
-    },
-    {
-      "do": "wait",
-      "seconds": 1
-    },
-    {
-      "do": "zdoIs",
-      "target": "vat",
-      "key": "gp_vat_state",
-      "value": "none",
-      "label": "her start request with no Water and no Wood inside is refused"
+      "label": "10 Bat Guano taken, the 11th refused (the station holds at most 10 at step 0)"
     },
     {
       "do": "bjornitaAdds",
@@ -162,7 +146,33 @@
       "target": "vat",
       "key": "gp_vat_state",
       "value": "1",
-      "label": "the full batch starts by itself on the host's station"
+      "label": "a base batch inside: it starts by itself on the host's station"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "0",
+      "label": "the run took the 10 Bat Guano"
+    },
+    {
+      "do": "bjornitaAdds",
+      "prefab": "GP_BatGuano"
+    },
+    {
+      "do": "bjornitaAdds",
+      "prefab": "GP_BatGuano"
+    },
+    {
+      "do": "bjornitaAdds",
+      "prefab": "GP_BatGuano"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "3",
+      "label": "she can fill during the run (D-132)"
     },
     {
       "do": "console",
@@ -175,9 +185,16 @@
     {
       "do": "zdoIs",
       "target": "vat",
+      "key": "gp_vat_ready",
+      "value": "5",
+      "label": "5 Saltpeter piled up"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
       "key": "gp_vat_state",
-      "value": "2",
-      "label": "done"
+      "value": "0",
+      "label": "3 Bat Guano is less than a base batch: stopped"
     },
     {
       "do": "peerRpc",
@@ -205,9 +222,9 @@
     {
       "do": "zdoIs",
       "target": "vat",
-      "key": "gp_vat_state",
+      "key": "gp_vat_ready",
       "value": "0",
-      "label": "idle again"
+      "label": "the pile is empty"
     },
     {
       "do": "cleanArena"
