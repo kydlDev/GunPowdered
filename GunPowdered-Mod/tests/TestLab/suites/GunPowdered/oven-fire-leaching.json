@@ -1,0 +1,97 @@
+{
+  "name": "oven-fire-leaching",
+  "description": "D-138: the Flametal Heater next to a Leaching Station shows a fire behind its panes only while the station leaches - state and picture (brighter, more orange than idle); the fire goes out when the station is removed.",
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_BatGuano",
+      "count": 10
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Water",
+      "count": 10
+    },
+    {
+      "do": "give",
+      "prefab": "Wood",
+      "count": 4
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_LeachingVat",
+      "dz": 5,
+      "owner": "me",
+      "as": "vat"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_FlametalHeater",
+      "dx": 2.5,
+      "dz": 5,
+      "owner": "me",
+      "as": "heater"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "fireOut",
+      "oven": "heater",
+      "why": "the Leaching Station is idle"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.fireMarkIdle",
+      "args": {
+        "target": "heater"
+      },
+      "label": "picture of the idle panes (the comparison base)"
+    },
+    {
+      "do": "vatUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "one fill (10 + 10 + 4) starts the leaching"
+    },
+    {
+      "do": "fireLit",
+      "oven": "heater",
+      "why": "the station leaches"
+    },
+    {
+      "do": "destroy",
+      "target": "vat"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "fireOut",
+      "oven": "heater",
+      "why": "the Leaching Station was removed"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

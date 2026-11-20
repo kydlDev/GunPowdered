@@ -1,0 +1,59 @@
+{
+  "name": "meta-oven-fire-check-fails",
+  "description": "Negative test for the oven fire picture check: an oven next to an IDLE mill must not pass the brightness check - it has to fail.",
+  "timeout": 60,
+  "expectFailure": "as bright as idle",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_PowderMill",
+      "dz": 5,
+      "owner": "me",
+      "as": "mill"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_MillOven",
+      "dx": 2.5,
+      "dz": 5,
+      "owner": "me",
+      "as": "oven"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.fireMarkIdle",
+      "args": {
+        "target": "oven"
+      },
+      "label": "picture of the idle panes (the comparison base)"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "check",
+      "check": "hook",
+      "name": "GunPowdered.fireBrightnessGain",
+      "args": {
+        "target": "oven"
+      },
+      "min": 1.5,
+      "label": "the panes are at least 1.5 x as bright as idle (camera in front of them)"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": []
+}

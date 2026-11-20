@@ -1,0 +1,18 @@
+{
+  "params": [
+    "oven",
+    "why"
+  ],
+  "actions": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.fireState",
+      "args": {
+        "target": "{{oven}}"
+      },
+      "contains": "burning False, flames False, light 0.00",
+      "label": "{{why}}: no fire (flames hidden, light off)"
+    }
+  ],
+  "asserts": []
+}

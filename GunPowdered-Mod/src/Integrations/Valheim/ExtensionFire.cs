@@ -17,6 +17,16 @@ namespace GunPowdered.Integrations.Valheim
         static readonly Color FireColour = new Color(1f, 0.55f, 0.18f);
 
         string _station;
+
+        /// <summary>True while the fire burns (a station of its kind within range runs).</summary>
+        internal bool Burning { get { return _burning; } }
+
+        /// <summary>True when the model part "fire" is shown.</summary>
+        internal bool FlamesShown { get { return _fire != null && _fire.activeSelf; } }
+
+        /// <summary>The fire light's intensity now; 0 when it is off or not made yet.</summary>
+        internal float LightNow { get { return _light != null && _light.enabled ? _light.intensity : 0f; } }
+
         GameObject _fire;
         Light _light;
         Vector3 _fireScale = Vector3.one;

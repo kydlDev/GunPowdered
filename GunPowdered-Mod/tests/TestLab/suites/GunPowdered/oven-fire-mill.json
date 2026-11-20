@@ -1,0 +1,121 @@
+{
+  "name": "oven-fire-mill",
+  "description": "D-138: the Flametal Drying Oven next to a Powder Mill shows a fire behind its panes only while the mill grinds - state (flames + light) and the picture (a camera in front of the panes: brighter and more orange than idle); an oven 8 m away stays dark; the fire goes out when the grinding ends.",
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Saltpeter",
+      "count": 3
+    },
+    {
+      "do": "give",
+      "prefab": "Coal",
+      "count": 1
+    },
+    {
+      "do": "give",
+      "prefab": "SulfurStone",
+      "count": 1
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_PowderMill",
+      "dz": 5,
+      "owner": "me",
+      "as": "mill"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_MillOven",
+      "dx": 2.5,
+      "dz": 5,
+      "owner": "me",
+      "as": "oven"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_MillOven",
+      "dx": -8,
+      "dz": 5,
+      "owner": "me",
+      "as": "farOven"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "fireOut",
+      "oven": "oven",
+      "why": "the mill is idle"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.fireMarkIdle",
+      "args": {
+        "target": "oven"
+      },
+      "label": "picture of the idle panes (the comparison base)"
+    },
+    {
+      "do": "millUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_state",
+      "value": "1",
+      "label": "one fill (3 + 1 + 1 at step 1) starts the grinding"
+    },
+    {
+      "do": "fireLit",
+      "oven": "oven",
+      "why": "the mill grinds"
+    },
+    {
+      "do": "fireOut",
+      "oven": "farOven",
+      "why": "an oven 8 m from the grinding mill (outside 5 m)"
+    },
+    {
+      "do": "console",
+      "command": "skiptime 600"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_state",
+      "value": "0",
+      "label": "the grinding ended (nothing left inside)"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "fireOut",
+      "oven": "oven",
+      "why": "the grinding ended"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}
