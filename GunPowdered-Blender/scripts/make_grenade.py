@@ -10,11 +10,15 @@ import runpy
 import bmesh
 import bpy
 from mathutils import Matrix, Vector
+import os
+# paths from this script's own folder (D-134, release gate G18: no PC paths in tracked files): scripts\ -> GunPowdered-Blender\ -> GunPowdered\ -> the Valheim folder
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_VALHEIM = os.path.normpath(os.path.join(_HERE, "..", "..", ".."))
 
-H = runpy.run_path(r"E:\Projects\Valheim\GunPowdered\GunPowdered-Blender\scripts\make_leaching_station.py", run_name="helpers")
+H = runpy.run_path(os.path.join(_HERE, "make_leaching_station.py"), run_name="helpers")
 mat, lathe = H["mat"], H["lathe"]
-ITEMS = runpy.run_path(r"E:\Projects\Valheim\GunPowdered\GunPowdered-Blender\scripts\make_items.py", run_name="helpers")
-OUT_DIR = r"E:\Projects\Valheim\GunPowdered\GunPowdered-Blender\exports"
+ITEMS = runpy.run_path(os.path.join(_HERE, "make_items.py"), run_name="helpers")
+OUT_DIR = os.path.normpath(os.path.join(_HERE, "..", "exports"))
 SPOT = Vector((23.0, 0.0, 0.0))
 CLAY = (0.16, 0.15, 0.14)       # warm dark grey fired clay (the picture), not a cold metal grey
 FUSE = (0.45, 0.36, 0.22)

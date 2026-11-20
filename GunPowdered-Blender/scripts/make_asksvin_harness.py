@@ -15,6 +15,9 @@ import sys
 import bmesh
 import bpy
 from mathutils import Matrix, Vector
+# paths from this script's own folder (D-134, release gate G18: no PC paths in tracked files): scripts\ -> GunPowdered-Blender\ -> GunPowdered\ -> the Valheim folder
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_VALHEIM = os.path.normpath(os.path.join(_HERE, "..", "..", ".."))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import gp_common as g
 
@@ -131,7 +134,7 @@ def ghost_cannon(exports):
 
 exports, photos = g.script_args()
 _a = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
-ref = _a[2] if len(_a) > 2 else r"E:\Projects\Valheim\Valheim-Unity-AssetRipper\_export"
+ref = _a[2] if len(_a) > 2 else os.path.join(_VALHEIM, "Valheim-Unity-AssetRipper", "_export")
 sc, cam = g.stage((16.0, 16.0))
 leather = g.mat("harness_leather", (0.30, 0.13, 0.055), 0.65)
 brass = g.mat("harness_brass", (0.78, 0.55, 0.20), 0.35, 0.9)

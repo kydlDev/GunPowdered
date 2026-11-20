@@ -14,8 +14,12 @@ import sys
 import bmesh
 import bpy
 from mathutils import Matrix, Vector
+import os
+# paths from this script's own folder (D-134, release gate G18: no PC paths in tracked files): scripts\ -> GunPowdered-Blender\ -> GunPowdered\ -> the Valheim folder
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_VALHEIM = os.path.normpath(os.path.join(_HERE, "..", "..", ".."))
 
-OUT_DIR = r"E:\Projects\Valheim\GunPowdered\GunPowdered-Blender\exports"
+OUT_DIR = os.path.normpath(os.path.join(_HERE, "..", "exports"))
 PREVIEW = sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else OUT_DIR + r"\cannon-preview.png"
 SCALE = 2.5                  # the piece is 2.5 times the real size
 BALL_RADIUS = 0.05           # the ball: 10 cm across
@@ -226,7 +230,7 @@ def preview(path):
     bpy.ops.render.render(write_still=True)
 
 
-ICON_DIR = r"E:\Projects\Valheim\GunPowdered\GunPowdered-Unity\Assets\GunPowdered_Art\Icons"
+ICON_DIR = os.path.normpath(os.path.join(_HERE, "..", "..", "GunPowdered-Unity", "Assets", "GunPowdered_Art", "Icons"))
 
 
 def icon(names, path, view, size=256):

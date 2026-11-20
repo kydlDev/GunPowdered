@@ -9,8 +9,12 @@ import sys
 import bmesh
 import bpy
 from mathutils import Matrix, Vector
+import os
+# paths from this script's own folder (D-134, release gate G18: no PC paths in tracked files): scripts\ -> GunPowdered-Blender\ -> GunPowdered\ -> the Valheim folder
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_VALHEIM = os.path.normpath(os.path.join(_HERE, "..", "..", ".."))
 
-OUT = sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else r"E:\Projects\Valheim\Photos\GunPowdered\hand-cannon-variants.png"
+OUT = sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else os.path.join(_VALHEIM, "Photos", "GunPowdered", "hand-cannon-variants.png")
 BARREL_Z = 0.235     # height of the barrel axis above the ground
 
 

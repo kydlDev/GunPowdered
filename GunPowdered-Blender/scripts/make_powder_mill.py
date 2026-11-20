@@ -9,8 +9,12 @@ import runpy
 import bmesh
 import bpy
 from mathutils import Matrix, Vector
+import os
+# paths from this script's own folder (D-134, release gate G18: no PC paths in tracked files): scripts\ -> GunPowdered-Blender\ -> GunPowdered\ -> the Valheim folder
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_VALHEIM = os.path.normpath(os.path.join(_HERE, "..", "..", ".."))
 
-H = runpy.run_path(r"E:\Projects\Valheim\GunPowdered\GunPowdered-Blender\scripts\make_leaching_station.py",
+H = runpy.run_path(os.path.join(_HERE, "make_leaching_station.py"),
                    run_name="helpers")
 mat, lathe, box, blob, strut = H["mat"], H["lathe"], H["box"], H["blob"], H["strut"]
 ORIGIN = Vector((8.0, 0.0, 0.0))

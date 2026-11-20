@@ -12,10 +12,14 @@ import runpy
 import bmesh
 import bpy
 from mathutils import Matrix, Vector
+import os
+# paths from this script's own folder (D-134, release gate G18: no PC paths in tracked files): scripts\ -> GunPowdered-Blender\ -> GunPowdered\ -> the Valheim folder
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_VALHEIM = os.path.normpath(os.path.join(_HERE, "..", "..", ".."))
 
-H = runpy.run_path(r"E:\Projects\Valheim\GunPowdered\GunPowdered-Blender\scripts\make_leaching_station.py", run_name="helpers")
+H = runpy.run_path(os.path.join(_HERE, "make_leaching_station.py"), run_name="helpers")
 mat, lathe = H["mat"], H["lathe"]
-OUT_DIR = r"E:\Projects\Valheim\GunPowdered\GunPowdered-Blender\exports"
+OUT_DIR = os.path.normpath(os.path.join(_HERE, "..", "exports"))
 SPOTS = {"guano_deposit": 16.0, "sulfur_mud": 18.0, "sulfur_crystals": 18.0, "guano_item": 20.0, "saltpeter_item": 20.5,
          "gunpowder_item": 21.0, "water_item": 21.5}
 
