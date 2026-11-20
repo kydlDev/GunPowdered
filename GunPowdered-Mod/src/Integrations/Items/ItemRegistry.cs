@@ -235,12 +235,30 @@ namespace GunPowdered.Integrations.Items
                 Container chest = prefab.GetComponent<Container>();
                 if (chest != null) UnityEngine.Object.DestroyImmediate(chest);
             }
+            else if (IsLeachingExtension(s.Id))
+            {
+                // D-129: cloned from the chest for its piece and network view; an extension holds no items, it only counts for the Leaching Station near it
+                Container chest = prefab.GetComponent<Container>();
+                if (chest != null) UnityEngine.Object.DestroyImmediate(chest);
+                prefab.AddComponent<LeachingExtension>().Kind = s.Id;
+                ModLog.Verbose("ItemRegistry: " + s.Id + " is a Leaching Station extension");
+            }
             else if (s.Id == GunPowderedPrefabs.RainBarrel)
             {
                 Container chest = prefab.GetComponent<Container>();
                 if (chest != null) UnityEngine.Object.DestroyImmediate(chest);
                 prefab.AddComponent<RainBarrel>();
             }
+        }
+
+        static bool IsLeachingExtension(string id)
+        {
+            foreach (ItemSpec e in ItemCatalog.LeachingExtensions)
+            {
+                if (e.Id == id) { if (RuleLog.On) ModLog.Every("ItemRegistry.IsLeachingExtension", 2d, $"ItemRegistry.IsLeachingExtension({id}): returns true"); return true; }
+            }
+            if (RuleLog.On) ModLog.Every("ItemRegistry.IsLeachingExtension:no", 2d, $"ItemRegistry.IsLeachingExtension({id}): returns false");
+            return false;
         }
 
         // Deposits are Pickables: the vanilla Pickable respawns by itself, so the 3-day refill (D-019) is its respawn time.

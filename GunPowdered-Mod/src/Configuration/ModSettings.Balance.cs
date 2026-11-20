@@ -21,7 +21,8 @@ namespace GunPowdered.Configuration
         public static readonly Tunable<int> VatWater = new Tunable<int>("Saltpeter", "VatWater", 10, 1, 50, "Water per Leaching Vat batch (1-50), D-014.");
         public static readonly Tunable<int> VatSaltpeter = new Tunable<int>("Saltpeter", "VatSaltpeter", 5, 1, 50, "Saltpeter one batch gives (1-50), D-014.");
         public static readonly Tunable<int> VatFuel = new Tunable<int>("Saltpeter", "VatFuel", 4, 1, 50, "Wood the Leaching Station hearth burns per batch (1-50), D-024.");
-        public static readonly Tunable<float> VatDays = new Tunable<float>("Saltpeter", "VatDays", 1f, 0.05f, 10f, "In-game days one batch takes (0.05-10), D-014.");
+        public static readonly Tunable<float> VatBaseMinutes = new Tunable<float>("Saltpeter", "VatBaseMinutes", 30f, 1f, 120f, "Real minutes of one Leaching Station run without extensions (1-120; 30 = one in-game day), D-129.");
+        public static readonly Tunable<float> VatMinutesPerStep = new Tunable<float>("Saltpeter", "VatMinutesPerStep", 5f, 0f, 30f, "Minutes each extension step takes off a run (0-30; 5 makes the last step 5 min), D-129.");
 
         public static readonly Tunable<int> MillSaltpeter = new Tunable<int>("Gunpowder", "MillSaltpeter", 3, 1, 50, "Saltpeter per Powder Mill craft (1-50), D-014. Read at start.");
         public static readonly Tunable<int> MillCharcoal = new Tunable<int>("Gunpowder", "MillCharcoal", 1, 1, 50, "Charcoal per Powder Mill craft (1-50), D-014. Read at start.");

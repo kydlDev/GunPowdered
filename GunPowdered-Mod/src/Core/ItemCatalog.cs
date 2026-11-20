@@ -217,12 +217,47 @@ namespace GunPowdered.Core
             ItemKind.Material, Resin, 50, 0.15f, Workbench, 1,
             new CostLine(GunPowderedPrefabs.Gunpowder, 1), new CostLine(GunPowderedPrefabs.IronBullet, 1), new CostLine(GunPowderedPrefabs.Paper, 1)).AtStationLevel(2);
 
+        // D-129 (user 2026-11-20): the Leaching Station extensions, one per biome after the Black Forest. Each DIFFERENT one within 5 m of a station is one
+        // upgrade step (bigger batch, 5 minutes shorter run). Built with the hammer at a Workbench. Costs are Claude's proposal, the user sets the amounts.
+        public const string Silver = "Silver", FineWood = "FineWood", Copper = "Copper", YggdrasilWood = "YggdrasilWood", BlackMarble = "BlackMarble";
+
+        public static readonly ItemSpec LeachBarrel = new ItemSpec(GunPowderedPrefabs.LeachBarrel, "Second Leaching Barrel",
+            "A second stone-filled barrel for a Leaching Station nearby: it takes a bigger batch and leaches faster. Leaching Station upgrade 1 (Swamp).",
+            ItemKind.Piece, "piece_chest_wood", 1, 0f, Workbench, 1,
+            new CostLine(Wood, 20), new CostLine(Iron, 4), new CostLine(Resin, 4));
+
+        public static readonly ItemSpec SettlingTank = new ItemSpec(GunPowderedPrefabs.SettlingTank, "Settling Tank",
+            "A stone tank where the guano water settles before it reaches the cauldron. Leaching Station upgrade (Mountains).",
+            ItemKind.Piece, "piece_chest_wood", 1, 0f, Workbench, 1,
+            new CostLine(Stone, 20), new CostLine(Silver, 4), new CostLine(Obsidian, 4));
+
+        public static readonly ItemSpec BlackMetalBoiler = new ItemSpec(GunPowderedPrefabs.BlackMetalBoiler, "Black Metal-banded Boiler",
+            "A fine wood boiler bound with black metal bands that keeps the brine hot. Leaching Station upgrade (Plains).",
+            ItemKind.Piece, "piece_chest_wood", 1, 0f, Workbench, 1,
+            new CostLine(FineWood, 10), new CostLine(BlackMetal, 6));
+
+        public static readonly ItemSpec DvergrDripPipes = new ItemSpec(GunPowderedPrefabs.DvergrDripPipes, "Dvergr Drip Pipes",
+            "Copper pipes in the dvergr style that drip the brine evenly over the stones. Leaching Station upgrade (Mistlands).",
+            ItemKind.Piece, "piece_chest_wood", 1, 0f, Workbench, 1,
+            new CostLine(Copper, 6), new CostLine(YggdrasilWood, 10), new CostLine(BlackMarble, 10));
+
+        public static readonly ItemSpec FlametalHeater = new ItemSpec(GunPowderedPrefabs.FlametalHeater, "Flametal Heater",
+            "A glowing flametal heater under the cauldron. Leaching Station upgrade (Ashlands): with all five the station leaches its biggest batch in 5 minutes.",
+            ItemKind.Piece, "piece_chest_wood", 1, 0f, Workbench, 1,
+            new CostLine(Flametal, 6), new CostLine(Ashwood, 10));
+
+        /// <summary>The Leaching Station extensions (D-129), in biome order.</summary>
+        public static IList<ItemSpec> LeachingExtensions
+        {
+            get { return new[] { LeachBarrel, SettlingTank, BlackMetalBoiler, DvergrDripPipes, FlametalHeater }; }
+        }
+
         /// <summary>Every entry, in the order they are registered.</summary>
         public static IList<ItemSpec> All
         {
             get
             {
-                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud, SpikedGrenade, CannonBall, Cannon, CannonStock, Musket, ExplosiveArrow, Dynamite, MobileCannon, AsksvinHarness, Paper, IronBullet, PaperCartridge, DeepNorthPack };
+                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud, SpikedGrenade, CannonBall, Cannon, CannonStock, Musket, ExplosiveArrow, Dynamite, MobileCannon, AsksvinHarness, Paper, IronBullet, PaperCartridge, DeepNorthPack, LeachBarrel, SettlingTank, BlackMetalBoiler, DvergrDripPipes, FlametalHeater };
             }
         }
     }

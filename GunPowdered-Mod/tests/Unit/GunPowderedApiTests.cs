@@ -10,8 +10,9 @@ namespace GunPowdered.Tests.Unit
         [Test]
         public void AllPrefabs_AreTheGpNames()
         {
-            Assert.That(GunPowderedApi.AllPrefabs.Count, Is.EqualTo(24), "Deep North Dynamite Pack (D-108) + 3 musket ammunition items (Paper, Iron Bullet, Paper Cartridge) + 12 before the hand cannon + Cannon Ball, Cannon, Cannon Stock + Musket, Explosive Arrow, Dynamite, Mobile Cannon, Asksvin Harness");
+            Assert.That(GunPowderedApi.AllPrefabs.Count, Is.EqualTo(29), "5 Leaching Station extensions (D-129) + Deep North Dynamite Pack (D-108) + 3 musket ammunition items (Paper, Iron Bullet, Paper Cartridge) + 12 before the hand cannon + Cannon Ball, Cannon, Cannon Stock + Musket, Explosive Arrow, Dynamite, Mobile Cannon, Asksvin Harness");
             Assert.That(GunPowderedApi.AllPrefabs, Does.Contain(GunPowderedApi.Prefabs.Gunpowder));
+            Assert.That(GunPowderedApi.AllPrefabs, Does.Contain(GunPowderedApi.Prefabs.FlametalHeater));
             Assert.That(GunPowderedApi.AllPrefabs.All(p => p.StartsWith("GP_")), Is.True);
         }
 

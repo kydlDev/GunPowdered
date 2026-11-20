@@ -48,6 +48,11 @@ namespace GunPowdered
             public const string IronBullet = Core.GunPowderedPrefabs.IronBullet;
             public const string PaperCartridge = Core.GunPowderedPrefabs.PaperCartridge;
             public const string DeepNorthPack = Core.GunPowderedPrefabs.DeepNorthPack;
+            public const string LeachBarrel = Core.GunPowderedPrefabs.LeachBarrel;
+            public const string SettlingTank = Core.GunPowderedPrefabs.SettlingTank;
+            public const string BlackMetalBoiler = Core.GunPowderedPrefabs.BlackMetalBoiler;
+            public const string DvergrDripPipes = Core.GunPowderedPrefabs.DvergrDripPipes;
+            public const string FlametalHeater = Core.GunPowderedPrefabs.FlametalHeater;
         }
 
         /// <summary>Every prefab name the mod adds.</summary>

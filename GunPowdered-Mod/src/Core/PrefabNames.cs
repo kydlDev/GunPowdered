@@ -30,5 +30,10 @@ namespace GunPowdered.Core
         public const string IronBullet = "GP_IronBullet";
         public const string PaperCartridge = "GP_PaperCartridge";
         public const string DeepNorthPack = "GP_DeepNorthPack";
+        public const string LeachBarrel = "GP_LeachBarrel";
+        public const string SettlingTank = "GP_SettlingTank";
+        public const string BlackMetalBoiler = "GP_BlackMetalBoiler";
+        public const string DvergrDripPipes = "GP_DvergrDripPipes";
+        public const string FlametalHeater = "GP_FlametalHeater";
     }
 }
