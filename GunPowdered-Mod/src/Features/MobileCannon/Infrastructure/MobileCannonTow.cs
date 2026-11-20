@@ -344,9 +344,27 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (_ring != null && ModLog.IsDue("tow-align-" + GetInstanceID(), 2d))
                 ModLog.Every("tow-align-" + GetInstanceID(), 2d, "MobileCannonTow: " + name + " " + _animal.AlignReport(_ring.position));      // D-143: cart tip vs harness end
             Rigidbody b = GetComponent<Rigidbody>();
+            KeepStraightBacking(b);
             if (b != null) MaxSpeedSeen = Mathf.Max(MaxSpeedSeen, Vector3.ProjectOnPlane(b.linearVelocity, Vector3.up).magnitude);
             Rigidbody ab = _animal.GetComponent<Rigidbody>();
             if (ab != null) AnimalMaxSpeed = Mathf.Max(AnimalMaxSpeed, Vector3.ProjectOnPlane(ab.linearVelocity, Vector3.up).magnitude);
+        }
+
+        AsksvinReverse _reverse;
+
+        // D-144: while the Asksvin backs up, the cannon is pushed at its trail and would jack-knife; it is turned to stay straight behind the animal, so it goes
+        // back along the path it came (the user's "same path backwards")
+        void KeepStraightBacking(Rigidbody b)
+        {
+            if (_reverse == null && _animal != null) _reverse = _animal.GetComponent<AsksvinReverse>();
+            if (b == null || _ring == null || _reverse == null || !_reverse.IsBacking) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.KeepStraightBacking:none", 2d, "MobileCannonTow.KeepStraightBacking: not backing - returns"); return; }
+            Vector3 line = Vector3.ProjectOnPlane(_ring.position - transform.position, Vector3.up);
+            Vector3 fwd = Vector3.ProjectOnPlane(_animal.transform.forward, Vector3.up);
+            float angle = Vector3.SignedAngle(line, fwd, Vector3.up);
+            Vector3 spin = b.angularVelocity;
+            spin.y = GunPowdered.Features.MobileCannon.Domain.AsksvinReverseRules.StraightSpin(angle, AsksvinTowRules.MaxTowSpin);
+            b.angularVelocity = spin;
+            if (ModLog.IsDue("tow-back-" + GetInstanceID(), 2d)) ModLog.Every("tow-back-" + GetInstanceID(), 2d, $"MobileCannonTow: {name} backing, {angle:0} deg off straight, spin {spin.y:0.00} rad/s");
         }
 
         float _hookDrop;

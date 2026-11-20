@@ -1,0 +1,165 @@
+{
+  "name": "asksvin-lead-rope",
+  "description": "D-144 (T-014): on foot, E on the saddle chest rope of a saddled Asksvin takes it by the rope (toggle); standing close in front of the rope backs it up (half its walk speed, facing ahead), standing further off leads it forward, E again lets go.",
+  "timeout": 90,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinSpawn",
+      "contains": "tamed True",
+      "label": "a tame Asksvin"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinSaddle",
+      "expect": "saddled True"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.playerBeforeRope",
+      "args": {
+        "metres": 1.4
+      },
+      "contains": "before the rope",
+      "label": "stand in front of the chest rope"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinLead",
+      "regex": "lead sent True, rope at .*Lead \\(walk into it",
+      "label": "E on the chest rope: the hover offers Lead, the request is sent"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinLeader",
+      "expect": "leader me True",
+      "label": "the player now leads it"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinBackMark",
+      "contains": "marked at"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.playerBeforeRope",
+      "args": {
+        "metres": 0.5
+      },
+      "contains": "before the rope",
+      "label": "step into it"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.playerBeforeRope",
+      "args": {
+        "metres": 0.5
+      },
+      "contains": "before the rope",
+      "label": "step into it again"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.playerBeforeRope",
+      "args": {
+        "metres": 0.5
+      },
+      "contains": "before the rope",
+      "label": "and again"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.2
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: led backwards by the chest rope"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinBackState",
+      "regex": "back (0\\.[5-9]\\d|[1-9]\\.\\d\\d) m, max back speed .*ratio 0\\.([3-6]\\d|7[0-5])\\), turned -?([0-9]|1[0-9]) deg, backing seen True",
+      "label": "it backed up at about half its walk speed, facing the player"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinBackMark",
+      "contains": "marked at"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.playerBeforeRope",
+      "args": {
+        "metres": 3.5
+      },
+      "contains": "before the rope",
+      "label": "walk off in front of it"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinBackState",
+      "regex": "back -([1-9]|0\\.[3-9])",
+      "label": "it followed forward on the rope"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinLead",
+      "contains": "lead sent True",
+      "label": "E again lets go"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinLeader",
+      "expect": "leader me False",
+      "label": "let go"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

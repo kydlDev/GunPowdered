@@ -311,11 +311,11 @@ namespace GunPowdered.Testing.TestHooks
             GameObject cannon = MobileCannonTestHooks.Cannon;
             if (p == null || sadle == null || cannon == null) return "no player, saddle or cannon";
             Vector3 away = Vector3.ProjectOnPlane(_animal.transform.position - cannon.transform.position, Vector3.up).normalized;
-            bool run = how == "run";
+            bool run = how == "run", walk = how == "walk";                    // walk: D-144 tests line the cannon up behind the Asksvin before backing
             if (run) _cannonStart = cannon.transform.position;
             AsksvinSpeedProbe probe = _animal.GetComponent<AsksvinSpeedProbe>();
             if (probe != null && run) probe.Top = 0f;
-            sadle.ApplyControlls(run ? Vector3.forward : Vector3.back, away, run, false, false);
+            sadle.ApplyControlls(run || walk ? Vector3.forward : Vector3.back, away, run, false, false);
             return how + " sent, riding " + p.IsRiding();
         }
 

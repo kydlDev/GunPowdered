@@ -1,0 +1,134 @@
+{
+  "name": "mobilecannon-tow-backwards",
+  "description": "D-144 (T-014): mounted on a harnessed Asksvin with the Mobile Cannon hitched, holding S walks the Asksvin backwards at half its walk speed (the game alone only stops it), facing ahead, and the hitched cannon goes back with it, kept straight behind it (no jack-knife), upright.",
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "mobileCannonPlaced"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinSpawn",
+      "contains": "tamed True",
+      "label": "a tame Asksvin behind the trail"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinSaddle",
+      "expect": "saddled True"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_AsksvinHarness",
+      "count": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinHarnessOn",
+      "expect": "harnessed True, harness items 0",
+      "label": "the harness goes on"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonHitch",
+      "expect": "hitch True",
+      "label": "E on the tow ring hitches"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinMount",
+      "expect": "riding True",
+      "label": "the player rides the Asksvin through its saddle"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinRide",
+      "args": {
+        "how": "walk"
+      },
+      "contains": "walk sent, riding True",
+      "label": "walk ahead a few metres, so the cannon lines up straight behind (as a player would before backing)"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinRide",
+      "args": {
+        "how": "stop"
+      },
+      "contains": "stop sent"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinBackMark",
+      "contains": "marked at",
+      "label": "mark where the Asksvin stands"
+    },
+    {
+      "do": "pressKey",
+      "button": "Backward",
+      "frames": 240,
+      "label": "hold S (Backward) about 4 s while riding"
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: backing up with the cannon"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinBackState",
+      "regex": "back ([1-9]|[1-9][0-9])\\.\\d\\d m, max back speed .*ratio 0\\.([3-6]\\d|7[0-5])\\), turned -?([0-9]|1[0-4]) deg, backing seen True, cannon off straight ([0-9]|1[0-9]) deg \\(worst ([0-9]|[12][0-9])\\), upright True",
+      "label": "went back 1 m or more at about half the walk speed, still facing ahead, cannon straight behind (worst under 30 deg) and upright"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "regex": "towed True, joint True, .*upright True.*flips 0",
+      "label": "still hitched, never flipped"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinDismount",
+      "expect": "riding False"
+    },
+    {
+      "do": "mobileCannonAsksvinCleanup"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

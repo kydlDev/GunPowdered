@@ -18,6 +18,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
             if (RuleLog.IsOn()) ModLog.Every("AsksvinHarnessAwakePatch.Postfix", 2d, $"AsksvinHarnessAwakePatch.Postfix(__instance={RuleLog.Shown(__instance)})");
             if (__instance == null || Utils.GetPrefabName(__instance.gameObject) != AsksvinHarness.AnimalPrefab) { if (RuleLog.IsOn()) ModLog.Every("AsksvinHarnessAwakePatch.Postfix:19", 2d, "AsksvinHarnessAwakePatch.Postfix: returns (line 19)"); return; }
             if (__instance.GetComponent<AsksvinHarness>() == null) __instance.gameObject.AddComponent<AsksvinHarness>();
+            if (__instance.GetComponent<AsksvinReverse>() == null) __instance.gameObject.AddComponent<AsksvinReverse>();     // D-144: backing up (rider's S, chest rope)
         }
     }
 
