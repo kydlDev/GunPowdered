@@ -8,7 +8,7 @@ Make gunpowder, then build weapons with it.
 **Making gunpowder**
 - **Bat Guano**: rare deposits in Troll Caves, Burial Chambers, mountain caves and Swamp bat caves; mine with any pickaxe.
 - **Water**: fill a Bucket in any water, or collect it in a **Rain Barrel** (fills only while it rains and nothing roofs it).
-- **Leaching Station**: guano + water make Saltpeter after one in-game day.
+- **Leaching Station**: guano + water (+ wood for the hearth) make Saltpeter in one in-game day. Five extension pieces, one per biome from the Swamp to the Ashlands, upgrade it: each makes the batch bigger and the run 5 minutes shorter (biggest: 60 guano + 60 water -> 30 Saltpeter in 5 minutes).
 - **Sulfur**: Sulfurous Mud in the swamp, plus Blob and Oozer drops.
 - **Powder Mill**: saltpeter + sulfur + charcoal make Gunpowder.
 
