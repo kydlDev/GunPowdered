@@ -12,6 +12,7 @@ namespace GunPowdered.Integrations.Valheim
     internal static class StationSnapPoints
     {
         internal const string SnapTag = "snappoint", NamePrefix = "gp_snap_";
+        const string BundleModelChild = "gp_model";                        // BundleVisuals' name for the bundle model
         static readonly string[] Sides = { "left", "right", "back", "front" };
 
         /// <summary>Gives a station / extension prefab its side snap points and the no-clipping test. Expected outcome: 4 snap points, m_noClipping on; nothing when the prefab has no piece.</summary>
@@ -38,13 +39,18 @@ namespace GunPowdered.Integrations.Valheim
             ModLog.Verbose($"StationSnapPoints.Configure({prefab.name}): {removed} placeholder snap point(s) removed, 4 side points on footprint x {foot.min.x:0.00}..{foot.max.x:0.00}, z {foot.min.z:0.00}..{foot.max.z:0.00}, no clipping");
         }
 
-        /// <summary>The footprint of a piece in its own space: the bounds of its bundle model's meshes (the placeholder's hidden meshes and the 'fire' part left out). Expected outcome: a zero box at the origin when the piece has no visible mesh.</summary>
+        /// <summary>
+        /// The footprint of a piece in its own space: the bounds of its bundle model's meshes ("gp_model"; the 'fire' part left out). Only the bundle model
+        /// counts: a placed Powder Mill also carries the workbench placeholder's 20 m range ring (segments made at run time), which made a placed mill
+        /// measure 40 x 40 m (found by the station-placement lab test, 2026-11-20). Expected outcome: a zero box at the origin when the piece has no visible mesh.
+        /// </summary>
         internal static Bounds Footprint(GameObject root)
         {
             var bounds = new Bounds(Vector3.zero, Vector3.zero);
             bool first = true;
             Matrix4x4 toRoot = root.transform.worldToLocalMatrix;
-            foreach (MeshFilter mf in root.GetComponentsInChildren<MeshFilter>(true))
+            Transform model = root.transform.Find(BundleModelChild);
+            foreach (MeshFilter mf in (model != null ? model : root.transform).GetComponentsInChildren<MeshFilter>(true))
             {
                 var r = mf.GetComponent<Renderer>();
                 if (mf.sharedMesh == null || r == null || !r.enabled || mf.name == "fire") continue;
