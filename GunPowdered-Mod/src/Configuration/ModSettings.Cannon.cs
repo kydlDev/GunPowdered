@@ -20,6 +20,8 @@ namespace GunPowdered.Configuration
             "Pierce damage of the ball (0-1000, D-107).");
         public static readonly Tunable<float> CannonBlunt = new Tunable<float>("Cannon", "CannonBlunt", 70f, 0f, 1000f,
             "Blunt damage of the ball (0-1000, D-107).");
+        public static readonly Tunable<float> CannonPickaxe = new Tunable<float>("Cannon", "CannonPickaxe", 150f, 0f, 2000f,
+            "Pickaxe damage of the ball against stone, rocks and walls (0-2000, D-108).");
         public static readonly Tunable<float> CannonFire = new Tunable<float>("Cannon", "CannonFire", 10f, 0f, 100f,
             "Fire damage per second of the burning the ball sets, for 5 s (0-100, D-107).");
         public static readonly Tunable<float> CannonToolTier = new Tunable<float>("Cannon", "CannonToolTier", 2f, 0f, 10f,

@@ -63,6 +63,9 @@ namespace GunPowdered.Features.MobileCannon.Domain
         /// <summary>Roll / pitch against world up a towed cannon may never pass (deg), however the ground under it slopes: past these it would go over.</summary>
         public const float MaxWorldRoll = 30f, MaxWorldPitch = 45f;
 
+        /// <summary>Highest spin (rad/s) a towed cannon may have: the game's default 7 let one joint yank roll it over between two keeper steps.</summary>
+        public const float MaxTowSpin = 3.5f;
+
         /// <summary>Of two signed excesses, the larger one (it needs the bigger correction). Expected outcome: 0 only when both are 0.</summary>
         public static float Tighter(float a, float b) => System.Math.Abs(a) >= System.Math.Abs(b) ? a : b;
 

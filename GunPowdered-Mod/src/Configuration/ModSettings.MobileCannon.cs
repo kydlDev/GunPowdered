@@ -33,8 +33,8 @@ namespace GunPowdered.Configuration
         // gates and pillars need tool tier 5, Ashlands_Fortress_* in the ripped prefabs).
         public static readonly Tunable<float> MobileCannonBlunt = new Tunable<float>("MobileCannon", "MobileCannonBlunt", 120f, 0f, 2000f,
             "Blunt damage of the Mobile Cannon's ball (0-2000, D-107).");
-        public static readonly Tunable<float> MobileCannonPickaxe = new Tunable<float>("MobileCannon", "MobileCannonPickaxe", 120f, 0f, 2000f,
-            "Pickaxe damage of the Mobile Cannon's ball against stone, rocks and walls (0-2000, D-107).");
+        public static readonly Tunable<float> MobileCannonPickaxe = new Tunable<float>("MobileCannon", "MobileCannonPickaxe", 250f, 0f, 2000f,
+            "Pickaxe damage of the Mobile Cannon's ball against stone, rocks and walls (0-2000, D-108; was 120 in D-107).");
         public static readonly Tunable<float> MobileCannonPierce = new Tunable<float>("MobileCannon", "MobileCannonPierce", 50f, 0f, 2000f,
             "Pierce damage of the Mobile Cannon's ball (0-2000, D-107).");
         public static readonly Tunable<float> MobileCannonFire = new Tunable<float>("MobileCannon", "MobileCannonFire", 10f, 0f, 100f,

@@ -243,6 +243,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         internal int Flips { get; private set; }
         float _lastHoldLog = -99f, _lastAnimalYaw, _animalTurnRate;
         Rigidbody _body;
+        float _spinBefore;
 
         internal void ResetTiltStats() { MaxRollSeen = 0f; MaxPitchSeen = 0f; MaxSpinSeen = 0f; Holds = 0; Flips = 0; }
 
@@ -280,6 +281,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             _body.rotation = back * _body.rotation;          // at once: MoveRotation waits a step, and a tree or the joint pushes it past again meanwhile (a9miss1: 56 deg)
             if (rollOver != 0f && rollRate * rollOver > 0f) w -= fwd * rollRate;
             if (pitchOver != 0f && pitchRate * pitchOver > 0f) w -= right * pitchRate;
+            if (rollOver != 0f) w -= fwd * Vector3.Dot(w, fwd);          // past the limit: no more roll spin at all (the 0.6 damping still flipped it for a frame, a9g16g)
             _body.angularVelocity = w * 0.6f;          // a held yank loses its spin too, or the next step tips it again
             Holds++;
             if (Time.time - _lastHoldLog < 0.5f) return;
@@ -355,6 +357,8 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             // 4x the cart's spring: with the cart's own the ring stretched up to 1 m off the hook in 90 degree turns at full speed (a9fix2 log)
             _joint.linearLimitSpring = new SoftJointLimitSpring { spring = (_vagon != null ? _vagon.m_spring : 5000f) * 4f, damper = (_vagon != null ? _vagon.m_springDamping : 1000f) * 2f };
             _joint.connectedBody = animalBody;
+            Rigidbody own = GetComponent<Rigidbody>();
+            if (own != null) { _spinBefore = own.maxAngularVelocity; own.maxAngularVelocity = AsksvinTowRules.MaxTowSpin; }      // a yank cannot spin it past the keeper in one physics step (a9g16g: roll 78 on the cliff)
             _massOn = _animal.Animal;
             if (_massOn != null) _massOn.SetExtraMass(ModSettings.MobileCannonTowExtraMass.Value);     // like the cart's m_playerExtraPullMass: the cannon must not hold the Asksvin back (D-105)
             ModLog.Info("MobileCannonTow: " + name + " joint to " + _animal.name + ", ring " + _joint.anchor.ToString("0.00") + ", hook " + _joint.connectedAnchor.ToString("0.00") + ", " + ClevisReport(_animal.transform));
@@ -364,6 +368,8 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         {
             if (_joint != null) Destroy(_joint);
             _joint = null;
+            Rigidbody own = GetComponent<Rigidbody>();
+            if (own != null && _spinBefore > 0f) own.maxAngularVelocity = _spinBefore;
             if (_massOn != null) _massOn.SetExtraMass(0f);
             _massOn = null;
         }

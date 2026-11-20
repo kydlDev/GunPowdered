@@ -251,15 +251,14 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         }
 
         // D-055 addendum 1: a building or rock takes the ball's damage (the reduced share after a pass, via the momentum in MakeHit) and still
-        // ends the flight. Rocks only care for pickaxe damage, so the ball breaks them like a pickaxe (as a tree like an axe); the hit collider
-        // tells a MineRock(5) which part was struck.
+        // ends the flight. Rocks only care for pickaxe damage: both balls carry their own pickaxe number (D-108: hand 150, mobile 250); the hit
+        // collider tells a MineRock(5) which part was struck.
         float HitSolid(IDestructible solid, Collider c, Vector3 at)
         {
             HitData hit = MakeHit(at);
             hit.m_hitCollider = c;
             float total = hit.m_damage.m_pierce + hit.m_damage.m_blunt + hit.m_damage.m_pickaxe;
             bool building = solid is WearNTear;
-            if (!building && !_mobile) hit.m_damage.m_pickaxe = total;
             solid.Damage(hit);
             ModLog.Verbose("CannonBallFlight: " + (building ? "building piece " : "rock ") + Name(c) + " takes " + Fmt(total) + " (momentum "
                 + Fmt(_momentum) + ")");
@@ -285,6 +284,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             {
                 hit.m_damage.m_pierce = ModSettings.CannonPierce.Value * _momentum;
                 hit.m_damage.m_blunt = ModSettings.CannonBlunt.Value * _momentum;
+                hit.m_damage.m_pickaxe = ModSettings.CannonPickaxe.Value * _momentum;
                 hit.m_damage.m_fire = GunPowdered.Core.BurnRules.Total(ModSettings.CannonFire.Value) * _momentum;
             }
             hit.m_point = at;

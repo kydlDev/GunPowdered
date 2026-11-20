@@ -1,6 +1,6 @@
 {
   "name": "mobilecannon-tow-slope",
-  "description": "T-009: on the KydlFlat template mountain cliff (20 m rise over a 25 m run, about 39 degrees; the template own slope, nothing built) the Asksvin tows the Mobile Cannon down the face, turns round below and tows it back up onto the top: the cannon never flips (the upright keeper logs every hold) and stays hitched.",
+  "description": "T-009: on the KydlFlat template mountain cliff (20 m rise over a 25 m run, about 39 degrees; the template own slope, nothing built) the Asksvin tows the Mobile Cannon down the face, turns round below and tows it back up onto the top: the cannon never flips (the upright keeper logs every hold) and stays hitched. The Asksvin runs straight down and up the face (asksvinDriveTo): the pathfinder found no way down in 2 of 3 runs.",
   "timeout": 150,
   "steps": [
     {
@@ -55,13 +55,13 @@
     },
     {
       "do": "hook",
-      "name": "GunPowdered.asksvinFollowTo",
+      "name": "GunPowdered.asksvinDriveTo",
       "label": "down the cliff face",
       "args": {
         "x": 200,
         "z": -112
       },
-      "contains": "going to"
+      "contains": "driving to"
     },
     {
       "do": "wait",
@@ -85,23 +85,32 @@
     },
     {
       "do": "wait",
-      "seconds": 10
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.cannonHeightBetween",
+        "args": {
+          "min": 50,
+          "max": 56
+        },
+        "expect": true
+      },
+      "timeout": 30
     },
     {
       "do": "hook",
       "name": "GunPowdered.mobileCannonTowState",
-      "label": "came down the 20 m cliff (cannon below 59 m), never flipped",
-      "regex": "towed True, joint True, .*upright True.*flips 0, cannon at \\(\\d+\\.\\d, 5[2-8]\\."
+      "label": "came down the 20 m cliff with the cannon, never flipped",
+      "regex": "towed True, joint True, .*upright True.*flips 0"
     },
     {
       "do": "hook",
-      "name": "GunPowdered.asksvinFollowTo",
+      "name": "GunPowdered.asksvinDriveTo",
       "label": "turn round below and back up onto the top",
       "args": {
         "x": 200,
         "z": -160
       },
-      "contains": "going to"
+      "contains": "driving to"
     },
     {
       "do": "wait",
@@ -114,13 +123,22 @@
     },
     {
       "do": "wait",
-      "seconds": 7
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.cannonHeightBetween",
+        "args": {
+          "min": 70,
+          "max": 76
+        },
+        "expect": true
+      },
+      "timeout": 30
     },
     {
       "do": "hook",
       "name": "GunPowdered.mobileCannonTowState",
       "label": "towed back up onto the top (cannon above 70 m), never flipped",
-      "regex": "towed True, joint True, .*upright True.*flips 0, cannon at \\(\\d+\\.\\d, 7[0-5]\\."
+      "regex": "towed True, joint True, .*upright True.*flips 0"
     },
     {
       "do": "hook",
@@ -136,6 +154,11 @@
     },
     {
       "do": "mobileCannonAsksvinCleanup"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.asksvinDriveStop",
+      "expect": "drive stopped"
     },
     {
       "do": "hook",
