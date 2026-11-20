@@ -82,6 +82,28 @@ namespace GunPowdered.Features.MobileCannon.Domain
             { if (RuleLog.IsOn()) RuleLog.Every("AsksvinTowRules.Excess:82", 2d, "AsksvinTowRules.Excess: returns 0f (line 82)"); return 0f; }
         }
 
+        /// <summary>How far (m) the tow hook may move down or up from its place on level ground, to follow the ground under it on a slope.</summary>
+        public const float MaxHookDrop = 3f;
+
+        /// <summary>How fast (m/s) the tow hook follows the ground under it: quick enough for a cliff face, slow enough that the cannon is not yanked.</summary>
+        public const float HookDropSpeed = 4f;
+
+        /// <summary>
+        /// D-143: the Asksvin's body stays level on a slope, so a hook fixed behind it hangs high above the ground going uphill (2 m on the template's 39 degree
+        /// cliff) and lifts the cannon's trail tip far above the harness traces. The hook is lowered by how much lower the ground under it is than the ground
+        /// under the animal (raised when it is higher), clamped to <see cref="MaxHookDrop"/>, moving at most <paramref name="maxStep"/> m from
+        /// <paramref name="current"/> per call. Expected outcome: 0 on level ground; positive (down) going uphill; negative (up) going downhill.
+        /// </summary>
+        public static float HookDrop(float groundUnderAnimal, float groundUnderHook, float current, float maxStep)
+        {
+            if (RuleLog.IsOn()) RuleLog.Every("AsksvinTowRules.HookDrop", 2d, $"AsksvinTowRules.HookDrop(groundUnderAnimal={RuleLog.Shown(groundUnderAnimal)}, groundUnderHook={RuleLog.Shown(groundUnderHook)}, current={RuleLog.Shown(current)}, maxStep={RuleLog.Shown(maxStep)})");
+            float target = System.Math.Max(-MaxHookDrop, System.Math.Min(MaxHookDrop, groundUnderAnimal - groundUnderHook));
+            float step = System.Math.Abs(maxStep);
+            float drop = target > current + step ? current + step : target < current - step ? current - step : target;
+            if (RuleLog.IsOn()) RuleLog.Every("AsksvinTowRules.HookDrop:end", 2d, $"AsksvinTowRules.HookDrop: returns {RuleLog.Shown(drop)}");
+            return drop;
+        }
+
         /// <summary>
         /// The client that owns the towing animal simulates the cannon too. Expected outcome: "push" when this client owns the cannon but another client owns the
         /// animal (hand the cannon over), "pull" when this client owns the animal but not the cannon (take it, also when the old owner never hands it back),

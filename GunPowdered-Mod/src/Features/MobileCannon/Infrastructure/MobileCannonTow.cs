@@ -340,12 +340,30 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 return;
             }
             if (_joint == null) MakeJoint();
+            FollowGround();
             if (_ring != null && ModLog.IsDue("tow-align-" + GetInstanceID(), 2d))
                 ModLog.Every("tow-align-" + GetInstanceID(), 2d, "MobileCannonTow: " + name + " " + _animal.AlignReport(_ring.position));      // D-143: cart tip vs harness end
             Rigidbody b = GetComponent<Rigidbody>();
             if (b != null) MaxSpeedSeen = Mathf.Max(MaxSpeedSeen, Vector3.ProjectOnPlane(b.linearVelocity, Vector3.up).magnitude);
             Rigidbody ab = _animal.GetComponent<Rigidbody>();
             if (ab != null) AnimalMaxSpeed = Mathf.Max(AnimalMaxSpeed, Vector3.ProjectOnPlane(ab.linearVelocity, Vector3.up).magnitude);
+        }
+
+        float _hookDrop;
+
+        /// <summary>Where the joint's hook is now, in the animal's space: <see cref="AsksvinHarness.HookLocal"/> lowered by the ground under it (D-143).</summary>
+        internal Vector3 HookNow => AsksvinHarness.HookLocal + Vector3.down * _hookDrop;
+
+        // D-143: the hook follows the ground under it (terrain height), so on a slope the cannon's trail tip stays down with the harness traces
+        void FollowGround()
+        {
+            if (_joint == null || _animal == null || ZoneSystem.instance == null) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.FollowGround:none", 2d, "MobileCannonTow.FollowGround: no joint, animal or zone system - returns"); return; }
+            Transform a = _animal.transform;
+            float underAnimal = ZoneSystem.instance.GetGroundHeight(a.position);
+            float underHook = ZoneSystem.instance.GetGroundHeight(a.TransformPoint(AsksvinHarness.HookLocal));
+            _hookDrop = AsksvinTowRules.HookDrop(underAnimal, underHook, _hookDrop, AsksvinTowRules.HookDropSpeed * Time.fixedDeltaTime);
+            _joint.connectedAnchor = HookNow;
+            if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.FollowGround:end", 2d, $"MobileCannonTow.FollowGround: ground under animal {underAnimal:0.00}, under hook {underHook:0.00}, hook drop {_hookDrop:0.00} m - returns");
         }
 
         void MakeJoint()
@@ -355,7 +373,8 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             _joint = gameObject.AddComponent<ConfigurableJoint>();
             _joint.autoConfigureConnectedAnchor = false;
             _joint.anchor = transform.InverseTransformPoint(_ring.position);
-            _joint.connectedAnchor = AsksvinHarness.HookLocal;
+            _hookDrop = 0f;
+            _joint.connectedAnchor = HookNow;
             _joint.breakForce = _vagon != null ? _vagon.m_breakForce * 4f : 40000f;
             // x and y stay Limited with the cart's soft spring (Locked was tried in a9fix1: the snap's 0.15 m correction kicked the cannon over at the hitch).
             // The few cm of sag are hidden: the harness model's hook ring and chain end ride the cannon's tow ring (AsksvinHarness skin, third bone).

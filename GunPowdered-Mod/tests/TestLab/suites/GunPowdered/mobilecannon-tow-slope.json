@@ -55,6 +55,15 @@
     },
     {
       "do": "hook",
+      "name": "GunPowdered.towRingAboveGround",
+      "label": "D-143: trail tip height on the level top (for the log)",
+      "args": {
+        "max": 99
+      },
+      "contains": "ring above ground"
+    },
+    {
+      "do": "hook",
       "name": "GunPowdered.asksvinDriveTo",
       "label": "down the cliff face",
       "args": {
@@ -158,6 +167,15 @@
       "do": "invoke",
       "method": "Kydl.GameProbe.ProbeApi.Screenshot",
       "label": "GameProbe shot: hitch close-up going up"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.towRingAboveGround",
+      "label": "D-143: climbing the cliff, the trail tip stays down by the ground (the hook follows the ground under it)",
+      "args": {
+        "max": 1.2
+      },
+      "contains": "low True"
     },
     {
       "do": "wait",

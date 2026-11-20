@@ -202,8 +202,25 @@ namespace GunPowdered.Testing.TestHooks
             AsksvinHarness h = _animal != null ? _animal.GetComponent<AsksvinHarness>() : null;
             float moved = Vector3.Distance(Flat(cannon.transform.position), Flat(_cannonStart));
             string s = "towed " + tow.Towed + ", joint " + tow.Jointed + ", model " + (h != null && h.ModelShown) + ", moved " + moved.ToString("0.0") + " m, max speed "
-                + tow.MaxSpeedSeen.ToString("0.0") + " m/s (asksvin " + tow.AnimalMaxSpeed.ToString("0.0") + "), gap " + (h != null && tow.Ring != null ? Vector3.Distance(tow.Ring.position, h.transform.TransformPoint(AsksvinHarness.HookLocal)).ToString("0.00") : "?") + " m, upright " + (cannon.transform.up.y > 0.7f) + ", tilt max roll " + tow.MaxRollSeen.ToString("0") + " pitch " + tow.MaxPitchSeen.ToString("0") + " spin " + tow.MaxSpinSeen.ToString("0.0") + ", holds " + tow.Holds + ", flips " + tow.Flips + ", cannon at " + cannon.transform.position.ToString("0.0") + (_animal != null ? ", asksvin at " + _animal.transform.position.ToString("0.0") : "") + (Player.m_localPlayer != null ? ", player at " + Player.m_localPlayer.transform.position.ToString("0.0") : "");
+                + tow.MaxSpeedSeen.ToString("0.0") + " m/s (asksvin " + tow.AnimalMaxSpeed.ToString("0.0") + "), gap " + (h != null && tow.Ring != null ? Vector3.Distance(tow.Ring.position, h.transform.TransformPoint(tow.HookNow)).ToString("0.00") : "?") + " m, upright " + (cannon.transform.up.y > 0.7f) + ", tilt max roll " + tow.MaxRollSeen.ToString("0") + " pitch " + tow.MaxPitchSeen.ToString("0") + " spin " + tow.MaxSpinSeen.ToString("0.0") + ", holds " + tow.Holds + ", flips " + tow.Flips + ", cannon at " + cannon.transform.position.ToString("0.0") + (_animal != null ? ", asksvin at " + _animal.transform.position.ToString("0.0") : "") + (Player.m_localPlayer != null ? ", player at " + Player.m_localPlayer.transform.position.ToString("0.0") : "");
             ModLog.Info("AsksvinTowTestHooks: " + s + "; " + tow.ClevisReport(_animal != null ? _animal.transform : null));
+            return s;
+        }
+
+        /// <summary>
+        /// D-143: how high the cannon's tow ring (the cart's trail tip) is above the terrain under it, and the hook's drop. Going uphill the hook used to hang
+        /// about 2 m above the ground and lifted the trail tip with it. Returns "ring above ground H m, hook drop D m, low True/False" (low: H &lt;= <paramref name="max"/>).
+        /// </summary>
+        [TestHook("GunPowdered.towRingAboveGround")]
+        static string RingAboveGround(double max)
+        {
+            ModLog.Verbose($"AsksvinTowTestHooks.RingAboveGround(max={max})");
+            GameObject cannon = MobileCannonTestHooks.Cannon;
+            MobileCannonTow tow = cannon != null ? cannon.GetComponent<MobileCannonTow>() : null;
+            if (tow == null || tow.Ring == null || ZoneSystem.instance == null) { ModLog.Verbose("AsksvinTowTestHooks.RingAboveGround: no cannon or ring - returns why"); return "no cannon or ring"; }
+            float above = tow.Ring.position.y - ZoneSystem.instance.GetGroundHeight(tow.Ring.position);
+            string s = $"ring above ground {above:0.00} m, hook drop {AsksvinHarness.HookLocal.y - tow.HookNow.y:0.00} m, low {above <= max}";
+            ModLog.Info("AsksvinTowTestHooks.RingAboveGround: returns " + s);
             return s;
         }
 

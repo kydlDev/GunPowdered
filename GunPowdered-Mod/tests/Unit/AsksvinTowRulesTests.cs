@@ -140,5 +140,27 @@ namespace GunPowdered.Tests.Unit
         {
             Assert.That(AsksvinTowRules.Tighter(a, b), Is.EqualTo(expected));
         }
+
+        // D-143: the hook follows the ground under it
+        [TestCase(50f, 50f, 0f, 1f, 0f)]          // level: no drop
+        [TestCase(70f, 68f, 2f, 1f, 2f)]          // uphill, already there: 2 m down
+        [TestCase(70f, 68f, 0f, 0.5f, 0.5f)]      // uphill: moves at most one step
+        [TestCase(60f, 61.5f, 0f, 5f, -1.5f)]     // downhill: the hook goes up
+        [TestCase(80f, 70f, 0f, 9f, 3f)]          // clamped down to MaxHookDrop
+        [TestCase(70f, 80f, 0f, 9f, -3f)]         // clamped up
+        [TestCase(70f, 68f, 2.5f, 0.2f, 2.3f)]    // back towards the target from past it
+        [TestCase(70f, 68f, 0f, -0.5f, 0.5f)]     // a negative step counts by its size
+        [TestCase(70f, 68f, 1.9f, 0.1f, 2f)]      // exactly one step reaches the target
+        public void HookDrop_FollowsTheGroundUnderTheHook(float underAnimal, float underHook, float current, float step, float expected)
+        {
+            Assert.That(AsksvinTowRules.HookDrop(underAnimal, underHook, current, step), Is.EqualTo(expected).Within(1e-4f));
+        }
+
+        [Test]
+        public void HookDrop_Limits()
+        {
+            Assert.That(AsksvinTowRules.MaxHookDrop, Is.EqualTo(3f));
+            Assert.That(AsksvinTowRules.HookDropSpeed, Is.EqualTo(4f));
+        }
     }
 }
