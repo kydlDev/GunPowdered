@@ -3,6 +3,7 @@ using GunPowdered.Bootstrap;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
 using GunPowdered.Integrations.Items;
+using KydlCore.Common;
 
 namespace GunPowdered.Features.Sulfur.Infrastructure
 {
@@ -17,6 +18,7 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
 
         internal SulfurFeature()
         {
+            if (RuleLog.On) ModLog.Verbose($"SulfurFeature.SulfurFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.SulfurousMud);
         }
 

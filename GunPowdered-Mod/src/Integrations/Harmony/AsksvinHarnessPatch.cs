@@ -15,7 +15,8 @@ namespace GunPowdered.Integrations.HarmonyPatches
     {
         static void Postfix(Tameable __instance)
         {
-            if (__instance == null || Utils.GetPrefabName(__instance.gameObject) != AsksvinHarness.AnimalPrefab) return;
+            if (RuleLog.On) ModLog.Every("AsksvinHarnessAwakePatch.Postfix", 2d, $"AsksvinHarnessAwakePatch.Postfix(__instance={__instance})");
+            if (__instance == null || Utils.GetPrefabName(__instance.gameObject) != AsksvinHarness.AnimalPrefab) { if (RuleLog.On) ModLog.Every("AsksvinHarnessAwakePatch.Postfix:19", 2d, "AsksvinHarnessAwakePatch.Postfix: returns (line 19)"); return; }
             if (__instance.GetComponent<AsksvinHarness>() == null) __instance.gameObject.AddComponent<AsksvinHarness>();
         }
     }
@@ -26,7 +27,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
     {
         static bool Prefix(Tameable __instance, Humanoid user, ItemDrop.ItemData item, ref bool __result)
         {
-            if (item == null || item.m_dropPrefab == null || item.m_dropPrefab.name != GunPowderedPrefabs.AsksvinHarness) return true;
+            if (item == null || item.m_dropPrefab == null || item.m_dropPrefab.name != GunPowderedPrefabs.AsksvinHarness) { if (RuleLog.On) ModLog.Every("AsksvinHarnessUsePatch.Prefix:30", 2d, "AsksvinHarnessUsePatch.Prefix: returns true (line 30)"); return true; }
             __result = true;
             try
             {
@@ -35,14 +36,14 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 if (h == null || nview == null || !nview.IsValid())
                 {
                     user.Message(MessageHud.MessageType.Center, "Only an Asksvin can wear the harness");
-                    return false;
+                    { if (RuleLog.On) ModLog.Every("AsksvinHarnessUsePatch.Prefix:39", 2d, "AsksvinHarnessUsePatch.Prefix: returns false (line 39)"); return false; }
                 }
                 string why = AsksvinTowRules.WhyNotHarness(__instance.IsTamed(), nview.GetZDO().GetBool(ZDOVars.s_haveSaddleHash), h.Harnessed);
                 ModLog.Decision("asksvin harness", why == null ? "put on" : "refused", why ?? __instance.GetHoverName());
                 if (why != null)
                 {
                     user.Message(MessageHud.MessageType.Center, why);
-                    return false;
+                    { if (RuleLog.On) ModLog.Every("AsksvinHarnessUsePatch.Prefix:46", 2d, "AsksvinHarnessUsePatch.Prefix: returns false (line 46)"); return false; }
                 }
                 h.PutOn();
                 user.GetInventory().RemoveOneItem(item);
@@ -52,7 +53,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
             {
                 ModLog.Warn("AsksvinHarnessUsePatch: " + e.Message + " - harness not put on");
             }
-            return false;
+            { if (RuleLog.On) ModLog.Every("AsksvinHarnessUsePatch.Prefix:56", 2d, "AsksvinHarnessUsePatch.Prefix: returns false (line 56)"); return false; }
         }
     }
 
@@ -62,7 +63,8 @@ namespace GunPowdered.Integrations.HarmonyPatches
     {
         static void Postfix(Tameable __instance, bool __result)
         {
-            if (!__result || __instance == null) return;
+            if (RuleLog.On) ModLog.Every("AsksvinHarnessDropPatch.Postfix", 2d, $"AsksvinHarnessDropPatch.Postfix(__instance={__instance}, __result={__result})");
+            if (!__result || __instance == null) { if (RuleLog.On) ModLog.Every("AsksvinHarnessDropPatch.Postfix:67", 2d, "AsksvinHarnessDropPatch.Postfix: returns (line 67)"); return; }
             AsksvinHarness h = __instance.GetComponent<AsksvinHarness>();
             if (h != null) h.Drop();
         }
@@ -74,6 +76,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
     {
         static void Postfix(Tameable __instance, ref string __result)
         {
+            if (RuleLog.On) ModLog.Every("AsksvinHarnessHoverPatch.Postfix", 2d, $"AsksvinHarnessHoverPatch.Postfix(__instance={__instance}, __result={__result})");
             AsksvinHarness h = __instance != null ? __instance.GetComponent<AsksvinHarness>() : null;
             if (h != null && h.Harnessed && !string.IsNullOrEmpty(__result)) __result += "\nWears a cannon harness";
         }
@@ -85,11 +88,12 @@ namespace GunPowdered.Integrations.HarmonyPatches
     {
         static bool Prefix(Vagon __instance, Humanoid character, ref bool __result)
         {
+            if (RuleLog.On) ModLog.Every("MobileCannonTowedGrabPatch.Prefix", 2d, $"MobileCannonTowedGrabPatch.Prefix(__instance={__instance}, character={character}, __result={__result})");
             MobileCannonTow tow = __instance != null ? __instance.GetComponent<MobileCannonTow>() : null;
-            if (tow == null || !tow.Towed) return true;
+            if (tow == null || !tow.Towed) { if (RuleLog.On) ModLog.Every("MobileCannonTowedGrabPatch.Prefix:93", 2d, "MobileCannonTowedGrabPatch.Prefix: returns true (line 93)"); return true; }
             if (character != null) character.Message(MessageHud.MessageType.Center, "The cannon is hitched to an Asksvin: unhitch it at the tow ring");
             __result = false;
-            return false;
+            { if (RuleLog.On) ModLog.Every("MobileCannonTowedGrabPatch.Prefix:96", 2d, "MobileCannonTowedGrabPatch.Prefix: returns false (line 96)"); return false; }
         }
     }
 }

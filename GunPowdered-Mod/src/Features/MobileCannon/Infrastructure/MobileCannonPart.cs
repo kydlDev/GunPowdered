@@ -1,4 +1,6 @@
 using UnityEngine;
+using GunPowdered.Core;
+using KydlCore.Common;
 
 namespace GunPowdered.Features.MobileCannon.Infrastructure
 {
@@ -15,9 +17,10 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
+            if (RuleLog.On) ModLog.Every("MobileCannonPart.Interact", 2d, $"MobileCannonPart.Interact(user={user}, hold={hold}, alt={alt})");
             Player p = user as Player;
-            if (hold || p == null || Gun == null) return false;
-            return Use(p);
+            if (hold || p == null || Gun == null) { if (RuleLog.On) ModLog.Every("MobileCannonPart.Interact:22", 2d, "MobileCannonPart.Interact: returns false (line 22)"); return false; }
+            { var returnedAt23 = Use(p); if (RuleLog.On) ModLog.Every("MobileCannonPart.Interact:23", 2d, $"MobileCannonPart.Interact: returns {returnedAt23} (line 23)"); return returnedAt23; }
         }
 
         public bool UseItem(Humanoid user, ItemDrop.ItemData item) => false;

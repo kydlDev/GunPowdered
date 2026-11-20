@@ -2,6 +2,7 @@ using System;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Features.Musket.Infrastructure;
+using GunPowdered.Core;
 
 namespace GunPowdered
 {
@@ -42,7 +43,8 @@ namespace GunPowdered
 
             static void Hook()
             {
-                if (_hooked) return;
+                if (RuleLog.On) ModLog.Verbose($"Musket.Hook()");
+                if (_hooked) { if (RuleLog.On) ModLog.Verbose("Musket.Hook: returns (line 47)"); return; }
                 _hooked = true;
                 MusketGun.Fired += Pass;
             }
@@ -50,7 +52,7 @@ namespace GunPowdered
             static void Pass(Player shooter, ItemDrop.ItemData musket, Vector3 muzzle, Vector3 direction, int left, GameObject bullet)
             {
                 Action<MusketShot> listeners = _shotFired;
-                if (listeners == null) return;
+                if (listeners == null) { if (RuleLog.On) ModLog.Verbose("Musket.Pass: returns (line 55)"); return; }
                 var shot = new MusketShot(shooter, musket, muzzle, direction, left, bullet);
                 foreach (Delegate d in listeners.GetInvocationList())
                 {
@@ -65,6 +67,7 @@ namespace GunPowdered
         {
             internal MusketShot(Player shooter, ItemDrop.ItemData musket, Vector3 muzzle, Vector3 direction, int cartridgesLeft, GameObject bullet)
             {
+                if (RuleLog.On) ModLog.Verbose($"MusketShot.MusketShot(shooter={shooter}, musket={musket}, muzzle={muzzle}, direction={direction}, cartridgesLeft={cartridgesLeft}, bullet={bullet})");
                 Shooter = shooter;
                 Weapon = musket;
                 Muzzle = muzzle;

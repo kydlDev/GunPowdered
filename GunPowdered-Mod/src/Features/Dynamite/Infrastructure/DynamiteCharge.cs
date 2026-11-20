@@ -1,6 +1,7 @@
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Features.Dynamite.Domain;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.Dynamite.Infrastructure
 {
@@ -31,6 +32,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 
         void Awake()
         {
+            if (RuleLog.On) ModLog.Verbose($"DynamiteCharge.Awake()");
             _nview = GetComponent<ZNetView>();
             if (_nview != null && _nview.GetZDO() != null) _nview.Register<long>(LightRpc, RPC_Light);
         }
@@ -46,13 +48,15 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 
         public string GetHoverText()
         {
-            if (IsLit) return Kind.Name + "\n" + DynamiteRules.Burning + " (" + DynamiteRules.FuseLeft(LitAt, Now()).ToString("0.0") + " s)";
-            return Localization.instance.Localize(Kind.Name + "\n[<color=yellow><b>$KEY_Use</b></color>] Light the fuse (hold a Torch)");
+            if (RuleLog.On) ModLog.Verbose($"DynamiteCharge.GetHoverText()");
+            if (IsLit) { var returnedAt52 = Kind.Name + "\n" + DynamiteRules.Burning + " (" + DynamiteRules.FuseLeft(LitAt, Now()).ToString("0.0") + " s)"; if (RuleLog.On) ModLog.Verbose($"DynamiteCharge.GetHoverText: returns {returnedAt52} (line 52)"); return returnedAt52; }
+            { var returnedAt53 = Localization.instance.Localize(Kind.Name + "\n[<color=yellow><b>$KEY_Use</b></color>] Light the fuse (hold a Torch)"); if (RuleLog.On) ModLog.Verbose($"DynamiteCharge.GetHoverText: returns {returnedAt53} (line 53)"); return returnedAt53; }
         }
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
-            return !hold && Light(user) == null;
+            if (RuleLog.On) ModLog.Every("DynamiteCharge.Interact", 2d, $"DynamiteCharge.Interact(user={user}, hold={hold}, alt={alt})");
+            { var returnedAt59 = !hold && Light(user) == null; if (RuleLog.On) ModLog.Every("DynamiteCharge.Interact:59", 2d, $"DynamiteCharge.Interact: returns {returnedAt59} (line 59)"); return returnedAt59; }
         }
 
         public bool UseItem(Humanoid user, ItemDrop.ItemData item) => false;
@@ -60,12 +64,12 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         /// <summary>Lights the fuse for this user. Expected outcome: null when it now burns, otherwise why not (also told on screen).</summary>
         internal string Light(Humanoid user)
         {
-            if (_nview == null || !_nview.IsValid() || user == null) return "no stick";
+            if (_nview == null || !_nview.IsValid() || user == null) { if (RuleLog.On) ModLog.Every("DynamiteCharge.Light:67", 2d, "DynamiteCharge.Light: returns \"no stick\" (line 67)"); return "no stick"; }
             string why = DynamiteRules.WhyNotLight(IsLit, TorchInHand(user));
             if (why != null)
             {
                 user.Message(MessageHud.MessageType.Center, why);
-                return why;
+                { var returnedAt72 = why; if (RuleLog.On) ModLog.Every("DynamiteCharge.Light:72", 2d, $"DynamiteCharge.Light: returns {returnedAt72} (line 72)"); return returnedAt72; }
             }
             Player p = user as Player;
             _nview.InvokeRPC(LightRpc, p != null ? p.GetPlayerID() : 0L);
@@ -76,7 +80,8 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 
         void RPC_Light(long sender, long playerId)
         {
-            if (!_nview.IsOwner() || IsLit) return;
+            if (RuleLog.On) ModLog.Verbose($"DynamiteCharge.RPC_Light(sender={sender}, playerId={playerId})");
+            if (!_nview.IsOwner() || IsLit) { if (RuleLog.On) ModLog.Verbose("DynamiteCharge.RPC_Light: returns (line 84)"); return; }
             ZDO zdo = _nview.GetZDO();
             zdo.Set(LitKey, (long)(Now() * 1000d));
             zdo.Set(LighterKey, playerId);
@@ -84,11 +89,11 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 
         void Update()
         {
-            if (_blown || _nview == null || !_nview.IsValid()) return;
+            if (_blown || _nview == null || !_nview.IsValid()) { if (RuleLog.On) ModLog.Every("DynamiteCharge.Update:92", 2d, "DynamiteCharge.Update: returns (line 92)"); return; }
             Countdown();
-            if (!_nview.IsOwner()) return;
+            if (!_nview.IsOwner()) { if (RuleLog.On) ModLog.Every("DynamiteCharge.Update:94", 2d, "DynamiteCharge.Update: returns (line 94)"); return; }
             double lit = LitAt;
-            if (lit < 0d) return;
+            if (lit < 0d) { if (RuleLog.On) ModLog.Every("DynamiteCharge.Update:96", 2d, "DynamiteCharge.Update: returns (line 96)"); return; }
             double now = Now();
             ModLog.Every("dynamite-fuse", 1f, "DynamiteCharge: fuse at " + transform.position.ToString("0.0") + ", " + DynamiteRules.FuseLeft(lit, now).ToString("0.0") + " s left");
             if (Time.time >= _nextSpark)
@@ -107,14 +112,15 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         // a little beyond it (DynamiteRules.ShowsTimer), as the big centre message, ten times a second.
         void Countdown()
         {
+            if (RuleLog.On) ModLog.Every("DynamiteCharge.Countdown", 2d, $"DynamiteCharge.Countdown()");
             DynamiteSetup.ChargeKind kind = Kind;
-            if (!kind.ShowsTimer || Time.time < _nextTimer) return;
+            if (!kind.ShowsTimer || Time.time < _nextTimer) { if (RuleLog.On) ModLog.Every("DynamiteCharge.Countdown:117", 2d, "DynamiteCharge.Countdown: returns (line 117)"); return; }
             double lit = LitAt;
             Player me = Player.m_localPlayer;
-            if (lit < 0d || me == null || MessageHud.instance == null) return;
+            if (lit < 0d || me == null || MessageHud.instance == null) { if (RuleLog.On) ModLog.Every("DynamiteCharge.Countdown:120", 2d, "DynamiteCharge.Countdown: returns (line 120)"); return; }
             _nextTimer = Time.time + 0.1f;
             float d = Vector3.Distance(me.transform.position, transform.position);
-            if (!DynamiteRules.ShowsTimer(d, kind.Radius())) return;
+            if (!DynamiteRules.ShowsTimer(d, kind.Radius())) { if (RuleLog.On) ModLog.Every("DynamiteCharge.Countdown:123", 2d, "DynamiteCharge.Countdown: returns (line 123)"); return; }
             LastTimerText = DynamiteRules.TimerText(kind.Name, DynamiteRules.FuseLeft(lit, Now()));
             TimerShows++;
             MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, LastTimerText);
@@ -135,7 +141,8 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         // sparks at the end of the fuse while it burns (vanilla effects with a network view: only the owner makes them, everyone sees them)
         void Sparks()
         {
-            if (ZNetScene.instance == null) return;
+            if (RuleLog.On) ModLog.Every("DynamiteCharge.Sparks", 2d, $"DynamiteCharge.Sparks()");
+            if (ZNetScene.instance == null) { if (RuleLog.On) ModLog.Every("DynamiteCharge.Sparks:145", 2d, "DynamiteCharge.Sparks: returns (line 145)"); return; }
             Vector3 top = transform.position + Vector3.up * 0.35f;
             foreach (string n in SparkEffects)
             {
@@ -147,11 +154,12 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         // a Torch type item equipped in either hand (the hand cannon's rule, CannonInventory.HoldsTorch)
         internal static bool TorchInHand(Humanoid user)
         {
+            if (RuleLog.On) ModLog.Every("DynamiteCharge.TorchInHand", 2d, $"DynamiteCharge.TorchInHand(user={user})");
             Inventory inv = user != null ? user.GetInventory() : null;
-            if (inv == null) return false;
+            if (inv == null) { if (RuleLog.On) ModLog.Every("DynamiteCharge.TorchInHand:159", 2d, "DynamiteCharge.TorchInHand: returns false (line 159)"); return false; }
             foreach (ItemDrop.ItemData i in inv.GetAllItems())
-                if (i.m_equipped && i.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Torch) return true;
-            return false;
+                if (i.m_equipped && i.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Torch) { if (RuleLog.On) ModLog.Every("DynamiteCharge.TorchInHand:161", 2d, "DynamiteCharge.TorchInHand: returns true (line 161)"); return true; }
+            { if (RuleLog.On) ModLog.Every("DynamiteCharge.TorchInHand:162", 2d, "DynamiteCharge.TorchInHand: returns false (line 162)"); return false; }
         }
 
         static double Now() => ZNet.instance != null ? ZNet.instance.GetTimeSeconds() : Time.time;

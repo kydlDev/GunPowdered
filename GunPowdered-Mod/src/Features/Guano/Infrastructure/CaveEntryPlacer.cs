@@ -7,6 +7,7 @@ using UnityEngine;
 using GunPowdered.Bootstrap;
 using GunPowdered.Configuration;
 using GunPowdered.Features.Guano.Domain;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.Guano.Infrastructure
 {
@@ -31,7 +32,7 @@ namespace GunPowdered.Features.Guano.Infrastructure
         /// <summary>Called after a successful dungeon teleport. Expected outcome: a placement run started when the target is a guano cave not yet filled (logged as a decision).</summary>
         internal static void OnEntered(Player player, Location entranceLocation, Vector3 target, bool goingIn)
         {
-            if (player == null || player != Player.m_localPlayer || !ModSettings.FeatureOn(ModSettings.EnableGuano)) return;
+            if (player == null || player != Player.m_localPlayer || !ModSettings.FeatureOn(ModSettings.EnableGuano)) { if (RuleLog.On) ModLog.Every("Stats.OnEntered:35", 2d, "Stats.OnEntered: returns (line 35)"); return; }
             // the entrance's own location: looking it up by the target point picked an older cave that overlapped it (run entry4)
             Location loc = entranceLocation != null ? entranceLocation : Location.GetLocation(target, true);
             ZNetView proxy = loc != null ? loc.GetComponentInParent<ZNetView>() : null;
@@ -86,8 +87,9 @@ namespace GunPowdered.Features.Guano.Infrastructure
         // m_generator is empty on a spawned copy of a crypt (seen in run entry4), so the generator is also looked for among the children.
         static DungeonGenerator Generator(Location loc)
         {
-            if (loc == null) return null;
-            return loc.m_generator != null ? loc.m_generator : loc.GetComponentInChildren<DungeonGenerator>(true);
+            if (RuleLog.On) ModLog.Every("Stats.Generator", 2d, $"Stats.Generator(loc={loc})");
+            if (loc == null) { if (RuleLog.On) ModLog.Every("Stats.Generator:91", 2d, "Stats.Generator: returns null (line 91)"); return null; }
+            { var returnedAt92 = loc.m_generator != null ? loc.m_generator : loc.GetComponentInChildren<DungeonGenerator>(true); if (RuleLog.On) ModLog.Every("Stats.Generator:92", 2d, $"Stats.Generator: returns {returnedAt92} (line 92)"); return returnedAt92; }
         }
 
         // Rooms of a generated dungeon, the fixed room pieces under a Troll cave's Interior, or else every Room within the interior radius of the

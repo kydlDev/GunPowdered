@@ -1,4 +1,5 @@
 using KydlCore.Core;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.Example.Domain
 {
@@ -14,10 +15,11 @@ namespace GunPowdered.Features.Example.Domain
         /// Expected outcome: Success with the value inside [Min, Max] (reason says whether it was clamped); Rejected for NaN / infinity.
         internal static OperationResponse<float> Decide(float requested)
         {
-            if (float.IsNaN(requested) || float.IsInfinity(requested)) return OperationResponse<float>.Rejected(NotANumber);
+            if (RuleLog.On) RuleLog.Verbose($"ExampleRules.Decide(requested={requested})");
+            if (float.IsNaN(requested) || float.IsInfinity(requested)) { var returnedAt19 = OperationResponse<float>.Rejected(NotANumber); if (RuleLog.On) RuleLog.Verbose($"ExampleRules.Decide: returns {returnedAt19} (line 19)"); return returnedAt19; }
             bool clamped = requested < Min || requested > Max;   // Sonar S1244: decided by the comparison, not by float equality
             float value = System.Math.Max(Min, System.Math.Min(Max, requested));
-            return OperationResponse<float>.Success(value, clamped ? Clamped : InRange);
+            { var returnedAt22 = OperationResponse<float>.Success(value, clamped ? Clamped : InRange); if (RuleLog.On) RuleLog.Verbose($"ExampleRules.Decide: returns {returnedAt22} (line 22)"); return returnedAt22; }
         }
     }
 }

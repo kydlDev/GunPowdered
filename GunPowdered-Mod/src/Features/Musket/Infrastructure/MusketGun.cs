@@ -28,6 +28,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
 
         internal static void NoteReach(float metres)
         {
+            if (RuleLog.On) ModLog.Every("MusketGun.NoteReach", 2d, $"MusketGun.NoteReach(metres={metres})");
             if (metres > LastBulletReach) LastBulletReach = metres;
         }
 
@@ -43,26 +44,29 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// <summary>The musket the player has in hand, or null.</summary>
         internal static ItemDrop.ItemData Held(Player player)
         {
+            if (RuleLog.On) ModLog.Every("MusketGun.Held", 2d, $"MusketGun.Held(player={player})");
             ItemDrop.ItemData weapon = player != null ? player.GetCurrentWeapon() : null;
-            return IsMusket(weapon) ? weapon : null;
+            { var returnedAt49 = IsMusket(weapon) ? weapon : null; if (RuleLog.On) ModLog.Every("MusketGun.Held:49", 2d, $"MusketGun.Held: returns {returnedAt49} (line 49)"); return returnedAt49; }
         }
 
         /// <summary>How many cartridges this musket holds (0 when nothing is stored).</summary>
         internal static int Loaded(ItemDrop.ItemData musket)
         {
-            if (musket == null || musket.m_customData == null) return 0;
+            if (RuleLog.On) ModLog.Every("MusketGun.Loaded", 2d, $"MusketGun.Loaded(musket={musket})");
+            if (musket == null || musket.m_customData == null) { if (RuleLog.On) ModLog.Every("MusketGun.Loaded:56", 2d, "MusketGun.Loaded: returns 0 (line 56)"); return 0; }
             string stored;
-            return musket.m_customData.TryGetValue(LoadedKey, out stored) ? MusketRules.ParseLoaded(stored) : 0;
+            { var returnedAt58 = musket.m_customData.TryGetValue(LoadedKey, out stored) ? MusketRules.ParseLoaded(stored) : 0; if (RuleLog.On) ModLog.Every("MusketGun.Loaded:58", 2d, $"MusketGun.Loaded: returns {returnedAt58} (line 58)"); return returnedAt58; }
         }
 
         /// <summary>Stores a load on the musket (kept inside 0..5). Expected outcome: the load stored.</summary>
         internal static int SetLoaded(ItemDrop.ItemData musket, int loaded)
         {
-            if (musket == null) return 0;
+            if (RuleLog.On) ModLog.Every("MusketGun.SetLoaded", 2d, $"MusketGun.SetLoaded(musket={musket}, loaded={loaded})");
+            if (musket == null) { if (RuleLog.On) ModLog.Every("MusketGun.SetLoaded:65", 2d, "MusketGun.SetLoaded: returns 0 (line 65)"); return 0; }
             int v = MusketRules.ClampLoaded(loaded);
             if (musket.m_customData == null) musket.m_customData = new System.Collections.Generic.Dictionary<string, string>();
             musket.m_customData[LoadedKey] = v.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            return v;
+            { var returnedAt69 = v; if (RuleLog.On) ModLog.Every("MusketGun.SetLoaded:69", 2d, $"MusketGun.SetLoaded: returns {returnedAt69} (line 69)"); return returnedAt69; }
         }
 
         /// <summary>
@@ -71,8 +75,9 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// </summary>
         internal static string Fire(Player player)
         {
+            if (RuleLog.On) ModLog.Every("MusketGun.Fire", 2d, $"MusketGun.Fire(player={player})");
             LastAttempt = FireCore(player);
-            return LastAttempt;
+            { var returnedAt80 = LastAttempt; if (RuleLog.On) ModLog.Every("MusketGun.Fire:80", 2d, $"MusketGun.Fire: returns {returnedAt80} (line 80)"); return returnedAt80; }
         }
 
         /// <summary>What the last press of the attack button with the musket did (for test hooks).</summary>
@@ -81,15 +86,15 @@ namespace GunPowdered.Features.Musket.Infrastructure
         static string FireCore(Player player)
         {
             ItemDrop.ItemData musket = Held(player);
-            if (musket == null) return "no musket in hand";
+            if (musket == null) { if (RuleLog.On) ModLog.Every("MusketGun.FireCore:89", 2d, "MusketGun.FireCore: returns \"no musket in hand\" (line 89)"); return "no musket in hand"; }
             MusketReloader.Stop(player, "a shot");
-            if (!MusketRules.ShotIntervalOver(Time.time, _lastShot)) return "too soon";
+            if (!MusketRules.ShotIntervalOver(Time.time, _lastShot)) { if (RuleLog.On) ModLog.Every("MusketGun.FireCore:91", 2d, "MusketGun.FireCore: returns \"too soon\" (line 91)"); return "too soon"; }
             int loaded = Loaded(musket);
             string why = MusketRules.WhyNotFire(loaded);
             if (why != null)
             {
                 player.Message(MessageHud.MessageType.Center, why);
-                return why;
+                { var returnedAt97 = why; if (RuleLog.On) ModLog.Every("MusketGun.FireCore:97", 2d, $"MusketGun.FireCore: returns {returnedAt97} (line 97)"); return returnedAt97; }
             }
             GameObject prefab = MusketSetup.Bullet;
             if (prefab == null)
@@ -127,7 +132,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             LastShot = "fired from " + muzzle.ToString("0.00") + " along " + dir.ToString("0.00") + ", flight " + (flight != null) + ", effects " + fx + ", shove " + push.ToString("0.0") + ", " + left + " left";
             ModLog.Info("MusketGun: " + player.GetPlayerName() + " " + LastShot);
             RaiseFired(player, musket, muzzle, dir, left, bullet);
-            return "fired, " + left + " left";
+            { var returnedAt135 = "fired, " + left + " left"; if (RuleLog.On) ModLog.Every("MusketGun.FireCore:135", 2d, $"MusketGun.FireCore: returns {returnedAt135} (line 135)"); return returnedAt135; }
         }
 
         /// <summary>On the bullet this client fired: notes how far it got (MusketGun.LastBulletReach).</summary>
@@ -145,16 +150,17 @@ namespace GunPowdered.Features.Musket.Infrastructure
         // the recoil shoves the shooter back along the flat shot direction (D-087 "recoil pushback"), through the game's own pushback
         static float Shove(Player player, Vector3 dir)
         {
+            if (RuleLog.On) ModLog.Every("MusketBulletTrace.Shove", 2d, $"MusketBulletTrace.Shove(player={player}, dir={dir})");
             Rigidbody body = player.GetComponent<Rigidbody>();
             float push = MusketRules.RecoilPushForce(MusketRules.RecoilShoveMetres, body != null ? body.mass : 0f, player.GetEquipmentMovementModifier());
             if (push > 0f) player.ApplyPushback(-dir, push);
-            return push;
+            { var returnedAt157 = push; if (RuleLog.On) ModLog.Every("MusketBulletTrace.Shove:157", 2d, $"MusketBulletTrace.Shove: returns {returnedAt157} (line 157)"); return returnedAt157; }
         }
 
         static void RaiseFired(Player player, ItemDrop.ItemData musket, Vector3 muzzle, Vector3 dir, int left, GameObject bullet)
         {
             System.Action<Player, ItemDrop.ItemData, Vector3, Vector3, int, GameObject> listeners = Fired;
-            if (listeners == null) return;
+            if (listeners == null) { if (RuleLog.On) ModLog.Every("MusketBulletTrace.RaiseFired:163", 2d, "MusketBulletTrace.RaiseFired: returns (line 163)"); return; }
             foreach (System.Delegate d in listeners.GetInvocationList())
             {
                 try { ((System.Action<Player, ItemDrop.ItemData, Vector3, Vector3, int, GameObject>)d)(player, musket, muzzle, dir, left, bullet); }
@@ -164,15 +170,17 @@ namespace GunPowdered.Features.Musket.Infrastructure
 
         static Vector3 Spread(Vector3 aim, float degrees)
         {
+            if (RuleLog.On) ModLog.Every("MusketBulletTrace.Spread", 2d, $"MusketBulletTrace.Spread(aim={aim}, degrees={degrees})");
             Vector3 side = Vector3.Cross(aim, Vector3.up);
             if (side.sqrMagnitude < 1e-6f) side = Vector3.right;
             Vector3 d = Quaternion.AngleAxis(Random.Range(-degrees, degrees), side) * aim;
-            return (Quaternion.AngleAxis(Random.Range(-degrees, degrees), Vector3.up) * d).normalized;
+            { var returnedAt177 = (Quaternion.AngleAxis(Random.Range(-degrees, degrees), Vector3.up) * d).normalized; if (RuleLog.On) ModLog.Every("MusketBulletTrace.Spread:177", 2d, $"MusketBulletTrace.Spread: returns {returnedAt177} (line 177)"); return returnedAt177; }
         }
 
         static int PlayMuzzle(Vector3 at, Vector3 forward)
         {
-            if (ZNetScene.instance == null) return 0;
+            if (RuleLog.On) ModLog.Every("MusketBulletTrace.PlayMuzzle", 2d, $"MusketBulletTrace.PlayMuzzle(at={at}, forward={forward})");
+            if (ZNetScene.instance == null) { if (RuleLog.On) ModLog.Every("MusketBulletTrace.PlayMuzzle:183", 2d, "MusketBulletTrace.PlayMuzzle: returns 0 (line 183)"); return 0; }
             int made = 0;
             foreach (string n in MuzzleEffects)
             {
@@ -181,7 +189,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 Object.Instantiate(fx, at, Quaternion.LookRotation(forward));
                 made++;
             }
-            return made;
+            { var returnedAt192 = made; if (RuleLog.On) ModLog.Every("MusketBulletTrace.PlayMuzzle:192", 2d, $"MusketBulletTrace.PlayMuzzle: returns {returnedAt192} (line 192)"); return returnedAt192; }
         }
     }
 }

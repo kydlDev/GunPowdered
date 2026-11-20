@@ -43,7 +43,7 @@ namespace GunPowdered.Integrations.Valheim
             RaycastHit hit;
             bool found = Physics.Raycast(around + Vector3.up * 3f, Vector3.down, out hit, 9f, FloorMask, QueryTriggerInteraction.Ignore);
             floor = found ? hit.point : around;
-            if (found) return true;
+            if (found) { if (RuleLog.On) ModLog.Every("DepositSpawner.Floor:46", 2d, "DepositSpawner.Floor: returns true (line 46)"); return true; }
             // no collider hit: right after a location's terrain changes are applied the ground collider is rebuilt and a ray finds nothing (lake ruin,
             // run extra2b), so the terrain height itself is used when it lies in the same window
             float ground = float.NaN;
@@ -52,20 +52,22 @@ namespace GunPowdered.Integrations.Valheim
             if (inWindow) floor = new Vector3(around.x, ground, around.z);
             KydlCore.Common.ModLog.Verbose("DepositSpawner: no collider under " + around.ToString("0.0") + ", terrain height "
                 + (loaded ? ground.ToString("0.0") : "not loaded") + (inWindow ? " used" : " not used"));
-            return inWindow;
+            { var returnedAt55 = inWindow; if (RuleLog.On) ModLog.Every("DepositSpawner.Floor:55", 2d, $"DepositSpawner.Floor: returns {returnedAt55} (line 55)"); return returnedAt55; }
         }
 
         /// <summary>A random point on the ring [minR, maxR] around the centre, from a seeded source of numbers.</summary>
         internal static Vector3 OnRing(Vector3 centre, float minR, float maxR, SeededRandom rng)
         {
+            if (RuleLog.On) ModLog.Every("DepositSpawner.OnRing", 2d, $"DepositSpawner.OnRing(centre={centre}, minR={minR}, maxR={maxR}, rng={rng})");
             float angle = (float)(rng.NextDouble() * Math.PI * 2d);
             float r = minR + (float)rng.NextDouble() * (maxR - minR);
-            return centre + new Vector3(Mathf.Cos(angle) * r, 0f, Mathf.Sin(angle) * r);
+            { var returnedAt64 = centre + new Vector3(Mathf.Cos(angle) * r, 0f, Mathf.Sin(angle) * r); if (RuleLog.On) ModLog.Every("DepositSpawner.OnRing:64", 2d, $"DepositSpawner.OnRing: returns {returnedAt64} (line 64)"); return returnedAt64; }
         }
 
         /// <summary>Picks the given number of distinct entries (or all when there are fewer) from a list, using the seeded source.</summary>
         internal static List<T> Pick<T>(IList<T> source, int count, SeededRandom rng)
         {
+            if (RuleLog.On) ModLog.Every("DepositSpawner.Pick", 2d, $"DepositSpawner.Pick(source={source}, count={count}, rng={rng})");
             var pool = new List<T>(source);
             var picked = new List<T>();
             while (picked.Count < count && pool.Count > 0)
@@ -74,7 +76,7 @@ namespace GunPowdered.Integrations.Valheim
                 picked.Add(pool[i]);
                 pool.RemoveAt(i);
             }
-            return picked;
+            { var returnedAt79 = picked; if (RuleLog.On) ModLog.Every("DepositSpawner.Pick:79", 2d, $"DepositSpawner.Pick: returns {returnedAt79} (line 79)"); return returnedAt79; }
         }
     }
 }

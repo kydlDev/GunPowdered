@@ -4,6 +4,7 @@ using GunPowdered.Bootstrap;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
 using GunPowdered.Integrations.Items;
+using KydlCore.Common;
 
 namespace GunPowdered.Features.Cannon.Infrastructure
 {
@@ -19,6 +20,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
 
         internal CannonFeature()
         {
+            if (RuleLog.On) ModLog.Verbose($"CannonFeature.CannonFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.CannonBall, ItemCatalog.Cannon, ItemCatalog.CannonStock);
         }
 

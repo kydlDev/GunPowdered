@@ -14,6 +14,7 @@ using GunPowdered.Features.Saltpeter.Infrastructure;
 using GunPowdered.Features.Sulfur.Infrastructure;
 using GunPowdered.Features.Water.Infrastructure;
 using GunPowdered.Presentation.Hub.Registration;
+using GunPowdered.Core;
 
 namespace GunPowdered.Bootstrap
 {
@@ -33,6 +34,7 @@ namespace GunPowdered.Bootstrap
 
         internal ModInstaller(ConfigFile config)
         {
+            if (RuleLog.On) ModLog.Verbose($"ModInstaller.ModInstaller(config={config})");
             _config = config;
             Deps = new DependencyRegistry();
             Features = new FeatureRegistry(Deps.Trace);
@@ -76,7 +78,7 @@ namespace GunPowdered.Bootstrap
             if (!r.IsSuccess) ModLog.Warn("ModInstaller: " + r.Reason);
             bool gone = HubTabs.UnregisterModPage();
             if (Current == this) Current = null;
-            return r.IsSuccess && gone;
+            { var returnedAt81 = r.IsSuccess && gone; if (RuleLog.On) ModLog.Verbose($"ModInstaller.Uninstall: returns {returnedAt81} (line 81)"); return returnedAt81; }
         }
 
         void Add(IFeature feature)

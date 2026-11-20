@@ -3,6 +3,7 @@ using GunPowdered.Bootstrap;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
 using GunPowdered.Integrations.Items;
+using KydlCore.Common;
 
 namespace GunPowdered.Features.Gunpowder.Infrastructure
 {
@@ -17,6 +18,7 @@ namespace GunPowdered.Features.Gunpowder.Infrastructure
 
         internal GunpowderFeature()
         {
+            if (RuleLog.On) ModLog.Verbose($"GunpowderFeature.GunpowderFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.Gunpowder, ItemCatalog.PowderMill);
         }
 

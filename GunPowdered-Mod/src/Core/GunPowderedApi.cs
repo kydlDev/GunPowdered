@@ -7,6 +7,7 @@ using GunPowdered.Features.Musket.Domain;
 using GunPowdered.Features.Guano.Domain;
 using GunPowdered.Features.Saltpeter.Domain;
 using GunPowdered.Features.Water.Domain;
+using GunPowdered.Core;
 
 namespace GunPowdered
 {
@@ -58,35 +59,40 @@ namespace GunPowdered
         /// <summary>The name the player sees for a prefab of this mod, or null when the prefab is not one of ours.</summary>
         public static string DisplayName(string prefab)
         {
+            if (RuleLog.On) RuleLog.Verbose($"Prefabs.DisplayName(prefab={prefab})");
             var spec = Core.ItemCatalog.All.FirstOrDefault(i => i.Id == prefab);
-            return spec == null ? null : spec.Name;
+            { var returnedAt64 = spec == null ? null : spec.Name; if (RuleLog.On) RuleLog.Verbose($"Prefabs.DisplayName: returns {returnedAt64} (line 64)"); return returnedAt64; }
         }
 
         /// <summary>Is this prefab one of the three gunpowder ingredients made by this mod or its vanilla partners (Saltpeter, Charcoal, Sulfur)?</summary>
         public static bool IsGunpowderIngredient(string prefab)
         {
-            return prefab == Prefabs.Saltpeter || prefab == Core.ItemCatalog.Charcoal || prefab == Core.ItemCatalog.Sulfur;
+            if (RuleLog.On) RuleLog.Verbose($"Prefabs.IsGunpowderIngredient(prefab={prefab})");
+            { var returnedAt71 = prefab == Prefabs.Saltpeter || prefab == Core.ItemCatalog.Charcoal || prefab == Core.ItemCatalog.Sulfur; if (RuleLog.On) RuleLog.Verbose($"Prefabs.IsGunpowderIngredient: returns {returnedAt71} (line 71)"); return returnedAt71; }
         }
 
         /// <summary>Gunpowder made from the given ingredients at the default recipe (3 Saltpeter + 1 Charcoal + 1 Sulfur gives 5).</summary>
         public static int GunpowderFrom(int saltpeter, int charcoal, int sulfur)
         {
+            if (RuleLog.On) RuleLog.Verbose($"Prefabs.GunpowderFrom(saltpeter={saltpeter}, charcoal={charcoal}, sulfur={sulfur})");
             int batches = GunpowderRules.Batches(saltpeter, charcoal, sulfur, GunpowderRules.DefaultSaltpeter, GunpowderRules.DefaultCharcoal, GunpowderRules.DefaultSulfur);
-            return GunpowderRules.Output(batches, GunpowderRules.DefaultYield);
+            { var returnedAt79 = GunpowderRules.Output(batches, GunpowderRules.DefaultYield); if (RuleLog.On) RuleLog.Verbose($"Prefabs.GunpowderFrom: returns {returnedAt79} (line 79)"); return returnedAt79; }
         }
 
         /// <summary>Saltpeter a Leaching Vat makes from the given guano and water at the default recipe (10 + 10 gives 5 per batch).</summary>
         public static int SaltpeterFrom(int guano, int water)
         {
+            if (RuleLog.On) RuleLog.Verbose($"Prefabs.SaltpeterFrom(guano={guano}, water={water})");
             int batches = LeachingVatRules.Batches(guano, water, LeachingVatRules.DefaultGuanoPerBatch, LeachingVatRules.DefaultWaterPerBatch);
-            return LeachingVatRules.Saltpeter(batches, LeachingVatRules.DefaultSaltpeterPerBatch);
+            { var returnedAt87 = LeachingVatRules.Saltpeter(batches, LeachingVatRules.DefaultSaltpeterPerBatch); if (RuleLog.On) RuleLog.Verbose($"Prefabs.SaltpeterFrom: returns {returnedAt87} (line 87)"); return returnedAt87; }
         }
 
         /// <summary>Water a Rain Barrel holds after the given real-life seconds, starting at <paramref name="current"/> (default capacity and rate).</summary>
         public static float RainBarrelWater(float current, float seconds, bool raining, bool covered)
         {
+            if (RuleLog.On) RuleLog.Verbose($"Prefabs.RainBarrelWater(current={current}, seconds={seconds}, raining={raining}, covered={covered})");
             var r = RainBarrelRules.Fill(current, RainBarrelRules.DefaultCapacity, RainBarrelRules.DefaultRatePerMinute, seconds, raining, covered);
-            return r.Status == ResponseStatus.Success ? r.Value : current;
+            { var returnedAt95 = r.Status == ResponseStatus.Success ? r.Value : current; if (RuleLog.On) RuleLog.Verbose($"Prefabs.RainBarrelWater: returns {returnedAt95} (line 95)"); return returnedAt95; }
         }
 
         /// <summary>
@@ -126,7 +132,8 @@ namespace GunPowdered
         /// <summary>Rolls how many guano deposits a cave of this kind gets (0 to 3) from a source of numbers in [0, 1).</summary>
         public static int GuanoDeposits(CaveKind kind, Func<double> next01)
         {
-            return GuanoDepositRules.DepositCount(kind, next01);
+            if (RuleLog.On) RuleLog.Verbose($"Musket.GuanoDeposits(kind={kind}, next01={next01})");
+            { var returnedAt136 = GuanoDepositRules.DepositCount(kind, next01); if (RuleLog.On) RuleLog.Verbose($"Musket.GuanoDeposits: returns {returnedAt136} (line 136)"); return returnedAt136; }
         }
     }
 }

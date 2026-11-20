@@ -3,6 +3,7 @@ using GunPowdered.Bootstrap;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
 using GunPowdered.Integrations.Items;
+using KydlCore.Common;
 
 namespace GunPowdered.Features.Guano.Infrastructure
 {
@@ -17,6 +18,7 @@ namespace GunPowdered.Features.Guano.Infrastructure
 
         internal GuanoFeature()
         {
+            if (RuleLog.On) ModLog.Verbose($"GuanoFeature.GuanoFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.BatGuano, ItemCatalog.GuanoDeposit);
             Jotunn.Managers.PrefabManager.OnVanillaPrefabsAvailable += AttachCaveClaim;
         }

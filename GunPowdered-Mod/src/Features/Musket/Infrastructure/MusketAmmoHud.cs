@@ -2,6 +2,7 @@ using KydlCore.Common;
 using TMPro;
 using UnityEngine;
 using GunPowdered.Features.Musket.Domain;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.Musket.Infrastructure
 {
@@ -25,13 +26,13 @@ namespace GunPowdered.Features.Musket.Infrastructure
             ItemDrop.ItemData musket = MusketGun.Held(local);
             if (_text == null)
             {
-                if (musket == null || !Make()) return;
+                if (musket == null || !Make()) { if (RuleLog.On) ModLog.Every("MusketAmmoHud.Refresh:29", 2d, "MusketAmmoHud.Refresh: returns (line 29)"); return; }
             }
             bool show = musket != null && !InventoryGui.IsVisible() && !Menu.IsVisible();
             if (_text.gameObject.activeSelf != show) _text.gameObject.SetActive(show);
-            if (!show) return;
+            if (!show) { if (RuleLog.On) ModLog.Every("MusketAmmoHud.Refresh:33", 2d, "MusketAmmoHud.Refresh: returns (line 33)"); return; }
             int loaded = MusketGun.Loaded(musket);
-            if (loaded == _shown) return;
+            if (loaded == _shown) { if (RuleLog.On) ModLog.Every("MusketAmmoHud.Refresh:35", 2d, "MusketAmmoHud.Refresh: returns (line 35)"); return; }
             _text.text = MusketRules.LoadText(loaded);
             _shown = loaded;
             ModLog.Verbose("MusketAmmoHud: " + _text.text);
@@ -40,14 +41,14 @@ namespace GunPowdered.Features.Musket.Infrastructure
         static bool Make()
         {
             Hud hud = Hud.instance;
-            if (hud == null || hud.m_hoverName == null || hud.m_crosshair == null) return false;
+            if (hud == null || hud.m_hoverName == null || hud.m_crosshair == null) { if (RuleLog.On) ModLog.Every("MusketAmmoHud.Make:44", 2d, "MusketAmmoHud.Make: returns false (line 44)"); return false; }
             GameObject go = Object.Instantiate(hud.m_hoverName.gameObject, hud.m_crosshair.transform.parent, false);
             go.name = "gp_musket_load";
             _text = go.GetComponent<TMP_Text>();
             if (_text == null)
             {
                 Object.Destroy(go);
-                return false;
+                { if (RuleLog.On) ModLog.Every("MusketAmmoHud.Make:51", 2d, "MusketAmmoHud.Make: returns false (line 51)"); return false; }
             }
             RectTransform cross = hud.m_crosshair.rectTransform, rt = (RectTransform)go.transform;
             rt.anchorMin = cross.anchorMin;

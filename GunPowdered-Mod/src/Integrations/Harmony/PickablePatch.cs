@@ -29,9 +29,9 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 try
                 {
                     bool guano = IsGuano(__instance), mud = IsMud(__instance);
-                    if (!guano && !mud) return true;
+                    if (!guano && !mud) { if (RuleLog.On) ModLog.Every("RequireTool.Prefix:32", 2d, "RequireTool.Prefix: returns true (line 32)"); return true; }
                     var user = __args != null && __args.Length > 0 ? __args[0] as Humanoid : null;
-                    if (user == null) return true;
+                    if (user == null) { if (RuleLog.On) ModLog.Every("RequireTool.Prefix:34", 2d, "RequireTool.Prefix: returns true (line 34)"); return true; }
 
                     ItemDrop.ItemData held = user.GetCurrentWeapon();
                     bool ok = held != null && held.m_shared.m_skillType == Skills.SkillType.Pickaxes;
@@ -40,7 +40,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
 
                     user.Message(MessageHud.MessageType.Center, "You need a pickaxe");
                     __result = false;
-                    return false;
+                    { if (RuleLog.On) ModLog.Every("RequireTool.Prefix:43", 2d, "RequireTool.Prefix: returns false (line 43)"); return false; }
                 }
                 catch (Exception e)
                 {
@@ -59,9 +59,9 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 try
                 {
                     bool guano = IsGuano(__instance), mud = IsMud(__instance);
-                    if (!guano && !mud) return;
+                    if (!guano && !mud) { if (RuleLog.On) ModLog.Every("SetAmount.Prefix:62", 2d, "SetAmount.Prefix: returns (line 62)"); return; }
                     ZNetView view = __instance.GetComponent<ZNetView>();
-                    if (view == null || !view.IsValid()) return;
+                    if (view == null || !view.IsValid()) { if (RuleLog.On) ModLog.Every("SetAmount.Prefix:64", 2d, "SetAmount.Prefix: returns (line 64)"); return; }
 
                     int amount = view.GetZDO().GetInt(DepositSpawner.KeyAmount, 0);
                     if (amount < 1)

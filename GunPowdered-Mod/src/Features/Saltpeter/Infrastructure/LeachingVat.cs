@@ -31,8 +31,9 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
 
         void Awake()
         {
+            if (RuleLog.On) ModLog.Verbose($"LeachingVat.Awake()");
             _nview = GetComponent<ZNetView>();
-            if (_nview == null || !_nview.IsValid()) return;
+            if (_nview == null || !_nview.IsValid()) { if (RuleLog.On) ModLog.Verbose("LeachingVat.Awake: returns (line 36)"); return; }
             _nview.Register<string>(RpcAdd, OnAdd);
             _nview.Register(RpcCollect, OnCollect);
             _nview.Register<int>(RpcCollected, OnCollected);
@@ -42,19 +43,21 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
 
         GameObject Part(string name)
         {
+            if (RuleLog.On) ModLog.Verbose($"LeachingVat.Part(name={name})");
             Transform t = FindDeep(transform, name);
-            return t != null ? t.gameObject : null;
+            { var returnedAt48 = t != null ? t.gameObject : null; if (RuleLog.On) ModLog.Verbose($"LeachingVat.Part: returns {returnedAt48} (line 48)"); return returnedAt48; }
         }
 
         static Transform FindDeep(Transform root, string name)
         {
+            if (RuleLog.On) ModLog.Verbose($"LeachingVat.FindDeep(root={root}, name={name})");
             foreach (Transform c in root)
             {
-                if (c.name == name) return c;
+                if (c.name == name) { var returnedAt56 = c; if (RuleLog.On) ModLog.Verbose($"LeachingVat.FindDeep: returns {returnedAt56} (line 56)"); return returnedAt56; }
                 Transform f = FindDeep(c, name);
-                if (f != null) return f;
+                if (f != null) { var returnedAt58 = f; if (RuleLog.On) ModLog.Verbose($"LeachingVat.FindDeep: returns {returnedAt58} (line 58)"); return returnedAt58; }
             }
-            return null;
+            { if (RuleLog.On) ModLog.Verbose("LeachingVat.FindDeep: returns null (line 60)"); return null; }
         }
 
         static double DayLength
@@ -76,7 +79,7 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
         {
             try
             {
-                if (!_nview.IsValid() || ZNet.instance == null) return;
+                if (!_nview.IsValid() || ZNet.instance == null) { if (RuleLog.On) ModLog.Every("LeachingVat.Tick:82", 2d, "LeachingVat.Tick: returns (line 82)"); return; }
                 if (_nview.IsOwner() && ModSettings.FeatureOn(ModSettings.EnableSaltpeter)) Advance(_nview.GetZDO(), ZNet.instance.GetTimeSeconds());
                 ShowState(State);
                 ModLog.Every("leach-station-" + gameObject.GetInstanceID(), 30d, "leaching station state " + State + ", barrel loaded " + Loaded + ", hearth wood " + Fuel + "/" + ModSettings.VatFuel.Value);
@@ -94,7 +97,7 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
             if (state == LeachingVatRules.StateIdle)
             {
                 int need = ModSettings.VatFuel.Value;
-                if (!LeachingVatRules.CanStart(zdo.GetInt(KeyLoaded, 0) > 0, zdo.GetInt(KeyFuel, 0), need)) return;
+                if (!LeachingVatRules.CanStart(zdo.GetInt(KeyLoaded, 0) > 0, zdo.GetInt(KeyFuel, 0), need)) { if (RuleLog.On) ModLog.Every("LeachingVat.Advance:100", 2d, "LeachingVat.Advance: returns (line 100)"); return; }
                 zdo.Set(KeyLoaded, 0);
                 zdo.Set(KeyGuano, 0);
                 zdo.Set(KeyWater, 0);
@@ -106,7 +109,7 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
             }
             else if (state == LeachingVatRules.StateBurning)
             {
-                if (!LeachingVatRules.IsReady(zdo.GetLong(KeyStart, 0L) / 1000d, now, DayLength, ModSettings.VatDays.Value)) return;
+                if (!LeachingVatRules.IsReady(zdo.GetLong(KeyStart, 0L) / 1000d, now, DayLength, ModSettings.VatDays.Value)) { if (RuleLog.On) ModLog.Every("LeachingVat.Advance:112", 2d, "LeachingVat.Advance: returns (line 112)"); return; }
                 zdo.Set(KeyState, LeachingVatRules.StateDone);
                 ModLog.State("leaching station", "burning", "done", zdo.GetInt(KeyOut, 0) + " Saltpeter in the cauldron");
             }
@@ -114,6 +117,7 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
 
         void ShowState(int state)
         {
+            if (RuleLog.On) ModLog.Every("LeachingVat.ShowState", 2d, $"LeachingVat.ShowState(state={state})");
             bool burning = state == LeachingVatRules.StateBurning;
             bool wet = burning || (state == LeachingVatRules.StateIdle && Loaded);
             Set(_fire, burning);
@@ -124,6 +128,7 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
 
         static void Set(GameObject go, bool on)
         {
+            if (RuleLog.On) ModLog.Every("LeachingVat.Set", 2d, $"LeachingVat.Set(go={go}, on={on})");
             if (go != null && go.activeSelf != on) go.SetActive(on);
         }
 
@@ -133,7 +138,8 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
 
         public string GetHoverText()
         {
-            if (!_nview.IsValid()) return GetHoverName();
+            if (RuleLog.On) ModLog.Verbose($"LeachingVat.GetHoverText()");
+            if (!_nview.IsValid()) { var returnedAt142 = GetHoverName(); if (RuleLog.On) ModLog.Verbose($"LeachingVat.GetHoverText: returns {returnedAt142} (line 142)"); return returnedAt142; }
             string key = "[<color=yellow><b>$KEY_Use</b></color>] ";
             string body;
             int state = State;
@@ -146,27 +152,29 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
             else if (!Loaded) body = key + "Fill barrel (Bat Guano " + Guano + "/" + ModSettings.VatGuano.Value + ", Water " + WaterIn + "/" + ModSettings.VatWater.Value + ")";
             else if (Fuel < ModSettings.VatFuel.Value) body = key + "Feed hearth (" + Fuel + "/" + ModSettings.VatFuel.Value + " Wood)";
             else body = "Ready";
-            return Localization.instance.Localize(GetHoverName() + "\n" + body);
+            { var returnedAt155 = Localization.instance.Localize(GetHoverName() + "\n" + body); if (RuleLog.On) ModLog.Verbose($"LeachingVat.GetHoverText: returns {returnedAt155} (line 155)"); return returnedAt155; }
         }
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
-            if (hold || user == null || !_nview.IsValid()) return false;
+            if (RuleLog.On) ModLog.Every("LeachingVat.Interact", 2d, $"LeachingVat.Interact(user={user}, hold={hold}, alt={alt})");
+            if (hold || user == null || !_nview.IsValid()) { if (RuleLog.On) ModLog.Every("LeachingVat.Interact:161", 2d, "LeachingVat.Interact: returns false (line 161)"); return false; }
             int state = State;
-            if (state == LeachingVatRules.StateBurning) { user.Message(MessageHud.MessageType.Center, "The saltpeter is still forming"); return true; }
-            if (state == LeachingVatRules.StateDone) { Collect(user); return true; }
+            if (state == LeachingVatRules.StateBurning) { user.Message(MessageHud.MessageType.Center, "The saltpeter is still forming"); { if (RuleLog.On) ModLog.Every("LeachingVat.Interact:163", 2d, "LeachingVat.Interact: returns true (line 163)"); return true; } }
+            if (state == LeachingVatRules.StateDone) { Collect(user); { if (RuleLog.On) ModLog.Every("LeachingVat.Interact:164", 2d, "LeachingVat.Interact: returns true (line 164)"); return true; } }
             if (!Loaded) FillBarrel(user);
             else FeedHearth(user);
-            return true;
+            { if (RuleLog.On) ModLog.Every("LeachingVat.Interact:167", 2d, "LeachingVat.Interact: returns true (line 167)"); return true; }
         }
 
         // holding Wood and using the station feeds the hearth
         public bool UseItem(Humanoid user, ItemDrop.ItemData item)
         {
-            if (user == null || item == null || item.m_shared.m_name != WoodSharedName || !_nview.IsValid()) return false;
-            if (State != LeachingVatRules.StateIdle) { user.Message(MessageHud.MessageType.Center, "The hearth is busy"); return true; }
+            if (RuleLog.On) ModLog.Verbose($"LeachingVat.UseItem(user={user}, item={item})");
+            if (user == null || item == null || item.m_shared.m_name != WoodSharedName || !_nview.IsValid()) { if (RuleLog.On) ModLog.Verbose("LeachingVat.UseItem: returns false (line 174)"); return false; }
+            if (State != LeachingVatRules.StateIdle) { user.Message(MessageHud.MessageType.Center, "The hearth is busy"); { if (RuleLog.On) ModLog.Verbose("LeachingVat.UseItem: returns true (line 175)"); return true; } }
             FeedHearth(user);
-            return true;
+            { if (RuleLog.On) ModLog.Verbose("LeachingVat.UseItem: returns true (line 177)"); return true; }
         }
 
         // client: put in what is still missing, one item per request (like the game's Smelter): the item leaves the player's inventory, then the owner is told
@@ -182,7 +190,7 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
         void FeedHearth(Humanoid user)
         {
             int missing = ModSettings.VatFuel.Value - Fuel;
-            if (missing <= 0) { user.Message(MessageHud.MessageType.Center, "The hearth is full"); return; }
+            if (missing <= 0) { user.Message(MessageHud.MessageType.Center, "The hearth is full"); { if (RuleLog.On) ModLog.Every("LeachingVat.FeedHearth:193", 2d, "LeachingVat.FeedHearth: returns (line 193)"); return; } }
             int sent = SendItems(user, WoodSharedName, WoodPrefab, missing);
             ModLog.Decision("leaching station hearth", sent + " Wood sent", "hearth had " + Fuel + "/" + ModSettings.VatFuel.Value);
             if (sent == 0) user.Message(MessageHud.MessageType.Center, "You need Wood for the hearth");
@@ -217,23 +225,25 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
         }
         static ItemDrop.ItemData FirstStack(Inventory inv, string sharedName)
         {
-            foreach (ItemDrop.ItemData item in inv.GetAllItems()) if (item.m_shared.m_name == sharedName && item.m_stack > 0) return item;
-            return null;
+            if (RuleLog.On) ModLog.Every("LeachingVat.FirstStack", 2d, $"LeachingVat.FirstStack(inv={inv}, sharedName={sharedName})");
+            foreach (ItemDrop.ItemData item in inv.GetAllItems()) if (item.m_shared.m_name == sharedName && item.m_stack > 0) { var returnedAt229 = item; if (RuleLog.On) ModLog.Every("LeachingVat.FirstStack:229", 2d, $"LeachingVat.FirstStack: returns {returnedAt229} (line 229)"); return returnedAt229; }
+            { if (RuleLog.On) ModLog.Every("LeachingVat.FirstStack:230", 2d, "LeachingVat.FirstStack: returns null (line 230)"); return null; }
         }
 
         void Collect(Humanoid user)
         {
+            if (RuleLog.On) ModLog.Every("LeachingVat.Collect", 2d, $"LeachingVat.Collect(user={user})");
             GameObject prefab = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(GunPowderedPrefabs.Saltpeter) : null;
             int amount = _nview.GetZDO().GetInt(KeyOut, 0);
-            if (prefab == null || amount < 1) return;
-            if (!user.GetInventory().CanAddItem(prefab, amount)) { user.Message(MessageHud.MessageType.Center, "Your inventory is full"); return; }
+            if (prefab == null || amount < 1) { if (RuleLog.On) ModLog.Every("LeachingVat.Collect:238", 2d, "LeachingVat.Collect: returns (line 238)"); return; }
+            if (!user.GetInventory().CanAddItem(prefab, amount)) { user.Message(MessageHud.MessageType.Center, "Your inventory is full"); { if (RuleLog.On) ModLog.Every("LeachingVat.Collect:239", 2d, "LeachingVat.Collect: returns (line 239)"); return; } }
             _nview.InvokeRPC(RpcCollect);
         }
 
         // owner: one item arrived; it counts only if it is one the station takes and its slot has room (anything else is refused and logged)
         void OnAdd(long sender, string prefab)
         {
-            if (!_nview.IsOwner()) return;
+            if (!_nview.IsOwner()) { if (RuleLog.On) ModLog.Verbose("LeachingVat.OnAdd: returns (line 246)"); return; }
             var zdo = _nview.GetZDO();
             var have = new LeachingVatRules.VatAmounts(Guano, WaterIn, Fuel);
             var need = new LeachingVatRules.VatAmounts(ModSettings.VatGuano.Value, ModSettings.VatWater.Value, ModSettings.VatFuel.Value);
@@ -248,7 +258,7 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
         // owner: hand the saltpeter over and reset
         void OnCollect(long sender)
         {
-            if (!_nview.IsOwner() || State != LeachingVatRules.StateDone) return;
+            if (!_nview.IsOwner() || State != LeachingVatRules.StateDone) { if (RuleLog.On) ModLog.Verbose("LeachingVat.OnCollect: returns (line 261)"); return; }
             var zdo = _nview.GetZDO();
             int amount = zdo.GetInt(KeyOut, 0);
             zdo.Set(KeyOut, 0);
@@ -261,9 +271,10 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
         // the collecting player's client: add the saltpeter to the inventory
         void OnCollected(long sender, int amount)
         {
+            if (RuleLog.On) ModLog.Verbose($"LeachingVat.OnCollected(sender={sender}, amount={amount})");
             Player p = Player.m_localPlayer;
             GameObject prefab = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(GunPowderedPrefabs.Saltpeter) : null;
-            if (p == null || prefab == null || amount <= 0) return;
+            if (p == null || prefab == null || amount <= 0) { if (RuleLog.On) ModLog.Verbose("LeachingVat.OnCollected: returns (line 277)"); return; }
             p.GetInventory().AddItem(prefab, amount);
             p.Message(MessageHud.MessageType.TopLeft, "Collected " + amount + " Saltpeter");
         }

@@ -1,4 +1,5 @@
 using System;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.Grenades.Domain
 {
@@ -25,12 +26,13 @@ namespace GunPowdered.Features.Grenades.Domain
         /// </summary>
         internal static LaunchSolution Solve(ArcVector spawn, ArcVector target, float speed, float gravity, float step)
         {
+            if (RuleLog.On) RuleLog.Every("LaunchSolver.Solve", 2d, $"LaunchSolver.Solve(spawn={spawn}, target={target}, speed={speed}, gravity={gravity}, step={step})");
             if (speed <= 0f) throw new ArgumentOutOfRangeException(nameof(speed), speed, "the speed must be above 0");
             if (gravity <= 0f) throw new ArgumentOutOfRangeException(nameof(gravity), gravity, "the gravity must be above 0");
             if (step < 0f) throw new ArgumentOutOfRangeException(nameof(step), step, "the step must not be negative");
 
             float flat = spawn.FlatDistanceTo(target);
-            if (flat < MinFlatDistance) return new LaunchSolution(new ArcVector(0f, 1f, 0f), 90f, true);
+            if (flat < MinFlatDistance) { var returnedAt35 = new LaunchSolution(new ArcVector(0f, 1f, 0f), 90f, true); if (RuleLog.On) RuleLog.Every("LaunchSolver.Solve:35", 2d, $"LaunchSolver.Solve: returns {returnedAt35} (line 35)"); return returnedAt35; }
 
             double v = speed, g = gravity, d = flat, dy = target.Y - spawn.Y;
             bool reachable;
@@ -45,17 +47,18 @@ namespace GunPowdered.Features.Grenades.Domain
             float fx = (target.X - spawn.X) / flat, fz = (target.Z - spawn.Z) / flat;
             float cos = (float)Math.Cos(elevation);
             var direction = new ArcVector(fx * cos, (float)Math.Sin(elevation), fz * cos);
-            return new LaunchSolution(direction, (float)(elevation * 180d / Math.PI), reachable);
+            { var returnedAt50 = new LaunchSolution(direction, (float)(elevation * 180d / Math.PI), reachable); if (RuleLog.On) RuleLog.Every("LaunchSolver.Solve:50", 2d, $"LaunchSolver.Solve: returns {returnedAt50} (line 50)"); return returnedAt50; }
         }
 
         // the low-arc angle for a spot d metres away and dy metres higher; out of reach: the angle that goes farthest towards it
         static double Elevation(double v, double g, double d, double dy, out bool reachable)
         {
+            if (RuleLog.On) RuleLog.Every("LaunchSolver.Elevation", 2d, $"LaunchSolver.Elevation(v={v}, g={g}, d={d}, dy={dy})");
             double v2 = v * v;
             double discriminant = (v2 * v2) - (g * ((g * d * d) + (2d * dy * v2)));
             reachable = discriminant >= 0d;
             double tan = reachable ? (v2 - Math.Sqrt(discriminant)) / (g * d) : v2 / (g * d);
-            return Math.Atan(tan);
+            { var returnedAt61 = Math.Atan(tan); if (RuleLog.On) RuleLog.Every("LaunchSolver.Elevation:61", 2d, $"LaunchSolver.Elevation: returns {returnedAt61} (line 61)"); return returnedAt61; }
         }
     }
 }

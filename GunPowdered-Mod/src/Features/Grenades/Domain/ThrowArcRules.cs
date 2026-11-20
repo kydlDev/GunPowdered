@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.Grenades.Domain
 {
@@ -8,6 +9,7 @@ namespace GunPowdered.Features.Grenades.Domain
     {
         internal ArcResult(bool landed, ArcVector landing, float seconds, int steps)
         {
+            if (RuleLog.On) RuleLog.Verbose($"ArcResult.ArcResult(landed={landed}, landing={landing}, seconds={seconds}, steps={steps})");
             Landed = landed;
             Landing = landing;
             Seconds = seconds;
@@ -34,6 +36,7 @@ namespace GunPowdered.Features.Grenades.Domain
         /// <summary>One physics step of a projectile. Expected outcome: the new velocity and position, as Projectile.FixedUpdate computes them.</summary>
         internal static void Step(ref ArcVector position, ref ArcVector velocity, float gravity, float drag, float dt)
         {
+            if (RuleLog.On) RuleLog.Every("ThrowArcRules.Step", 2d, $"ThrowArcRules.Step(position={position}, velocity={velocity}, gravity={gravity}, drag={drag}, dt={dt})");
             velocity += new ArcVector(0f, -gravity * dt, 0f);
             float speed = velocity.Length;
             if (speed > 0f && drag > 0f)
@@ -76,8 +79,9 @@ namespace GunPowdered.Features.Grenades.Domain
         /// <summary>The launch velocity of a throw: the aim direction (any length) scaled to speed. Expected outcome: a vector of length speed (zero for no direction).</summary>
         internal static ArcVector LaunchVelocity(ArcVector aimDirection, float speed)
         {
+            if (RuleLog.On) RuleLog.Every("ThrowArcRules.LaunchVelocity", 2d, $"ThrowArcRules.LaunchVelocity(aimDirection={aimDirection}, speed={speed})");
             float len = aimDirection.Length;
-            return len > 0f ? aimDirection * (speed / len) : new ArcVector(0f, 0f, 0f);
+            { var returnedAt84 = len > 0f ? aimDirection * (speed / len) : new ArcVector(0f, 0f, 0f); if (RuleLog.On) RuleLog.Every("ThrowArcRules.LaunchVelocity:84", 2d, $"ThrowArcRules.LaunchVelocity: returns {returnedAt84} (line 84)"); return returnedAt84; }
         }
 
         /// <summary>Would the thrower be hit by the blast at the landing point (the red ring). Expected outcome: true when the thrower is within radius of it.</summary>

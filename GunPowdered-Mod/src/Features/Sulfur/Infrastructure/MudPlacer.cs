@@ -3,6 +3,7 @@ using GunPowdered.Configuration;
 using GunPowdered.Core;
 using GunPowdered.Features.Sulfur.Domain;
 using GunPowdered.Integrations.Valheim;
+using KydlCore.Common;
 
 namespace GunPowdered.Features.Sulfur.Infrastructure
 {
@@ -21,14 +22,16 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
         /// <summary>Around a geyser: on dry or wet ground, any floor. Expected outcome: deposits placed.</summary>
         internal static int AroundGeyser(Vector3 centre, int seed)
         {
-            return Place(centre, seed, ModSettings.MudPerGeyser.Value, GeyserMin, GeyserMax, false);
+            if (RuleLog.On) ModLog.Every("MudPlacer.AroundGeyser", 2d, $"MudPlacer.AroundGeyser(centre={centre}, seed={seed})");
+            { var returnedAt26 = Place(centre, seed, ModSettings.MudPerGeyser.Value, GeyserMin, GeyserMax, false); if (RuleLog.On) ModLog.Every("MudPlacer.AroundGeyser:26", 2d, $"MudPlacer.AroundGeyser: returns {returnedAt26} (line 26)"); return returnedAt26; }
         }
 
         /// <summary>Next to a Draugr pile: only where the water covers the ground. Expected outcome: deposits placed.</summary>
         internal static int NearPile(Vector3 centre, int seed)
         {
+            if (RuleLog.On) ModLog.Every("MudPlacer.NearPile", 2d, $"MudPlacer.NearPile(centre={centre}, seed={seed})");
             PilesSeen++;
-            return Place(centre, seed, ModSettings.MudPerDraugrPile.Value, PileMin, PileMax, true);
+            { var returnedAt34 = Place(centre, seed, ModSettings.MudPerDraugrPile.Value, PileMin, PileMax, true); if (RuleLog.On) ModLog.Every("MudPlacer.NearPile:34", 2d, $"MudPlacer.NearPile: returns {returnedAt34} (line 34)"); return returnedAt34; }
         }
 
         static int Place(Vector3 centre, int seed, int count, float minR, float maxR, bool needWater)
@@ -52,7 +55,7 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
                     break;
                 }
             }
-            return placed;
+            { var returnedAt58 = placed; if (RuleLog.On) ModLog.Every("MudPlacer.Place:58", 2d, $"MudPlacer.Place: returns {returnedAt58} (line 58)"); return returnedAt58; }
         }
 
         // the local water volume's level, or the world's sea level (lakes, rivers, the sea lie at it): at the test world's lake shore the volume lookup

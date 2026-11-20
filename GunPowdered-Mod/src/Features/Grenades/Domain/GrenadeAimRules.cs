@@ -1,3 +1,4 @@
+using GunPowdered.Core;
 namespace GunPowdered.Features.Grenades.Domain
 {
     /// <summary>
@@ -13,16 +14,17 @@ namespace GunPowdered.Features.Grenades.Domain
         /// </summary>
         internal static AimStep Next(AimPhase phase, bool attackHeld, bool blockPressed)
         {
+            if (RuleLog.On) RuleLog.Every("GrenadeAimRules.Next", 2d, $"GrenadeAimRules.Next(phase={phase}, attackHeld={attackHeld}, blockPressed={blockPressed})");
             switch (phase)
             {
                 case AimPhase.Aiming:
-                    if (blockPressed) return new AimStep(AimPhase.Cancelled, true, false, true, AimEvent.Cancelled);
-                    if (attackHeld) return new AimStep(AimPhase.Aiming, true, false, true, AimEvent.None);
-                    return new AimStep(AimPhase.Idle, true, true, true, AimEvent.Thrown);
+                    if (blockPressed) { var returnedAt21 = new AimStep(AimPhase.Cancelled, true, false, true, AimEvent.Cancelled); if (RuleLog.On) RuleLog.Every("GrenadeAimRules.Next:21", 2d, $"GrenadeAimRules.Next: returns {returnedAt21} (line 21)"); return returnedAt21; }
+                    if (attackHeld) { var returnedAt22 = new AimStep(AimPhase.Aiming, true, false, true, AimEvent.None); if (RuleLog.On) RuleLog.Every("GrenadeAimRules.Next:22", 2d, $"GrenadeAimRules.Next: returns {returnedAt22} (line 22)"); return returnedAt22; }
+                    { var returnedAt23 = new AimStep(AimPhase.Idle, true, true, true, AimEvent.Thrown); if (RuleLog.On) RuleLog.Every("GrenadeAimRules.Next:23", 2d, $"GrenadeAimRules.Next: returns {returnedAt23} (line 23)"); return returnedAt23; }
                 case AimPhase.Cancelled:
-                    return attackHeld ? new AimStep(AimPhase.Cancelled, true, false, false, AimEvent.None) : new AimStep(AimPhase.Idle, false, false, false, AimEvent.None);
+                    { var returnedAt25 = attackHeld ? new AimStep(AimPhase.Cancelled, true, false, false, AimEvent.None) : new AimStep(AimPhase.Idle, false, false, false, AimEvent.None); if (RuleLog.On) RuleLog.Every("GrenadeAimRules.Next:25", 2d, $"GrenadeAimRules.Next: returns {returnedAt25} (line 25)"); return returnedAt25; }
                 default:
-                    return attackHeld ? new AimStep(AimPhase.Aiming, true, false, true, AimEvent.Started) : new AimStep(AimPhase.Idle, false, false, false, AimEvent.None);
+                    { var returnedAt27 = attackHeld ? new AimStep(AimPhase.Aiming, true, false, true, AimEvent.Started) : new AimStep(AimPhase.Idle, false, false, false, AimEvent.None); if (RuleLog.On) RuleLog.Every("GrenadeAimRules.Next:27", 2d, $"GrenadeAimRules.Next: returns {returnedAt27} (line 27)"); return returnedAt27; }
             }
         }
     }

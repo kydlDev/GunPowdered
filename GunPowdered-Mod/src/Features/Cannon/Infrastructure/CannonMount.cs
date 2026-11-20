@@ -52,22 +52,24 @@ namespace GunPowdered.Features.Cannon.Infrastructure
 
         void OnDisable()
         {
+            if (RuleLog.On) ModLog.Verbose($"CannonMount.OnDisable()");
             if (CannonAim.Current == this) CannonAim.End("the stock is gone");
         }
 
         internal CannonStatus Status()
         {
-            if (!IsValid) return new CannonStatus(false, false, false);
+            if (RuleLog.On) ModLog.Every("CannonMount.Status", 2d, $"CannonMount.Status()");
+            if (!IsValid) { var returnedAt62 = new CannonStatus(false, false, false); if (RuleLog.On) ModLog.Every("CannonMount.Status:62", 2d, $"CannonMount.Status: returns {returnedAt62} (line 62)"); return returnedAt62; }
             ZDO z = _nview.GetZDO();
             bool loaded = z.GetBool(KeyLoaded, false);
-            return new CannonStatus(z.GetBool(KeyMounted, false), loaded, loaded && FuseBurning(z.GetLong(KeyFuse, 0L)));
+            { var returnedAt65 = new CannonStatus(z.GetBool(KeyMounted, false), loaded, loaded && FuseBurning(z.GetLong(KeyFuse, 0L))); if (RuleLog.On) ModLog.Every("CannonMount.Status:65", 2d, $"CannonMount.Status: returns {returnedAt65} (line 65)"); return returnedAt65; }
         }
 
         void Update()
         {
             try
             {
-                if (!IsValid) return;
+                if (!IsValid) { if (RuleLog.On) ModLog.Every("CannonMount.Update:72", 2d, "CannonMount.Update: returns (line 72)"); return; }
                 ZDO z = _nview.GetZDO();
                 bool mounted = z.GetBool(KeyMounted, false);
                 if (_barrel != null && _barrel.gameObject.activeSelf != mounted) _barrel.gameObject.SetActive(mounted);
@@ -84,15 +86,17 @@ namespace GunPowdered.Features.Cannon.Infrastructure
 
         static bool FuseBurning(long fuse)
         {
-            if (fuse == 0L || ZNet.instance == null) return false;
+            if (RuleLog.On) ModLog.Every("CannonMount.FuseBurning", 2d, $"CannonMount.FuseBurning(fuse={fuse})");
+            if (fuse == 0L || ZNet.instance == null) { if (RuleLog.On) ModLog.Every("CannonMount.FuseBurning:90", 2d, "CannonMount.FuseBurning: returns false (line 90)"); return false; }
             double since = ZNet.instance.GetTimeSeconds() - (fuse / 1000d);
-            return since >= 0d && since < ModSettings.CannonFuseSeconds.Value;
+            { var returnedAt92 = since >= 0d && since < ModSettings.CannonFuseSeconds.Value; if (RuleLog.On) ModLog.Every("CannonMount.FuseBurning:92", 2d, $"CannonMount.FuseBurning: returns {returnedAt92} (line 92)"); return returnedAt92; }
         }
 
         /// <summary>Turns the barrel to the aim: yaw degrees about the stock's up axis, pitch degrees above the horizon. Local only.</summary>
         internal void ShowAim(float yaw, float pitch)
         {
-            if (_pivot == null || _barrel == null) return;
+            if (RuleLog.On) ModLog.Every("CannonMount.ShowAim", 2d, $"CannonMount.ShowAim(yaw={yaw}, pitch={pitch})");
+            if (_pivot == null || _barrel == null) { if (RuleLog.On) ModLog.Every("CannonMount.ShowAim:99", 2d, "CannonMount.ShowAim: returns (line 99)"); return; }
             _pivot.localRotation = Quaternion.Euler(0f, yaw, 0f);
             _barrel.localRotation = Quaternion.Euler(-pitch, 0f, 0f);
         }
@@ -103,8 +107,9 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         /// </summary>
         internal Vector3 AimAt(Vector3 spot, out bool reachable)
         {
+            if (RuleLog.On) ModLog.Every("CannonMount.AimAt", 2d, $"CannonMount.AimAt(spot={spot})");
             reachable = false;
-            if (_pivot == null || _muzzle == null) return Vector3.zero;
+            if (_pivot == null || _muzzle == null) { var returnedAt112 = Vector3.zero; if (RuleLog.On) ModLog.Every("CannonMount.AimAt:112", 2d, $"CannonMount.AimAt: returns {returnedAt112} (line 112)"); return returnedAt112; }
             Vector3 flat = spot - transform.position;
             flat.y = 0f;
             if (flat.sqrMagnitude > 0.0001f) _localYaw = Mathf.DeltaAngle(transform.eulerAngles.y, Quaternion.LookRotation(flat).eulerAngles.y);
@@ -124,7 +129,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
                 _nview.GetZDO().Set(KeyYaw, _localYaw);
                 _nview.GetZDO().Set(KeyPitch, _localPitch);
             }
-            return new Vector3(s.Direction.X, s.Direction.Y, s.Direction.Z) * speed;
+            { var returnedAt132 = new Vector3(s.Direction.X, s.Direction.Y, s.Direction.Z) * speed; if (RuleLog.On) ModLog.Every("CannonMount.AimAt:132", 2d, $"CannonMount.AimAt: returns {returnedAt132} (line 132)"); return returnedAt132; }
         }
 
         /// <summary>The ball's launch speed: the one that carries it the range at the stock's tilt (D-052).</summary>
@@ -136,7 +141,8 @@ namespace GunPowdered.Features.Cannon.Infrastructure
 
         public string GetHoverText()
         {
-            if (!IsValid) return "";
+            if (RuleLog.On) ModLog.Verbose($"CannonMount.GetHoverText()");
+            if (!IsValid) { if (RuleLog.On) ModLog.Verbose("CannonMount.GetHoverText: returns \"\" (line 145)"); return ""; }
             CannonStatus s = Status();
             string use = "[<color=yellow><b>$KEY_Use</b></color>] ", alt = "[<color=yellow><b>$KEY_AltPlace + $KEY_Use</b></color>] ";
             string text;
@@ -145,47 +151,49 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             else if (s.Lit) text = ItemCatalog.Cannon.Name + " (the fuse burns!)";
             else if (!s.Loaded) text = ItemCatalog.Cannon.Name + " (empty)\n" + use + "Load (" + PowderPerShot() + " Gunpowder + 1 " + ItemCatalog.CannonBall.Name + ")\n" + alt + "Take the cannon off";
             else text = ItemCatalog.Cannon.Name + " (loaded)\n" + use + (CannonAim.Current == this ? "Stop aiming" : "Aim") + "\n" + alt + "Take the cannon off";
-            return Localization.instance != null ? Localization.instance.Localize(text) : text;
+            { var returnedAt154 = Localization.instance != null ? Localization.instance.Localize(text) : text; if (RuleLog.On) ModLog.Verbose($"CannonMount.GetHoverText: returns {returnedAt154} (line 154)"); return returnedAt154; }
         }
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
+            if (RuleLog.On) ModLog.Every("CannonMount.Interact", 2d, $"CannonMount.Interact(user={user}, hold={hold}, alt={alt})");
             Player p = user as Player;
-            if (hold || p == null || p != Player.m_localPlayer || !IsValid) return false;
+            if (hold || p == null || p != Player.m_localPlayer || !IsValid) { if (RuleLog.On) ModLog.Every("CannonMount.Interact:161", 2d, "CannonMount.Interact: returns false (line 161)"); return false; }
             CannonStatus s = Status();
-            if (alt) return Unmount(p, s);
-            if (!s.Mounted) return Mount(p, s);
-            if (_loading || CannonAim.Current == this) return false;     // the aim itself ends on the next Use press
-            if (!s.Loaded) return Load(p, s);
+            if (alt) { var returnedAt163 = Unmount(p, s); if (RuleLog.On) ModLog.Every("CannonMount.Interact:163", 2d, $"CannonMount.Interact: returns {returnedAt163} (line 163)"); return returnedAt163; }
+            if (!s.Mounted) { var returnedAt164 = Mount(p, s); if (RuleLog.On) ModLog.Every("CannonMount.Interact:164", 2d, $"CannonMount.Interact: returns {returnedAt164} (line 164)"); return returnedAt164; }
+            if (_loading || CannonAim.Current == this) { if (RuleLog.On) ModLog.Every("CannonMount.Interact:165", 2d, "CannonMount.Interact: returns false (line 165)"); return false; }     // the aim itself ends on the next Use press
+            if (!s.Loaded) { var returnedAt166 = Load(p, s); if (RuleLog.On) ModLog.Every("CannonMount.Interact:166", 2d, $"CannonMount.Interact: returns {returnedAt166} (line 166)"); return returnedAt166; }
             string why = CannonStateRules.WhyNotAim(s);
-            if (why != null) return Tell(p, why);
-            return CannonAim.Begin(this, p);
+            if (why != null) { var returnedAt168 = Tell(p, why); if (RuleLog.On) ModLog.Every("CannonMount.Interact:168", 2d, $"CannonMount.Interact: returns {returnedAt168} (line 168)"); return returnedAt168; }
+            { var returnedAt169 = CannonAim.Begin(this, p); if (RuleLog.On) ModLog.Every("CannonMount.Interact:169", 2d, $"CannonMount.Interact: returns {returnedAt169} (line 169)"); return returnedAt169; }
         }
 
         public bool UseItem(Humanoid user, ItemDrop.ItemData item)
         {
+            if (RuleLog.On) ModLog.Verbose($"CannonMount.UseItem(user={user}, item={item})");
             Player p = user as Player;
-            if (p == null || item == null || item.m_dropPrefab == null || item.m_dropPrefab.name != GunPowderedPrefabs.Cannon || !IsValid) return false;
-            return Mount(p, Status());
+            if (p == null || item == null || item.m_dropPrefab == null || item.m_dropPrefab.name != GunPowderedPrefabs.Cannon || !IsValid) { if (RuleLog.On) ModLog.Verbose("CannonMount.UseItem: returns false (line 176)"); return false; }
+            { var returnedAt177 = Mount(p, Status()); if (RuleLog.On) ModLog.Verbose($"CannonMount.UseItem: returns {returnedAt177} (line 177)"); return returnedAt177; }
         }
 
         bool Mount(Player p, CannonStatus s)
         {
             string why = CannonStateRules.WhyNotMount(s, CannonInventory.Count(p.GetInventory(), GunPowderedPrefabs.Cannon) > 0);
-            if (why != null) return Tell(p, why);
-            if (!CannonInventory.Take(p.GetInventory(), GunPowderedPrefabs.Cannon, 1)) return Tell(p, CannonStateRules.NeedCannon);
+            if (why != null) { var returnedAt183 = Tell(p, why); if (RuleLog.On) ModLog.Every("CannonMount.Mount:183", 2d, $"CannonMount.Mount: returns {returnedAt183} (line 183)"); return returnedAt183; }
+            if (!CannonInventory.Take(p.GetInventory(), GunPowderedPrefabs.Cannon, 1)) { var returnedAt184 = Tell(p, CannonStateRules.NeedCannon); if (RuleLog.On) ModLog.Every("CannonMount.Mount:184", 2d, $"CannonMount.Mount: returns {returnedAt184} (line 184)"); return returnedAt184; }
             Claim();
             _nview.GetZDO().Set(KeyMounted, true);
             _nview.GetZDO().Set(KeyLoaded, false);
             ModLog.Verbose("CannonMount: cannon mounted at " + transform.position.ToString("0.0"));
             p.Message(MessageHud.MessageType.TopLeft, ItemCatalog.Cannon.Name + " mounted");
-            return true;
+            { if (RuleLog.On) ModLog.Every("CannonMount.Mount:190", 2d, "CannonMount.Mount: returns true (line 190)"); return true; }
         }
 
         bool Unmount(Player p, CannonStatus s)
         {
             string why = CannonStateRules.WhyNotUnmount(s);
-            if (why != null || _loading) return Tell(p, why ?? "Wait for the loading to finish");
+            if (why != null || _loading) { var returnedAt196 = Tell(p, why ?? "Wait for the loading to finish"); if (RuleLog.On) ModLog.Every("CannonMount.Unmount:196", 2d, $"CannonMount.Unmount: returns {returnedAt196} (line 196)"); return returnedAt196; }
             if (CannonAim.Current == this) CannonAim.End("the cannon was taken off");
             Claim();
             _nview.GetZDO().Set(KeyMounted, false);
@@ -194,23 +202,25 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             if (s.Loaded) GiveLoad(p);
             ModLog.Verbose("CannonMount: cannon taken off" + (s.Loaded ? " with its load" : ""));
             p.Message(MessageHud.MessageType.TopLeft, ItemCatalog.Cannon.Name + " taken off");
-            return true;
+            { if (RuleLog.On) ModLog.Every("CannonMount.Unmount:205", 2d, "CannonMount.Unmount: returns true (line 205)"); return true; }
         }
 
         void GiveLoad(Player p)
         {
+            if (RuleLog.On) ModLog.Every("CannonMount.GiveLoad", 2d, $"CannonMount.GiveLoad(p={p})");
             CannonInventory.Give(p, GunPowderedPrefabs.CannonBall, 1);
             CannonInventory.Give(p, GunPowderedPrefabs.Gunpowder, PowderPerShot());
         }
 
         bool Load(Player p, CannonStatus s)
         {
+            if (RuleLog.On) ModLog.Every("CannonMount.Load", 2d, $"CannonMount.Load(p={p}, s={s})");
             Inventory inv = p.GetInventory();
             string why = CannonStateRules.WhyNotLoad(s, CannonInventory.Count(inv, GunPowderedPrefabs.Gunpowder), PowderPerShot(),
                 CannonInventory.Count(inv, GunPowderedPrefabs.CannonBall));
-            if (why != null) return Tell(p, why);
+            if (why != null) { var returnedAt221 = Tell(p, why); if (RuleLog.On) ModLog.Every("CannonMount.Load:221", 2d, $"CannonMount.Load: returns {returnedAt221} (line 221)"); return returnedAt221; }
             StartCoroutine(LoadAtMuzzle(p));
-            return true;
+            { if (RuleLog.On) ModLog.Every("CannonMount.Load:223", 2d, "CannonMount.Load: returns true (line 223)"); return true; }
         }
 
         // D-053: 4 seconds at the muzzle with the cast ball in the player's hand; walking away or dying stops it, nothing is used up then
@@ -254,11 +264,11 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         static bool ShowBallInHand(Player p, float seconds)
         {
             GameObject ball = ObjectDB.instance != null ? ObjectDB.instance.GetItemPrefab(GunPowderedPrefabs.CannonBall) : null;
-            if (UseHandVisual == null || ball == null) return false;
+            if (UseHandVisual == null || ball == null) { if (RuleLog.On) ModLog.Every("CannonMount.ShowBallInHand:267", 2d, "CannonMount.ShowBallInHand: returns false (line 267)"); return false; }
             try
             {
                 UseHandVisual.Invoke(p, new object[] { ball, seconds });
-                return true;
+                { if (RuleLog.On) ModLog.Every("CannonMount.ShowBallInHand:271", 2d, "CannonMount.ShowBallInHand: returns true (line 271)"); return true; }
             }
             catch (Exception e)
             {
@@ -274,7 +284,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         internal string Light(Player p, Vector3 velocity, float targetFlat)
         {
             string why = CannonStateRules.WhyNotLight(Status(), CannonInventory.HoldsTorch(p));
-            if (why != null || _fireQueued) return why ?? CannonStateRules.FuseBurning;
+            if (why != null || _fireQueued) { var returnedAt287 = why ?? CannonStateRules.FuseBurning; if (RuleLog.On) ModLog.Every("CannonMount.Light:287", 2d, $"CannonMount.Light: returns {returnedAt287} (line 287)"); return returnedAt287; }
             Claim();
             _nview.GetZDO().Set(KeyFuse, (long)(ZNet.instance.GetTimeSeconds() * 1000d));
             _fireQueued = true;
@@ -287,6 +297,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         // networked vanilla ones: this client makes them, the others see them.
         IEnumerator FireAfterFuse(Player p, Vector3 velocity, float targetFlat)
         {
+            if (RuleLog.On) ModLog.Every("CannonMount.FireAfterFuse", 2d, $"CannonMount.FireAfterFuse(p={p}, velocity={velocity}, targetFlat={targetFlat})");
             float end = Time.time + ModSettings.CannonFuseSeconds.Value;
             while (Time.time < end)
             {
@@ -318,7 +329,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         {
             try
             {
-                if (!IsValid) return;
+                if (!IsValid) { if (RuleLog.On) ModLog.Verbose("CannonMount.OnDestroyed: returns (line 332)"); return; }
                 CannonStatus s = Status();
                 Vector3 at = transform.position + (Vector3.up * 0.5f);
                 if (s.Mounted) CannonInventory.Drop(GunPowderedPrefabs.Cannon, 1, at);
@@ -337,22 +348,25 @@ namespace GunPowdered.Features.Cannon.Infrastructure
 
         void Claim()
         {
+            if (RuleLog.On) ModLog.Every("CannonMount.Claim", 2d, $"CannonMount.Claim()");
             if (!_nview.IsOwner()) _nview.ClaimOwnership();
         }
 
         static bool Tell(Player p, string why)
         {
+            if (RuleLog.On) ModLog.Every("CannonMount.Tell", 2d, $"CannonMount.Tell(p={p}, why={why})");
             p.Message(MessageHud.MessageType.Center, why);
-            return false;
+            { if (RuleLog.On) ModLog.Every("CannonMount.Tell:359", 2d, "CannonMount.Tell: returns false (line 359)"); return false; }
         }
 
         internal static int PowderPerShot() => Mathf.Max(1, Mathf.RoundToInt(ModSettings.CannonPowderPerShot.Value));
 
         static Transform Deep(Transform root, string name)
         {
-            if (root == null) return null;
-            foreach (Transform t in root.GetComponentsInChildren<Transform>(true)) if (t.name == name) return t;
-            return null;
+            if (RuleLog.On) ModLog.Verbose($"CannonMount.Deep(root={root}, name={name})");
+            if (root == null) { if (RuleLog.On) ModLog.Verbose("CannonMount.Deep: returns null (line 367)"); return null; }
+            foreach (Transform t in root.GetComponentsInChildren<Transform>(true)) if (t.name == name) { var returnedAt368 = t; if (RuleLog.On) ModLog.Verbose($"CannonMount.Deep: returns {returnedAt368} (line 368)"); return returnedAt368; }
+            { if (RuleLog.On) ModLog.Verbose("CannonMount.Deep: returns null (line 369)"); return null; }
         }
 
         static ArcVector ToArc(Vector3 v) => new ArcVector(v.x, v.y, v.z);

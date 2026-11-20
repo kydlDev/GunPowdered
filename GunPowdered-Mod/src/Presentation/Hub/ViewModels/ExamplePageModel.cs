@@ -3,6 +3,8 @@ using GunPowdered.Features.Example.Domain;
 using GunPowdered.Features.Example.Infrastructure;
 using GunPowdered.Presentation.Hub.Commands;
 using GunPowdered.Ui;
+using GunPowdered.Core;
+using KydlCore.Common;
 
 namespace GunPowdered.Presentation.Hub.ViewModels
 {
@@ -15,6 +17,7 @@ namespace GunPowdered.Presentation.Hub.ViewModels
     {
         internal static ExamplePage Build(ExampleFeature feature, CommandDispatcher commands)
         {
+            if (RuleLog.On) ModLog.Every("ExamplePageModel.Build", 2d, $"ExamplePageModel.Build(feature={feature}, commands={commands})");
             return new ExamplePage(feature.Value, ExampleRules.Min, ExampleRules.Max, v => ExampleCommands.SetValue(commands, v));
         }
     }

@@ -7,6 +7,7 @@ using GunPowdered.Features.Example.Domain;
 using GunPowdered.Features.Example.Execution;
 using GunPowdered.Presentation.Hub.Registration;
 using GunPowdered.Presentation.Hub.ViewModels;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.Example.Infrastructure
 {
@@ -26,6 +27,7 @@ namespace GunPowdered.Features.Example.Infrastructure
 
         internal ExampleFeature(DependencyRegistry deps)
         {
+            if (RuleLog.On) ModLog.Verbose($"ExampleFeature.ExampleFeature(deps={deps})");
             _deps = deps;
             var executor = new ExampleValueExecutor(new LocalOwnership(), SetValue);   // method group bound once
             deps.Commands.Register(new SetExampleValueHandler(executor, deps.Trace));

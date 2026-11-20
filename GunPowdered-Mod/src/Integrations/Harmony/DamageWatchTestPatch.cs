@@ -3,6 +3,7 @@ using System;
 using HarmonyLib;
 using KydlCore.Common;
 using UnityEngine;
+using GunPowdered.Core;
 
 namespace GunPowdered.Integrations.HarmonyPatches
 {
@@ -22,7 +23,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             _watch = watch;
             _hits = 0;
-            if (_applied) return;
+            if (_applied) { if (RuleLog.On) ModLog.Every("DamageWatchTestPatch.Apply:26", 2d, "DamageWatchTestPatch.Apply: returns (line 26)"); return; }
             var h = new Harmony("com.kydldev.GunPowdered.damagewatch");
             var target = AccessTools.Method(typeof(Character), "RPC_Damage");
             h.Patch(target, prefix: new HarmonyMethod(typeof(DamageWatchTestPatch), nameof(Prefix)), postfix: new HarmonyMethod(typeof(DamageWatchTestPatch), nameof(Postfix)));
@@ -34,7 +35,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
 
         static void Prefix(Character __instance, HitData hit)
         {
-            if (_watch == null || hit == null || !_watch(__instance)) return;
+            if (_watch == null || hit == null || !_watch(__instance)) { if (RuleLog.On) ModLog.Every("DamageWatchTestPatch.Prefix:38", 2d, "DamageWatchTestPatch.Prefix: returns (line 38)"); return; }
             _hits++;
             HitData.DamageTypes d = hit.m_damage;
             ModLog.Info("DamageWatch: hit " + _hits + " on " + __instance.name + " at " + Time.time.ToString("0.000") + " - blunt " + d.m_blunt.ToString("0.0") + " pierce " + d.m_pierce.ToString("0.0")
@@ -44,7 +45,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
 
         static void Postfix(Character __instance, HitData hit)
         {
-            if (_watch == null || hit == null || !_watch(__instance)) return;
+            if (_watch == null || hit == null || !_watch(__instance)) { if (RuleLog.On) ModLog.Every("DamageWatchTestPatch.Postfix:48", 2d, "DamageWatchTestPatch.Postfix: returns (line 48)"); return; }
             ModLog.Info("DamageWatch: " + __instance.name + " health after " + __instance.GetHealth().ToString("0.0"));
         }
     }

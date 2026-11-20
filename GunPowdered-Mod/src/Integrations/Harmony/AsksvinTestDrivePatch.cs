@@ -3,6 +3,7 @@ using System;
 using HarmonyLib;
 using KydlCore.Common;
 using UnityEngine;
+using GunPowdered.Core;
 
 namespace GunPowdered.Integrations.HarmonyPatches
 {
@@ -20,7 +21,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
         internal static void Apply(Func<MonsterAI, Vector3?> target)
         {
             _target = target;
-            if (_applied) return;
+            if (_applied) { if (RuleLog.On) ModLog.Every("AsksvinTestDrivePatch.Apply:24", 2d, "AsksvinTestDrivePatch.Apply: returns (line 24)"); return; }
             var h = new Harmony("com.kydldev.GunPowdered.testdrive");
             h.Patch(AccessTools.Method(typeof(MonsterAI), nameof(MonsterAI.UpdateAI)), prefix: new HarmonyMethod(typeof(AsksvinTestDrivePatch), nameof(Prefix)));
             _applied = true;
@@ -29,14 +30,15 @@ namespace GunPowdered.Integrations.HarmonyPatches
 
         static bool Prefix(MonsterAI __instance, ref bool __result)
         {
+            if (RuleLog.On) ModLog.Every("AsksvinTestDrivePatch.Prefix", 2d, $"AsksvinTestDrivePatch.Prefix(__instance={__instance}, __result={__result})");
             Vector3? to = _target != null ? _target(__instance) : null;
-            if (to == null) return true;
+            if (to == null) { if (RuleLog.On) ModLog.Every("AsksvinTestDrivePatch.Prefix:35", 2d, "AsksvinTestDrivePatch.Prefix: returns true (line 35)"); return true; }
             Vector3 d = to.Value - __instance.transform.position;
             d.y = 0f;
             if (d.magnitude < 2f) __instance.StopMoving();
             else __instance.MoveTowards(d.normalized, true);
             __result = true;
-            return false;
+            { if (RuleLog.On) ModLog.Every("AsksvinTestDrivePatch.Prefix:41", 2d, "AsksvinTestDrivePatch.Prefix: returns false (line 41)"); return false; }
         }
     }
 }

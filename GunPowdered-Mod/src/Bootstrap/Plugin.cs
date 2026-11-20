@@ -7,6 +7,7 @@ using Jotunn.Utils;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Configuration;
+using GunPowdered.Core;
 
 namespace GunPowdered.Bootstrap
 {
@@ -40,6 +41,8 @@ namespace GunPowdered.Bootstrap
         {
             Instance = this;
             ModLog.Init(Logger, ModName, () => ModSettings.DebugLog != null && ModSettings.DebugLog.Value);
+            GunPowdered.Core.RuleLog.Sink = ModLog.Verbose;                                     // the pure code logs through ModLog (rule 8)
+            GunPowdered.Core.RuleLog.DebugOn = () => ModSettings.DebugLog != null && ModSettings.DebugLog.Value;
             ModLog.Info(ModName + " " + ModVersion + " loaded (dll built " + File.GetLastWriteTime(Assembly.GetExecutingAssembly().Location).ToString("yyyy-MM-dd HH:mm:ss") + ")");
 
             // the UI kit, its log, the input lock and the F6 hub belong to KydlCore: this mod sets no log sink / owner / lock and has no menu key
@@ -89,6 +92,7 @@ namespace GunPowdered.Bootstrap
 
         void Update()
         {
+            if (RuleLog.On) ModLog.Every("Plugin.Update", 2d, $"Plugin.Update()");
             if (_cfgWatcher != null) _cfgWatcher.Tick();
         }
 

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using HarmonyLib;
 using KydlCore.Common;
 using UnityEngine;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.MobileCannon.Infrastructure
 {
@@ -54,12 +55,13 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (piece.GetComponent<MobileCannonTow>() == null) piece.AddComponent<MobileCannonTow>();
             ModLog.Verbose("MobileCannonSetup: cart colliders on " + colliders + ", cart looks hidden " + hidden + ", pull point "
                 + (pull ? vagon.m_attachPoint.localPosition.ToString("0.00") : "missing") + ", wheels " + (vagon.m_wheels != null ? vagon.m_wheels.Length : 0));
-            return pull && colliders > 0;
+            { var returnedAt58 = pull && colliders > 0; if (RuleLog.On) ModLog.Verbose($"MobileCannonSetup.Configure: returns {returnedAt58} (line 58)"); return returnedAt58; }
         }
 
         /// <summary>BundleVisuals switched every solid collider off; the cart needs its body boxes and its wheel colliders back. The model's own colliders stay off.</summary>
         static int RestoreCartColliders(GameObject piece, Transform model)
         {
+            if (RuleLog.On) ModLog.Verbose($"MobileCannonSetup.RestoreCartColliders(piece={piece}, model={model})");
             int n = 0;
             foreach (Collider c in piece.GetComponentsInChildren<Collider>(true))
             {
@@ -72,12 +74,13 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 c.enabled = true;
                 n++;
             }
-            return n;
+            { var returnedAt77 = n; if (RuleLog.On) ModLog.Verbose($"MobileCannonSetup.RestoreCartColliders: returns {returnedAt77} (line 77)"); return returnedAt77; }
         }
 
         /// <summary>Switches off every renderer of the cart itself (body, wheels, worn / broken states); the cannon model is the only look.</summary>
         static int HideCartLooks(GameObject piece, Transform model)
         {
+            if (RuleLog.On) ModLog.Verbose($"MobileCannonSetup.HideCartLooks(piece={piece}, model={model})");
             int n = 0;
             foreach (Renderer r in piece.GetComponentsInChildren<Renderer>(true))
             {
@@ -85,12 +88,13 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 r.enabled = false;
                 n++;
             }
-            return n;
+            { var returnedAt91 = n; if (RuleLog.On) ModLog.Verbose($"MobileCannonSetup.HideCartLooks: returns {returnedAt91} (line 91)"); return returnedAt91; }
         }
 
         /// <summary>The cart's boxes-and-barrels load and its storage chest are not part of a cannon.</summary>
         static void RemoveCartLoad(GameObject piece, Vagon vagon)
         {
+            if (RuleLog.On) ModLog.Verbose($"MobileCannonSetup.RemoveCartLoad(piece={piece}, vagon={vagon})");
             Transform load = piece.transform.Find("load");
             if (load != null) Object.DestroyImmediate(load.gameObject);
             vagon.m_loadVis = new List<Vagon.LoadData>();
@@ -104,9 +108,10 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// </summary>
         static void AddTrailFoot(GameObject piece)
         {
+            if (RuleLog.On) ModLog.Verbose($"MobileCannonSetup.AddTrailFoot(piece={piece})");
             foreach (Collider c in piece.GetComponentsInChildren<Collider>(true))
                 if (c.name.StartsWith("handle")) c.enabled = false;
-            if (piece.transform.Find("gp_trail_foot") != null) return;
+            if (piece.transform.Find("gp_trail_foot") != null) { if (RuleLog.On) ModLog.Verbose("MobileCannonSetup.AddTrailFoot: returns (line 114)"); return; }
             var foot = new GameObject("gp_trail_foot");
             foot.layer = piece.layer;
             foot.transform.SetParent(piece.transform, false);

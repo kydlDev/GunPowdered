@@ -56,7 +56,7 @@ namespace GunPowdered.Integrations.Items
         internal static bool SetEnabled(string featureId, bool on)
         {
             FeatureSet set;
-            if (!Sets.TryGetValue(featureId, out set)) return set == null;
+            if (!Sets.TryGetValue(featureId, out set)) { var returnedAt59 = set == null; if (RuleLog.On) ModLog.Verbose($"FeatureSet.SetEnabled: returns {returnedAt59} (line 59)"); return returnedAt59; }
             foreach (var r in set.Recipes) r.m_enabled = RecipeGate.IsOn(on, KeyOf(r), HasKey);
             foreach (var p in set.Pieces) p.m_enabled = on;
             bool state = set.Recipes.TrueForAll(r => r.m_enabled == RecipeGate.IsOn(on, KeyOf(r), HasKey)) && set.Pieces.TrueForAll(p => p.m_enabled == on);
@@ -82,13 +82,14 @@ namespace GunPowdered.Integrations.Items
                 }
                 if (want) on++;
             }
-            return on;
+            { var returnedAt85 = on; if (RuleLog.On) ModLog.Every("FeatureSet.RefreshKeyed:85", 2d, $"FeatureSet.RefreshKeyed: returns {returnedAt85} (line 85)"); return returnedAt85; }
         }
 
         static string KeyOf(Recipe r)
         {
-            foreach (var k in Keyed) if (k.Key == r) return k.Value.Value;
-            return null;
+            if (RuleLog.On) ModLog.Verbose($"FeatureSet.KeyOf(r={r})");
+            foreach (var k in Keyed) if (k.Key == r) { var returnedAt91 = k.Value.Value; if (RuleLog.On) ModLog.Verbose($"FeatureSet.KeyOf: returns {returnedAt91} (line 91)"); return returnedAt91; }
+            { if (RuleLog.On) ModLog.Verbose("FeatureSet.KeyOf: returns null (line 92)"); return null; }
         }
 
         static bool HasKey(string key) => ZoneSystem.instance != null && ZoneSystem.instance.GetGlobalKey(key);
@@ -121,27 +122,29 @@ namespace GunPowdered.Integrations.Items
 
         static string FeatureOf(FeatureSet set)
         {
-            foreach (var pair in Sets) if (pair.Value == set) return pair.Key;
-            return null;
+            if (RuleLog.On) ModLog.Verbose($"FeatureSet.FeatureOf(set={set})");
+            foreach (var pair in Sets) if (pair.Value == set) { var returnedAt126 = pair.Key; if (RuleLog.On) ModLog.Verbose($"FeatureSet.FeatureOf: returns {returnedAt126} (line 126)"); return returnedAt126; }
+            { if (RuleLog.On) ModLog.Verbose("FeatureSet.FeatureOf: returns null (line 127)"); return null; }
         }
 
         // The Enable switch of each feature, read at call time.
         static bool IsOn(string featureId)
         {
+            if (RuleLog.On) ModLog.Every("FeatureSet.IsOn", 2d, $"FeatureSet.IsOn(featureId={featureId})");
             switch (featureId)
             {
-                case "guano": return ModSettings.FeatureOn(ModSettings.EnableGuano);
-                case "water": return ModSettings.FeatureOn(ModSettings.EnableWater);
-                case "saltpeter": return ModSettings.FeatureOn(ModSettings.EnableSaltpeter);
-                case "sulfur": return ModSettings.FeatureOn(ModSettings.EnableSulfur);
-                case "gunpowder": return ModSettings.FeatureOn(ModSettings.EnableGunpowder);
-                case "grenades": return ModSettings.FeatureOn(ModSettings.EnableGrenades);
-                case "cannon": return ModSettings.FeatureOn(ModSettings.EnableCannon);
-                case "musket": return ModSettings.FeatureOn(ModSettings.EnableMusket);
-                case "arrows": return ModSettings.FeatureOn(ModSettings.EnableExplosiveArrows);
-                case "dynamite": return ModSettings.FeatureOn(ModSettings.EnableDynamite);
-                case "mobilecannon": return ModSettings.FeatureOn(ModSettings.EnableCannon);   // one switch for both cannon types
-                default: return false;
+                case "guano": { var returnedAt136 = ModSettings.FeatureOn(ModSettings.EnableGuano); if (RuleLog.On) ModLog.Every("FeatureSet.IsOn:136", 2d, $"FeatureSet.IsOn: returns {returnedAt136} (line 136)"); return returnedAt136; }
+                case "water": { var returnedAt137 = ModSettings.FeatureOn(ModSettings.EnableWater); if (RuleLog.On) ModLog.Every("FeatureSet.IsOn:137", 2d, $"FeatureSet.IsOn: returns {returnedAt137} (line 137)"); return returnedAt137; }
+                case "saltpeter": { var returnedAt138 = ModSettings.FeatureOn(ModSettings.EnableSaltpeter); if (RuleLog.On) ModLog.Every("FeatureSet.IsOn:138", 2d, $"FeatureSet.IsOn: returns {returnedAt138} (line 138)"); return returnedAt138; }
+                case "sulfur": { var returnedAt139 = ModSettings.FeatureOn(ModSettings.EnableSulfur); if (RuleLog.On) ModLog.Every("FeatureSet.IsOn:139", 2d, $"FeatureSet.IsOn: returns {returnedAt139} (line 139)"); return returnedAt139; }
+                case "gunpowder": { var returnedAt140 = ModSettings.FeatureOn(ModSettings.EnableGunpowder); if (RuleLog.On) ModLog.Every("FeatureSet.IsOn:140", 2d, $"FeatureSet.IsOn: returns {returnedAt140} (line 140)"); return returnedAt140; }
+                case "grenades": { var returnedAt141 = ModSettings.FeatureOn(ModSettings.EnableGrenades); if (RuleLog.On) ModLog.Every("FeatureSet.IsOn:141", 2d, $"FeatureSet.IsOn: returns {returnedAt141} (line 141)"); return returnedAt141; }
+                case "cannon": { var returnedAt142 = ModSettings.FeatureOn(ModSettings.EnableCannon); if (RuleLog.On) ModLog.Every("FeatureSet.IsOn:142", 2d, $"FeatureSet.IsOn: returns {returnedAt142} (line 142)"); return returnedAt142; }
+                case "musket": { var returnedAt143 = ModSettings.FeatureOn(ModSettings.EnableMusket); if (RuleLog.On) ModLog.Every("FeatureSet.IsOn:143", 2d, $"FeatureSet.IsOn: returns {returnedAt143} (line 143)"); return returnedAt143; }
+                case "arrows": { var returnedAt144 = ModSettings.FeatureOn(ModSettings.EnableExplosiveArrows); if (RuleLog.On) ModLog.Every("FeatureSet.IsOn:144", 2d, $"FeatureSet.IsOn: returns {returnedAt144} (line 144)"); return returnedAt144; }
+                case "dynamite": { var returnedAt145 = ModSettings.FeatureOn(ModSettings.EnableDynamite); if (RuleLog.On) ModLog.Every("FeatureSet.IsOn:145", 2d, $"FeatureSet.IsOn: returns {returnedAt145} (line 145)"); return returnedAt145; }
+                case "mobilecannon": { var returnedAt146 = ModSettings.FeatureOn(ModSettings.EnableCannon); if (RuleLog.On) ModLog.Every("FeatureSet.IsOn:146", 2d, $"FeatureSet.IsOn: returns {returnedAt146} (line 146)"); return returnedAt146; }   // one switch for both cannon types
+                default: { if (RuleLog.On) ModLog.Every("FeatureSet.IsOn:147", 2d, "FeatureSet.IsOn: returns false (line 147)"); return false; }
             }
         }
 
@@ -279,7 +282,8 @@ namespace GunPowdered.Integrations.Items
 
         static IList<CostLine> Costs(ItemSpec s)
         {
-            if (s.Id != GunPowderedPrefabs.Gunpowder) return s.Cost;
+            if (RuleLog.On) ModLog.Verbose($"FeatureSet.Costs(s={s})");
+            if (s.Id != GunPowderedPrefabs.Gunpowder) { var returnedAt286 = s.Cost; if (RuleLog.On) ModLog.Verbose($"FeatureSet.Costs: returns {returnedAt286} (line 286)"); return returnedAt286; }
             return new[]
             {
                 new CostLine(GunPowderedPrefabs.Saltpeter, ModSettings.MillSaltpeter.Value),
@@ -292,14 +296,16 @@ namespace GunPowdered.Integrations.Items
 
         static int Yield(ItemSpec s)
         {
-            return s.Id == GunPowderedPrefabs.Gunpowder ? ModSettings.MillYield.Value : s.Yield;
+            if (RuleLog.On) ModLog.Verbose($"FeatureSet.Yield(s={s})");
+            { var returnedAt300 = s.Id == GunPowderedPrefabs.Gunpowder ? ModSettings.MillYield.Value : s.Yield; if (RuleLog.On) ModLog.Verbose($"FeatureSet.Yield: returns {returnedAt300} (line 300)"); return returnedAt300; }
         }
 
         static RequirementConfig[] ToRequirements(IList<CostLine> cost)
         {
+            if (RuleLog.On) ModLog.Verbose($"FeatureSet.ToRequirements(cost={cost})");
             var list = new RequirementConfig[cost.Count];
             for (int i = 0; i < list.Length; i++) list[i] = new RequirementConfig { Item = cost[i].Prefab, Amount = cost[i].Amount, Recover = true };
-            return list;
+            { var returnedAt308 = list; if (RuleLog.On) ModLog.Verbose($"FeatureSet.ToRequirements: returns {returnedAt308} (line 308)"); return returnedAt308; }
         }
     }
 }

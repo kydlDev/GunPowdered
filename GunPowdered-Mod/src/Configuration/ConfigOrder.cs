@@ -1,4 +1,6 @@
 using BepInEx.Configuration;
+using GunPowdered.Core;
+using KydlCore.Common;
 
 namespace GunPowdered.Configuration;
 
@@ -19,11 +21,13 @@ internal static class ConfigOrder
 
     public static ConfigDescription First(string description)
     {
-        return new ConfigDescription(description, null, new ConfigurationManagerAttributes { Order = FirstOrder });
+        if (RuleLog.On) ModLog.Verbose($"ConfigOrder.First(description={description})");
+        { var returnedAt25 = new ConfigDescription(description, null, new ConfigurationManagerAttributes { Order = FirstOrder }); if (RuleLog.On) ModLog.Verbose($"ConfigOrder.First: returns {returnedAt25} (line 25)"); return returnedAt25; }
     }
 
     public static ConfigDescription Last(string description)
     {
-        return new ConfigDescription(description, null, new ConfigurationManagerAttributes { Order = LastOrder });
+        if (RuleLog.On) ModLog.Verbose($"ConfigOrder.Last(description={description})");
+        { var returnedAt31 = new ConfigDescription(description, null, new ConfigurationManagerAttributes { Order = LastOrder }); if (RuleLog.On) ModLog.Verbose($"ConfigOrder.Last: returns {returnedAt31} (line 31)"); return returnedAt31; }
     }
 }

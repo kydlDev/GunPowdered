@@ -4,6 +4,7 @@ using GunPowdered.Bootstrap;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
 using GunPowdered.Integrations.Items;
+using KydlCore.Common;
 
 namespace GunPowdered.Features.MobileCannon.Infrastructure
 {
@@ -19,6 +20,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         internal MobileCannonFeature()
         {
+            if (RuleLog.On) ModLog.Verbose($"MobileCannonFeature.MobileCannonFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.MobileCannon, ItemCatalog.AsksvinHarness);
         }
 

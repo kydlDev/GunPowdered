@@ -11,9 +11,10 @@ namespace GunPowdered.Core
         /// <summary>True when the feature is on and the key is either not needed or set. A missing key check (null) counts as "not set".</summary>
         public static bool IsOn(bool featureOn, string requiredKey, Func<string, bool> hasKey)
         {
-            if (!featureOn) return false;
-            if (string.IsNullOrEmpty(requiredKey)) return true;
-            return hasKey != null && hasKey(requiredKey);
+            if (RuleLog.On) RuleLog.Every("RecipeGate.IsOn", 2d, $"RecipeGate.IsOn(featureOn={featureOn}, requiredKey={requiredKey}, hasKey={hasKey})");
+            if (!featureOn) { if (RuleLog.On) RuleLog.Every("RecipeGate.IsOn:15", 2d, "RecipeGate.IsOn: returns false (line 15)"); return false; }
+            if (string.IsNullOrEmpty(requiredKey)) { if (RuleLog.On) RuleLog.Every("RecipeGate.IsOn:16", 2d, "RecipeGate.IsOn: returns true (line 16)"); return true; }
+            { var returnedAt17 = hasKey != null && hasKey(requiredKey); if (RuleLog.On) RuleLog.Every("RecipeGate.IsOn:17", 2d, $"RecipeGate.IsOn: returns {returnedAt17} (line 17)"); return returnedAt17; }
         }
     }
 }

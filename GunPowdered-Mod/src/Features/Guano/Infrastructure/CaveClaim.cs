@@ -1,6 +1,7 @@
 using System;
 using KydlCore.Common;
 using UnityEngine;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.Guano.Infrastructure
 {
@@ -19,8 +20,9 @@ namespace GunPowdered.Features.Guano.Infrastructure
 
         void Awake()
         {
+            if (RuleLog.On) ModLog.Verbose($"CaveClaim.Awake()");
             _nview = GetComponent<ZNetView>();
-            if (_nview == null || !_nview.IsValid()) return;
+            if (_nview == null || !_nview.IsValid()) { if (RuleLog.On) ModLog.Verbose("CaveClaim.Awake: returns (line 25)"); return; }
             _nview.Register(RpcClaim, OnClaim);
             _nview.Register<bool>(RpcClaimed, OnClaimed);
         }
@@ -31,7 +33,7 @@ namespace GunPowdered.Features.Guano.Infrastructure
         /// <summary>Asks the owner whether this client may fill the cave; the answer arrives in <paramref name="onAnswer"/>. Expected outcome: the request was sent.</summary>
         internal bool Request(Action<bool> onAnswer)
         {
-            if (_nview == null || !_nview.IsValid()) return _nview != null && _nview.IsValid();
+            if (_nview == null || !_nview.IsValid()) { var returnedAt36 = _nview != null && _nview.IsValid(); if (RuleLog.On) ModLog.Every("CaveClaim.Request:36", 2d, $"CaveClaim.Request: returns {returnedAt36} (line 36)"); return returnedAt36; }
             _onAnswer = onAnswer;
             _nview.InvokeRPC(RpcClaim);
             ModLog.Verbose("CaveClaim: asked the owner of " + name + " (owner is me " + _nview.IsOwner() + ")");
@@ -41,7 +43,7 @@ namespace GunPowdered.Features.Guano.Infrastructure
         // owner: first asker wins
         void OnClaim(long sender)
         {
-            if (!_nview.IsOwner()) return;
+            if (!_nview.IsOwner()) { if (RuleLog.On) ModLog.Verbose("CaveClaim.OnClaim: returns (line 46)"); return; }
             ZDO zdo = _nview.GetZDO();
             bool granted = !zdo.GetBool(KeyPlaced);
             if (granted) zdo.Set(KeyPlaced, true);

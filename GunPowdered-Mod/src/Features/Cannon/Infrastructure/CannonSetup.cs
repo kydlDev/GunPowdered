@@ -3,6 +3,7 @@ using Jotunn.Managers;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Integrations.Items;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.Cannon.Infrastructure
 {
@@ -74,7 +75,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
                 attach.gameObject.layer = item.layer;
                 CopyGrip(attach);
             }
-            if (attach.Find("gp_model") != null) return true;
+            if (attach.Find("gp_model") != null) { if (RuleLog.On) ModLog.Verbose("CannonSetup.AttachHandModel: returns true (line 78)"); return true; }
             GameObject copy = Object.Instantiate(model.gameObject, attach);
             copy.name = "gp_model";
             // the ball sits where the vanilla Ooze Bomb's ball sits in the hand (centred on the hand joint it was hidden inside the fist, run cannonV5);
@@ -84,15 +85,16 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             copy.transform.localScale = Vector3.one;
             foreach (Collider c in copy.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c);
             foreach (Renderer r in copy.GetComponentsInChildren<Renderer>(true)) r.enabled = true;
-            return true;
+            { if (RuleLog.On) ModLog.Verbose("CannonSetup.AttachHandModel: returns true (line 88)"); return true; }
         }
 
         // our "attach" takes the Ooze Bomb attach's own place under its item, so the ball centre measured in that space means the same in ours
         static void CopyGrip(Transform attach)
         {
+            if (RuleLog.On) ModLog.Verbose($"CannonSetup.CopyGrip(attach={attach})");
             GameObject bomb = PrefabManager.Instance.GetPrefab("BombOoze");
             Transform grip = bomb != null ? bomb.transform.Find("attach") : null;
-            if (grip == null) return;
+            if (grip == null) { if (RuleLog.On) ModLog.Verbose("CannonSetup.CopyGrip: returns (line 97)"); return; }
             attach.localPosition = grip.localPosition;
             attach.localRotation = grip.localRotation;
             attach.localScale = grip.localScale;

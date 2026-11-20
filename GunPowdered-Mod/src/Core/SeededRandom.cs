@@ -15,12 +15,14 @@ namespace GunPowdered.Core
         /// <summary>Starts the sequence for a seed. The same seed always gives the same sequence.</summary>
         internal SeededRandom(int seed)
         {
+            if (RuleLog.On) RuleLog.Every("SeededRandom.SeededRandom", 2d, $"SeededRandom.SeededRandom(seed={seed})");
             _state = unchecked((ulong)(long)seed * 0x9E3779B97F4A7C15UL);
         }
 
         /// <summary>The next raw 64-bit draw (SplitMix64 step).</summary>
         private ulong NextRaw()
         {
+            if (RuleLog.On) RuleLog.Every("SeededRandom.NextRaw", 2d, $"SeededRandom.NextRaw()");
             unchecked
             {
                 _state += 0x9E3779B97F4A7C15UL;
@@ -30,7 +32,7 @@ namespace GunPowdered.Core
                 // Stryker disable once Bitwise : on a ulong >> and >>> are the same (logical) shift
                 z = (z ^ (z >> 27)) * 0x94D049BB133111EBUL;
                 // Stryker disable once Bitwise : on a ulong >> and >>> are the same (logical) shift
-                return z ^ (z >> 31);
+                { var returnedAt35 = z ^ (z >> 31); if (RuleLog.On) RuleLog.Every("SeededRandom.NextRaw:35", 2d, $"SeededRandom.NextRaw: returns {returnedAt35} (line 35)"); return returnedAt35; }
             }
         }
 
@@ -45,11 +47,12 @@ namespace GunPowdered.Core
         /// </summary>
         internal int Next(int maxExclusive)
         {
+            if (RuleLog.On) RuleLog.Every("SeededRandom.Next", 2d, $"SeededRandom.Next(maxExclusive={maxExclusive})");
             if (maxExclusive < 0) throw new ArgumentOutOfRangeException(nameof(maxExclusive), maxExclusive, "must not be negative");
             // Stryker disable once Bitwise : on a ulong >> and >>> are the same (logical) shift
             ulong draw31 = NextRaw() >> 33;
             // Stryker disable once Bitwise : on a ulong >> and >>> are the same (logical) shift
-            return (int)((draw31 * (ulong)maxExclusive) >> 31);
+            { var returnedAt55 = (int)((draw31 * (ulong)maxExclusive) >> 31); if (RuleLog.On) RuleLog.Every("SeededRandom.Next:55", 2d, $"SeededRandom.Next: returns {returnedAt55} (line 55)"); return returnedAt55; }
         }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using HarmonyLib;
 using KydlCore.Common;
 using GunPowdered.Features.Cannon.Infrastructure;
+using GunPowdered.Core;
 
 namespace GunPowdered.Integrations.HarmonyPatches
 {
@@ -17,10 +18,10 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             try
             {
-                if (__instance != Player.m_localPlayer || CannonAim.Current == null) return true;
+                if (__instance != Player.m_localPlayer || CannonAim.Current == null) { if (RuleLog.On) ModLog.Every("CannonAttackPatch.Prefix:21", 2d, "CannonAttackPatch.Prefix: returns true (line 21)"); return true; }
                 CannonAim.AttackPressed(Player.m_localPlayer);
                 __result = false;
-                return false;
+                { if (RuleLog.On) ModLog.Every("CannonAttackPatch.Prefix:24", 2d, "CannonAttackPatch.Prefix: returns false (line 24)"); return false; }
             }
             catch (Exception e)
             {

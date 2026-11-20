@@ -1,4 +1,5 @@
 using System.Globalization;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.Grenades.Domain
 {
@@ -10,6 +11,7 @@ namespace GunPowdered.Features.Grenades.Domain
     {
         internal AimSpot(float distance, float sideDegrees)
         {
+            if (RuleLog.On) RuleLog.Verbose($"AimSpot.AimSpot(distance={distance}, sideDegrees={sideDegrees})");
             Distance = distance;
             SideDegrees = sideDegrees;
         }

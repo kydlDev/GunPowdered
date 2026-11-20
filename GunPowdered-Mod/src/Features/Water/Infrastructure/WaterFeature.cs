@@ -3,6 +3,7 @@ using GunPowdered.Bootstrap;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
 using GunPowdered.Integrations.Items;
+using KydlCore.Common;
 
 namespace GunPowdered.Features.Water.Infrastructure
 {
@@ -17,6 +18,7 @@ namespace GunPowdered.Features.Water.Infrastructure
 
         internal WaterFeature()
         {
+            if (RuleLog.On) ModLog.Verbose($"WaterFeature.WaterFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.Water, ItemCatalog.Bucket, ItemCatalog.BucketFull, ItemCatalog.RainBarrel);
         }
 

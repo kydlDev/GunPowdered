@@ -3,6 +3,7 @@ using System;
 using HarmonyLib;
 using KydlCore.Common;
 using GunPowdered.Features.Guano.Infrastructure;
+using GunPowdered.Core;
 
 namespace GunPowdered.Integrations.HarmonyPatches
 {
@@ -12,6 +13,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
     {
         static void Prefix(Humanoid character, ref bool __state)
         {
+            if (RuleLog.On) ModLog.Every("CaveEntryPatch.Prefix", 2d, $"CaveEntryPatch.Prefix(character={character}, __state={__state})");
             __state = character != null && !character.InInterior();     // outside before the teleport = going in
         }
 
@@ -19,7 +21,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             try
             {
-                if (!__result || __instance.m_targetPoint == null) return;
+                if (!__result || __instance.m_targetPoint == null) { if (RuleLog.On) ModLog.Every("CaveEntryPatch.Postfix:24", 2d, "CaveEntryPatch.Postfix: returns (line 24)"); return; }
                 CaveEntryPlacer.OnEntered(character as Player, __instance.GetComponentInParent<Location>(), __instance.m_targetPoint.transform.position, __state);
             }
             catch (Exception e)

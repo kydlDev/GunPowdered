@@ -3,6 +3,7 @@ using GunPowdered.Bootstrap;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
 using GunPowdered.Integrations.Items;
+using KydlCore.Common;
 
 namespace GunPowdered.Features.Saltpeter.Infrastructure
 {
@@ -17,6 +18,7 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
 
         internal SaltpeterFeature()
         {
+            if (RuleLog.On) ModLog.Verbose($"SaltpeterFeature.SaltpeterFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.Saltpeter, ItemCatalog.LeachingVat);
         }
 

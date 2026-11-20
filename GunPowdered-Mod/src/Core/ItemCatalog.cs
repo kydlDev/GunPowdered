@@ -22,6 +22,7 @@ namespace GunPowdered.Core
     {
         public CostLine(string prefab, int amount)
         {
+            if (RuleLog.On) RuleLog.Verbose($"CostLine.CostLine(prefab={prefab}, amount={amount})");
             Prefab = prefab;
             Amount = amount;
         }
@@ -38,6 +39,7 @@ namespace GunPowdered.Core
     {
         public ItemSpec(string id, string name, string description, ItemKind kind, string cloneOf, int stack, float weight, string station, int yield, params CostLine[] cost)
         {
+            if (RuleLog.On) RuleLog.Verbose($"ItemSpec.ItemSpec(id={id}, name={name}, description={description}, kind={kind}, cloneOf={cloneOf}, stack={stack}, weight={weight}, station={station}, yield={yield})");
             Id = id;
             Name = name;
             Description = description;
@@ -72,15 +74,17 @@ namespace GunPowdered.Core
         /// <summary>Hides the recipe until the world has the global key. Expected outcome: this entry, with <see cref="RequiredGlobalKey"/> = key.</summary>
         public ItemSpec AfterGlobalKey(string key)
         {
+            if (RuleLog.On) RuleLog.Verbose($"ItemSpec.AfterGlobalKey(key={key})");
             RequiredGlobalKey = string.IsNullOrEmpty(key) ? null : key;
-            return this;
+            { var returnedAt79 = this; if (RuleLog.On) RuleLog.Verbose($"ItemSpec.AfterGlobalKey: returns {returnedAt79} (line 79)"); return returnedAt79; }
         }
 
         /// <summary>Sets the station level the recipe needs. Expected outcome: this entry, with <see cref="StationLevel"/> = level (at least 1).</summary>
         public ItemSpec AtStationLevel(int level)
         {
+            if (RuleLog.On) RuleLog.Verbose($"ItemSpec.AtStationLevel(level={level})");
             StationLevel = level < 1 ? 1 : level;
-            return this;
+            { var returnedAt87 = this; if (RuleLog.On) RuleLog.Verbose($"ItemSpec.AtStationLevel: returns {returnedAt87} (line 87)"); return returnedAt87; }
         }
     }
 

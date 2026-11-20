@@ -1,6 +1,7 @@
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Features.Musket.Domain;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.Musket.Infrastructure
 {
@@ -64,7 +65,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// <summary>Puts the rig on a player (once). Expected outcome: the player has exactly one rig.</summary>
         internal static MusketRig AttachTo(Character character)
         {
-            if (character == null) return null;
+            if (character == null) { if (RuleLog.On) ModLog.Every("MusketRig.AttachTo:68", 2d, "MusketRig.AttachTo: returns null (line 68)"); return null; }
             MusketRig rig = character.GetComponent<MusketRig>() ?? character.gameObject.AddComponent<MusketRig>();
             rig._character = character;
             rig._vis = character.GetComponent<VisEquipment>();
@@ -76,10 +77,11 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// <summary>Where the muzzle of the musket in this player's hand is (world). Expected outcome: false while the player holds no musket model.</summary>
         internal bool TryMuzzle(out Vector3 at)
         {
+            if (RuleLog.On) ModLog.Every("MusketRig.TryMuzzle", 2d, $"MusketRig.TryMuzzle()");
             at = Vector3.zero;
-            if (_model == null || !_wasHolding) return false;
+            if (_model == null || !_wasHolding) { if (RuleLog.On) ModLog.Every("MusketRig.TryMuzzle:82", 2d, "MusketRig.TryMuzzle: returns false (line 82)"); return false; }
             at = _model.TransformPoint(new Vector3(0f, 0f, MusketPoses.MuzzleZ));
-            return true;
+            { if (RuleLog.On) ModLog.Every("MusketRig.TryMuzzle:84", 2d, "MusketRig.TryMuzzle: returns true (line 84)"); return true; }
         }
 
         /// <summary>Starts an action (a shot's recoil, a reload) for this player; Hold ends it.</summary>
@@ -94,7 +96,8 @@ namespace GunPowdered.Features.Musket.Infrastructure
         // the owner (the player's own client) writes the action for everyone else
         void Share(MusketAction action)
         {
-            if (_nview == null || !_nview.IsValid() || !_nview.IsOwner()) return;
+            if (RuleLog.On) ModLog.Every("MusketRig.Share", 2d, $"MusketRig.Share(action={action})");
+            if (_nview == null || !_nview.IsValid() || !_nview.IsOwner()) { if (RuleLog.On) ModLog.Every("MusketRig.Share:100", 2d, "MusketRig.Share: returns (line 100)"); return; }
             ZDO zdo = _nview.GetZDO();
             _seq = zdo.GetInt(ActionSeqKey) + 1;
             zdo.Set(ActionKey, (int)action);
@@ -105,13 +108,13 @@ namespace GunPowdered.Features.Musket.Infrastructure
         // another player's rig: start the action that player's client wrote (once per counter step). Expected outcome: true when a new action began.
         bool FollowOwner()
         {
-            if (_nview == null || !_nview.IsValid() || _nview.IsOwner()) return false;
+            if (_nview == null || !_nview.IsValid() || _nview.IsOwner()) { if (RuleLog.On) ModLog.Every("MusketRig.FollowOwner:111", 2d, "MusketRig.FollowOwner: returns false (line 111)"); return false; }
             ZDO zdo = _nview.GetZDO();
             int seq = zdo.GetInt(ActionSeqKey, -1);
-            if (seq < 0 || seq == _seenSeq) return false;
+            if (seq < 0 || seq == _seenSeq) { if (RuleLog.On) ModLog.Every("MusketRig.FollowOwner:114", 2d, "MusketRig.FollowOwner: returns false (line 114)"); return false; }
             bool first = _seenSeq < 0;
             _seenSeq = seq;
-            if (first) return false;                 // joining late: the past action is not replayed
+            if (first) { if (RuleLog.On) ModLog.Every("MusketRig.FollowOwner:117", 2d, "MusketRig.FollowOwner: returns false (line 117)"); return false; }                 // joining late: the past action is not replayed
             _action = (MusketAction)zdo.GetInt(ActionKey);
             _actionStarted = Time.time;
             ModLog.Verbose($"MusketRig: {_character?.name} plays {_action} from its owner (step {seq})");
@@ -132,12 +135,12 @@ namespace GunPowdered.Features.Musket.Infrastructure
             {
                 _wrote = false;
                 _spineSet = false;
-                return;
+                { if (RuleLog.On) ModLog.Every("MusketRig.LateUpdate:138", 2d, "MusketRig.LateUpdate: returns (line 138)"); return; }
             }
             if (!NoSkipGuard && AnimatorDidNotRun())
             {
                 SkippedFrames++;
-                return;
+                { if (RuleLog.On) ModLog.Every("MusketRig.LateUpdate:143", 2d, "MusketRig.LateUpdate: returns (line 143)"); return; }
             }
 
             FollowOwner();
@@ -145,7 +148,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             if (_action == MusketAction.Fire && seconds > MusketPoseRules.FireSeconds) _action = MusketAction.Hold;
             Vector3 v = _character.GetVelocity();
             _carry = MusketPoseRules.NextCarry(_carry, new Vector3(v.x, 0f, v.z).magnitude, Time.deltaTime);
-            if (!MusketPoseRules.Evaluate(_action, seconds, _carry, _muscles)) return;
+            if (!MusketPoseRules.Evaluate(_action, seconds, _carry, _muscles)) { if (RuleLog.On) ModLog.Every("MusketRig.LateUpdate:151", 2d, "MusketRig.LateUpdate: returns (line 151)"); return; }
 
             _handler.GetHumanPose(ref _pose);
             System.Array.Copy(_muscles, 0, _pose.muscles, MusketPoses.First, MusketPoses.Count);
@@ -163,25 +166,27 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// <summary>Turns the upper chest so the shouldered musket follows the look up or down (not while running or reloading). Returns the pitch used.</summary>
         float AimChest()
         {
-            if (_action == MusketAction.Reload || _carry > 0.5f) return 0f;
+            if (RuleLog.On) ModLog.Every("MusketRig.AimChest", 2d, $"MusketRig.AimChest()");
+            if (_action == MusketAction.Reload || _carry > 0.5f) { if (RuleLog.On) ModLog.Every("MusketRig.AimChest:170", 2d, "MusketRig.AimChest: returns 0f (line 170)"); return 0f; }
             Transform chest = _animator.GetBoneTransform(HumanBodyBones.UpperChest) ?? _animator.GetBoneTransform(HumanBodyBones.Chest);
-            if (chest == null) return 0f;
+            if (chest == null) { if (RuleLog.On) ModLog.Every("MusketRig.AimChest:172", 2d, "MusketRig.AimChest: returns 0f (line 172)"); return 0f; }
             Transform body = _character.transform;
             Vector3 look = _character.GetLookDir();
             Vector3 flat = Vector3.ProjectOnPlane(look, body.up);
-            if (flat.sqrMagnitude < 1e-4f) return 0f;
+            if (flat.sqrMagnitude < 1e-4f) { if (RuleLog.On) ModLog.Every("MusketRig.AimChest:176", 2d, "MusketRig.AimChest: returns 0f (line 176)"); return 0f; }
             float pitch = Mathf.Clamp(Vector3.SignedAngle(flat.normalized, look, body.right), -MaxAimPitch, MaxAimPitch) * (1f - _carry);
             chest.rotation = Quaternion.AngleAxis(pitch, body.right) * chest.rotation;
-            return pitch;
+            { var returnedAt179 = pitch; if (RuleLog.On) ModLog.Every("MusketRig.AimChest:179", 2d, $"MusketRig.AimChest: returns {returnedAt179} (line 179)"); return returnedAt179; }
         }
 
         /// <summary>Puts the musket in the right hand: the aiming grip, or (w = 1) the reload grip on the barrel with the ramrod in the bore, its top in the left fist.</summary>
         void PlaceModel(float w, float seconds)
         {
+            if (RuleLog.On) ModLog.Every("MusketRig.PlaceModel", 2d, $"MusketRig.PlaceModel(w={w}, seconds={seconds})");
             float[] a = MusketPoses.GripHold, b = MusketPoses.GripReload;
             _model.localPosition = Vector3.Lerp(new Vector3(a[0], a[1], a[2]), new Vector3(b[0], b[1], b[2]), w);
             _model.localRotation = Quaternion.Slerp(Quaternion.Euler(a[3], a[4], a[5]), Quaternion.Euler(b[3], b[4], b[5]), w);
-            if (_rod == null) return;
+            if (_rod == null) { if (RuleLog.On) ModLog.Every("MusketRig.PlaceModel:189", 2d, "MusketRig.PlaceModel: returns (line 189)"); return; }
             var rammed = new Vector3(_rodHome.x, _rodHome.y - MusketPoses.RodPipeY, _rodHome.z + MusketPoses.MuzzleZ + MusketPoseRules.RodAboveMuzzle(seconds) - MusketPoses.RodTopZ);
             _rod.localPosition = w > 0.5f ? rammed : _rodHome;
         }
@@ -189,6 +194,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         // steadiness 0 = the animation's spine as it is, 1 = only its slow average (the breathing filtered out)
         void SteadySpine(float steadiness)
         {
+            if (RuleLog.On) ModLog.Every("MusketRig.SteadySpine", 2d, $"MusketRig.SteadySpine(steadiness={steadiness})");
             float now = Time.time, dt = _spineSet ? now - _lastPosed : 0f;
             _lastPosed = now;
             float follow = MusketPoseRules.FollowFactor(dt, SpineSeconds);
@@ -203,15 +209,17 @@ namespace GunPowdered.Features.Musket.Infrastructure
 
         bool AnimatorDidNotRun()
         {
-            if (!_wrote || _upperL == null || _upperR == null) return false;
-            return _upperL.localRotation == _wroteL && _upperR.localRotation == _wroteR;
+            if (RuleLog.On) ModLog.Every("MusketRig.AnimatorDidNotRun", 2d, $"MusketRig.AnimatorDidNotRun()");
+            if (!_wrote || _upperL == null || _upperR == null) { if (RuleLog.On) ModLog.Every("MusketRig.AnimatorDidNotRun:213", 2d, "MusketRig.AnimatorDidNotRun: returns false (line 213)"); return false; }
+            { var returnedAt214 = _upperL.localRotation == _wroteL && _upperR.localRotation == _wroteR; if (RuleLog.On) ModLog.Every("MusketRig.AnimatorDidNotRun:214", 2d, $"MusketRig.AnimatorDidNotRun: returns {returnedAt214} (line 214)"); return returnedAt214; }
         }
 
         void RememberWrite()
         {
+            if (RuleLog.On) ModLog.Every("MusketRig.RememberWrite", 2d, $"MusketRig.RememberWrite()");
             if (_upperL == null) _upperL = _animator.GetBoneTransform(HumanBodyBones.LeftUpperArm);
             if (_upperR == null) _upperR = _animator.GetBoneTransform(HumanBodyBones.RightUpperArm);
-            if (_upperL == null || _upperR == null) return;
+            if (_upperL == null || _upperR == null) { if (RuleLog.On) ModLog.Every("MusketRig.RememberWrite:222", 2d, "MusketRig.RememberWrite: returns (line 222)"); return; }
             _wroteL = _upperL.localRotation;
             _wroteR = _upperR.localRotation;
             _wrote = true;
@@ -219,6 +227,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
 
         void Measure()
         {
+            if (RuleLog.On) ModLog.Every("MusketRig.Measure", 2d, $"MusketRig.Measure()");
             float h = _character.transform.InverseTransformPoint(_model.position).y;
             if (!float.IsNaN(_lastHeight)) _maxStep = Mathf.Max(_maxStep, Mathf.Abs(h - _lastHeight));
             _lastHeight = h;
@@ -235,6 +244,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// <summary>Starts a new shake measurement.</summary>
         internal void ResetMeasure()
         {
+            if (RuleLog.On) ModLog.Verbose($"MusketRig.ResetMeasure()");
             _lastHeight = float.NaN;
             _minHeight = float.MaxValue;
             _maxHeight = float.MinValue;
@@ -248,18 +258,22 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// <summary>How much the musket moved up and down since ResetMeasure: "frames N, skipped S, range R mm, max step M mm".</summary>
         internal string ShakeReport()
         {
+            if (RuleLog.On) ModLog.Verbose($"MusketRig.ShakeReport()");
             float range = _measured > 0 ? (_maxHeight - _minHeight) * 1000f : 0f;
-            return "frames " + _measured + ", skipped " + SkippedFrames + ", range " + range.ToString("0.0") + " mm, max step " + (_maxStep * 1000f).ToString("0.0") + " mm; hips " + Range(_hipMin, _hipMax) + ", chest " + Range(_chestMin, _chestMax) + ", shoulder " + Range(_shoulderMin, _shoulderMax);
+            string report = $"frames {_measured}, skipped {SkippedFrames}, range {range:0.0} mm, max step {_maxStep * 1000f:0.0} mm; hips {Range(_hipMin, _hipMax)}, chest {Range(_chestMin, _chestMax)}, shoulder {Range(_shoulderMin, _shoulderMax)}";
+            if (RuleLog.On) ModLog.Verbose($"MusketRig.ShakeReport: returns {report}");
+            return report;
         }
 
         static string Range(float min, float max)
         {
-            return max >= min ? ((max - min) * 1000f).ToString("0.0") + " mm" : "n/a";
+            if (RuleLog.On) ModLog.Every("MusketRig.Range", 2d, $"MusketRig.Range(min={min}, max={max})");
+            { var returnedAt269 = max >= min ? ((max - min) * 1000f).ToString("0.0") + " mm" : "n/a"; if (RuleLog.On) ModLog.Every("MusketRig.Range:269", 2d, $"MusketRig.Range: returns {returnedAt269} (line 269)"); return returnedAt269; }
         }
 
         bool EnsureHandler()
         {
-            if (_handler != null) return true;
+            if (_handler != null) { if (RuleLog.On) ModLog.Every("MusketRig.EnsureHandler:274", 2d, "MusketRig.EnsureHandler: returns true (line 274)"); return true; }
             _animator = _character.GetComponentInChildren<Animator>();
             if (_animator == null || !_animator.isHuman || _animator.avatar == null)
             {
@@ -278,10 +292,10 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// </summary>
         bool FindModel()
         {
-            if (_model != null && _model.gameObject.activeInHierarchy && _model.IsChildOf(_vis.m_rightHand)) return true;
+            if (_model != null && _model.gameObject.activeInHierarchy && _model.IsChildOf(_vis.m_rightHand)) { if (RuleLog.On) ModLog.Every("MusketRig.FindModel:293", 2d, "MusketRig.FindModel: returns true (line 293)"); return true; }
             _model = null;
             Transform found = Search(_vis.m_rightHand) ?? Search(_vis.m_leftHand);
-            if (found == null) return false;
+            if (found == null) { if (RuleLog.On) ModLog.Every("MusketRig.FindModel:296", 2d, "MusketRig.FindModel: returns false (line 296)"); return false; }
             Transform attach = found.parent;
             if (!attach.IsChildOf(_vis.m_rightHand))
             {
@@ -300,19 +314,21 @@ namespace GunPowdered.Features.Musket.Infrastructure
 
         static Transform Search(Transform hand)
         {
-            if (hand == null) return null;
+            if (RuleLog.On) ModLog.Every("MusketRig.Search", 2d, $"MusketRig.Search(hand={hand})");
+            if (hand == null) { if (RuleLog.On) ModLog.Every("MusketRig.Search:316", 2d, "MusketRig.Search: returns null (line 316)"); return null; }
             foreach (Transform attach in hand)
             {
                 Transform m = attach.name.StartsWith("attach") ? attach.Find(ModelName) : null;
-                if (m != null && HasChild(m, BarrelName)) return m;
+                if (m != null && HasChild(m, BarrelName)) { var returnedAt320 = m; if (RuleLog.On) ModLog.Every("MusketRig.Search:320", 2d, $"MusketRig.Search: returns {returnedAt320} (line 320)"); return returnedAt320; }
             }
-            return null;
+            { if (RuleLog.On) ModLog.Every("MusketRig.Search:322", 2d, "MusketRig.Search: returns null (line 322)"); return null; }
         }
 
         static bool HasChild(Transform root, string name)
         {
-            foreach (Transform t in root.GetComponentsInChildren<Transform>(true)) if (t.name.StartsWith(name)) return true;
-            return false;
+            if (RuleLog.On) ModLog.Every("MusketRig.HasChild", 2d, $"MusketRig.HasChild(root={root}, name={name})");
+            foreach (Transform t in root.GetComponentsInChildren<Transform>(true)) if (t.name.StartsWith(name)) { if (RuleLog.On) ModLog.Every("MusketRig.HasChild:328", 2d, "MusketRig.HasChild: returns true (line 328)"); return true; }
+            { if (RuleLog.On) ModLog.Every("MusketRig.HasChild:329", 2d, "MusketRig.HasChild: returns false (line 329)"); return false; }
         }
 
         void OnDestroy() => _handler?.Dispose();

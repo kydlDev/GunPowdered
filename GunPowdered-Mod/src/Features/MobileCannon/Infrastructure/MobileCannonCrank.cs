@@ -1,4 +1,6 @@
 using UnityEngine;
+using GunPowdered.Core;
+using KydlCore.Common;
 
 namespace GunPowdered.Features.MobileCannon.Infrastructure
 {
@@ -18,9 +20,10 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>The crank the local player looks at right now (null when none).</summary>
         internal static MobileCannonCrank Hovered()
         {
+            if (RuleLog.On) ModLog.Every("MobileCannonCrank.Hovered", 2d, $"MobileCannonCrank.Hovered()");
             Player p = Player.m_localPlayer;
             GameObject go = p != null ? p.GetHoverObject() : null;
-            return go != null ? go.GetComponent<MobileCannonCrank>() : null;
+            { var returnedAt26 = go != null ? go.GetComponent<MobileCannonCrank>() : null; if (RuleLog.On) ModLog.Every("MobileCannonCrank.Hovered:26", 2d, $"MobileCannonCrank.Hovered: returns {returnedAt26} (line 26)"); return returnedAt26; }
         }
     }
 }

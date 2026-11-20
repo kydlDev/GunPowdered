@@ -1,3 +1,4 @@
+using GunPowdered.Core;
 namespace GunPowdered.Features.Grenades.Domain
 {
     /// <summary>How mouse movement moves the landing spot and how far it may go (D-050; every value is a Tunable in the game adapter).</summary>
@@ -5,6 +6,7 @@ namespace GunPowdered.Features.Grenades.Domain
     {
         internal AimTuning(float metersPerUnit, float degreesPerUnit, float minDistance, float maxDistance, float maxSideDegrees)
         {
+            if (RuleLog.On) RuleLog.Verbose($"AimTuning.AimTuning(metersPerUnit={metersPerUnit}, degreesPerUnit={degreesPerUnit}, minDistance={minDistance}, maxDistance={maxDistance}, maxSideDegrees={maxSideDegrees})");
             MetersPerUnit = metersPerUnit;
             DegreesPerUnit = degreesPerUnit;
             MinDistance = minDistance;

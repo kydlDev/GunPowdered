@@ -1,6 +1,7 @@
 using UnityEngine;
 using BepInEx.Configuration;
 using KydlCore.Common;
+using GunPowdered.Core;
 
 namespace GunPowdered.Configuration
 {
@@ -41,6 +42,7 @@ namespace GunPowdered.Configuration
     /// given (section, key, section, key, ...) pairs that holds a bool; true when there is none.
     private static bool Old(ConfigFile c, params string[] sectionAndKey)
     {
+        if (RuleLog.On) ModLog.Verbose($"ModSettings.Old(c={c})");
         // OrphanedEntries is not a public member of every BepInEx 5 build (ConfigTools.DropRemoved reaches it the same way)
         System.Reflection.PropertyInfo orphans = typeof(ConfigFile).GetProperty("OrphanedEntries", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic);
         var dict = orphans != null ? orphans.GetValue(c, null) as System.Collections.IDictionary : null;
@@ -50,11 +52,11 @@ namespace GunPowdered.Configuration
             bool b;
             if (dict.Contains(def) && bool.TryParse((dict[def] as string ?? "").Trim(), out b))
             {
-                return b;
+                { var returnedAt55 = b; if (RuleLog.On) ModLog.Verbose($"ModSettings.Old: returns {returnedAt55} (line 55)"); return returnedAt55; }
             }
         }
 
-        return true;
+        { if (RuleLog.On) ModLog.Verbose("ModSettings.Old: returns true (line 59)"); return true; }
     }
 
         /// Expected outcome: every player entry is bound (returns that check).

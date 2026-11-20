@@ -1,4 +1,5 @@
 using System;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.Musket.Domain
 {
@@ -28,7 +29,8 @@ namespace GunPowdered.Features.Musket.Domain
         /// </summary>
         internal static bool Evaluate(MusketAction action, float seconds, float carry, float[] into)
         {
-            if (into == null || into.Length < MusketPoses.Count) return false;
+            if (RuleLog.On) RuleLog.Every("MusketPoseRules.Evaluate", 2d, $"MusketPoseRules.Evaluate(action={action}, seconds={seconds}, carry={carry}, into={into})");
+            if (into == null || into.Length < MusketPoses.Count) { if (RuleLog.On) RuleLog.Every("MusketPoseRules.Evaluate:33", 2d, "MusketPoseRules.Evaluate: returns false (line 33)"); return false; }
             float t = seconds > 0f ? seconds : 0f;
             Blend(MusketPoses.Hold, MusketPoses.Carry, Clamp01(carry), into);
             switch (action)
@@ -47,24 +49,26 @@ namespace GunPowdered.Features.Musket.Domain
                     }
                     break;
             }
-            return into.Length >= MusketPoses.Count;
+            { var returnedAt52 = into.Length >= MusketPoses.Count; if (RuleLog.On) RuleLog.Every("MusketPoseRules.Evaluate:52", 2d, $"MusketPoseRules.Evaluate: returns {returnedAt52} (line 52)"); return returnedAt52; }
         }
 
         /// <summary>Where the left hand is in the ramrod stroke of one cartridge: 0 (low) at the start and end of the 1.2 s, 1 (at the muzzle) in the middle.</summary>
         internal static float Stroke(float seconds)
         {
-            if (seconds <= 0f) return 0f;
+            if (RuleLog.On) RuleLog.Every("MusketPoseRules.Stroke", 2d, $"MusketPoseRules.Stroke(seconds={seconds})");
+            if (seconds <= 0f) { if (RuleLog.On) RuleLog.Every("MusketPoseRules.Stroke:59", 2d, "MusketPoseRules.Stroke: returns 0f (line 59)"); return 0f; }
             float u = seconds % ReloadSecondsPerCartridge / ReloadSecondsPerCartridge;
-            return (float)Math.Sin(Math.PI * u);
+            { var returnedAt61 = (float)Math.Sin(Math.PI * u); if (RuleLog.On) RuleLog.Every("MusketPoseRules.Stroke:61", 2d, $"MusketPoseRules.Stroke: returns {returnedAt61} (line 61)"); return returnedAt61; }
         }
 
         /// <summary>How far the carry is after one frame: it follows the running speed at one full change per <see cref="BlendSeconds"/>.</summary>
         internal static float NextCarry(float carry, float speed, float deltaSeconds)
         {
+            if (RuleLog.On) RuleLog.Every("MusketPoseRules.NextCarry", 2d, $"MusketPoseRules.NextCarry(carry={carry}, speed={speed}, deltaSeconds={deltaSeconds})");
             float target = speed > CarrySpeed ? 1f : 0f;
             float step = deltaSeconds > 0f ? deltaSeconds / BlendSeconds : 0f;
             float c = Clamp01(carry);
-            return c < target ? Math.Min(target, c + step) : Math.Max(target, c - step);
+            { var returnedAt71 = c < target ? Math.Min(target, c + step) : Math.Max(target, c - step); if (RuleLog.On) RuleLog.Every("MusketPoseRules.NextCarry:71", 2d, $"MusketPoseRules.NextCarry: returns {returnedAt71} (line 71)"); return returnedAt71; }
         }
 
         /// <summary>How far the musket has moved from the aiming grip to the reload grip (0 .. 1): it goes over in <see cref="BlendSeconds"/> when a reload begins.</summary>
@@ -79,27 +83,31 @@ namespace GunPowdered.Features.Musket.Domain
         /// </summary>
         internal static float SpineSteadiness(MusketAction action, float carry)
         {
-            if (action == MusketAction.Reload) return 0f;
-            return 1f - Clamp01(carry);
+            if (RuleLog.On) RuleLog.Every("MusketPoseRules.SpineSteadiness", 2d, $"MusketPoseRules.SpineSteadiness(action={action}, carry={carry})");
+            if (action == MusketAction.Reload) { if (RuleLog.On) RuleLog.Every("MusketPoseRules.SpineSteadiness:87", 2d, "MusketPoseRules.SpineSteadiness: returns 0f (line 87)"); return 0f; }
+            { var returnedAt88 = 1f - Clamp01(carry); if (RuleLog.On) RuleLog.Every("MusketPoseRules.SpineSteadiness:88", 2d, $"MusketPoseRules.SpineSteadiness: returns {returnedAt88} (line 88)"); return returnedAt88; }
         }
 
         /// <summary>The share of the way a slow follower moves towards its target in <paramref name="dt"/> seconds with time constant <paramref name="seconds"/> (0 .. 1).</summary>
         internal static float FollowFactor(float dt, float seconds)
         {
-            if (dt <= 0f) return 0f;
-            if (seconds <= 0f) return 1f;
-            return Clamp01(1f - (float)Math.Exp(-dt / seconds));
+            if (RuleLog.On) RuleLog.Every("MusketPoseRules.FollowFactor", 2d, $"MusketPoseRules.FollowFactor(dt={dt}, seconds={seconds})");
+            if (dt <= 0f) { if (RuleLog.On) RuleLog.Every("MusketPoseRules.FollowFactor:95", 2d, "MusketPoseRules.FollowFactor: returns 0f (line 95)"); return 0f; }
+            if (seconds <= 0f) { if (RuleLog.On) RuleLog.Every("MusketPoseRules.FollowFactor:96", 2d, "MusketPoseRules.FollowFactor: returns 1f (line 96)"); return 1f; }
+            { var returnedAt97 = Clamp01(1f - (float)Math.Exp(-dt / seconds)); if (RuleLog.On) RuleLog.Every("MusketPoseRules.FollowFactor:97", 2d, $"MusketPoseRules.FollowFactor: returns {returnedAt97} (line 97)"); return returnedAt97; }
         }
 
         internal static float Clamp01(float v) => v < 0f ? 0f : v > 1f ? 1f : v;
 
         static void Blend(float[] a, float[] b, float w, float[] into)
         {
+            if (RuleLog.On) RuleLog.Every("MusketPoseRules.Blend", 2d, $"MusketPoseRules.Blend(a={a}, b={b}, w={w}, into={into})");
             for (int i = 0; i < MusketPoses.Count; i++) into[i] = a[i] + (b[i] - a[i]) * w;
         }
 
         static void BlendOnto(float[] target, float w, float[] into)
         {
+            if (RuleLog.On) RuleLog.Every("MusketPoseRules.BlendOnto", 2d, $"MusketPoseRules.BlendOnto(target={target}, w={w}, into={into})");
             for (int i = 0; i < MusketPoses.Count; i++) into[i] += (target[i] - into[i]) * w;
         }
     }

@@ -1,3 +1,4 @@
+using GunPowdered.Core;
 namespace GunPowdered.Features.Grenades.Domain
 {
     /// <summary>What the controls should be after one step: the next phase and, when Intercept is true, the values the game gets instead of the player's own.</summary>
@@ -5,6 +6,7 @@ namespace GunPowdered.Features.Grenades.Domain
     {
         internal AimStep(AimPhase next, bool intercept, bool attack, bool suppressBlock, AimEvent happened)
         {
+            if (RuleLog.On) RuleLog.Every("AimStep.AimStep", 2d, $"AimStep.AimStep(next={next}, intercept={intercept}, attack={attack}, suppressBlock={suppressBlock}, happened={happened})");
             Next = next;
             Intercept = intercept;
             Attack = attack;

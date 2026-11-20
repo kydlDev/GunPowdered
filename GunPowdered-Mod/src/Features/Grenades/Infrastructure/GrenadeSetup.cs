@@ -57,14 +57,16 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         /// </summary>
         internal static bool ApplyIfChanged()
         {
+            if (RuleLog.On) ModLog.Every("GrenadeSetup.ApplyIfChanged", 2d, $"GrenadeSetup.ApplyIfChanged()");
             Read(Wanted);
             bool same = _everApplied;
             for (int i = 0; same && i < Wanted.Length; i++) same = Wanted[i].CompareTo(Applied[i]) == 0;
-            return same ? _item != null : Apply();
+            { var returnedAt64 = same ? _item != null : Apply(); if (RuleLog.On) ModLog.Every("GrenadeSetup.ApplyIfChanged:64", 2d, $"GrenadeSetup.ApplyIfChanged: returns {returnedAt64} (line 64)"); return returnedAt64; }
         }
 
         static void Read(float[] into)
         {
+            if (RuleLog.On) ModLog.Every("GrenadeSetup.Read", 2d, $"GrenadeSetup.Read(into={into})");
             into[0] = ModSettings.GrenadeSpeed.Value;
             into[1] = ModSettings.GrenadeGravity.Value;
             into[2] = ModSettings.GrenadeFuseSeconds.Value;
@@ -81,7 +83,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         /// </summary>
         internal static bool Apply()
         {
-            if (_item == null || _projectile == null || _explosion == null) return false;
+            if (_item == null || _projectile == null || _explosion == null) { if (RuleLog.On) ModLog.Every("GrenadeSetup.Apply:86", 2d, "GrenadeSetup.Apply: returns false (line 86)"); return false; }
             float speed = ModSettings.GrenadeSpeed.Value;
 
             ItemDrop.ItemData.SharedData shared = _item.GetComponent<ItemDrop>().m_itemData.m_shared;
@@ -129,7 +131,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             ModLog.Verbose("GrenadeSetup: applied - speed " + speed + " m/s, gravity " + flight.m_gravity + ", fuse " + flight.m_ttl + " s, burst offset " + flight.m_spawnOffset + ", radius " + blast.m_radius
                 + " m, damage blunt " + blast.m_damage.m_blunt + " pierce " + blast.m_damage.m_pierce + " fire " + blast.m_damage.m_fire + ", recoil " + attack.m_recoilPushback
                 + (TestFlightDrag > 0f ? ", TEST flight drag " + TestFlightDrag : ""));
-            return Mathf.Approximately(attack.m_projectileVel, speed) && Mathf.Approximately(blast.m_radius, ModSettings.GrenadeRadius.Value) && blast.m_hitProps;
+            { var returnedAt134 = Mathf.Approximately(attack.m_projectileVel, speed) && Mathf.Approximately(blast.m_radius, ModSettings.GrenadeRadius.Value) && blast.m_hitProps; if (RuleLog.On) ModLog.Every("GrenadeSetup.Apply:134", 2d, $"GrenadeSetup.Apply: returns {returnedAt134} (line 134)"); return returnedAt134; }
         }
 
         static GameObject CloneFirst(string id, string[] bases)
@@ -169,7 +171,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
                 ModLog.Warn("GrenadeSetup: no hand model - attach " + (attach != null) + ", bundle model " + (model != null));
                 return false;
             }
-            if (attach.Find("gp_model") != null) return true;
+            if (attach.Find("gp_model") != null) { if (RuleLog.On) ModLog.Verbose("GrenadeSetup.AttachHandModel: returns true (line 174)"); return true; }
             Renderer old = attach.GetComponentInChildren<Renderer>(true);
             Vector3 centre = old != null ? attach.InverseTransformPoint(old.transform.position) : Vector3.zero;
             GameObject copy = UnityEngine.Object.Instantiate(model.gameObject, attach);

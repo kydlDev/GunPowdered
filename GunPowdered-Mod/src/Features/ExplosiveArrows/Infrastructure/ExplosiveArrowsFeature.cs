@@ -4,6 +4,7 @@ using GunPowdered.Bootstrap;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
 using GunPowdered.Integrations.Items;
+using KydlCore.Common;
 
 namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
 {
@@ -18,6 +19,7 @@ namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
 
         internal ExplosiveArrowsFeature()
         {
+            if (RuleLog.On) ModLog.Verbose($"ExplosiveArrowsFeature.ExplosiveArrowsFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.ExplosiveArrow);
         }
 

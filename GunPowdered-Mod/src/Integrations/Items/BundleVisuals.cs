@@ -26,7 +26,7 @@ namespace GunPowdered.Integrations.Items
                 ModLog.Every("visual-missing-" + id, 600d, "BundleVisuals: no bundle model for " + id + ", the placeholder look stays");
                 return false;
             }
-            if (target.transform.Find(ModelChild) != null) return true;           // already swapped
+            if (target.transform.Find(ModelChild) != null) { if (RuleLog.On) ModLog.Every("BundleVisuals.Apply:29", 2d, "BundleVisuals.Apply: returns true (line 29)"); return true; }           // already swapped
 
             foreach (Renderer r in target.GetComponentsInChildren<Renderer>(true)) r.enabled = false;
             foreach (Collider c in target.GetComponentsInChildren<Collider>(true)) if (!c.isTrigger) c.enabled = false;
@@ -83,7 +83,7 @@ namespace GunPowdered.Integrations.Items
                 return null;
             }
             Transform existing = target.transform.Find(newName);
-            if (existing != null) return existing.gameObject;
+            if (existing != null) { var returnedAt86 = existing.gameObject; if (RuleLog.On) ModLog.Verbose($"BundleVisuals.CopyChild: returns {returnedAt86} (line 86)"); return returnedAt86; }
             GameObject copy = Object.Instantiate(part.gameObject, target.transform);
             copy.name = newName;
             copy.transform.localPosition = part.localPosition;
@@ -98,18 +98,21 @@ namespace GunPowdered.Integrations.Items
         /// <summary>The bundle's inventory / build menu icon of a prefab id. Expected outcome: the sprite, or null when there is no bundle or no such icon.</summary>
         internal static Sprite Icon(string id)
         {
-            return Plugin.Bundle != null ? Plugin.Bundle.LoadAsset<Sprite>(IconName(id)) : null;
+            if (RuleLog.On) ModLog.Verbose($"BundleVisuals.Icon(id={id})");
+            { var returnedAt102 = Plugin.Bundle != null ? Plugin.Bundle.LoadAsset<Sprite>(IconName(id)) : null; if (RuleLog.On) ModLog.Verbose($"BundleVisuals.Icon: returns {returnedAt102} (line 102)"); return returnedAt102; }
         }
 
         /// <summary>The icon file name (without extension) of a prefab id: the id without GP_, except the Leaching Station.</summary>
         internal static string IconName(string id)
         {
-            if (id == GunPowderedPrefabs.LeachingVat) return "LeachingStation";
-            return id.StartsWith("GP_") ? id.Substring(3) : id;
+            if (RuleLog.On) ModLog.Verbose($"BundleVisuals.IconName(id={id})");
+            if (id == GunPowderedPrefabs.LeachingVat) { if (RuleLog.On) ModLog.Verbose("BundleVisuals.IconName: returns \"LeachingStation\" (line 109)"); return "LeachingStation"; }
+            { var returnedAt110 = id.StartsWith("GP_") ? id.Substring(3) : id; if (RuleLog.On) ModLog.Verbose($"BundleVisuals.IconName: returns {returnedAt110} (line 110)"); return returnedAt110; }
         }
 
         static void SetLayer(GameObject go, int layer)
         {
+            if (RuleLog.On) ModLog.Every("BundleVisuals.SetLayer", 2d, $"BundleVisuals.SetLayer(go={go}, layer={layer})");
             foreach (Transform t in go.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = layer;
         }
     }

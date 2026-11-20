@@ -3,6 +3,7 @@ using System;
 using HarmonyLib;
 using KydlCore.Common;
 using GunPowdered.Features.Dynamite.Infrastructure;
+using GunPowdered.Core;
 
 namespace GunPowdered.Integrations.HarmonyPatches
 {
@@ -18,10 +19,10 @@ namespace GunPowdered.Integrations.HarmonyPatches
             try
             {
                 Player player = __instance as Player;
-                if (player == null || player != Player.m_localPlayer || DynamiteSetup.Held(player) == null) return true;
+                if (player == null || player != Player.m_localPlayer || DynamiteSetup.Held(player) == null) { if (RuleLog.On) ModLog.Every("DynamiteAttackPatch.Prefix:22", 2d, "DynamiteAttackPatch.Prefix: returns true (line 22)"); return true; }
                 if (!secondaryAttack) DynamiteSetup.Place(player);
                 __result = false;
-                return false;
+                { if (RuleLog.On) ModLog.Every("DynamiteAttackPatch.Prefix:25", 2d, "DynamiteAttackPatch.Prefix: returns false (line 25)"); return false; }
             }
             catch (Exception e)
             {

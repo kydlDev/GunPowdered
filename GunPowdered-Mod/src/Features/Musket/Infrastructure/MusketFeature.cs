@@ -4,6 +4,7 @@ using GunPowdered.Bootstrap;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
 using GunPowdered.Integrations.Items;
+using KydlCore.Common;
 
 namespace GunPowdered.Features.Musket.Infrastructure
 {
@@ -18,6 +19,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
 
         internal MusketFeature()
         {
+            if (RuleLog.On) ModLog.Verbose($"MusketFeature.MusketFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.Musket, ItemCatalog.Paper, ItemCatalog.IronBullet, ItemCatalog.PaperCartridge);
             MusketInput.Register();     // the reload key (D-100) - registered once at start, so the key hint and the binding exist before the HUD
         }

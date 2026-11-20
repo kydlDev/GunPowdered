@@ -1,5 +1,6 @@
 using KydlCore.Common;
 using UnityEngine;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.MobileCannon.Infrastructure
 {
@@ -24,7 +25,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         {
             Vagon vagon = GetComponent<Vagon>();
             Transform model = transform.Find(MobileCannonSetup.ModelName);
-            if (vagon == null || model == null || vagon.m_wheels == null) return;
+            if (vagon == null || model == null || vagon.m_wheels == null) { if (RuleLog.On) ModLog.Every("MobileCannonWheels.Start:28", 2d, "MobileCannonWheels.Start: returns (line 28)"); return; }
             var shown = new System.Collections.Generic.List<Transform>();
             foreach (Transform t in model)
                 if (t.name.StartsWith(WheelPrefix) && !t.name.EndsWith("_tyre")) shown.Add(t);

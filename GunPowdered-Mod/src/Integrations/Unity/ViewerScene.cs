@@ -3,6 +3,7 @@ using KydlCore.Common;
 using KydlCore.Ui;
 using UnityEngine;
 using GunPowdered.Ui;
+using GunPowdered.Core;
 
 namespace GunPowdered.Integrations.Unity
 {
@@ -29,7 +30,7 @@ namespace GunPowdered.Integrations.Unity
         static int PickLayer()
         {
             for (int i = FirstLayer; i >= LastLayer; i--)
-                if (string.IsNullOrEmpty(LayerMask.LayerToName(i))) return i;
+                if (string.IsNullOrEmpty(LayerMask.LayerToName(i))) { var returnedAt33 = i; if (RuleLog.On) ModLog.Every("ViewerScene.PickLayer:33", 2d, $"ViewerScene.PickLayer: returns {returnedAt33} (line 33)"); return returnedAt33; }
             ModLog.Warn("ViewerScene: layers " + LastLayer + ".." + FirstLayer + " all have names in the game - using " + FirstLayer + " ('" + LayerMask.LayerToName(FirstLayer) + "'); the view may show other objects");
             return FirstLayer;
         }
