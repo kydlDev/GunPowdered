@@ -132,6 +132,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             creatures.m_hitOwner = true;         // whoever lit it should run
             creatures.m_hitFriendly = false;     // the game's friendly rule: no tamed animals, players only with PvP on
             creatures.m_hitAfterTtl = false;
+            creatures.m_hitInterval = 0f;        // ONE hit, like the vanilla blast; the default 1 s re-hit every second of the 3 s life (T-009l: 3 hits = 2.44x, lab a10watch1)
             creatures.m_ttl = 0f;                // the parent's life ends it
             creatures.m_dodgeable = false;
             creatures.m_blockable = false;

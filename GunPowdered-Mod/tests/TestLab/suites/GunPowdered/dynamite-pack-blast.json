@@ -148,6 +148,15 @@
       "label": "the Troll's one backstab is used up (unaware creatures take the game's 4x from the first explosion, D-125 open), so the blast's own share is measured"
     },
     {
+      "do": "hook",
+      "name": "GunPowdered.creatureDamageWatch",
+      "args": {
+        "prefab": "Troll"
+      },
+      "expect": "watching Troll",
+      "label": "log every hit the Troll takes"
+    },
+    {
       "do": "invoke",
       "method": "Kydl.GameProbe.ProbeApi.Screenshot",
       "label": "GameProbe shot: the pack burning"
@@ -171,6 +180,12 @@
     },
     {
       "do": "hook",
+      "name": "GunPowdered.creatureDamageHits",
+      "expect": "hits 1",
+      "label": "the pack hits the Troll ONCE (T-009l)"
+    },
+    {
+      "do": "hook",
       "name": "GunPowdered.packTargets",
       "regex": "goldvein_frac@8 (gone|standing \\(0/\\d+ parts\\)); Ashlands_Fortress_Wall_Pillar_frac@12 (gone|standing \\(0/\\d+ parts\\)); Beech1@17 gone; Beech1@24 standing.*",
       "label": "the gold vein and the fortress pillar broken (every part, 20 m reach, tier 6), the beech at 17 m felled, the one at 24 m stands"
@@ -189,11 +204,11 @@
       "name": "GunPowdered.creatureLostBetween",
       "args": {
         "prefab": "Troll",
-        "min": 20,
-        "max": 300
+        "min": 40,
+        "max": 160
       },
       "expect": true,
-      "label": "the Troll loses only a part (80 blunt = 20 % of 400, plus the first fire)"
+      "label": "the Troll loses only a part: 80 blunt (resistant, 40) + the first fire ticks (30/s)"
     },
     {
       "do": "hook",

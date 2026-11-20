@@ -151,6 +151,30 @@ namespace GunPowdered.Testing.TestHooks
             return "backstab used on " + prefab;
         }
 
+        static Character _watched;
+
+        /// <summary>T-009l diagnostic: logs every hit the nearest creature of this prefab takes from now on (DamageWatchTestPatch). Returns "watching P".</summary>
+        [TestHook("GunPowdered.creatureDamageWatch")]
+        static string DamageWatch(string prefab)
+        {
+            Player p = Player.m_localPlayer;
+            _watched = null;
+            float bestDist = 60f;
+            foreach (Character c in Character.GetAllCharacters())
+            {
+                if (c == null || c == p || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab) continue;
+                float d = p != null ? Vector3.Distance(c.transform.position, p.transform.position) : 0f;
+                if (d < bestDist) { _watched = c; bestDist = d; }
+            }
+            if (_watched == null) return "no " + prefab;
+            GunPowdered.Integrations.HarmonyPatches.DamageWatchTestPatch.Apply(c => c != null && c == _watched);
+            return "watching " + prefab;
+        }
+
+        /// <summary>How many hits the watched creature took since creatureDamageWatch: "hits N".</summary>
+        [TestHook("GunPowdered.creatureDamageHits")]
+        static string DamageHits() => "hits " + GunPowdered.Integrations.HarmonyPatches.DamageWatchTestPatch.Hits;
+
         static DynamiteCharge NearestCharge()
         {
             Player p = Player.m_localPlayer;

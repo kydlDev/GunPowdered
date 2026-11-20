@@ -125,6 +125,15 @@
       "label": "the Troll's backstab is used up, so the blast's own fifth is measured (before: 20 x 4 backstab = 80 passed the same check, D-125)"
     },
     {
+      "do": "hook",
+      "name": "GunPowdered.creatureDamageWatch",
+      "args": {
+        "prefab": "Troll"
+      },
+      "expect": "watching Troll",
+      "label": "T-009l diagnostic: log every hit the Troll takes"
+    },
+    {
       "do": "wait",
       "seconds": 3
     },
@@ -133,6 +142,12 @@
       "name": "GunPowdered.dynamiteBlastsSinceLight",
       "expect": 1,
       "label": "it blew"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.creatureDamageHits",
+      "label": "the blast hits the Troll ONCE (T-009l: the creature part used to re-hit every second, 3 hits)",
+      "expect": "hits 1"
     },
     {
       "do": "hook",
@@ -161,10 +176,10 @@
       "args": {
         "prefab": "Troll",
         "min": 10,
-        "max": 100
+        "max": 35
       },
       "expect": true,
-      "label": "the Troll loses only about a fifth of the building damage"
+      "label": "the Troll loses only its fifth: 20 blunt (Troll: resistant, 10) + the first fire ticks (5/s)"
     },
     {
       "do": "hook",
