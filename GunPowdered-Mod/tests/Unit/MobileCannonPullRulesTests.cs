@@ -23,8 +23,27 @@ namespace GunPowdered.Tests.Unit
             Assert.That(MobileCannonPullRules.StaminaCost(speed, dt, perSecond), Is.EqualTo(expected).Within(1e-5f));
         }
 
+        // the edges: exactly the standing speed costs nothing, exactly 0.01 stamina lets go (a11gate Stryker survivors)
+        [TestCase(0.3f, 1f, 5f, 0f)]
+        [TestCase(0.31f, 1f, 5f, 5f)]
+        public void StaminaCost_StandingSpeedIsTheEdge(float speed, float dt, float perSecond, float expected)
+        {
+            Assert.That(MobileCannonPullRules.StaminaCost(speed, dt, perSecond), Is.EqualTo(expected).Within(1e-5f));
+        }
+
+        [TestCase(-3f, -2f, 0f)]
+        [TestCase(0f, 3.5f, 0f)]
+        [TestCase(3.5f, 3.5f, 3.5f)]
+        [TestCase(1f, 0f, 0f)]
+        public void CapSpeed_Edges(float speed, float max, float expected)
+        {
+            Assert.That(MobileCannonPullRules.CapSpeed(speed, max), Is.EqualTo(expected).Within(1e-5f));
+        }
+
         [TestCase(0f, true)]
         [TestCase(0.005f, true)]
+        [TestCase(0.01f, true)]
+        [TestCase(0.02f, false)]
         [TestCase(5f, false)]
         public void LetsGo_AtNoStamina(float stamina, bool expected)
         {

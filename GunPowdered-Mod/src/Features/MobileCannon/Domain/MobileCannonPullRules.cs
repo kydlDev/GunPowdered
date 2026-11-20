@@ -14,9 +14,9 @@ namespace GunPowdered.Features.MobileCannon.Domain
         internal static float CapSpeed(float speed, float maxSpeed)
         {
             if (RuleLog.IsOn()) RuleLog.Every("MobileCannonPullRules.CapSpeed", 2d, $"MobileCannonPullRules.CapSpeed(speed={RuleLog.Shown(speed)}, maxSpeed={RuleLog.Shown(maxSpeed)})");
-            float max = maxSpeed > 0f ? maxSpeed : 0f;
-            if (speed < 0f) { if (RuleLog.IsOn()) RuleLog.Every("MobileCannonPullRules.CapSpeed:18", 2d, "MobileCannonPullRules.CapSpeed: returns 0f (line 18)"); return 0f; }
-            { var returnedAt19 = speed < max ? speed : max; if (RuleLog.IsOn()) RuleLog.Every("MobileCannonPullRules.CapSpeed:19", 2d, $"MobileCannonPullRules.CapSpeed: returns {RuleLog.Shown(returnedAt19)} (line 19)"); return returnedAt19; }
+            // speed clamped into 0 .. max(maxSpeed, 0): the Min / Max form has no ties where a mutant gives the same number (a11gate Stryker: 3 such survivors)
+            float max = System.Math.Max(maxSpeed, 0f);
+            { var returnedAt19 = System.Math.Min(System.Math.Max(speed, 0f), max); if (RuleLog.IsOn()) RuleLog.Every("MobileCannonPullRules.CapSpeed:19", 2d, $"MobileCannonPullRules.CapSpeed: returns {RuleLog.Shown(returnedAt19)} (line 19)"); return returnedAt19; }
         }
 
         /// <summary>Stamina used in one frame: <paramref name="perSecond"/> x the frame time while moving faster than <see cref="StandingSpeed"/>, else 0.</summary>

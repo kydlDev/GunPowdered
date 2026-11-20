@@ -88,5 +88,57 @@ namespace GunPowdered.Tests.Unit
         {
             Assert.That(AsksvinTowRules.OwnerMove(me, cannon, animal), Is.EqualTo(expected));
         }
+
+        // ---- the edges the a11gate Stryker run found unpinned (D-133) ----
+
+        [Test]
+        public void OwnerMove_NoAnimalOwnerMovesNothing_EvenWhenIOwnTheCannon()
+        {
+            Assert.That(AsksvinTowRules.OwnerMove(1L, 1L, 0L), Is.Null);
+        }
+
+        [Test]
+        public void NoAnimal_NamesTheRangeInWholeMetres()
+        {
+            Assert.That(AsksvinTowRules.NoAnimal(12.4f), Is.EqualTo("No harnessed Asksvin within 12 m of the tow ring"));
+        }
+
+        [TestCase(10f, -1f, 10f, true, TestName = "Nearer: a candidate exactly at the range counts")]
+        [TestCase(10.5f, -1f, 10f, false, TestName = "Nearer: a candidate past the range never wins")]
+        [TestCase(1f, 0f, 10f, false, TestName = "Nearer: a best of 0 m is a real best, not 'none yet'")]
+        [TestCase(5f, 5f, 10f, false, TestName = "Nearer: a tie keeps the old best")]
+        [TestCase(4f, 5f, 10f, true, TestName = "Nearer: a closer candidate wins")]
+        public void Nearer_Edges(float candidate, float best, float range, bool expected)
+        {
+            Assert.That(AsksvinTowRules.Nearer(candidate, best, range), Is.EqualTo(expected));
+        }
+
+        [TestCase(1f, 1f, 1f, 1f, TestName = "SaddleWeight: front == rear, at the point -> on the saddle")]
+        [TestCase(1f, 1f, 2f, 1f, TestName = "SaddleWeight: front behind rear, exactly at the front -> on the saddle")]
+        [TestCase(0.5f, 1f, 2f, 0f, TestName = "SaddleWeight: front behind rear, behind the front -> on the root")]
+        [TestCase(1.5f, 1f, 2f, 1f, TestName = "SaddleWeight: front behind rear, ahead of the front -> on the saddle")]
+        public void SaddleWeight_WhenFrontIsNotAheadOfRear(float z, float front, float rear, float expected)
+        {
+            Assert.That(AsksvinTowRules.SaddleWeight(z, front, rear), Is.EqualTo(expected).Within(1e-6f));
+        }
+
+        [Test]
+        public void UprightAccel_IsTheSpringPlusTheDamper()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(AsksvinTowRules.UprightAccel(10f, 0f), Is.EqualTo(-10f * 0.0174533f * 60f).Within(1e-4f), "spring only");
+                Assert.That(AsksvinTowRules.UprightAccel(0f, 1f), Is.EqualTo(-14f).Within(1e-4f), "damper only");
+                Assert.That(AsksvinTowRules.UprightAccel(10f, 1f), Is.EqualTo(-10f * 0.0174533f * 60f - 14f).Within(1e-4f), "both");
+            });
+        }
+
+        [TestCase(2f, -2f, 2f, TestName = "Tighter: a tie keeps the first")]
+        [TestCase(-3f, 2f, -3f, TestName = "Tighter: the larger size wins whatever its sign")]
+        [TestCase(1f, -4f, -4f, TestName = "Tighter: the second wins when larger")]
+        public void Tighter_Edges(float a, float b, float expected)
+        {
+            Assert.That(AsksvinTowRules.Tighter(a, b), Is.EqualTo(expected));
+        }
     }
 }
