@@ -114,6 +114,7 @@
         "weapons-items",
         "musket-ammo-items",
         "musket-fire-reload",
+        "musket-reload-key",
         "api-musket",
         "cannons-switch",
         "explosive-arrow-burst",

@@ -179,6 +179,10 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.musketReloadKey")]
         static string ReloadKey() => GunPowdered.Configuration.ModSettings.MusketReloadKey != null ? GunPowdered.Configuration.ModSettings.MusketReloadKey.Value.ToString() : "none";
 
+        /// <summary>What the last reload start did (MusketReloader.Begin): "reloading", "already reloading", the refusal, or "not pressed yet".</summary>
+        [TestHook("GunPowdered.musketLastBegin")]
+        static string LastBegin() => MusketReloader.LastBegin;
+
         /// <summary>How many cartridges the musket in hand holds (-1 without a musket in hand).</summary>
         [TestHook("GunPowdered.musketLoaded")]
         static int Loaded()

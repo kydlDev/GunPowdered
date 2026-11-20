@@ -6,7 +6,7 @@ using GunPowdered.Features.Musket.Domain;
 namespace GunPowdered.Features.Musket.Infrastructure
 {
     /// <summary>
-    /// The musket's reload (D-087, D-095): the reload key (the game's secondary attack, see MusketAttackPatch) starts it; one Paper Cartridge goes from the
+    /// The musket's reload (D-087, D-095): the reload key ([Musket] Reload Key, MusketInput; D-100) starts it; one Paper Cartridge goes from the
     /// backpack into the musket at the end of each 1.2 s ramrod stroke, until it holds 5, the backpack has none left, the player fires, or the musket is put
     /// away. What is loaded stays. The arms play the reload strokes meanwhile. Sits on the local player only.
     /// </summary>
@@ -40,10 +40,20 @@ namespace GunPowdered.Features.Musket.Infrastructure
         static string BeginCore(Player player)
         {
             ItemDrop.ItemData musket = MusketGun.Held(player);
-            if (musket == null) return "no musket in hand";
+            if (musket == null)
+            {
+                ModLog.Verbose("MusketReloader: Begin refused - no musket in hand (" + (player != null ? player.GetPlayerName() : "no player") + ")");
+                return "no musket in hand";
+            }
             MusketReloader r = player.GetComponent<MusketReloader>();
-            if (r != null && r._active) return "already reloading";
-            string why = MusketRules.WhyNotReload(MusketGun.Loaded(musket), Carried(player));
+            if (r != null && r._active)
+            {
+                ModLog.Verbose("MusketReloader: Begin ignored - already reloading, " + r._done + " cartridge(s) in so far");
+                return "already reloading";
+            }
+            int loadedNow = MusketGun.Loaded(musket), carriedNow = Carried(player);
+            string why = MusketRules.WhyNotReload(loadedNow, carriedNow);
+            ModLog.Decision("musket reload", why == null ? "start" : "refused", "loaded " + loadedNow + "/" + MusketRules.Capacity + ", carries " + carriedNow + " cartridge(s)" + (why != null ? " - " + why : ""));
             if (why != null)
             {
                 player.Message(MessageHud.MessageType.Center, why);
@@ -64,7 +74,11 @@ namespace GunPowdered.Features.Musket.Infrastructure
         internal static bool Stop(Player player, string why)
         {
             MusketReloader r = player != null ? player.GetComponent<MusketReloader>() : null;
-            if (r == null || !r._active) return false;
+            if (r == null || !r._active)
+            {
+                ModLog.Verbose("MusketReloader: Stop (" + why + ") - no reload running");
+                return false;
+            }
             r.End("stopped by " + why);
             return true;
         }
@@ -87,6 +101,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 _player.GetInventory().RemoveItem(CartridgeName(), 1);
                 MusketGun.SetLoaded(musket, loaded + 1);
                 _done++;
+                ModLog.Verbose("MusketReloader: cartridge " + _done + " in, loaded " + (loaded + 1) + ", " + (carried - 1) + " left in the backpack");
             }
             string why = MusketRules.WhyNotReload(MusketGun.Loaded(musket), Carried(_player));
             if (why != null) End(why);
