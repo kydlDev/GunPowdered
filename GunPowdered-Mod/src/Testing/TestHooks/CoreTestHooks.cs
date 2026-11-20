@@ -338,29 +338,39 @@ namespace GunPowdered.Testing.TestHooks
         }
 
         /// Removes what a generated location left near (x, z): every object within `radius` m whose prefab is one of the location's own pieces (a swamp ruin's stone walls,
-        /// pillars ...), so the next test finds the arena empty (run a5final-1: leftover ruin walls blocked visual-pieces' camera). Returns "removed N object(s)".
+        /// pillars ...), so the next test finds the arena empty (run a5final-1: leftover ruin walls blocked visual-pieces' camera), AND the location's own LocationProxy.
+        /// The proxy holds the location's non-networked body with its TerrainModifier (SwampRuin1: level radius 10, smooth 12); the game applies a TerrainModifier
+        /// whenever a heightmap is rebuilt and never stores it in TerrainComp, so TerrainSnapshot.Restore cannot undo it (a11gate 1-3: the ground stayed 6.76 m
+        /// above the mark). Destroying the proxy destroys the modifier, whose OnDestroy re-pokes the heightmaps. Only proxies whose ZDO names THIS location are
+        /// touched (the KydlFlat world's own locations stay). Returns "removed N object(s), P proxy(ies)".
         [TestHook("GunPowdered.removeLocationObjects")]
         static string RemoveLocationObjects(string name, double x, double z, double radius)
         {
-            if (ZoneSystem.instance == null || ZNetScene.instance == null) return "no world";
+            ModLog.Verbose("CoreTestHooks.RemoveLocationObjects(name=" + name + ", x=" + x + ", z=" + z + ", radius=" + radius + ")");
+            if (ZoneSystem.instance == null || ZNetScene.instance == null) { ModLog.Verbose("CoreTestHooks.RemoveLocationObjects: no world - returns 'no world'"); return "no world"; }
             ZoneSystem.ZoneLocation loc = ZoneSystem.instance.m_locations.Find(l => l.m_prefabName == name);
             GameObject root = loc != null && loc.m_prefab != null ? loc.m_prefab.Asset : null;
-            if (root == null) return "no location " + name;
+            if (root == null) { ModLog.Verbose("CoreTestHooks.RemoveLocationObjects: the game knows no location " + name + " - returns 'no location'"); return "no location " + name; }
             var names = new System.Collections.Generic.HashSet<string>();
             foreach (ZNetView v in root.GetComponentsInChildren<ZNetView>(true)) names.Add(Utils.GetPrefabName(v.gameObject));
+            int locationHash = loc.m_prefab.Name.GetStableHashCode();
             var centre = new Vector2((float)x, (float)z);
-            int removed = 0;
+            int removed = 0, proxies = 0;
             foreach (ZNetView nv in UnityEngine.Object.FindObjectsByType<ZNetView>(FindObjectsSortMode.None))
             {
                 if (nv == null || !nv.IsValid() || nv.GetComponent<Player>() != null || nv.GetComponent<TerrainComp>() != null) continue;
                 Vector3 p = nv.transform.position;
-                if (Vector2.Distance(new Vector2(p.x, p.z), centre) > radius || !names.Contains(Utils.GetPrefabName(nv.gameObject))) continue;
+                if (Vector2.Distance(new Vector2(p.x, p.z), centre) > radius) continue;
+                bool ownProxy = nv.GetComponent<LocationProxy>() != null && nv.GetZDO().GetInt(ZDOVars.s_location) == locationHash;
+                if (!ownProxy && !names.Contains(Utils.GetPrefabName(nv.gameObject))) continue;
+                if (ownProxy) ModLog.Info("CoreTestHooks: removing the LocationProxy of " + name + " at (" + p.x.ToString("0.0") + ", " + p.z.ToString("0.0") + ") with its terrain levelling");
                 nv.ClaimOwnership();
                 ZNetScene.instance.Destroy(nv.gameObject);
-                removed++;
+                if (ownProxy) proxies++; else removed++;
             }
-            ModLog.Verbose("CoreTestHooks: removed " + removed + " object(s) of location " + name + " near (" + x + ", " + z + "), " + names.Count + " prefab name(s)");
-            return "removed " + removed + " object(s)";
+            ModLog.Check("LocationProxy objects of " + name + " removed near (" + x + ", " + z + ")", proxies, 1, 0, "proxies");
+            ModLog.Verbose("CoreTestHooks: removed " + removed + " object(s) and " + proxies + " proxy(ies) of location " + name + " near (" + x + ", " + z + "), " + names.Count + " prefab name(s)");
+            return "removed " + removed + " object(s), " + proxies + " proxy(ies)";
         }
         static string _claimAnswer = "none";
 
