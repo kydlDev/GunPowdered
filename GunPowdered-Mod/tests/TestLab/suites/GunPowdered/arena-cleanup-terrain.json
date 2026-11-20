@@ -1,0 +1,15 @@
+{
+  "name": "arena-cleanup-terrain",
+  "description": "D-142 phase 2: the start of every test puts the terrain data back to the template - a terrain operation (a painted patch, stored in the zone's terrain data like a pickaxe dig) is reported restored at the next start, the start after that finds nothing changed",
+  "timeout": 90,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot (takes the copy of the terrain data on the very first test)" },
+    { "do": "hook", "name": "GunPowdered.digTerrain", "contains": "dug with", "args": { "dz": 20 }, "label": "a terrain operation paints 20 m ahead" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "hook", "name": "GunPowdered.arena", "regex": "terrain [1-9][0-9]* restored", "label": "the next start puts the terrain data back" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "terrain 0 restored", "label": "a second start finds the terrain unchanged" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}
