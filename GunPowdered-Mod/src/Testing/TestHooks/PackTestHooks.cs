@@ -127,6 +127,30 @@ namespace GunPowdered.Testing.TestHooks
                 + ", needs " + string.Join(", ", r.m_resources.Select(x => (x.m_resItem != null ? x.m_resItem.name : "?") + " " + x.m_amount).ToArray());
         }
 
+        /// <summary>
+        /// Uses up the game's backstab on the nearest creature of this prefab: an explosion hitting a creature that is not alerted is multiplied by
+        /// Aoe.m_backstabBonus (4, vanilla bombs too), once per creature per 300 s (Character.m_backstabTime). Trolls are never "alerted"
+        /// (BaseAI.Alert does nothing for them, lab a10pack3), so the hook sets that time to now. A test that measures the blast's own creature damage
+        /// calls this first (D-125). Returns "backstab used on P" or "no P".
+        /// </summary>
+        [TestHook("GunPowdered.creatureBackstabUsed")]
+        static string BackstabUsed(string prefab)
+        {
+            Player p = Player.m_localPlayer;
+            Character best = null;
+            float bestDist = 60f;
+            foreach (Character c in Character.GetAllCharacters())
+            {
+                if (c == null || c == p || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab) continue;
+                float d = p != null ? Vector3.Distance(c.transform.position, p.transform.position) : 0f;
+                if (d < bestDist) { best = c; bestDist = d; }
+            }
+            if (best == null) return "no " + prefab;
+            HarmonyLib.AccessTools.Field(typeof(Character), "m_backstabTime").SetValue(best, Time.time);
+            ModLog.Info("PackTestHooks: backstab of " + best.name + " used up (alerted " + (best.GetComponent<BaseAI>() != null && best.GetComponent<BaseAI>().IsAlerted()) + ")");
+            return "backstab used on " + prefab;
+        }
+
         static DynamiteCharge NearestCharge()
         {
             Player p = Player.m_localPlayer;

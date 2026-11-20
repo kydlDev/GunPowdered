@@ -1,0 +1,75 @@
+{
+  "name": "dynamite-pack-recipe",
+  "description": "D-124 (was D-108): the Deep North Dynamite Pack recipe (4 Dynamite + 2 Spiked Grenades + 4 SealHide, Forge level 2) stays hidden until the world key defeated_fader is set, appears with it and hides again without it.",
+  "timeout": 60,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.globalKey",
+      "args": {
+        "key": "defeated_fader",
+        "on": false
+      },
+      "contains": "now False",
+      "label": "Fader not defeated"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.packRecipe",
+      "contains": "recipe on False",
+      "label": "no Fader: the pack cannot be crafted"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.globalKey",
+      "args": {
+        "key": "defeated_fader",
+        "on": true
+      },
+      "contains": "now True",
+      "label": "Fader defeated"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.packRecipe",
+      "expect": "recipe on True, station forge level 2, needs GP_Dynamite 4, GP_SpikedGrenade 2, SealHide 4",
+      "label": "after Fader: the recipe is on, at the Forge level 2, with its cost"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.globalKey",
+      "args": {
+        "key": "defeated_fader",
+        "on": false
+      },
+      "contains": "now False",
+      "label": "the key taken away again"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.packRecipe",
+      "contains": "recipe on False",
+      "label": "the gate follows the key, not the first look"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.globalKeysRestore",
+      "contains": "restored 1"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

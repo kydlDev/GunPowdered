@@ -107,6 +107,19 @@
     },
     {
       "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.creatureBackstabUsed",
+      "args": {
+        "prefab": "Troll"
+      },
+      "expect": "backstab used on Troll",
+      "label": "the Troll's backstab is used up, so the blast's own fifth is measured (before: 20 x 4 backstab = 80 passed the same check, D-125)"
+    },
+    {
+      "do": "wait",
       "seconds": 3
     },
     {

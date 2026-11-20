@@ -1,0 +1,250 @@
+{
+  "name": "dynamite-pack-blast",
+  "description": "D-124 (was D-108): the Deep North Dynamite Pack is set down and lit like a stick; the countdown shows; the 4 s fuse ends in one blast that breaks a gold vein 8 m and an Ashlands fortress pillar 12 m away (tier 5 rocks of 50 and 500 per part; the Deep North gammel troll DN_gammeltrollFrac01 is not a spawnable prefab in this game version), fells a beech at 17 m, leaves a beech at 24 m standing (20 m reach), hurts and burns a Troll only a little (creatures 20 % + fire) and digs a crater.",
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.packInfo",
+      "contains": "pack True, radius 20, pickaxe 500, blunt 400 chop 400 tier 6",
+      "label": "the pack's blast: 20 m, pickaxe 500, blunt and chop 400, tool tier 6"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_DeepNorthPack",
+      "count": 1,
+      "equip": true
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamitePlaceAt",
+      "args": {
+        "metres": 26
+      },
+      "contains": "placed at",
+      "label": "set down 26 m ahead (the player stays outside the 20 m blast)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.invCount",
+      "args": {
+        "prefab": "GP_DeepNorthPack"
+      },
+      "expect": 0,
+      "label": "it came out of the backpack"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteGroundMark",
+      "contains": "marked",
+      "label": "remember the ground height"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.packSpawnBeyond",
+      "args": {
+        "prefab": "goldvein_frac",
+        "metres": 8
+      },
+      "contains": "spawned goldvein_frac 8 m beyond the charge",
+      "label": "a gold vein (tier 5, 50 per part, like the gammel troll) 8 m from the pack"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.packSpawnBeyond",
+      "args": {
+        "prefab": "Ashlands_Fortress_Wall_Pillar_frac",
+        "metres": 12
+      },
+      "contains": "spawned Ashlands_Fortress_Wall_Pillar_frac 12 m",
+      "label": "an Ashlands fortress pillar (tier 5, 500 per part) 12 m from the pack"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.packSpawnBeyond",
+      "args": {
+        "prefab": "Beech1",
+        "metres": 17
+      },
+      "contains": "spawned Beech1 17 m",
+      "label": "a beech 17 m from the pack (inside 20 m)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.packSpawnBeyond",
+      "args": {
+        "prefab": "Beech1",
+        "metres": 24
+      },
+      "contains": "spawned Beech1 24 m",
+      "label": "a beech 24 m from the pack (outside 20 m)"
+    },
+    {
+      "do": "give",
+      "prefab": "Torch",
+      "count": 1,
+      "equip": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteLight",
+      "expect": "lit",
+      "label": "the torch lights the pack's fuse"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.packTimer",
+      "regex": "shows [1-9]\\d*, last 'Deep North Dynamite Pack: \\d\\.\\d s.*",
+      "label": "the countdown shows on screen"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteBlastsSinceLight",
+      "expect": 0,
+      "label": "still burning after 1 s (4 s fuse)"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.packSpawnBeyond",
+      "args": {
+        "prefab": "Troll",
+        "metres": 3
+      },
+      "contains": "spawned Troll 3 m",
+      "label": "a Troll 3 m from the pack just before the blast"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.creatureBackstabUsed",
+      "args": {
+        "prefab": "Troll"
+      },
+      "expect": "backstab used on Troll",
+      "label": "the Troll's one backstab is used up (unaware creatures take the game's 4x from the first explosion, D-125 open), so the blast's own share is measured"
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: the pack burning"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.dynamiteBlastsSinceLight",
+        "expect": 1
+      },
+      "timeout": 6
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.packTargets",
+      "regex": "goldvein_frac@8 (gone|standing \\(0/\\d+ parts\\)); Ashlands_Fortress_Wall_Pillar_frac@12 (gone|standing \\(0/\\d+ parts\\)); Beech1@17 gone; Beech1@24 standing.*",
+      "label": "the gold vein and the fortress pillar broken (every part, 20 m reach, tier 6), the beech at 17 m felled, the one at 24 m stands"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.burningOn",
+      "args": {
+        "prefab": "Troll"
+      },
+      "regex": "burning True, per tick [0-9].*",
+      "label": "the Troll burns (30 fire/s for 5 s)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.creatureLostBetween",
+      "args": {
+        "prefab": "Troll",
+        "min": 20,
+        "max": 300
+      },
+      "expect": true,
+      "label": "the Troll loses only a part (80 blunt = 20 % of 400, plus the first fire)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteHoleAtLeast",
+      "args": {
+        "metres": 1.5
+      },
+      "expect": true,
+      "label": "a deep crater where it stood (2 m deep)"
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: after the blast"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.packCleanup",
+      "contains": "removed"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteTerrainReset",
+      "contains": "reset",
+      "label": "the crater is undone"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteGroundBack",
+      "expect": "back",
+      "label": "the ground is back"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

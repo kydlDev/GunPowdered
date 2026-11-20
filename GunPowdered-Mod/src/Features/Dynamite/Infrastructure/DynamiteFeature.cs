@@ -18,7 +18,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 
         internal DynamiteFeature()
         {
-            ItemRegistry.Register(FeatureId, ItemCatalog.Dynamite);
+            ItemRegistry.Register(FeatureId, ItemCatalog.Dynamite, ItemCatalog.DeepNorthPack);      // D-124: the pack shares the dynamite switch (Agent-10: it was never registered, so it did not exist in game)
         }
 
         public string Id { get { return _lifecycle.Id; } }
