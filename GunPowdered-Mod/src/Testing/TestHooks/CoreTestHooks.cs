@@ -239,54 +239,31 @@ namespace GunPowdered.Testing.TestHooks
 
         static float _markedGround = float.NaN;
 
-        /// Remembers the terrain height at (x, z) before a test digs there (a generated ruin levels and digs its own ground). Returns the height, or -1 when the ground is not loaded.
+        /// Remembers the terrain height at (x, z) and copies the terrain pieces within TerrainMarkRadius m (TerrainSnapshot) before a test digs there (a generated ruin levels and digs its own ground). Returns the height, or -1 when the ground is not loaded.
         [TestHook("GunPowdered.terrainMark")]
         static double TerrainMark(double x, double z)
         {
             float h;
             if (ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(new Vector3((float)x, 0f, (float)z), out h)) return -1d;
             _markedGround = h;
-            ModLog.Verbose("CoreTestHooks: terrain height marked " + h.ToString("0.00") + " at (" + x + ", " + z + ")");
+            int pieces = TerrainSnapshot.Mark(new Vector3((float)x, 0f, (float)z), TerrainMarkRadius);
+            ModLog.Verbose("CoreTestHooks: terrain height marked " + h.ToString("0.00") + " at (" + x + ", " + z + "), " + pieces + " terrain piece(s) copied");
             return System.Math.Round(h, 2);
         }
 
-        /// Undoes every terrain change (raise, lower, level, smooth, paint) the game stored near (x, z) within `radius` m, so a test that dug leaves the ground as it found it.
-        /// Returns "reset N terrain compiler(s)".
+        /// How far round the marked spot terrain pieces are copied and restored (m).
+        const float TerrainMarkRadius = 80f;
+
+        /// Puts the terrain near (x, z) back the way terrainMark found it (TerrainSnapshot): the marked pieces get their old modifications back, pieces the test
+        /// made are cleared. It never clears a piece it did not see at the mark, so the KydlFlat arena's own levelling stays (a11full1: the old blind clear dropped
+        /// the arena ground and the player fell through it in every later test). `radius` is kept for the test files; the mark's radius decides. Returns
+        /// "reset N restored, M cleared".
         [TestHook("GunPowdered.terrainReset")]
         static string TerrainReset(double x, double z, double radius)
         {
-            var centre = new Vector3((float)x, 0f, (float)z);
-            int n = 0;
-            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
-            foreach (TerrainComp tc in UnityEngine.Object.FindObjectsByType<TerrainComp>(FindObjectsSortMode.None))
-            {
-                Vector3 p = tc.transform.position;
-                if (Vector2.Distance(new Vector2(p.x, p.z), new Vector2(centre.x, centre.z)) > radius + 40f) continue;
-                ZNetView view = tc.GetComponent<ZNetView>();
-                if (view != null && view.IsValid() && !view.IsOwner()) view.ClaimOwnership();
-                foreach (string field in new[] { "m_modifiedHeight", "m_modifiedPaint" })
-                {
-                    var arr = typeof(TerrainComp).GetField(field, flags)?.GetValue(tc) as bool[];
-                    if (arr != null) System.Array.Clear(arr, 0, arr.Length);
-                }
-                foreach (string field in new[] { "m_levelDelta", "m_smoothDelta" })
-                {
-                    var arr = typeof(TerrainComp).GetField(field, flags)?.GetValue(tc) as float[];
-                    if (arr != null) System.Array.Clear(arr, 0, arr.Length);
-                }
-                typeof(TerrainComp).GetMethod("Save", flags)?.Invoke(tc, new object[] { false });
-                var hm = typeof(TerrainComp).GetField("m_hmap", flags)?.GetValue(tc) as Heightmap;
-                var poke = typeof(Heightmap).GetMethod("Poke", flags);
-                if (hm != null && poke != null)
-                {
-                    var args = new object[poke.GetParameters().Length];
-                    for (int i = 0; i < args.Length; i++) args[i] = System.Type.Missing;
-                    poke.Invoke(hm, System.Reflection.BindingFlags.OptionalParamBinding | flags, null, args, null);
-                }
-                n++;
-            }
-            ModLog.Verbose("CoreTestHooks: terrain reset near (" + x + ", " + z + "), " + n + " terrain compiler(s)");
-            return "reset " + n + " terrain compiler(s)";
+            string result = TerrainSnapshot.Restore(new Vector3((float)x, 0f, (float)z), TerrainMarkRadius);
+            ModLog.Verbose("CoreTestHooks: terrain reset near (" + x + ", " + z + ") asked radius " + radius + " m: " + result);
+            return result;
         }
 
         /// "back" when the terrain height at (x, z) is within 5 cm of the height terrainMark remembered; otherwise says by how much it differs.

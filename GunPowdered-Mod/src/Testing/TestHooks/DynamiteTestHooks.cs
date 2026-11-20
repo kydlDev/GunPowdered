@@ -102,7 +102,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             if (!_placed.HasValue) return "no stick";
             _ground = Ground(_placed.Value);
-            SnapshotTerrain(_placed.Value);
+            TerrainSnapshot.Mark(_placed.Value, TerrainNear);
             return float.IsNaN(_ground) ? "ground not loaded" : "marked " + _ground.ToString("0.00");
         }
 
@@ -117,66 +117,18 @@ namespace GunPowdered.Testing.TestHooks
         }
 
         /// <summary>
-        /// Undoes the hole: the terrain pieces near the stick get back the modifications they had when the ground was marked (the KydlFlat arena is itself a terrain
-        /// modification, so clearing everything would drop the ground by metres - lab a8dyn1). Pieces made after the mark are cleared. Returns "reset N".
+        /// Undoes the hole: the terrain pieces near the stick get back the modifications they had when the ground was marked (the KydlFlat arena is itself a
+        /// terrain modification, so clearing everything would drop the ground by metres - lab a8dyn1). Pieces made after the mark are cleared. Returns "reset N".
         /// </summary>
         [TestHook("GunPowdered.dynamiteTerrainReset")]
         static string TerrainReset()
         {
             if (!_placed.HasValue) return "no stick";
-            int restored = 0, cleared = 0;
-            foreach (TerrainComp tc in Object.FindObjectsByType<TerrainComp>(FindObjectsSortMode.None))
-            {
-                Vector3 p = tc.transform.position;
-                if (Vector2.Distance(new Vector2(p.x, p.z), new Vector2(_placed.Value.x, _placed.Value.z)) > TerrainNear) continue;
-                ZNetView view = tc.GetComponent<ZNetView>();
-                if (view != null && view.IsValid() && !view.IsOwner()) view.ClaimOwnership();
-                bool known = Saved.TryGetValue(tc, out object[] saved);
-                for (int i = 0; i < TerrainFields.Length; i++)
-                {
-                    var now = TerrainField(TerrainFields[i])?.GetValue(tc) as System.Array;
-                    if (now == null) continue;
-                    if (known && saved[i] is System.Array before && before.Length == now.Length) System.Array.Copy(before, now, now.Length);
-                    else System.Array.Clear(now, 0, now.Length);
-                }
-                typeof(TerrainComp).GetMethod("Save", Flags)?.Invoke(tc, new object[] { false });
-                Poke(TerrainField("m_hmap")?.GetValue(tc) as Heightmap);
-                if (known) restored++; else cleared++;
-            }
-            ModLog.Info("DynamiteTestHooks: terrain reset - " + restored + " restored from the mark, " + cleared + " cleared");
-            return "reset " + restored + " restored, " + cleared + " cleared";
+            return TerrainSnapshot.Restore(_placed.Value, TerrainNear);
         }
 
+        /// <summary>How far round the stick the terrain is marked and restored (m): the pack's 5 m crater with its smoothing and paint, and a margin.</summary>
         const float TerrainNear = 46f;
-        const System.Reflection.BindingFlags Flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
-        static readonly string[] TerrainFields = { "m_modifiedHeight", "m_levelDelta", "m_smoothDelta", "m_modifiedPaint", "m_paintMask" };
-        static readonly System.Collections.Generic.Dictionary<TerrainComp, object[]> Saved = new System.Collections.Generic.Dictionary<TerrainComp, object[]>();
-
-        static System.Reflection.FieldInfo TerrainField(string name) => typeof(TerrainComp).GetField(name, Flags);
-
-        /// <summary>Copies the modification arrays of the terrain pieces near the stick (the state the reset goes back to).</summary>
-        static void SnapshotTerrain(Vector3 at)
-        {
-            Saved.Clear();
-            foreach (TerrainComp tc in Object.FindObjectsByType<TerrainComp>(FindObjectsSortMode.None))
-            {
-                Vector3 p = tc.transform.position;
-                if (Vector2.Distance(new Vector2(p.x, p.z), new Vector2(at.x, at.z)) > TerrainNear) continue;
-                var copy = new object[TerrainFields.Length];
-                for (int i = 0; i < TerrainFields.Length; i++) copy[i] = (TerrainField(TerrainFields[i])?.GetValue(tc) as System.Array)?.Clone();
-                Saved[tc] = copy;
-            }
-            ModLog.Info("DynamiteTestHooks: terrain marked - " + Saved.Count + " terrain piece(s) near the stick");
-        }
-
-        static void Poke(Heightmap hm)
-        {
-            var poke = typeof(Heightmap).GetMethod("Poke", Flags);
-            if (hm == null || poke == null) return;
-            var args = new object[poke.GetParameters().Length];
-            for (int i = 0; i < args.Length; i++) args[i] = System.Type.Missing;
-            poke.Invoke(hm, System.Reflection.BindingFlags.OptionalParamBinding | Flags, null, args, null);
-        }
 
         /// <summary>"back" when the ground at the stick is again within 5 cm of the marked height, else how far it differs.</summary>
         [TestHook("GunPowdered.dynamiteGroundBack")]
