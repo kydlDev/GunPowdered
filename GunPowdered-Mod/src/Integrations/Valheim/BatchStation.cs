@@ -249,40 +249,11 @@ namespace GunPowdered.Integrations.Valheim
             if (!_nview.IsValid()) { if (RuleLog.IsOn()) ModLog.Every("BatchStation.GetHoverText:invalid", 2d, $"BatchStation.GetHoverText({c.Label}): no network view - returns the name"); return GetHoverName(); }
             int step = Step, ready = Ready;
             BatchAmounts held = Held, unit = c.Unit(), full = BatchStationRules.FullBatch(c.Spec, unit, step);
-            string run;
-            if (State == StateRunning)
-            {
-                ZDO z = _nview.GetZDO();
-                double left = BatchStationRules.SecondsLeft(z.GetLong(c.KeyStart, 0L) / 1000d, ZNet.instance.GetTimeSeconds(), z.GetFloat(c.KeyMinutes, (float)c.MinutesAt(0)));
-                run = $"{c.RunVerb} {z.GetInt(c.KeyOut, 0)} {c.OutputName} ({Mathf.CeilToInt((float)(left / 60d))} min left)";
-            }
-            else
-            {
-                string missing = BatchStationRules.Missing(c.Spec, held, unit);
-                run = missing.Length > 0 ? "Cannot start yet: " + missing : "Starting";
-            }
-            string text = GetHoverName() + "\n" + UpgradeLine(step) + "\n" + run + "\nHolds " + Holds(held, full) + "\n" + UseKey + "Fill";
+            string run = BatchStationHover.RunLine(c, _nview.GetZDO(), State == StateRunning, held, unit);
+            string text = GetHoverName() + "\n" + BatchStationHover.UpgradeLine(c, step) + "\n" + run + "\nHolds " + BatchStationHover.Holds(c, held, full) + "\n" + UseKey + "Fill";
             if (ready > 0) text += "\n" + UseKey + "Collect " + ready + " " + c.OutputName;
             text = Localization.instance.Localize(text);
             if (RuleLog.IsOn()) ModLog.Every("BatchStation.GetHoverText:" + c.Label, 2d, $"BatchStation.GetHoverText({c.Label}): returns {RuleLog.Shown(text)}");
-            return text;
-        }
-
-        string UpgradeLine(int step)
-        {
-            BatchStationConfig c = Config;
-            BatchAmounts full = BatchStationRules.FullBatch(c.Spec, c.Unit(), step);
-            string line = $"Upgrades {step}/{c.Spec.MaxStep}: up to {full.First} {c.Spec.FirstName} + {full.Second} {c.Spec.SecondName} + {full.Third} {c.Spec.ThirdName}"
-                + $" -> {BatchStationRules.Output(BatchStationRules.UnitsPerBatch(c.Spec, step), c.OutputPerUnit())} {c.OutputName}, {c.MinutesAt(step)} min";
-            if (RuleLog.IsOn()) ModLog.Every("BatchStation.UpgradeLine:" + c.Label, 2d, $"BatchStation.UpgradeLine: returns {line}");
-            return line;
-        }
-
-        string Holds(BatchAmounts held, BatchAmounts full)
-        {
-            BatchStationSpec s = Config.Spec;
-            string text = $"{s.FirstName} {held.First}/{full.First}, {s.SecondName} {held.Second}/{full.Second}, {s.ThirdName} {held.Third}/{full.Third}";
-            if (RuleLog.IsOn()) ModLog.Every("BatchStation.Holds:" + Config.Label, 2d, $"BatchStation.Holds: returns {text}");
             return text;
         }
 
