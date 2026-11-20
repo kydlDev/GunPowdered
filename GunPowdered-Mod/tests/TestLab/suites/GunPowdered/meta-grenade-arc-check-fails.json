@@ -6,7 +6,7 @@
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
     { "do": "grenadeArena" },
-    { "do": "hook", "name": "GunPowdered.grenadeTestDrag", "args": { "value": "0.05" }, "expect": "0.05", "label": "the flight now has a drag the arc does not know" },
+    { "do": "hook", "name": "GunPowdered.grenadeTestDrag", "args": { "value": "0.3" }, "expect": "0.3", "label": "the flight now has a drag the arc does not know" },
     { "do": "throwGrenadeAtLanding", "pitch": 30 },
     { "do": "hook", "name": "GunPowdered.grenadeTestDrag", "args": { "value": "0" }, "expect": "0", "label": "drag off again" },
     { "do": "check", "check": "hook", "name": "GunPowdered.grenadeFollowedArc", "expect": "ok", "label": "the arc check must catch the mismatch" },
