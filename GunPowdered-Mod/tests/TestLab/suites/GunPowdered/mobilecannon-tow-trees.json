@@ -4,6 +4,12 @@
   "timeout": 120,
   "steps": [
     {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
       "do": "towReady"
     },
     {

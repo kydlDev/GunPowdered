@@ -567,25 +567,18 @@ namespace GunPowdered.Testing.TestHooks
             return s;
         }
         static Vector3? _driveTo;
-        static bool _drivePatched;
 
         /// <summary>
         /// Like asksvinFollowTo, but the Asksvin runs a straight line to (x, z) instead of asking the pathfinder: on the template's 39 degree cliff the
         /// pathfinder found no way at all in two of three runs (it stood still) and a long diagonal in the third (a9cliffrep, a9g16g). A rider steers
-        /// straight too. Test-only: the MonsterAI patch is applied on the first call and does nothing without a drive. Returns "driving to (x, z), ground y".
+        /// straight too. Test-only: the MonsterAI patch (Integrations/Harmony/AsksvinTestDrivePatch) is applied on the first call and does nothing without a drive. Returns "driving to (x, z), ground y".
         /// </summary>
         [TestHook("GunPowdered.asksvinDriveTo")]
         static string DriveTo(double x, double z)
         {
             string s = FollowTo(x, z);
             if (s.StartsWith("no ")) return s;
-            if (!_drivePatched)
-            {
-                var h = new HarmonyLib.Harmony("com.kydldev.GunPowdered.testdrive");
-                h.Patch(HarmonyLib.AccessTools.Method(typeof(MonsterAI), nameof(MonsterAI.UpdateAI)),
-                    prefix: new HarmonyLib.HarmonyMethod(typeof(AsksvinTowTestHooks), nameof(DrivePrefix)));
-                _drivePatched = true;
-            }
+            GunPowdered.Integrations.HarmonyPatches.AsksvinTestDrivePatch.Apply(DriveTarget);
             _driveTo = Player.m_localPlayer.transform.position;
             ModLog.Info("AsksvinTowTestHooks: straight drive to " + _driveTo.Value.ToString("0.0"));
             return s.Replace("going to", "driving to");
@@ -595,16 +588,8 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.asksvinDriveStop")]
         static string DriveStop() { _driveTo = null; return "drive stopped"; }
 
-        static bool DrivePrefix(MonsterAI __instance, ref bool __result)
-        {
-            if (_driveTo == null || _animal == null || __instance.gameObject != _animal) return true;
-            Vector3 d = _driveTo.Value - __instance.transform.position;
-            d.y = 0f;
-            if (d.magnitude < 2f) __instance.StopMoving();
-            else __instance.MoveTowards(d.normalized, true);
-            __result = true;
-            return false;
-        }
+        /// <summary>Where the drive steers this creature: the drive target for the lab's Asksvin during a drive, else null (the game's AI runs).</summary>
+        static Vector3? DriveTarget(MonsterAI ai) => _driveTo != null && _animal != null && ai != null && ai.gameObject == _animal ? _driveTo : null;
 
         static readonly System.Collections.Generic.List<GameObject> Trees = new System.Collections.Generic.List<GameObject>();
 
