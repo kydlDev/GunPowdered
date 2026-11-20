@@ -91,13 +91,14 @@
     },
     {
       "do": "hook",
-      "name": "GunPowdered.freeCam",
+      "name": "GunPowdered.freeCamOnAsksvin",
       "args": {
-        "azimuth": 100,
+        "azimuth": 90,
         "elevation": 15,
-        "metres": 9
+        "metres": 10
       },
-      "contains": "free camera at"
+      "contains": "free camera at",
+      "label": "camera beside the towing Asksvin (T-009k: the player-centred camera missed the rig)"
     },
     {
       "do": "invoke",
