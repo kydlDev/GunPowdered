@@ -29,5 +29,17 @@ namespace GunPowdered.Configuration
             "Farthest a harnessed Asksvin's tow hook may be from the cannon's tow ring to hitch it, in m (1-20; D-116).");
         public static readonly Tunable<float> MobileCannonTowExtraMass = new Tunable<float>("MobileCannon", "MobileCannonTowExtraMass", 200f, 0f, 1000f,
             "Mass added to a towing Asksvin while the cannon is hitched (0-1000; the game does the same for a player pulling a cart). Without it the cannon holds the Asksvin back to about 5 of its 9 m/s (lab a8tow5); D-105 wants its full speed.");
+        // D-107 (user 2026-11-20): the Mobile Cannon's ball hits harder than the Hand Cannon's and should chip away at the Ashlands fortresses (their walls,
+        // gates and pillars need tool tier 5, Ashlands_Fortress_* in the ripped prefabs).
+        public static readonly Tunable<float> MobileCannonBlunt = new Tunable<float>("MobileCannon", "MobileCannonBlunt", 120f, 0f, 2000f,
+            "Blunt damage of the Mobile Cannon's ball (0-2000, D-107).");
+        public static readonly Tunable<float> MobileCannonPickaxe = new Tunable<float>("MobileCannon", "MobileCannonPickaxe", 120f, 0f, 2000f,
+            "Pickaxe damage of the Mobile Cannon's ball against stone, rocks and walls (0-2000, D-107).");
+        public static readonly Tunable<float> MobileCannonPierce = new Tunable<float>("MobileCannon", "MobileCannonPierce", 50f, 0f, 2000f,
+            "Pierce damage of the Mobile Cannon's ball (0-2000, D-107).");
+        public static readonly Tunable<float> MobileCannonFire = new Tunable<float>("MobileCannon", "MobileCannonFire", 10f, 0f, 100f,
+            "Fire damage per second of the burning the Mobile Cannon's ball sets, for 5 s (0-100, D-107).");
+        public static readonly Tunable<float> MobileCannonToolTier = new Tunable<float>("MobileCannon", "MobileCannonToolTier", 5f, 0f, 10f,
+            "Tool tier of the Mobile Cannon's ball (0-10); 5 = the Ashlands fortresses (D-107).");
     }
 }

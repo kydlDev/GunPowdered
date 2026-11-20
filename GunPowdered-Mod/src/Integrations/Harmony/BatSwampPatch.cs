@@ -11,20 +11,18 @@ namespace GunPowdered.Integrations.HarmonyPatches
 {
     /// <summary>
     /// The swamp alternative areas where Bat_Swamp can spawn are the alt biome entry named "Bat Swamp" (D-018). The game places an alt biome's own
-    /// vegetation list by itself, so the Bat Guano deposits are added to that list once, when the world system starts. The user's chance is per area; the
+    /// vegetation list by itself, so the Bat Guano deposits are added to that list when each world's ZoneSystem starts (once per list). The user's chance is per area; the
     /// game places per zone, so the amount per zone is a Tunable (SwampGuanoPerZone) to tune in game (D-016).
     /// </summary>
     [HarmonyPatch(typeof(ZoneSystem), "Start")]
     internal static class BatSwampPatch
     {
         const string AltName = "Bat Swamp";
-        static bool _done;
 
         static void Postfix(ZoneSystem __instance)
         {
             try
             {
-                if (_done) return;
                 GameObject deposit = PrefabManager.Instance.GetPrefab(GunPowderedPrefabs.GuanoDeposit);
                 if (deposit == null) { ModLog.Warn("BatSwampPatch: the guano deposit prefab is not there yet"); return; }
 
@@ -33,6 +31,9 @@ namespace GunPowdered.Integrations.HarmonyPatches
                     foreach (AltBiome alt in list.m_alts)
                     {
                         if (alt.m_name != AltName) continue;
+                        // per ZoneSystem, not once per game: a new world load (logout + login, a relog) brings a fresh ZoneSystem with fresh alt biome lists,
+                        // and a static "done" flag left them without guano (G16 a9g16f: spawn-geysers red after mobilecannon-relog)
+                        if (alt.m_addVegetation.Exists(v => v.m_name == GunPowderedPrefabs.GuanoDeposit)) continue;
                         alt.m_addVegetation.Add(new ZoneSystem.ZoneVegetation
                         {
                             m_name = GunPowderedPrefabs.GuanoDeposit,
@@ -53,7 +54,6 @@ namespace GunPowdered.Integrations.HarmonyPatches
                         });
                         added++;
                     }
-                _done = added > 0;
                 ModLog.Decision("bat swamp guano", added + " vegetation entr" + (added == 1 ? "y" : "ies") + " added", "per zone " + ModSettings.SwampGuanoPerZone.Value);
             }
             catch (Exception e)

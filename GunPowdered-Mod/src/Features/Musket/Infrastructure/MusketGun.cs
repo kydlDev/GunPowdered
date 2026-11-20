@@ -107,6 +107,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             var flight = bullet.GetComponent<Projectile>();
             var hit = new HitData();
             hit.m_damage.m_pierce = MusketRules.BulletPierce;
+            hit.m_damage.m_fire = GunPowdered.Core.BurnRules.Total(MusketRules.BulletFirePerSecond);
             hit.m_pushForce = musket.m_shared.m_attackForce;
             hit.m_skill = musket.m_shared.m_skillType;
             hit.m_blockable = true;

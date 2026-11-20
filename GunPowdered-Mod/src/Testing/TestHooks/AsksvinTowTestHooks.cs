@@ -93,7 +93,7 @@ namespace GunPowdered.Testing.TestHooks
             GameObject prefab = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(AsksvinHarness.AnimalPrefab) : null;
             if (tow == null || tow.Ring == null || prefab == null) return "no cannon or no Asksvin prefab";
             Vector3 dir = Vector3.ProjectOnPlane(cannon.transform.forward, Vector3.up).normalized;
-            Vector3 at = tow.Ring.position + dir * (-AsksvinHarness.HookLocal.z + 1f);
+            Vector3 at = tow.Ring.position + dir * (-AsksvinHarness.HookLocal.z + 1.5f);      // hook 1.5 m from the ring (body 5 m, inside the 6 m hitch range; 2.5 put the body at 6.0 m: refused, a9dmg2)
             float h;
             if (ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(at, out h)) at.y = h + 0.1f;
             _animal = Object.Instantiate(prefab, at, Quaternion.LookRotation(dir));

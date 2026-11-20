@@ -67,7 +67,7 @@ namespace GunPowdered.Tests.Unit
         public void Musket_StatsAreTheGameRules()
         {
             Assert.That(GunPowderedApi.Musket.Capacity, Is.EqualTo(5));
-            Assert.That(GunPowderedApi.Musket.BulletPierce, Is.EqualTo(55f));
+            Assert.That(GunPowderedApi.Musket.BulletPierce, Is.EqualTo(50f));
             Assert.That(GunPowderedApi.Musket.BulletSpeed, Is.GreaterThan(0f));
             Assert.That(GunPowderedApi.Musket.ShotIntervalSeconds, Is.EqualTo(0.8f));
             Assert.That(GunPowderedApi.Musket.ReloadSecondsPerCartridge, Is.EqualTo(1.2f));

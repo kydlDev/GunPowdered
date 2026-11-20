@@ -75,7 +75,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             if (creatures == null) return false;
             creatures.m_useAttackSettings = false;
             creatures.m_radius = r;
-            creatures.m_damage = new HitData.DamageTypes { m_blunt = c, m_chop = c, m_pickaxe = c };
+            creatures.m_damage = new HitData.DamageTypes { m_blunt = c, m_chop = c, m_pickaxe = c, m_fire = GunPowdered.Core.BurnRules.Total(ModSettings.DynamiteCreatureFire.Value) };     // D-107: burns on top of the 20 %
             creatures.m_hitCharacters = true;
             creatures.m_hitProps = false;
             creatures.m_hitTerrain = false;

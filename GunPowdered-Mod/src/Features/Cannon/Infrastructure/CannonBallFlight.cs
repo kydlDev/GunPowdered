@@ -257,24 +257,40 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         {
             HitData hit = MakeHit(at);
             hit.m_hitCollider = c;
-            float total = hit.m_damage.m_pierce + hit.m_damage.m_blunt;
+            float total = hit.m_damage.m_pierce + hit.m_damage.m_blunt + hit.m_damage.m_pickaxe;
             bool building = solid is WearNTear;
-            if (!building) hit.m_damage.m_pickaxe = total;
+            if (!building && !_mobile) hit.m_damage.m_pickaxe = total;
             solid.Damage(hit);
             ModLog.Verbose("CannonBallFlight: " + (building ? "building piece " : "rock ") + Name(c) + " takes " + Fmt(total) + " (momentum "
                 + Fmt(_momentum) + ")");
             return total;
         }
 
+        bool _mobile;
+
+        /// <summary>D-107: this ball was fired by a Mobile Cannon: its own, heavier numbers (blunt + pickaxe + pierce + burning, tool tier 5).</summary>
+        internal void UseMobileCannonDamage() => _mobile = true;
+
         HitData MakeHit(Vector3 at)
         {
             var hit = new HitData();
-            hit.m_damage.m_pierce = ModSettings.CannonPierce.Value * _momentum;
-            hit.m_damage.m_blunt = ModSettings.CannonBlunt.Value * _momentum;
+            if (_mobile)
+            {
+                hit.m_damage.m_pierce = ModSettings.MobileCannonPierce.Value * _momentum;
+                hit.m_damage.m_blunt = ModSettings.MobileCannonBlunt.Value * _momentum;
+                hit.m_damage.m_pickaxe = ModSettings.MobileCannonPickaxe.Value * _momentum;
+                hit.m_damage.m_fire = GunPowdered.Core.BurnRules.Total(ModSettings.MobileCannonFire.Value) * _momentum;
+            }
+            else
+            {
+                hit.m_damage.m_pierce = ModSettings.CannonPierce.Value * _momentum;
+                hit.m_damage.m_blunt = ModSettings.CannonBlunt.Value * _momentum;
+                hit.m_damage.m_fire = GunPowdered.Core.BurnRules.Total(ModSettings.CannonFire.Value) * _momentum;
+            }
             hit.m_point = at;
             hit.m_dir = _vel.sqrMagnitude > 0f ? _vel.normalized : _flatDir;
             hit.m_pushForce = 30f * _momentum;
-            hit.m_toolTier = (short)Mathf.RoundToInt(ModSettings.CannonToolTier.Value);
+            hit.m_toolTier = (short)Mathf.RoundToInt(_mobile ? ModSettings.MobileCannonToolTier.Value : ModSettings.CannonToolTier.Value);
             if (_shooter != null) hit.SetAttacker(_shooter);
             return hit;
         }

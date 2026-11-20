@@ -72,7 +72,7 @@ namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
             if (blast == null) return false;
             blast.m_useAttackSettings = false;
             blast.m_radius = ModSettings.ExplosiveArrowRadius.Value;
-            blast.m_damage = new HitData.DamageTypes { m_blunt = ModSettings.ExplosiveArrowBlunt.Value, m_fire = ModSettings.ExplosiveArrowFire.Value };
+            blast.m_damage = new HitData.DamageTypes { m_blunt = ModSettings.ExplosiveArrowBlunt.Value, m_fire = GunPowdered.Core.BurnRules.Total(ModSettings.ExplosiveArrowFire.Value) };
             blast.m_toolTier = 0;
             blast.m_hitProps = true;             // buildings, trees and rocks take the normal damage (D-100: only the dynamite is special)
             blast.m_hitTerrain = false;          // no holes in the ground: that is the dynamite's

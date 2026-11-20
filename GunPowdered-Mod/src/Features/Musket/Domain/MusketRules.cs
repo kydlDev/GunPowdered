@@ -58,7 +58,8 @@ namespace GunPowdered.Features.Musket.Domain
         internal const float ReloadSecondsPerCartridge = 1.2f;
 
         /// <summary>The bullet (D-087 proposal, D-095): pierce damage, muzzle speed (m/s), spread (degrees each way), gravity (m/s2), life (s).</summary>
-        internal const float BulletPierce = 55f, BulletSpeed = 110f, BulletSpreadDegrees = 0.6f, BulletGravity = 4f, BulletSeconds = 3f;
+        internal const float BulletFirePerSecond = 5f;          // D-107: burns 5/s for 5 s
+        internal const float BulletPierce = 50f, BulletSpeed = 110f, BulletSpreadDegrees = 0.6f, BulletGravity = 4f, BulletSeconds = 3f;
 
         /// <summary>How far the recoil shoves the shooter back (m; D-087 "recoil pushback", proposal).</summary>
         internal const float RecoilShoveMetres = 0.25f;

@@ -163,6 +163,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             CannonEffects.PlayMuzzle(_muzzle.position, velocity);
             GameObject ball = Instantiate(prefab, _muzzle.position + dir * 0.1f, Quaternion.LookRotation(velocity));
             CannonBallFlight flight = ball.GetComponent<CannonBallFlight>();
+            if (flight != null) flight.UseMobileCannonDamage();
             bool flies = flight != null && flight.Launch(p, transform, velocity, range);
             float recoil = ModSettings.MobileCannonRecoil.Value;
             if (_body != null && recoil > 0f) _body.AddForce(-new Vector3(dir.x, 0f, dir.z).normalized * recoil, ForceMode.VelocityChange);

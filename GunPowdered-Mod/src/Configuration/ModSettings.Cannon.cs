@@ -16,10 +16,12 @@ namespace GunPowdered.Configuration
             "The stock's own tilt in degrees (2-45): the rear trestle is 4 cm lower than the front one (D-052); with the range it sets the ball speed.");
         public static readonly Tunable<float> CannonGravity = new Tunable<float>("Cannon", "CannonGravity", 10f, 1f, 30f,
             "Gravity of the ball in flight, m/s per second (1-30).");
-        public static readonly Tunable<float> CannonPierce = new Tunable<float>("Cannon", "CannonPierce", 100f, 0f, 1000f,
-            "Pierce damage of the ball (0-1000, D-051 'Balanced').");
-        public static readonly Tunable<float> CannonBlunt = new Tunable<float>("Cannon", "CannonBlunt", 30f, 0f, 1000f,
-            "Blunt damage of the ball (0-1000, D-051 'Balanced').");
+        public static readonly Tunable<float> CannonPierce = new Tunable<float>("Cannon", "CannonPierce", 30f, 0f, 1000f,
+            "Pierce damage of the ball (0-1000, D-107).");
+        public static readonly Tunable<float> CannonBlunt = new Tunable<float>("Cannon", "CannonBlunt", 70f, 0f, 1000f,
+            "Blunt damage of the ball (0-1000, D-107).");
+        public static readonly Tunable<float> CannonFire = new Tunable<float>("Cannon", "CannonFire", 10f, 0f, 100f,
+            "Fire damage per second of the burning the ball sets, for 5 s (0-100, D-107).");
         public static readonly Tunable<float> CannonToolTier = new Tunable<float>("Cannon", "CannonToolTier", 2f, 0f, 10f,
             "Tool tier of the ball against trees (0-10); 2 = bronze, so the swamp's ancient trees can be broken too.");
         public static readonly Tunable<float> CannonPassFactor = new Tunable<float>("Cannon", "CannonPassFactor", 0.5f, 0f, 1f,

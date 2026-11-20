@@ -114,7 +114,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             {
                 m_blunt = ModSettings.GrenadeBlunt.Value,
                 m_pierce = ModSettings.GrenadePierce.Value,
-                m_fire = ModSettings.GrenadeFire.Value
+                m_fire = GunPowdered.Core.BurnRules.Total(ModSettings.GrenadeFire.Value)
             };
             blast.m_toolTier = 0;
             blast.m_hitProps = true;                 // buildings, trees and rocks take the normal damage (user D-100: only the dynamite is special)

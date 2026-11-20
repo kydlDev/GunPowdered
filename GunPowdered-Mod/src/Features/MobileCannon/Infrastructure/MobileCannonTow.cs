@@ -85,6 +85,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (why != null)
             {
                 p.Message(MessageHud.MessageType.Center, why);
+                ModLog.Decision("mobile cannon hitch", "refused", why + "; " + Candidates());
                 return false;
             }
             _nview.InvokeRPC(RpcHitch, near.View.GetZDO().m_uid);
@@ -105,6 +106,20 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 if (AsksvinTowRules.Nearer(d, bestDist, Range())) { best = h; bestDist = d; }
             }
             return best;
+        }
+
+        /// <summary>Diagnostics for a refused hitch: every Asksvin loaded here with its harness / tame / dead state and its hook and body distance from the tow ring.</summary>
+        string Candidates()
+        {
+            var sb = new System.Text.StringBuilder("ring at " + (_ring != null ? _ring.position.ToString("0.0") : "?") + ", cart held " + (_vagon != null && _vagon.IsAttached()));
+            foreach (Character c in Character.GetAllCharacters())
+            {
+                AsksvinHarness h = c != null ? c.GetComponent<AsksvinHarness>() : null;
+                if (h == null || _ring == null) continue;
+                sb.Append("; " + c.name + " harnessed " + h.Harnessed + " tamed " + c.IsTamed() + " dead " + c.IsDead() + " hook " + Vector3.Distance(_ring.position, c.transform.TransformPoint(AsksvinHarness.HookLocal)).ToString("0.0")
+                    + " m body " + Vector3.Distance(_ring.position, c.transform.position).ToString("0.0") + " m up " + c.transform.up.y.ToString("0.00"));
+            }
+            return sb.ToString();
         }
 
         static float Range() => ModSettings.MobileCannonHitchRange.Value;

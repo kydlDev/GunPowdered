@@ -3,18 +3,88 @@
   "description": "Hand Cannon (D-053 addenda): a creature on the line is hit and passed; the ball loses half its momentum and lands half way between the creature and the aimed 30 m spot; impact sparks at the creature and at the landing",
   "timeout": 90,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "cannonStock" },
-    { "do": "cannonLoaded" },
-    { "do": "hook", "name": "GunPowdered.cannonPlaceOnLine", "args": { "prefab": "Lox", "distance": 14 }, "expect": "placed Lox", "label": "a Lox stands 14 m out" },
-    { "do": "wait", "seconds": 1 },
-    { "do": "cannonFire30" },
-    { "do": "hook", "name": "GunPowdered.cannonPassed", "expect": 1, "label": "the ball passed the Lox" },
-    { "do": "hook", "name": "GunPowdered.cannonDamages", "expect": "130.0", "label": "the full 100 pierce + 30 blunt on the Lox" },
-    { "do": "hook", "name": "GunPowdered.cannonHurt", "args": { "prefab": "Lox" }, "expect": 1, "label": "the Lox is hurt" },
-    { "do": "hook", "name": "GunPowdered.cannonLandingRule", "args": { "tolerance": 1.5 }, "contains": "held", "label": "lands half way between the Lox and 30 m" },
-    { "do": "hook", "name": "GunPowdered.cannonEffects", "contains": "impact 2", "label": "sparks at the pass-through and at the landing" },
-    { "do": "cannonClean" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "cannonStock"
+    },
+    {
+      "do": "cannonLoaded"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonPlaceOnLine",
+      "args": {
+        "prefab": "Lox",
+        "distance": 14
+      },
+      "expect": "placed Lox",
+      "label": "a Lox stands 14 m out"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "cannonFire30"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonPassed",
+      "expect": 1,
+      "label": "the ball passed the Lox"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonDamages",
+      "expect": "100.0",
+      "label": "the full 30 pierce + 70 blunt on the Lox (D-107)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonHurt",
+      "args": {
+        "prefab": "Lox"
+      },
+      "expect": 1,
+      "label": "the Lox is hurt"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.burningOn",
+      "args": {
+        "prefab": "Lox"
+      },
+      "regex": "burning True, per tick [0-9]",
+      "label": "the Lox burns (D-107: 10 fire/s for 5 s)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonLandingRule",
+      "args": {
+        "tolerance": 1.5
+      },
+      "contains": "held",
+      "label": "lands half way between the Lox and 30 m"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonEffects",
+      "contains": "impact 2",
+      "label": "sparks at the pass-through and at the landing"
+    },
+    {
+      "do": "cannonClean"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

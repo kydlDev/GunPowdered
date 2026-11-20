@@ -198,6 +198,70 @@ namespace GunPowdered.Testing.TestHooks
             return why ?? "lit";
         }
 
+        static GameObject _target;
+
+        /// <summary>D-107: puts a vanilla piece (an Ashlands fortress wall / gate) on the ground <paramref name="metres"/> in front of the Mobile Cannon's muzzle,
+        /// facing it. Returns "target P at D m, health H".</summary>
+        [TestHook("GunPowdered.mobileCannonTargetAhead")]
+        static string TargetAhead(string prefab, double metres)
+        {
+            MobileCannonGun gun = _cannon != null ? _cannon.GetComponent<MobileCannonGun>() : null;
+            GameObject source = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
+            if (gun == null || gun.MuzzlePoint == null || source == null) return "no cannon or no prefab " + prefab;
+            Vector3 dir = Vector3.ProjectOnPlane(-_cannon.transform.forward, Vector3.up).normalized;      // the muzzle points to the cart's back
+            Vector3 at = gun.MuzzlePoint.position + dir * (float)metres;
+            float h;
+            if (ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(at, out h)) at.y = h;
+            _target = Object.Instantiate(source, at, Quaternion.LookRotation(-dir));
+            return "target " + prefab + " at " + metres.ToString("0") + " m, health " + TargetHealth();
+        }
+
+        /// <summary>The target's health (WearNTear / Destructible / MineRock5), e.g. "6000". "none" without a target.</summary>
+        [TestHook("GunPowdered.mobileCannonTargetHealth")]
+        static string TargetHealth()
+        {
+            if (_target == null) return "none";
+            ZNetView v = _target.GetComponent<ZNetView>();
+            WearNTear w = _target.GetComponent<WearNTear>();
+            float max = w != null ? w.m_health : 0f;
+            float now = v != null && v.IsValid() ? v.GetZDO().GetFloat(ZDOVars.s_health, max) : max;
+            string s = now.ToString("0") + " of " + max.ToString("0");
+            ModLog.Info("MobileCannonTestHooks: target " + _target.name + " health " + s);
+            return s;
+        }
+
+        /// <summary>Removes the target piece. Returns "target removed".</summary>
+        [TestHook("GunPowdered.mobileCannonTargetRemove")]
+        static string TargetRemove()
+        {
+            if (_target != null) { ZNetView v = _target.GetComponent<ZNetView>(); if (v != null && v.IsValid()) { v.ClaimOwnership(); ZNetScene.instance.Destroy(_target); } }
+            _target = null;
+            return "target removed";
+        }
+
+        /// <summary>Burning on the nearest creature of a prefab within 40 m (D-107): "burning True, per tick T, left L" (the game's SE_Burning: 1 tick a second
+        /// for 5 s), "burning False" or "no P".</summary>
+        [TestHook("GunPowdered.burningOn")]
+        static string BurningOn(string prefab)
+        {
+            Player p = Player.m_localPlayer;
+            Character best = null;
+            float bestDist = 40f;
+            foreach (Character c in Character.GetAllCharacters())
+            {
+                if (c == null || c == p || Utils.GetPrefabName(c.gameObject) != prefab) continue;
+                float d = p != null ? Vector3.Distance(c.transform.position, p.transform.position) : 0f;
+                if (d < bestDist) { best = c; bestDist = d; }
+            }
+            if (best == null) return "no " + prefab;
+            StatusEffect se = best.GetSEMan() != null ? best.GetSEMan().GetStatusEffect(SEMan.s_statusEffectBurning) : null;
+            if (se == null) return "burning False" + (best.IsDead() ? " (dead)" : "");
+            float perHit = (float)HarmonyLib.AccessTools.Field(se.GetType(), "m_fireDamagePerHit").GetValue(se);
+            float left = (float)HarmonyLib.AccessTools.Field(se.GetType(), "m_fireDamageLeft").GetValue(se);
+            string s = "burning True, per tick " + perHit.ToString("0.0") + ", left " + left.ToString("0.0");
+            ModLog.Info("MobileCannonTestHooks: " + prefab + " " + s);
+            return s;
+        }
         /// <summary>The last cannon ball's flight report (CannonBallFlight): "flew D m, stopped at ...".</summary>
         [TestHook("GunPowdered.mobileCannonLastShot")]
         static string LastShot()
