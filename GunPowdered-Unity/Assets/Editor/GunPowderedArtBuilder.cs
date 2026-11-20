@@ -50,6 +50,21 @@ public static class GunPowderedArtBuilder
         new MatDef("ammo_iron", Kind.Iron, 0.33f, 0.33f, 0.35f, 0.45f),
         new MatDef("ammo_cartridge", Kind.Paper, 0.91f, 0.85f, 0.73f, 0.05f),
         new MatDef("ammo_thread", Kind.Twine, 0.57f, 0.48f, 0.38f, 0.05f),
+        // D-129 Leaching Station extensions (make_leaching_extensions.py)
+        new MatDef("ext_wood", Kind.Wood, 0.48f, 0.37f, 0.26f, 0.15f),
+        new MatDef("ext_iron", Kind.Iron, 0.22f, 0.21f, 0.20f, 0.55f, 0.7f),
+        new MatDef("ext_stone", Kind.Dark, 0.58f, 0.58f, 0.57f, 0.05f),
+        new MatDef("ext_silver", Kind.Metal, 0.80f, 0.82f, 0.83f, 0.70f, 0.8f),
+        new MatDef("ext_obsidian", Kind.Dark, 0.17f, 0.15f, 0.20f, 0.85f),
+        new MatDef("ext_brine", Kind.Wax, 0.67f, 0.66f, 0.53f, 0.90f),
+        new MatDef("ext_finewood", Kind.Wood, 0.67f, 0.53f, 0.38f, 0.30f),
+        new MatDef("ext_blackmetal", Kind.Iron, 0.20f, 0.22f, 0.20f, 0.60f, 0.9f),
+        new MatDef("ext_yggwood", Kind.Wood, 0.35f, 0.38f, 0.48f, 0.40f),
+        new MatDef("ext_copper", Kind.Metal, 0.79f, 0.56f, 0.38f, 0.65f, 0.8f),
+        new MatDef("ext_marble", Kind.Dark, 0.26f, 0.26f, 0.27f, 0.70f),
+        new MatDef("ext_ashwood", Kind.Wood, 0.40f, 0.37f, 0.35f, 0.15f),
+        new MatDef("ext_flametal", Kind.Iron, 0.33f, 0.33f, 0.33f, 0.55f, 0.8f),
+        new MatDef("ext_glow", Kind.Glow, 0.98f, 0.58f, 0.25f, 0.50f),
     };
 
     private sealed class ItemDef
@@ -69,6 +84,11 @@ public static class GunPowderedArtBuilder
         new ItemDef("Paper", "GP_Paper", "Paper", new Vector3(0.4f, 1.0f, -0.9f), true, 0.1f),
         new ItemDef("IronBullet", "GP_IronBullet", "IronBullet", new Vector3(1f, 0.55f, -0.65f), true, 0.05f),
         new ItemDef("Cartridge", "GP_PaperCartridge", "PaperCartridge", new Vector3(1f, 0.55f, -0.65f), true, 0.05f),
+        new ItemDef("LeachBarrel", "GP_LeachBarrel", "LeachBarrel", new Vector3(1f, 0.55f, -0.80f), false, 0f),
+        new ItemDef("SettlingTank", "GP_SettlingTank", "SettlingTank", new Vector3(1f, 0.55f, -0.80f), false, 0f),
+        new ItemDef("BlackMetalBoiler", "GP_BlackMetalBoiler", "BlackMetalBoiler", new Vector3(1f, 0.55f, -0.80f), false, 0f),
+        new ItemDef("DvergrDripPipes", "GP_DvergrDripPipes", "DvergrDripPipes", new Vector3(1f, 0.55f, -0.80f), false, 0f),
+        new ItemDef("FlametalHeater", "GP_FlametalHeater", "FlametalHeater", new Vector3(1f, 0.55f, -0.80f), false, 0f),
     };
 
     [MenuItem("GunPowdered/Build weapon art")]
