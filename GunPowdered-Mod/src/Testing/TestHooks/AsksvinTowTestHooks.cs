@@ -32,6 +32,8 @@ namespace GunPowdered.Testing.TestHooks
                 go = new GameObject("gp_freecam");
                 go.AddComponent<Camera>();
             }
+            HitchCamFollow still = go.GetComponent<HitchCamFollow>();
+            if (still != null) still.enabled = false;                         // a still camera again (freeCamOnHitch turns the follower on after this)
             Camera cam = go.GetComponent<Camera>();
             cam.CopyFrom(main);
             cam.depth = main.depth + 1f;
@@ -60,7 +62,12 @@ namespace GunPowdered.Testing.TestHooks
             if (go == null) { ModLog.Verbose("AsksvinTowTestHooks.FreeCamOnHitch: " + placed); return placed; }
             Vector3 centre = tow.Ring.position;
             Vector3 dir = Quaternion.AngleAxis((float)azimuth, Vector3.up) * Vector3.ProjectOnPlane(_animal.transform.forward, Vector3.up).normalized;
-            go.transform.position = centre + dir * (float)metres + Vector3.up * 0.3f;
+            HitchCamFollow follow = go.GetComponent<HitchCamFollow>();
+            if (follow == null) follow = go.AddComponent<HitchCamFollow>();
+            follow.enabled = true;
+            follow.Ring = tow.Ring;
+            follow.Offset = dir * (float)metres + Vector3.up * 0.3f;          // follows the ring every frame: the hitch moves on before the picture is taken
+            go.transform.position = centre + follow.Offset;
             go.transform.LookAt(centre);
             string s = "free camera on the hitch at " + go.transform.position.ToString("0.0") + ", ring " + centre.ToString("0.00");
             ModLog.Verbose("AsksvinTowTestHooks.FreeCamOnHitch: returns " + s);
