@@ -13,6 +13,11 @@
       "label": "stand in front of the panes for the picture"
     },
     {
+      "do": "lookAt",
+      "target": "{{oven}}",
+      "down": 0.1
+    },
+    {
       "do": "wait",
       "seconds": 1.5
     },

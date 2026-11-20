@@ -2,12 +2,6 @@
   "params": [],
   "actions": [
     {
-      "do": "hook",
-      "name": "GunPowdered.arena",
-      "contains": "arena at",
-      "label": "start on the arena spot"
-    },
-    {
       "do": "spawn",
       "prefab": "GP_PowderMill",
       "dz": 5,

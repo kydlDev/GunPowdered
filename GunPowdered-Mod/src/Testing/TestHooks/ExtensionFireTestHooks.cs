@@ -18,8 +18,8 @@ namespace GunPowdered.Testing.TestHooks
         static readonly Dictionary<int, Color> Idle = new Dictionary<int, Color>();
         static Vector3? _returnTo;
         static Quaternion _returnRotation;
-        static float _returnDistance;
-        static readonly HarmonyLib.AccessTools.FieldRef<GameCamera, float> CameraDistance = HarmonyLib.AccessTools.FieldRefAccess<GameCamera, float>("m_distance");
+        static readonly HarmonyLib.AccessTools.FieldRef<Character, GameObject> Visual = HarmonyLib.AccessTools.FieldRefAccess<Character, GameObject>("m_visual");
+
 
         /// "burning &lt;bool&gt;, flames &lt;bool&gt;, light &lt;intensity&gt;" of the tagged oven, or why not.
         [TestHook("GunPowdered.fireState")]
@@ -63,8 +63,8 @@ namespace GunPowdered.Testing.TestHooks
         }
 
         /// <summary>
-        /// Puts the player 1.6 m in front of the tagged oven's panes in first person (the camera zoomed all the way in, so the player's body does not
-        /// hide the oven, user 2026-11-20), looking at the panes, so a GameProbe screenshot (ProbeApi.Screenshot, named by GameProbe in the
+        /// Puts the player 2.2 m in front of the tagged oven's panes with the player's body hidden (it stood between the camera and the oven in the
+        /// a13fire3 / a13fire4 shots; Valheim has no first person), so a GameProbe screenshot - aimed by the suite's lookAt step - (ProbeApi.Screenshot, named by GameProbe in the
         /// mod's _testruns session) shows what a player sees. <c>viewBack</c> returns the player. Returns "in front of &lt;oven&gt;" or why not.
         /// </summary>
         [TestHook("GunPowdered.viewPanes")]
@@ -74,18 +74,12 @@ namespace GunPowdered.Testing.TestHooks
             Renderer glass = Glass(target);
             if (p == null || glass == null) return "no player or no panes";
             Vector3 centre = glass.bounds.center, front = Front(target, centre);
-            GameCamera cam = GameCamera.instance;
-            if (!_returnTo.HasValue)
-            {
-                _returnTo = p.transform.position;
-                _returnRotation = p.transform.rotation;
-                _returnDistance = cam != null ? CameraDistance(cam) : 4f;
-            }
-            Vector3 at = centre + front * 1.6f;
+            if (!_returnTo.HasValue) { _returnTo = p.transform.position; _returnRotation = p.transform.rotation; }
+            Vector3 at = centre + front * 2.2f;
             at.y = target.transform.position.y;
             p.transform.SetPositionAndRotation(at, Quaternion.LookRotation(-front));
-            if (cam != null) CameraDistance(cam) = 0f;                          // first person
-            p.SetLookDir((centre - p.GetEyePoint()).normalized);
+            p.SetLookDir(-front);
+            if (Visual(p) != null) Visual(p).SetActive(false);              // only for the picture: viewBack shows the body again
             ModLog.Verbose("ExtensionFireTestHooks: player in front of the panes of " + target.name + " at " + at);
             return "in front of " + Utils.GetPrefabName(target);
         }
@@ -95,10 +89,11 @@ namespace GunPowdered.Testing.TestHooks
         static string ViewBack()
         {
             Player p = Player.m_localPlayer;
+            if (p != null && Visual(p) != null) Visual(p).SetActive(true);
             if (p == null || !_returnTo.HasValue) return "nothing to undo";
             p.transform.SetPositionAndRotation(_returnTo.Value, _returnRotation);
             p.SetLookDir(_returnRotation * Vector3.forward);
-            if (GameCamera.instance != null) CameraDistance(GameCamera.instance) = _returnDistance;
+            if (Visual(p) != null) Visual(p).SetActive(true);
             _returnTo = null;
             return "back";
         }

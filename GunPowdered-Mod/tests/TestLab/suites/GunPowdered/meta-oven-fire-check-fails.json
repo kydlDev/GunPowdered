@@ -55,5 +55,10 @@
       "do": "cleanArena"
     }
   ],
-  "asserts": []
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }
