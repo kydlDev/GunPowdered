@@ -1,0 +1,97 @@
+{
+  "name": "mill-missing-materials",
+  "description": "Powder Mill start rule (D-137 = D-132): it never starts below one base batch - with 3 Saltpeter + 0 Charcoal + 1 Sulfur inside it waits; using it with nothing to add says exactly what is missing ('Needs 1 more Charcoal'), on screen and in the hover; 1 Charcoal makes the base batch and it starts by itself",
+  "timeout": 90,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Saltpeter",
+      "count": 3
+    },
+    {
+      "do": "give",
+      "prefab": "SulfurStone",
+      "count": 1
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_PowderMill",
+      "dz": 4,
+      "owner": "me",
+      "as": "mill"
+    },
+    {
+      "do": "millUse"
+    },
+    {
+      "do": "check",
+      "check": "message",
+      "contains": "Added 2 Saltpeter, 0 Charcoal and 1 Sulfur",
+      "label": "the first use says what went in"
+    },
+    {
+      "do": "millUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_saltpeter",
+      "value": "3",
+      "label": "all 3 Saltpeter are in"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_state",
+      "value": "none",
+      "label": "no Charcoal: no start"
+    },
+    {
+      "do": "millUse"
+    },
+    {
+      "do": "check",
+      "check": "message",
+      "kind": "Center",
+      "contains": "Needs 1 more Charcoal",
+      "label": "nothing to add: it names the missing Charcoal"
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "mill",
+      "contains": "Cannot start yet: Needs 1 more Charcoal",
+      "label": "the hover names the missing Charcoal too"
+    },
+    {
+      "do": "give",
+      "prefab": "Coal",
+      "count": 1
+    },
+    {
+      "do": "millUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_state",
+      "value": "1",
+      "label": "with the Charcoal it starts by itself"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

@@ -1,20 +1,142 @@
 {
   "name": "mill-turns",
-  "description": "Powder Mill (D-026): while a player has its window open (the stamp a crafting client writes) the sweep arm turns by itself on every client; about 3 s after the window closes it stops",
-  "timeout": 60,
+  "description": "Powder Mill (D-026, D-137): the sweep arm stands still while the mill is idle, turns by itself on every client while it grinds, and stops when the grinding ends with nothing left to grind",
+  "timeout": 120,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "spawn", "prefab": "GP_PowderMill", "dz": 5, "owner": "me", "as": "mill" },
-    { "do": "wait", "seconds": 1 },
-    { "do": "hook", "name": "GunPowdered.millArm", "args": { "target": "mill" }, "contains": "", "label": "arm position noted" },
-    { "do": "hook", "name": "GunPowdered.millStampNow", "args": { "target": "mill" }, "expect": "stamped", "label": "a player has the mill's window open" },
-    { "do": "wait", "seconds": 2 },
-    { "do": "hook", "name": "GunPowdered.millArm", "args": { "target": "mill" }, "expect": "turning", "label": "the arm turns" },
-    { "do": "wait", "seconds": 5 },
-    { "do": "hook", "name": "GunPowdered.millArm", "args": { "target": "mill" }, "contains": "", "label": "arm position noted after the window closed" },
-    { "do": "wait", "seconds": 2 },
-    { "do": "hook", "name": "GunPowdered.millArm", "args": { "target": "mill" }, "expect": "still", "label": "the arm has stopped" },
-    { "do": "cleanArena" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Saltpeter",
+      "count": 3
+    },
+    {
+      "do": "give",
+      "prefab": "Coal",
+      "count": 1
+    },
+    {
+      "do": "give",
+      "prefab": "SulfurStone",
+      "count": 1
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_PowderMill",
+      "dz": 4,
+      "owner": "me",
+      "as": "mill"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.millArm",
+      "args": {
+        "target": "mill"
+      },
+      "contains": "",
+      "label": "arm position noted"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.millArm",
+      "args": {
+        "target": "mill"
+      },
+      "expect": "still",
+      "label": "idle: the arm stands still"
+    },
+    {
+      "do": "millUse"
+    },
+    {
+      "do": "millUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_state",
+      "value": "1",
+      "label": "a base batch is in: it grinds"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.millArm",
+      "args": {
+        "target": "mill"
+      },
+      "contains": "",
+      "label": "arm position noted while grinding"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.millArm",
+      "args": {
+        "target": "mill"
+      },
+      "expect": "turning",
+      "label": "grinding: the arm turns"
+    },
+    {
+      "do": "console",
+      "command": "skiptime 720"
+    },
+    {
+      "do": "wait",
+      "seconds": 4
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_state",
+      "value": "0",
+      "label": "the grinding ended, nothing left: idle"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.millArm",
+      "args": {
+        "target": "mill"
+      },
+      "contains": "",
+      "label": "arm position noted after the grinding"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.millArm",
+      "args": {
+        "target": "mill"
+      },
+      "expect": "still",
+      "label": "the arm has stopped"
+    },
+    {
+      "do": "cleanArena"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

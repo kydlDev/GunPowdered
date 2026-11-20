@@ -18,6 +18,9 @@
     <Compile Include="..\..\src\Core\Roll.cs" Link="Mod\Core\Roll.cs" />
     <!-- the pure code's debug log (D-128): every rule calls it; unconnected here, so it writes nothing (a11gate: the benchmarks did not build without it) -->
     <Compile Include="..\..\src\Core\RuleLog.cs" Link="Mod\Core\RuleLog.cs" />
+    <Compile Include="..\..\src\Core\BatchAmounts.cs" Link="Mod\Core\BatchAmounts.cs" />
+    <Compile Include="..\..\src\Core\BatchStationSpec.cs" Link="Mod\Core\BatchStationSpec.cs" />
+    <Compile Include="..\..\src\Core\BatchStationRules.cs" Link="Mod\Core\BatchStationRules.cs" />
   </ItemGroup>
   <ItemGroup>
     <!-- version: dotnet add package BenchmarkDotNet resolves the newest one; do not hand-write an older version -->

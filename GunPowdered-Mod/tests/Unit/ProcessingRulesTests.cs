@@ -50,16 +50,6 @@ namespace GunPowdered.Tests.Unit
             Assert.That(LeachingVatRules.CanStart(loaded, fuel, need), Is.EqualTo(expected));
         }
 
-        [TestCase(0d, 100d, false)]
-        [TestCase(100d, 101d, true)]
-        [TestCase(100d, 103d, true)]
-        [TestCase(100d, 103.5d, false)]
-        [TestCase(100d, 50d, false)]
-        public void Mill_IsTurning_OnlyShortlyAfterTheLastUse(double lastUse, double now, bool expected)
-        {
-            Assert.That(GunPowdered.Features.Gunpowder.Domain.GunpowderRules.IsTurning(lastUse, now, 3d), Is.EqualTo(expected));
-        }
-
         [Test]
         public void Vat_OneGameDay_IsDoneAfterTheDayLength()
         {

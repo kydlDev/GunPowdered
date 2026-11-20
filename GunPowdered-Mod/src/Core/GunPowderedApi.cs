@@ -53,6 +53,9 @@ namespace GunPowdered
             public const string BlackMetalBoiler = Core.GunPowderedPrefabs.BlackMetalBoiler;
             public const string DvergrDripPipes = Core.GunPowderedPrefabs.DvergrDripPipes;
             public const string FlametalHeater = Core.GunPowderedPrefabs.FlametalHeater;
+            public const string MillGrindstone = Core.GunPowderedPrefabs.MillGrindstone;
+            public const string MillSieve = Core.GunPowderedPrefabs.MillSieve;
+            public const string MillOven = Core.GunPowderedPrefabs.MillOven;
         }
 
         /// <summary>Every prefab name the mod adds.</summary>

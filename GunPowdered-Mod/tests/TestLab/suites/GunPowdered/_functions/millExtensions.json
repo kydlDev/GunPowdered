@@ -1,0 +1,40 @@
+{
+  "params": [
+    {
+      "grindstone": null
+    },
+    {
+      "sieve": null
+    },
+    {
+      "oven": null
+    }
+  ],
+  "actions": [
+    {
+      "if": "{{grindstone}}",
+      "do": "spawn",
+      "prefab": "GP_MillGrindstone",
+      "dx": 3,
+      "dz": 4,
+      "owner": "me"
+    },
+    {
+      "if": "{{sieve}}",
+      "do": "spawn",
+      "prefab": "GP_MillSieve",
+      "dx": -3,
+      "dz": 4,
+      "owner": "me"
+    },
+    {
+      "if": "{{oven}}",
+      "do": "spawn",
+      "prefab": "GP_MillOven",
+      "dx": 0,
+      "dz": 7.5,
+      "owner": "me"
+    }
+  ],
+  "asserts": []
+}

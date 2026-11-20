@@ -14,6 +14,7 @@ using GunPowdered.Features.Musket.Infrastructure;
 using GunPowdered.Features.Saltpeter.Infrastructure;
 using GunPowdered.Features.Water.Infrastructure;
 using GunPowdered.Integrations.KyRegistry;
+using GunPowdered.Integrations.Valheim;
 
 namespace GunPowdered.Integrations.Items
 {
@@ -210,8 +211,7 @@ namespace GunPowdered.Integrations.Items
             ModLog.Verbose("ItemRegistry: piece " + s.Id + " cloned from " + s.CloneOf);
         }
 
-        // What the piece does in the world. The Leaching Vat keeps the chest's container (its inventory is where guano and water go); the Rain Barrel
-        // loses it, because the barrel hands out water by interacting instead of opening a window.
+        // What the piece does in the world. Pieces cloned from the chest lose its container (they take items by interacting, not through a window).
         static void AddBehaviour(ItemSpec s, GameObject prefab)
         {
             if (s.Id == GunPowderedPrefabs.LeachingVat)
@@ -222,11 +222,13 @@ namespace GunPowdered.Integrations.Items
             }
             else if (s.Id == GunPowderedPrefabs.PowderMill)
             {
-                prefab.AddComponent<PowderMillSpin>();
-                // cloned from the workbench, which needs a roof; the Powder Mill works in the open (user 2026-11-18, D-040)
+                // D-137: the mill grinds by itself (PowderMill, a batch station like the Leaching Station) - the workbench's crafting station goes, so there is
+                // no Craft menu and no roof rule (D-040: it works in the open); the arm turns while it grinds (PowderMillSpin)
                 CraftingStation station = prefab.GetComponent<CraftingStation>();
-                if (station != null) station.m_craftRequireRoof = false;
-                ModLog.Verbose("ItemRegistry: Powder Mill needs no roof (station " + (station != null ? "found" : "missing") + ")");
+                if (station != null) UnityEngine.Object.DestroyImmediate(station);
+                prefab.AddComponent<PowderMill>();
+                prefab.AddComponent<PowderMillSpin>();
+                ModLog.Verbose("ItemRegistry: Powder Mill is automatic (crafting station " + (station != null ? "removed" : "was missing") + ")");
             }
             else if (s.Id == GunPowderedPrefabs.CannonStock || s.Id == GunPowderedPrefabs.MobileCannon)
             {
@@ -235,13 +237,15 @@ namespace GunPowdered.Integrations.Items
                 Container chest = prefab.GetComponent<Container>();
                 if (chest != null) UnityEngine.Object.DestroyImmediate(chest);
             }
-            else if (IsLeachingExtension(s.Id))
+            else if (StationOf(s.Id) != null)
             {
-                // D-129: cloned from the chest for its piece and network view; an extension holds no items, it only counts for the Leaching Station near it
+                // D-129 / D-137: cloned from the chest for its piece and network view; an extension holds no items, it only counts for its station near it
                 Container chest = prefab.GetComponent<Container>();
                 if (chest != null) UnityEngine.Object.DestroyImmediate(chest);
-                prefab.AddComponent<LeachingExtension>().Kind = s.Id;
-                ModLog.Verbose("ItemRegistry: " + s.Id + " is a Leaching Station extension");
+                var extension = prefab.AddComponent<BatchStationExtension>();
+                extension.Station = StationOf(s.Id);
+                extension.Kind = s.Id;
+                ModLog.Verbose("ItemRegistry: " + s.Id + " is an extension of " + extension.Station);
             }
             else if (s.Id == GunPowderedPrefabs.RainBarrel)
             {
@@ -251,14 +255,19 @@ namespace GunPowdered.Integrations.Items
             }
         }
 
-        static bool IsLeachingExtension(string id)
+        // the station an extension piece belongs to (its prefab name), or null for a piece that is no extension
+        static string StationOf(string id)
         {
             foreach (ItemSpec e in ItemCatalog.LeachingExtensions)
             {
-                if (e.Id == id) { if (RuleLog.IsOn()) ModLog.Every("ItemRegistry.IsLeachingExtension", 2d, $"ItemRegistry.IsLeachingExtension({id}): returns true"); return true; }
+                if (e.Id == id) { if (RuleLog.IsOn()) ModLog.Every("ItemRegistry.StationOf:vat", 2d, $"ItemRegistry.StationOf({id}): returns the Leaching Station"); return GunPowderedPrefabs.LeachingVat; }
             }
-            if (RuleLog.IsOn()) ModLog.Every("ItemRegistry.IsLeachingExtension:no", 2d, $"ItemRegistry.IsLeachingExtension({id}): returns false");
-            return false;
+            foreach (ItemSpec e in ItemCatalog.MillExtensions)
+            {
+                if (e.Id == id) { if (RuleLog.IsOn()) ModLog.Every("ItemRegistry.StationOf:mill", 2d, $"ItemRegistry.StationOf({id}): returns the Powder Mill"); return GunPowderedPrefabs.PowderMill; }
+            }
+            if (RuleLog.IsOn()) ModLog.Every("ItemRegistry.StationOf:none", 2d, $"ItemRegistry.StationOf({id}): returns null");
+            return null;
         }
 
         // Deposits are Pickables: the vanilla Pickable respawns by itself, so the 3-day refill (D-019) is its respawn time.
@@ -295,27 +304,21 @@ namespace GunPowdered.Integrations.Items
             ModLog.Verbose("ItemRegistry: deposit " + s.Id + " cloned from " + s.CloneOf + ", respawn " + (pick != null ? pick.m_respawnTimeMinutes.ToString("0.#") + " min" : "no Pickable"));
         }
 
-        // The Powder Mill reads its numbers from the Tunables (D-014); everything else uses the catalog values.
+        // Costs and yields come from the catalog (the Powder Mill's Gunpowder has no Craft-menu recipe since D-137).
         internal static IList<CostLine> CostsOf(ItemSpec s) => Costs(s);
 
         static IList<CostLine> Costs(ItemSpec s)
         {
-            if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.Costs(s={RuleLog.Shown(s)})");
-            if (s.Id != GunPowderedPrefabs.Gunpowder) { var returnedAt286 = s.Cost; if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.Costs: returns {RuleLog.Shown(returnedAt286)} (line 286)"); return returnedAt286; }
-            return new[]
-            {
-                new CostLine(GunPowderedPrefabs.Saltpeter, ModSettings.MillSaltpeter.Value),
-                new CostLine(ItemCatalog.Charcoal, ModSettings.MillCharcoal.Value),
-                new CostLine(ItemCatalog.Sulfur, ModSettings.MillSulfur.Value)
-            };
+            if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.Costs({s.Id}): returns {s.Cost.Count} line(s)");
+            return s.Cost;
         }
 
         internal static int YieldOf(ItemSpec s) => Yield(s);
 
         static int Yield(ItemSpec s)
         {
-            if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.Yield(s={RuleLog.Shown(s)})");
-            { var returnedAt300 = s.Id == GunPowderedPrefabs.Gunpowder ? ModSettings.MillYield.Value : s.Yield; if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.Yield: returns {RuleLog.Shown(returnedAt300)} (line 300)"); return returnedAt300; }
+            if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.Yield({s.Id}): returns {s.Yield}");
+            return s.Yield;
         }
 
         static RequirementConfig[] ToRequirements(IList<CostLine> cost)

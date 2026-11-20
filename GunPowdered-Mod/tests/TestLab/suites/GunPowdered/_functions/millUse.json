@@ -1,0 +1,14 @@
+{
+  "params": [],
+  "actions": [
+    {
+      "do": "interact",
+      "target": "mill"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    }
+  ],
+  "asserts": []
+}

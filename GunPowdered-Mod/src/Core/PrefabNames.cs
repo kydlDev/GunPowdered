@@ -35,5 +35,8 @@ namespace GunPowdered.Core
         public const string BlackMetalBoiler = "GP_BlackMetalBoiler";
         public const string DvergrDripPipes = "GP_DvergrDripPipes";
         public const string FlametalHeater = "GP_FlametalHeater";
+        public const string MillGrindstone = "GP_MillGrindstone";
+        public const string MillSieve = "GP_MillSieve";
+        public const string MillOven = "GP_MillOven";
     }
 }

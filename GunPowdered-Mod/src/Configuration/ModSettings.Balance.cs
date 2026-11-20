@@ -24,10 +24,12 @@ namespace GunPowdered.Configuration
         public static readonly Tunable<float> VatBaseMinutes = new Tunable<float>("Saltpeter", "VatBaseMinutes", 30f, 1f, 120f, "Real minutes of one Leaching Station run without extensions (1-120; 30 = one in-game day), D-129.");
         public static readonly Tunable<float> VatMinutesPerStep = new Tunable<float>("Saltpeter", "VatMinutesPerStep", 5f, 0f, 30f, "Minutes each extension step takes off a run (0-30; 5 makes the last step 5 min), D-129.");
 
-        public static readonly Tunable<int> MillSaltpeter = new Tunable<int>("Gunpowder", "MillSaltpeter", 3, 1, 50, "Saltpeter per Powder Mill craft (1-50), D-014. Read at start.");
-        public static readonly Tunable<int> MillCharcoal = new Tunable<int>("Gunpowder", "MillCharcoal", 1, 1, 50, "Charcoal per Powder Mill craft (1-50), D-014. Read at start.");
-        public static readonly Tunable<int> MillSulfur = new Tunable<int>("Gunpowder", "MillSulfur", 1, 1, 50, "Sulfur per Powder Mill craft (1-50), D-014. Read at start.");
-        public static readonly Tunable<int> MillYield = new Tunable<int>("Gunpowder", "MillYield", 5, 1, 50, "Gunpowder one craft gives (1-50), D-014. Read at start.");
+        public static readonly Tunable<int> MillSaltpeter = new Tunable<int>("Gunpowder", "MillSaltpeter", 3, 1, 50, "Saltpeter per Powder Mill base batch (1-50), D-014 / D-137.");
+        public static readonly Tunable<int> MillCharcoal = new Tunable<int>("Gunpowder", "MillCharcoal", 1, 1, 50, "Charcoal per Powder Mill base batch (1-50), D-014 / D-137.");
+        public static readonly Tunable<int> MillSulfur = new Tunable<int>("Gunpowder", "MillSulfur", 1, 1, 50, "Sulfur per Powder Mill base batch (1-50), D-014 / D-137.");
+        public static readonly Tunable<int> MillYield = new Tunable<int>("Gunpowder", "MillYield", 5, 1, 50, "Gunpowder one base batch gives (1-50), D-014 / D-137.");
+        public static readonly Tunable<float> MillBaseMinutes = new Tunable<float>("Gunpowder", "MillBaseMinutes", 10f, 1f, 60f, "Real minutes of one Powder Mill grinding without extensions (1-60), D-137.");
+        public static readonly Tunable<float> MillMinutesPerStep = new Tunable<float>("Gunpowder", "MillMinutesPerStep", 2.5f, 0f, 20f, "Minutes each Powder Mill extension takes off a grinding (0-20; 2.5 makes the last step 2.5 min), D-137.");
 
         public static readonly Tunable<float> DepositRefillDays = new Tunable<float>("Deposits", "DepositRefillDays", 3f, 0.1f, 30f,
             "In-game days until an emptied Bat Guano or Sulfurous Mud deposit is full again (0.1-30), D-019.");

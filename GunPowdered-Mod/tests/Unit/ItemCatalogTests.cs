@@ -47,12 +47,21 @@ namespace GunPowdered.Tests.Unit
         }
 
         [Test]
-        public void Gunpowder_IsThreeSaltpeterOneCharcoalOneSulfur_ForFive()
+        public void Gunpowder_HasNoCraftRecipe_TheAutomaticMillGrindsIt()
         {
+            // D-137: the Powder Mill grinds Gunpowder by itself (3 Saltpeter + 1 Charcoal + 1 Sulfur -> 5 per base batch, the Mill* Tunables); no Craft-menu recipe
             var g = ItemCatalog.Gunpowder;
-            Assert.That(g.Yield, Is.EqualTo(5));
-            Assert.That(g.Station, Is.EqualTo(GunPowderedPrefabs.PowderMill));
-            Assert.That(g.Cost.Select(c => c.Prefab + ":" + c.Amount), Is.EquivalentTo(new[] { "GP_Saltpeter:3", "Coal:1", "SulfurStone:1" }));
+            Assert.That(g.HasRecipe, Is.False);
+            Assert.That(g.Cost, Is.Empty);
+            Assert.That(ItemCatalog.All.Where(i => i.HasRecipe).Select(i => i.Station), Has.None.EqualTo(GunPowderedPrefabs.PowderMill), "no recipe is crafted at the Powder Mill any more");
+        }
+
+        [Test]
+        public void MillExtensions_AreThreePiecesBuiltAtAWorkbench()
+        {
+            Assert.That(ItemCatalog.MillExtensions.Select(e => e.Id), Is.EqualTo(new[] { GunPowderedPrefabs.MillGrindstone, GunPowderedPrefabs.MillSieve, GunPowderedPrefabs.MillOven }));
+            Assert.That(ItemCatalog.MillExtensions.All(e => e.Kind == ItemKind.Piece && e.Station == ItemCatalog.Workbench), Is.True);
+            Assert.That(ItemCatalog.All, Is.SupersetOf(ItemCatalog.MillExtensions));
         }
 
         [Test]

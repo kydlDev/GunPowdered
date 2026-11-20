@@ -299,16 +299,6 @@ namespace GunPowdered.Testing.TestHooks
 
         static float _lastArmAngle = float.NaN;
 
-        /// Setup for the mill test: writes the "window open" stamp a crafting player's client writes (PowderMillSpin.Stamp) with the current world time.
-        [TestHook("GunPowdered.millStampNow")]
-        static string MillStampNow(GameObject target)
-        {
-            ZNetView view = target != null ? target.GetComponentInParent<ZNetView>() : null;
-            if (view == null || !view.IsValid() || ZNet.instance == null) return "no mill";
-            view.GetZDO().Set("gp_mill_use", (long)(ZNet.instance.GetTimeSeconds() * 1000d));
-            return "stamped";
-        }
-
         /// "turning" when the mill's sweep arm moved since the last call, "still" when it did not, "first" on the first call; reads the real model part.
         [TestHook("GunPowdered.millArm")]
         static string MillArm(GameObject target)

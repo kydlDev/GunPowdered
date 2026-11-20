@@ -6,7 +6,7 @@ using GunPowdered.Features.Water.Domain;
 namespace GunPowdered.Benchmarks;
 
 /// Coverage-suite benchmarks (skill microbenchmarking, use case 1; PROJECT_RULES 30) of the rules the game asks on every tick of every placed
-/// station: the Rain Barrel fill (RainBarrel.Tick), the Leaching Station ready check (LeachingVat.Tick) and the Powder Mill turning check. Comparison
+/// station: the Rain Barrel fill (RainBarrel.Tick), the Leaching Station ready check (LeachingVat.Tick). Comparison
 /// axis: builds (before / after a change of these rules), numbers kept in ..\_quality\benchmarks.md. Inputs live in fields set from [Params], so the
 /// JIT cannot fold them; the cases cover the branches a tick really takes (raining and open, covered, full barrel).
 [MemoryDiagnoser]
@@ -41,7 +41,7 @@ public class TickRulesBenchmarks
 [MemoryDiagnoser]
 public class StationTickBenchmarks
 {
-    private double _start, _now, _dayLength, _days, _lastUse, _grace;
+    private double _start, _now, _dayLength, _days;
 
     [GlobalSetup]
     public void Setup()
@@ -50,13 +50,9 @@ public class StationTickBenchmarks
         _now = 1500d;
         _dayLength = 1800d;
         _days = 1d;
-        _lastUse = 1490d;
-        _grace = 3d;
     }
 
     [Benchmark]
     public bool LeachingStationReady() => LeachingVatRules.IsReady(_start, _now, _dayLength, _days);
 
-    [Benchmark]
-    public bool PowderMillTurning() => GunpowderRules.IsTurning(_lastUse, _now, _grace);
 }

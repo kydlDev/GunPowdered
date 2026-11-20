@@ -1,0 +1,120 @@
+{
+  "name": "mill-step3",
+  "description": "Powder Mill step 3 (D-137): with the Obsidian Grindstone, Dvergr Powder Sieve and Flametal Drying Oven near it the full batch is 12 Saltpeter + 4 Charcoal + 4 Sulfur -> 20 Gunpowder in 2.5 min; one use puts in 6 / 2 / 2, which is 2 base batches, and it starts by itself with those; the next fills wait (up to the full batch); the finished 10 Gunpowder pile up and the next grinding takes the 4 base batches waiting",
+  "timeout": 150,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Saltpeter",
+      "count": 24
+    },
+    {
+      "do": "give",
+      "prefab": "Coal",
+      "count": 8
+    },
+    {
+      "do": "give",
+      "prefab": "SulfurStone",
+      "count": 8
+    },
+    {
+      "do": "millExtensions",
+      "grindstone": true,
+      "sieve": true,
+      "oven": true
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_PowderMill",
+      "dz": 4,
+      "owner": "me",
+      "as": "mill"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "mill",
+      "contains": "Upgrades 3/3: up to 12 Saltpeter + 4 Charcoal + 4 Sulfur -> 20 Gunpowder, 2.5 min",
+      "label": "step 3: full batch and grinding time"
+    },
+    {
+      "do": "millUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_state",
+      "value": "1",
+      "label": "use 1: 6 + 2 + 2 = 2 base batches - it started by itself"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_units",
+      "value": "2",
+      "label": "the grinding takes the 2 base batches inside"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_minutes",
+      "value": "2.5",
+      "label": "2.5 minutes at step 3"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_saltpeter",
+      "value": "0",
+      "label": "nothing left waiting"
+    },
+    {
+      "do": "millUse"
+    },
+    {
+      "do": "millUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_saltpeter",
+      "value": "12",
+      "label": "uses 2 and 3: the full 12 Saltpeter wait for the next grinding"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_sulfur",
+      "value": "4",
+      "label": "and 4 Sulfur"
+    },
+    {
+      "do": "millRunEnds",
+      "early": 30,
+      "pile": "10",
+      "pileCount": 10,
+      "state": "1",
+      "units": "4"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

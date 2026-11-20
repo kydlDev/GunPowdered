@@ -19,7 +19,7 @@ namespace GunPowdered.Features.Gunpowder.Infrastructure
         internal GunpowderFeature()
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"GunpowderFeature.GunpowderFeature()");
-            ItemRegistry.Register(FeatureId, ItemCatalog.Gunpowder, ItemCatalog.PowderMill);
+            ItemRegistry.Register(FeatureId, ItemCatalog.Gunpowder, ItemCatalog.PowderMill, ItemCatalog.MillGrindstone, ItemCatalog.MillSieve, ItemCatalog.MillOven);
         }
 
         public string Id { get { return _lifecycle.Id; } }

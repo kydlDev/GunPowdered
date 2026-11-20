@@ -40,18 +40,6 @@ namespace GunPowdered.Tests.Unit
             Assert.That(GunpowderRules.Batches(saltpeter, charcoal, sulfur, 3, 1, 1), Is.Zero);
         }
 
-        [Test]
-        public void Mill_UsedThisVerySecond_IsTurning()
-        {
-            Assert.That(GunpowderRules.IsTurning(10d, 10d, 3d), Is.True);
-        }
-
-        [Test]
-        public void Mill_WithoutAStamp_IsNotTurning()
-        {
-            Assert.That(GunpowderRules.IsTurning(0d, 1d, 3d), Is.False);
-        }
-
         [TestCase(2, 1, 2)]
         [TestCase(-2, 5, 0)]
         [TestCase(2, -1, 0)]

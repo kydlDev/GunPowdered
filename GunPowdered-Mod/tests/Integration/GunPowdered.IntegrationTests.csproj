@@ -9,6 +9,9 @@
   <ItemGroup>
     <Compile Include="..\..\src\Core\Roll.cs" Link="Mod\Core\Roll.cs" />
     <Compile Include="..\..\src\Core\RuleLog.cs" Link="Mod\Core\RuleLog.cs" />
+    <Compile Include="..\..\src\Core\BatchAmounts.cs" Link="Mod\Core\BatchAmounts.cs" />
+    <Compile Include="..\..\src\Core\BatchStationSpec.cs" Link="Mod\Core\BatchStationSpec.cs" />
+    <Compile Include="..\..\src\Core\BatchStationRules.cs" Link="Mod\Core\BatchStationRules.cs" />
     <Compile Include="..\..\src\Core\PrefabNames.cs" Link="Mod\Core\PrefabNames.cs" />
     <Compile Include="..\..\src\Core\ItemCatalog.cs" Link="Mod\Core\ItemCatalog.cs" />
     <Compile Include="..\..\src\Core\DepositRefill.cs" Link="Mod\Core\DepositRefill.cs" />

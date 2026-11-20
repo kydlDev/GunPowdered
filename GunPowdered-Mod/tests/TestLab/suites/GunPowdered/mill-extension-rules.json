@@ -1,0 +1,122 @@
+{
+  "name": "mill-extension-rules",
+  "description": "Powder Mill extensions (D-137): only DIFFERENT mill extensions within 5 m count - two Obsidian Grindstones count once, a Dvergr Powder Sieve 6 m away and a Leaching Station extension (Second Leaching Barrel) next to the mill do not count (step 1); the sieve at 3 m makes step 2; without extensions step 0",
+  "timeout": 90,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_MillGrindstone",
+      "dx": 3,
+      "dz": 4,
+      "owner": "me",
+      "as": "stone1"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_MillGrindstone",
+      "dx": -3,
+      "dz": 4,
+      "owner": "me",
+      "as": "stone2"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_MillSieve",
+      "dx": 0,
+      "dz": 10,
+      "owner": "me",
+      "as": "farSieve"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_LeachBarrel",
+      "dx": 2,
+      "dz": 7,
+      "owner": "me",
+      "as": "barrel"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_PowderMill",
+      "dz": 4,
+      "owner": "me",
+      "as": "mill"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "mill",
+      "contains": "Upgrades 1/3:",
+      "label": "two grindstones count once; the far sieve and the Leaching Station barrel do not count: step 1"
+    },
+    {
+      "do": "destroy",
+      "target": "farSieve"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_MillSieve",
+      "dx": -2,
+      "dz": 7,
+      "owner": "me",
+      "as": "nearSieve"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "mill",
+      "contains": "Upgrades 2/3:",
+      "label": "the sieve 3 m away counts: step 2"
+    },
+    {
+      "do": "destroy",
+      "target": "stone1"
+    },
+    {
+      "do": "destroy",
+      "target": "stone2"
+    },
+    {
+      "do": "destroy",
+      "target": "nearSieve"
+    },
+    {
+      "do": "destroy",
+      "target": "barrel"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "mill",
+      "contains": "Upgrades 0/3:",
+      "label": "without extensions: step 0"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

@@ -106,8 +106,7 @@ namespace GunPowdered.Core
             ItemKind.Material, "Flint", 50, 0.3f, "", 1);
 
         public static readonly ItemSpec Gunpowder = new ItemSpec(GunPowderedPrefabs.Gunpowder, "Gunpowder", "Black powder ground from saltpeter, charcoal and sulfur. Handle with care.",
-            ItemKind.Material, "Coal", 50, 0.3f, GunPowderedPrefabs.PowderMill, 5,
-            new CostLine(GunPowderedPrefabs.Saltpeter, 3), new CostLine(Charcoal, 1), new CostLine(Sulfur, 1));
+            ItemKind.Material, "Coal", 50, 0.3f, "", 1);          // D-137: no Craft-menu recipe - the automatic Powder Mill grinds it (MillSaltpeter / MillCharcoal / MillSulfur -> MillYield)
 
         public static readonly ItemSpec Water = new ItemSpec(GunPowderedPrefabs.Water, "Water", "Fresh water, carried in a bucket.",
             ItemKind.Material, "Stone", 50, 0.1f, "", 1);
@@ -123,7 +122,7 @@ namespace GunPowdered.Core
             ItemKind.Piece, "piece_chest_wood", 1, 0f, Workbench, 1,
             new CostLine(Wood, 30), new CostLine(Stone, 15), new CostLine(Bronze, 6), new CostLine(Resin, 2));
 
-        public static readonly ItemSpec PowderMill = new ItemSpec(GunPowderedPrefabs.PowderMill, "Powder Mill", "A small mill with a slow wheel and barrels. Grinds gunpowder.",
+        public static readonly ItemSpec PowderMill = new ItemSpec(GunPowderedPrefabs.PowderMill, "Powder Mill", "A small mill with a slow wheel and barrels. Fill it with Saltpeter, Charcoal and Sulfur: it grinds Gunpowder by itself.",
             ItemKind.Piece, "piece_workbench", 1, 0f, Workbench, 1,
             new CostLine(Wood, 40), new CostLine(Stone, 20), new CostLine(Bronze, 5));
 
@@ -252,12 +251,35 @@ namespace GunPowdered.Core
             get { return new[] { LeachBarrel, SettlingTank, BlackMetalBoiler, DvergrDripPipes, FlametalHeater }; }
         }
 
+        // D-137 (user 2026-11-20): the Powder Mill extensions, Mountains / Mistlands / Ashlands. Each DIFFERENT one within 5 m of a mill is one upgrade
+        // step (bigger batch, 2.5 minutes shorter grinding). Built with the hammer at a Workbench. Names and costs are Claude's proposal.
+        public static readonly ItemSpec MillGrindstone = new ItemSpec(GunPowderedPrefabs.MillGrindstone, "Obsidian Grindstone",
+            "A heavy obsidian grindstone on a silver-bound stone base for a Powder Mill nearby: it takes a bigger batch and grinds faster. Powder Mill upgrade (Mountains).",
+            ItemKind.Piece, "piece_chest_wood", 1, 0f, Workbench, 1,
+            new CostLine(Stone, 20), new CostLine(Silver, 4), new CostLine(Obsidian, 6));
+
+        public static readonly ItemSpec MillSieve = new ItemSpec(GunPowderedPrefabs.MillSieve, "Dvergr Powder Sieve",
+            "A dvergr sieve of copper mesh in a yggdrasil frame that sorts the ground powder. Powder Mill upgrade (Mistlands).",
+            ItemKind.Piece, "piece_chest_wood", 1, 0f, Workbench, 1,
+            new CostLine(Copper, 6), new CostLine(YggdrasilWood, 10), new CostLine(BlackMarble, 6));
+
+        public static readonly ItemSpec MillOven = new ItemSpec(GunPowderedPrefabs.MillOven, "Flametal Drying Oven",
+            "A glowing flametal oven that dries the powder before it is ground. Powder Mill upgrade (Ashlands): with all three the mill grinds its biggest batch in 2.5 minutes.",
+            ItemKind.Piece, "piece_chest_wood", 1, 0f, Workbench, 1,
+            new CostLine(Flametal, 6), new CostLine(Ashwood, 10));
+
+        /// <summary>The Powder Mill extensions (D-137), in biome order.</summary>
+        public static IList<ItemSpec> MillExtensions
+        {
+            get { return new[] { MillGrindstone, MillSieve, MillOven }; }
+        }
+
         /// <summary>Every entry, in the order they are registered.</summary>
         public static IList<ItemSpec> All
         {
             get
             {
-                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud, SpikedGrenade, CannonBall, Cannon, CannonStock, Musket, ExplosiveArrow, Dynamite, MobileCannon, AsksvinHarness, Paper, IronBullet, PaperCartridge, DeepNorthPack, LeachBarrel, SettlingTank, BlackMetalBoiler, DvergrDripPipes, FlametalHeater };
+                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud, SpikedGrenade, CannonBall, Cannon, CannonStock, Musket, ExplosiveArrow, Dynamite, MobileCannon, AsksvinHarness, Paper, IronBullet, PaperCartridge, DeepNorthPack, LeachBarrel, SettlingTank, BlackMetalBoiler, DvergrDripPipes, FlametalHeater, MillGrindstone, MillSieve, MillOven };
             }
         }
     }

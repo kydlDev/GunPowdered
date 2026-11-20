@@ -108,14 +108,18 @@ namespace GunPowdered.Testing
             return missing.Length == 0 ? "PASS: all " + n + " API prefab names exist (API version " + GunPowderedApi.ApiVersion + ")" : "FAIL: not registered: " + missing;
         }
 
-        /// The Powder Mill crafts without a roof (D-040; its workbench original needs one).
-        static string World_PowderMillNoRoof()
+        /// The Powder Mill is automatic (D-137): its prefab carries the PowderMill batch station and the turning arm, and no crafting station any more
+        /// (no Craft menu; D-040 "works in the open" holds because nothing asks for a roof).
+        static string World_PowderMillAutomatic()
         {
             var go = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(GunPowderedApi.Prefabs.PowderMill) : null;
-            var station = go != null ? go.GetComponent<CraftingStation>() : null;
-            ModLog.Verbose("InGameTests: World_PowderMillNoRoof station " + (station != null ? "roof needed " + station.m_craftRequireRoof : "missing"));
-            if (station == null) return "FAIL: GP_PowderMill has no CraftingStation";
-            return station.m_craftRequireRoof ? "FAIL: the Powder Mill still needs a roof" : "PASS: the Powder Mill needs no roof";
+            if (go == null) { ModLog.Verbose("InGameTests: World_PowderMillAutomatic prefab missing"); return "FAIL: GP_PowderMill is not registered"; }
+            bool mill = go.GetComponent<GunPowdered.Features.Gunpowder.Infrastructure.PowderMill>() != null;
+            bool spin = go.GetComponent<GunPowdered.Features.Gunpowder.Infrastructure.PowderMillSpin>() != null;
+            bool station = go.GetComponent<CraftingStation>() != null;
+            ModLog.Verbose($"InGameTests: World_PowderMillAutomatic mill {mill}, arm {spin}, crafting station {station}");
+            if (!mill || !spin) return $"FAIL: the Powder Mill lacks its automatic parts (mill {mill}, arm {spin})";
+            return station ? "FAIL: the Powder Mill still has a crafting station" : "PASS: the Powder Mill grinds by itself (no crafting station)";
         }
 
         /// The Spiked Grenade (D-047) is wired as approved: its own flight and blast prefabs are registered, the throw has no random spread, the blast

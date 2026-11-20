@@ -18,6 +18,9 @@
     <!-- the mod's pure layers (Domain / Application / Execution): everything linked must compile without Unity (MIGRATION_DECISIONS B10) -->
     <Compile Include="..\..\src\Core\Roll.cs" Link="Mod\Core\Roll.cs" Condition="'$(KydlQuality)' != 'true'" />
     <Compile Include="..\..\src\Core\RuleLog.cs" Link="Mod\Core\RuleLog.cs" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\src\Core\BatchAmounts.cs" Link="Mod\Core\BatchAmounts.cs" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\src\Core\BatchStationSpec.cs" Link="Mod\Core\BatchStationSpec.cs" Condition="'$(KydlQuality)' != 'true'" />
+    <Compile Include="..\..\src\Core\BatchStationRules.cs" Link="Mod\Core\BatchStationRules.cs" Condition="'$(KydlQuality)' != 'true'" />
     <Compile Include="..\..\src\Core\GunPowderedApi.cs" Link="Mod\Core\GunPowderedApi.cs" Condition="'$(KydlQuality)' != 'true'" />
     <Compile Include="..\..\src\Core\PrefabNames.cs" Link="Mod\Core\PrefabNames.cs" Condition="'$(KydlQuality)' != 'true'" />
     <Compile Include="..\..\src\Core\ItemCatalog.cs" Link="Mod\Core\ItemCatalog.cs" Condition="'$(KydlQuality)' != 'true'" />

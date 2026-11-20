@@ -1,0 +1,135 @@
+{
+  "name": "mill-batch",
+  "description": "Automatic Powder Mill step 0 (D-137) without extensions: holds at most 3 Saltpeter + 1 Charcoal + 1 Sulfur, one use puts in half (2 / 1 / 1); from one base batch it starts by itself and grinds the whole base batches inside (up to 1) for 5 Gunpowder each, in 10 min; filling goes on during the grinding; the finished Gunpowder piles up and E takes it all; with less than a base batch left it stops",
+  "timeout": 150,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Saltpeter",
+      "count": 9
+    },
+    {
+      "do": "give",
+      "prefab": "Coal",
+      "count": 3
+    },
+    {
+      "do": "give",
+      "prefab": "SulfurStone",
+      "count": 3
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_PowderMill",
+      "dz": 4,
+      "owner": "me",
+      "as": "mill"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "mill",
+      "contains": "Upgrades 0/3: up to 3 Saltpeter + 1 Charcoal + 1 Sulfur -> 5 Gunpowder, 10 min",
+      "label": "step 0: the hover names the full batch and grinding time"
+    },
+    {
+      "do": "millUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_saltpeter",
+      "value": "2",
+      "label": "use 1: 2 Saltpeter inside (half a batch, rounded up)"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_charcoal",
+      "value": "1",
+      "label": "use 1: 1 Charcoal inside"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_state",
+      "value": "none",
+      "label": "use 1: 2 + 1 + 1 is less than a base batch - no start"
+    },
+    {
+      "do": "millUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_saltpeter",
+      "value": "0",
+      "label": "use 2: the 3rd Saltpeter made a base batch and the grinding took it"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_state",
+      "value": "1",
+      "label": "use 2: it started by itself"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_units",
+      "value": "1",
+      "label": "the grinding takes 1 base batch (up to 1 at step 0)"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_minutes",
+      "value": "10",
+      "label": "10 minutes at step 0"
+    },
+    {
+      "do": "millUse"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_saltpeter",
+      "value": "2",
+      "label": "use 3: 2 Saltpeter wait inside during the grinding"
+    },
+    {
+      "do": "zdoIs",
+      "target": "mill",
+      "key": "gp_mill_state",
+      "value": "1",
+      "label": "use 3: still grinding"
+    },
+    {
+      "do": "millRunEnds",
+      "early": 480,
+      "pile": "5",
+      "pileCount": 5,
+      "state": "0",
+      "units": "0"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}
