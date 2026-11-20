@@ -28,57 +28,57 @@ namespace GunPowdered.Features.Guano.Domain
         /// <summary>Expected outcome: 0 or more deposits; never more than <see cref="MaxDeposits"/> of the kind.</summary>
         internal static int DepositCount(CaveKind kind, Func<double> next01)
         {
-            if (RuleLog.On) RuleLog.Every("GuanoDepositRules.DepositCount", 2d, $"GuanoDepositRules.DepositCount(kind={RuleLog.Shown(kind)}, next01={RuleLog.Shown(next01)})");
+            if (RuleLog.IsOn()) RuleLog.Every("GuanoDepositRules.DepositCount", 2d, $"GuanoDepositRules.DepositCount(kind={RuleLog.Shown(kind)}, next01={RuleLog.Shown(next01)})");
             double[] chances = CountChances(kind);
             double roll = next01();
             double upTo = 0d;
             for (int count = 1; count < chances.Length; count++)
             {
                 upTo += chances[count];
-                if (roll < upTo) { var returnedAt38 = count; if (RuleLog.On) RuleLog.Every("GuanoDepositRules.DepositCount:38", 2d, $"GuanoDepositRules.DepositCount: returns {RuleLog.Shown(returnedAt38)} (line 38)"); return returnedAt38; }
+                if (roll < upTo) { var returnedAt38 = count; if (RuleLog.IsOn()) RuleLog.Every("GuanoDepositRules.DepositCount:38", 2d, $"GuanoDepositRules.DepositCount: returns {RuleLog.Shown(returnedAt38)} (line 38)"); return returnedAt38; }
             }
-            { if (RuleLog.On) RuleLog.Every("GuanoDepositRules.DepositCount:40", 2d, "GuanoDepositRules.DepositCount: returns 0 (line 40)"); return 0; }
+            { if (RuleLog.IsOn()) RuleLog.Every("GuanoDepositRules.DepositCount:40", 2d, "GuanoDepositRules.DepositCount: returns 0 (line 40)"); return 0; }
         }
 
         /// <summary>Expected outcome: a whole number from 1 to <see cref="MaxGatherables"/> of the kind.</summary>
         internal static int GatherablesPerDeposit(CaveKind kind, Func<double> next01)
         {
-            if (RuleLog.On) RuleLog.Every("GuanoDepositRules.GatherablesPerDeposit", 2d, $"GuanoDepositRules.GatherablesPerDeposit(kind={RuleLog.Shown(kind)}, next01={RuleLog.Shown(next01)})");
-            { var returnedAt47 = Roll.IntInclusive(1, MaxGatherables(kind), next01()); if (RuleLog.On) RuleLog.Every("GuanoDepositRules.GatherablesPerDeposit:47", 2d, $"GuanoDepositRules.GatherablesPerDeposit: returns {RuleLog.Shown(returnedAt47)} (line 47)"); return returnedAt47; }
+            if (RuleLog.IsOn()) RuleLog.Every("GuanoDepositRules.GatherablesPerDeposit", 2d, $"GuanoDepositRules.GatherablesPerDeposit(kind={RuleLog.Shown(kind)}, next01={RuleLog.Shown(next01)})");
+            { var returnedAt47 = Roll.IntInclusive(1, MaxGatherables(kind), next01()); if (RuleLog.IsOn()) RuleLog.Every("GuanoDepositRules.GatherablesPerDeposit:47", 2d, $"GuanoDepositRules.GatherablesPerDeposit: returns {RuleLog.Shown(returnedAt47)} (line 47)"); return returnedAt47; }
         }
 
         /// <summary>The whole plan for one cave: one entry per deposit holding its gatherables. Expected outcome: length = deposit count, every entry inside the kind's range.</summary>
         internal static int[] Plan(CaveKind kind, Func<double> next01)
         {
-            if (RuleLog.On) RuleLog.Every("GuanoDepositRules.Plan", 2d, $"GuanoDepositRules.Plan(kind={RuleLog.Shown(kind)}, next01={RuleLog.Shown(next01)})");
+            if (RuleLog.IsOn()) RuleLog.Every("GuanoDepositRules.Plan", 2d, $"GuanoDepositRules.Plan(kind={RuleLog.Shown(kind)}, next01={RuleLog.Shown(next01)})");
             int deposits = DepositCount(kind, next01);
             var plan = new int[deposits];
             for (int i = 0; i < deposits; i++) plan[i] = GatherablesPerDeposit(kind, next01);
-            { var returnedAt57 = plan; if (RuleLog.On) RuleLog.Every("GuanoDepositRules.Plan:57", 2d, $"GuanoDepositRules.Plan: returns {RuleLog.Shown(returnedAt57)} (line 57)"); return returnedAt57; }
+            { var returnedAt57 = plan; if (RuleLog.IsOn()) RuleLog.Every("GuanoDepositRules.Plan:57", 2d, $"GuanoDepositRules.Plan: returns {RuleLog.Shown(returnedAt57)} (line 57)"); return returnedAt57; }
         }
 
         /// <summary>Most gatherables one deposit holds: 1-4 in mountain caves, 1-2 elsewhere.</summary>
         internal static int MaxGatherables(CaveKind kind)
         {
-            if (RuleLog.On) RuleLog.Every("GuanoDepositRules.MaxGatherables", 2d, $"GuanoDepositRules.MaxGatherables(kind={RuleLog.Shown(kind)})");
-            { var returnedAt64 = kind == CaveKind.MountainCave ? 4 : 2; if (RuleLog.On) RuleLog.Every("GuanoDepositRules.MaxGatherables:64", 2d, $"GuanoDepositRules.MaxGatherables: returns {RuleLog.Shown(returnedAt64)} (line 64)"); return returnedAt64; }
+            if (RuleLog.IsOn()) RuleLog.Every("GuanoDepositRules.MaxGatherables", 2d, $"GuanoDepositRules.MaxGatherables(kind={RuleLog.Shown(kind)})");
+            { var returnedAt64 = kind == CaveKind.MountainCave ? 4 : 2; if (RuleLog.IsOn()) RuleLog.Every("GuanoDepositRules.MaxGatherables:64", 2d, $"GuanoDepositRules.MaxGatherables: returns {RuleLog.Shown(returnedAt64)} (line 64)"); return returnedAt64; }
         }
 
         /// <summary>Most deposits one cave can get: 2 in Troll Caves / Burial Chambers, 3 elsewhere.</summary>
         internal static int MaxDeposits(CaveKind kind)
         {
-            if (RuleLog.On) RuleLog.Verbose($"GuanoDepositRules.MaxDeposits(kind={RuleLog.Shown(kind)})");
-            { var returnedAt71 = CountChances(kind).Length - 1; if (RuleLog.On) RuleLog.Verbose($"GuanoDepositRules.MaxDeposits: returns {RuleLog.Shown(returnedAt71)} (line 71)"); return returnedAt71; }
+            if (RuleLog.IsOn()) RuleLog.Verbose($"GuanoDepositRules.MaxDeposits(kind={RuleLog.Shown(kind)})");
+            { var returnedAt71 = CountChances(kind).Length - 1; if (RuleLog.IsOn()) RuleLog.Verbose($"GuanoDepositRules.MaxDeposits: returns {RuleLog.Shown(returnedAt71)} (line 71)"); return returnedAt71; }
         }
 
         static double[] CountChances(CaveKind kind)
         {
-            if (RuleLog.On) RuleLog.Every("GuanoDepositRules.CountChances", 2d, $"GuanoDepositRules.CountChances(kind={RuleLog.Shown(kind)})");
+            if (RuleLog.IsOn()) RuleLog.Every("GuanoDepositRules.CountChances", 2d, $"GuanoDepositRules.CountChances(kind={RuleLog.Shown(kind)})");
             switch (kind)
             {
-                case CaveKind.MountainCave: { var returnedAt79 = MountainCounts; if (RuleLog.On) RuleLog.Every("GuanoDepositRules.CountChances:79", 2d, $"GuanoDepositRules.CountChances: returns {RuleLog.Shown(returnedAt79)} (line 79)"); return returnedAt79; }
-                case CaveKind.SwampBatArea: { var returnedAt80 = SwampCounts; if (RuleLog.On) RuleLog.Every("GuanoDepositRules.CountChances:80", 2d, $"GuanoDepositRules.CountChances: returns {RuleLog.Shown(returnedAt80)} (line 80)"); return returnedAt80; }
-                default: { var returnedAt81 = TrollOrBurialCounts; if (RuleLog.On) RuleLog.Every("GuanoDepositRules.CountChances:81", 2d, $"GuanoDepositRules.CountChances: returns {RuleLog.Shown(returnedAt81)} (line 81)"); return returnedAt81; }
+                case CaveKind.MountainCave: { var returnedAt79 = MountainCounts; if (RuleLog.IsOn()) RuleLog.Every("GuanoDepositRules.CountChances:79", 2d, $"GuanoDepositRules.CountChances: returns {RuleLog.Shown(returnedAt79)} (line 79)"); return returnedAt79; }
+                case CaveKind.SwampBatArea: { var returnedAt80 = SwampCounts; if (RuleLog.IsOn()) RuleLog.Every("GuanoDepositRules.CountChances:80", 2d, $"GuanoDepositRules.CountChances: returns {RuleLog.Shown(returnedAt80)} (line 80)"); return returnedAt80; }
+                default: { var returnedAt81 = TrollOrBurialCounts; if (RuleLog.IsOn()) RuleLog.Every("GuanoDepositRules.CountChances:81", 2d, $"GuanoDepositRules.CountChances: returns {RuleLog.Shown(returnedAt81)} (line 81)"); return returnedAt81; }
             }
         }
     }

@@ -18,7 +18,7 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
 
         internal SulfurFeature()
         {
-            if (RuleLog.On) ModLog.Verbose($"SulfurFeature.SulfurFeature()");
+            if (RuleLog.IsOn()) ModLog.Verbose($"SulfurFeature.SulfurFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.SulfurousMud);
         }
 

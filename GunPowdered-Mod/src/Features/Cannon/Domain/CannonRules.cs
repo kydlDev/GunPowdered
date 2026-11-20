@@ -30,7 +30,7 @@ namespace GunPowdered.Features.Cannon.Domain
     {
         internal HitCheck(bool enemyOfShooter, bool shooterPvp, bool targetIsPlayer, bool targetPvp)
         {
-            if (RuleLog.On) RuleLog.Every("HitCheck.HitCheck", 2d, $"HitCheck.HitCheck(enemyOfShooter={RuleLog.Shown(enemyOfShooter)}, shooterPvp={RuleLog.Shown(shooterPvp)}, targetIsPlayer={RuleLog.Shown(targetIsPlayer)}, targetPvp={RuleLog.Shown(targetPvp)})");
+            if (RuleLog.IsOn()) RuleLog.Every("HitCheck.HitCheck", 2d, $"HitCheck.HitCheck(enemyOfShooter={RuleLog.Shown(enemyOfShooter)}, shooterPvp={RuleLog.Shown(shooterPvp)}, targetIsPlayer={RuleLog.Shown(targetIsPlayer)}, targetPvp={RuleLog.Shown(targetPvp)})");
             EnemyOfShooter = enemyOfShooter;
             ShooterPvp = shooterPvp;
             TargetIsPlayer = targetIsPlayer;
@@ -61,13 +61,13 @@ namespace GunPowdered.Features.Cannon.Domain
         /// </summary>
         internal static float SpeedForRange(float range, float gravity, float pitchDegrees)
         {
-            if (RuleLog.On) RuleLog.Verbose($"CannonRules.SpeedForRange(range={RuleLog.Shown(range)}, gravity={RuleLog.Shown(gravity)}, pitchDegrees={RuleLog.Shown(pitchDegrees)})");
+            if (RuleLog.IsOn()) RuleLog.Verbose($"CannonRules.SpeedForRange(range={RuleLog.Shown(range)}, gravity={RuleLog.Shown(gravity)}, pitchDegrees={RuleLog.Shown(pitchDegrees)})");
             if (range <= 0f) throw new ArgumentOutOfRangeException(nameof(range), range, "the range must be above 0");
             if (gravity <= 0f) throw new ArgumentOutOfRangeException(nameof(gravity), gravity, "the gravity must be above 0");
             if (pitchDegrees <= 0f || pitchDegrees >= 90f)
                 throw new ArgumentOutOfRangeException(nameof(pitchDegrees), pitchDegrees, "the pitch must be between 0 and 90 degrees");
             double sin2 = Math.Sin(2d * pitchDegrees * Math.PI / 180d);
-            { var returnedAt70 = (float)Math.Sqrt(range * gravity / sin2); if (RuleLog.On) RuleLog.Verbose($"CannonRules.SpeedForRange: returns {RuleLog.Shown(returnedAt70)} (line 70)"); return returnedAt70; }
+            { var returnedAt70 = (float)Math.Sqrt(range * gravity / sin2); if (RuleLog.IsOn()) RuleLog.Verbose($"CannonRules.SpeedForRange: returns {RuleLog.Shown(returnedAt70)} (line 70)"); return returnedAt70; }
         }
 
         /// <summary>
@@ -77,9 +77,9 @@ namespace GunPowdered.Features.Cannon.Domain
         /// </summary>
         internal static float PassThroughLanding(float target, float hit)
         {
-            if (RuleLog.On) RuleLog.Every("CannonRules.PassThroughLanding", 2d, $"CannonRules.PassThroughLanding(target={RuleLog.Shown(target)}, hit={RuleLog.Shown(hit)})");
+            if (RuleLog.IsOn()) RuleLog.Every("CannonRules.PassThroughLanding", 2d, $"CannonRules.PassThroughLanding(target={RuleLog.Shown(target)}, hit={RuleLog.Shown(hit)})");
             float t = Math.Max(0f, target), h = Math.Max(0f, hit);
-            { var returnedAt82 = h >= t ? h : h + ((t - h) / 2f); if (RuleLog.On) RuleLog.Every("CannonRules.PassThroughLanding:82", 2d, $"CannonRules.PassThroughLanding: returns {RuleLog.Shown(returnedAt82)} (line 82)"); return returnedAt82; }
+            { var returnedAt82 = h >= t ? h : h + ((t - h) / 2f); if (RuleLog.IsOn()) RuleLog.Every("CannonRules.PassThroughLanding:82", 2d, $"CannonRules.PassThroughLanding: returns {RuleLog.Shown(returnedAt82)} (line 82)"); return returnedAt82; }
         }
 
         /// <summary>
@@ -89,10 +89,10 @@ namespace GunPowdered.Features.Cannon.Domain
         /// </summary>
         internal static ImpactOutcome OnImpact(ImpactKind kind, int passedSoFar)
         {
-            if (RuleLog.On) RuleLog.Every("CannonRules.OnImpact", 2d, $"CannonRules.OnImpact(kind={RuleLog.Shown(kind)}, passedSoFar={RuleLog.Shown(passedSoFar)})");
-            if (kind == ImpactKind.Ground) { var returnedAt93 = ImpactOutcome.Stop; if (RuleLog.On) RuleLog.Every("CannonRules.OnImpact:93", 2d, $"CannonRules.OnImpact: returns {RuleLog.Shown(returnedAt93)} (line 93)"); return returnedAt93; }
-            if (kind == ImpactKind.Solid) { var returnedAt94 = ImpactOutcome.StopWithDamage; if (RuleLog.On) RuleLog.Every("CannonRules.OnImpact:94", 2d, $"CannonRules.OnImpact: returns {RuleLog.Shown(returnedAt94)} (line 94)"); return returnedAt94; }
-            { var returnedAt95 = passedSoFar <= 0 ? ImpactOutcome.PassThrough : ImpactOutcome.StopWithDamage; if (RuleLog.On) RuleLog.Every("CannonRules.OnImpact:95", 2d, $"CannonRules.OnImpact: returns {RuleLog.Shown(returnedAt95)} (line 95)"); return returnedAt95; }
+            if (RuleLog.IsOn()) RuleLog.Every("CannonRules.OnImpact", 2d, $"CannonRules.OnImpact(kind={RuleLog.Shown(kind)}, passedSoFar={RuleLog.Shown(passedSoFar)})");
+            if (kind == ImpactKind.Ground) { var returnedAt93 = ImpactOutcome.Stop; if (RuleLog.IsOn()) RuleLog.Every("CannonRules.OnImpact:93", 2d, $"CannonRules.OnImpact: returns {RuleLog.Shown(returnedAt93)} (line 93)"); return returnedAt93; }
+            if (kind == ImpactKind.Solid) { var returnedAt94 = ImpactOutcome.StopWithDamage; if (RuleLog.IsOn()) RuleLog.Every("CannonRules.OnImpact:94", 2d, $"CannonRules.OnImpact: returns {RuleLog.Shown(returnedAt94)} (line 94)"); return returnedAt94; }
+            { var returnedAt95 = passedSoFar <= 0 ? ImpactOutcome.PassThrough : ImpactOutcome.StopWithDamage; if (RuleLog.IsOn()) RuleLog.Every("CannonRules.OnImpact:95", 2d, $"CannonRules.OnImpact: returns {RuleLog.Shown(returnedAt95)} (line 95)"); return returnedAt95; }
         }
 
         /// <summary>
@@ -102,9 +102,9 @@ namespace GunPowdered.Features.Cannon.Domain
         /// </summary>
         internal static bool HitsCreature(HitCheck c)
         {
-            if (RuleLog.On) RuleLog.Every("CannonRules.HitsCreature", 2d, $"CannonRules.HitsCreature(c={RuleLog.Shown(c)})");
+            if (RuleLog.IsOn()) RuleLog.Every("CannonRules.HitsCreature", 2d, $"CannonRules.HitsCreature(c={RuleLog.Shown(c)})");
             bool friendHit = c.ShooterPvp && (!c.TargetIsPlayer || c.TargetPvp);
-            { var returnedAt107 = c.EnemyOfShooter || friendHit; if (RuleLog.On) RuleLog.Every("CannonRules.HitsCreature:107", 2d, $"CannonRules.HitsCreature: returns {RuleLog.Shown(returnedAt107)} (line 107)"); return returnedAt107; }
+            { var returnedAt107 = c.EnemyOfShooter || friendHit; if (RuleLog.IsOn()) RuleLog.Every("CannonRules.HitsCreature:107", 2d, $"CannonRules.HitsCreature: returns {RuleLog.Shown(returnedAt107)} (line 107)"); return returnedAt107; }
         }
 
         /// <summary>
@@ -113,17 +113,17 @@ namespace GunPowdered.Features.Cannon.Domain
         /// </summary>
         internal static float MomentumAfter(int passed, float factor)
         {
-            if (RuleLog.On) RuleLog.Every("CannonRules.MomentumAfter", 2d, $"CannonRules.MomentumAfter(passed={RuleLog.Shown(passed)}, factor={RuleLog.Shown(factor)})");
+            if (RuleLog.IsOn()) RuleLog.Every("CannonRules.MomentumAfter", 2d, $"CannonRules.MomentumAfter(passed={RuleLog.Shown(passed)}, factor={RuleLog.Shown(factor)})");
             float f = factor < 0f ? 0f : (factor > 1f ? 1f : factor);
-            { var returnedAt118 = passed <= 0 ? 1f : (float)Math.Pow(f, passed); if (RuleLog.On) RuleLog.Every("CannonRules.MomentumAfter:118", 2d, $"CannonRules.MomentumAfter: returns {RuleLog.Shown(returnedAt118)} (line 118)"); return returnedAt118; }
+            { var returnedAt118 = passed <= 0 ? 1f : (float)Math.Pow(f, passed); if (RuleLog.IsOn()) RuleLog.Every("CannonRules.MomentumAfter:118", 2d, $"CannonRules.MomentumAfter: returns {RuleLog.Shown(returnedAt118)} (line 118)"); return returnedAt118; }
         }
 
         /// <summary>The flat distance to aim at: the wanted one clamped into min..max. Expected outcome: a distance inside the range (max wins when min is above max).</summary>
         internal static float ClampAim(float wanted, float min, float max)
         {
-            if (RuleLog.On) RuleLog.Every("CannonRules.ClampAim", 2d, $"CannonRules.ClampAim(wanted={RuleLog.Shown(wanted)}, min={RuleLog.Shown(min)}, max={RuleLog.Shown(max)})");
-            if (wanted > max) { var returnedAt125 = max; if (RuleLog.On) RuleLog.Every("CannonRules.ClampAim:125", 2d, $"CannonRules.ClampAim: returns {RuleLog.Shown(returnedAt125)} (line 125)"); return returnedAt125; }
-            { var returnedAt126 = wanted < min ? Math.Min(min, max) : wanted; if (RuleLog.On) RuleLog.Every("CannonRules.ClampAim:126", 2d, $"CannonRules.ClampAim: returns {RuleLog.Shown(returnedAt126)} (line 126)"); return returnedAt126; }
+            if (RuleLog.IsOn()) RuleLog.Every("CannonRules.ClampAim", 2d, $"CannonRules.ClampAim(wanted={RuleLog.Shown(wanted)}, min={RuleLog.Shown(min)}, max={RuleLog.Shown(max)})");
+            if (wanted > max) { var returnedAt125 = max; if (RuleLog.IsOn()) RuleLog.Every("CannonRules.ClampAim:125", 2d, $"CannonRules.ClampAim: returns {RuleLog.Shown(returnedAt125)} (line 125)"); return returnedAt125; }
+            { var returnedAt126 = wanted < min ? Math.Min(min, max) : wanted; if (RuleLog.IsOn()) RuleLog.Every("CannonRules.ClampAim:126", 2d, $"CannonRules.ClampAim: returns {RuleLog.Shown(returnedAt126)} (line 126)"); return returnedAt126; }
         }
     }
 }

@@ -27,7 +27,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         void Awake()
         {
-            if (RuleLog.On) ModLog.Verbose($"MobileCannonPull.Awake()");
+            if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonPull.Awake()");
             _vagon = GetComponent<Vagon>();
             Instances.Add(this);
         }
@@ -41,12 +41,12 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         void LateUpdate()
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonPull.LateUpdate", 2d, $"MobileCannonPull.LateUpdate()");
+            if (RuleLog.IsOn()) ModLog.Every("MobileCannonPull.LateUpdate", 2d, $"MobileCannonPull.LateUpdate()");
             Character c = Hitched;
             if (c == null)
             {
                 HandsOnHandle = false;
-                { if (RuleLog.On) ModLog.Every("MobileCannonPull.LateUpdate:49", 2d, "MobileCannonPull.LateUpdate: returns (line 49)"); return; }
+                { if (RuleLog.IsOn()) ModLog.Every("MobileCannonPull.LateUpdate:49", 2d, "MobileCannonPull.LateUpdate: returns (line 49)"); return; }
             }
             if (_gripA == null)
             {
@@ -72,20 +72,20 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>The cannon a character is hitched to (null when none): used by the speed and turning patches.</summary>
         internal static MobileCannonPull PulledBy(Character c)
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonPull.PulledBy", 2d, $"MobileCannonPull.PulledBy(c={RuleLog.Shown(c)})");
-            if (c == null) { if (RuleLog.On) ModLog.Every("MobileCannonPull.PulledBy:76", 2d, "MobileCannonPull.PulledBy: returns null (line 76)"); return null; }
+            if (RuleLog.IsOn()) ModLog.Every("MobileCannonPull.PulledBy", 2d, $"MobileCannonPull.PulledBy(c={RuleLog.Shown(c)})");
+            if (c == null) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonPull.PulledBy:76", 2d, "MobileCannonPull.PulledBy: returns null (line 76)"); return null; }
             foreach (MobileCannonPull p in Instances)
-                if (p != null && p.Hitched == c) { var returnedAt78 = p; if (RuleLog.On) ModLog.Every("MobileCannonPull.PulledBy:78", 2d, $"MobileCannonPull.PulledBy: returns {RuleLog.Shown(returnedAt78)} (line 78)"); return returnedAt78; }
-            { if (RuleLog.On) ModLog.Every("MobileCannonPull.PulledBy:79", 2d, "MobileCannonPull.PulledBy: returns null (line 79)"); return null; }
+                if (p != null && p.Hitched == c) { var returnedAt78 = p; if (RuleLog.IsOn()) ModLog.Every("MobileCannonPull.PulledBy:78", 2d, $"MobileCannonPull.PulledBy: returns {RuleLog.Shown(returnedAt78)} (line 78)"); return returnedAt78; }
+            { if (RuleLog.IsOn()) ModLog.Every("MobileCannonPull.PulledBy:79", 2d, "MobileCannonPull.PulledBy: returns null (line 79)"); return null; }
         }
 
         /// <summary>Where the character should face: towards the cannon's body, flat.</summary>
         internal Quaternion FacingFor(Character c)
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonPull.FacingFor", 2d, $"MobileCannonPull.FacingFor(c={RuleLog.Shown(c)})");
+            if (RuleLog.IsOn()) ModLog.Every("MobileCannonPull.FacingFor", 2d, $"MobileCannonPull.FacingFor(c={RuleLog.Shown(c)})");
             Vector3 to = transform.position - c.transform.position;
             to.y = 0f;
-            { var returnedAt88 = to.sqrMagnitude > 0.0001f ? Quaternion.LookRotation(to.normalized) : c.transform.rotation; if (RuleLog.On) ModLog.Every("MobileCannonPull.FacingFor:88", 2d, $"MobileCannonPull.FacingFor: returns {RuleLog.Shown(returnedAt88)} (line 88)"); return returnedAt88; }
+            { var returnedAt88 = to.sqrMagnitude > 0.0001f ? Quaternion.LookRotation(to.normalized) : c.transform.rotation; if (RuleLog.IsOn()) ModLog.Every("MobileCannonPull.FacingFor:88", 2d, $"MobileCannonPull.FacingFor: returns {RuleLog.Shown(returnedAt88)} (line 88)"); return returnedAt88; }
         }
 
         void Update()
@@ -100,7 +100,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 StaminaUsed = 0f;
             }
             Player p = c as Player;
-            if (p == null || p != Player.m_localPlayer) { if (RuleLog.On) ModLog.Every("MobileCannonPull.Update:103", 2d, "MobileCannonPull.Update: returns (line 103)"); return; }
+            if (p == null || p != Player.m_localPlayer) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonPull.Update:103", 2d, "MobileCannonPull.Update: returns (line 103)"); return; }
             Vector3 v = p.GetVelocity();
             float speed = new Vector3(v.x, 0f, v.z).magnitude;
             float cost = MobileCannonPullRules.StaminaCost(speed, Time.deltaTime, ModSettings.MobileCannonPullStamina.Value);

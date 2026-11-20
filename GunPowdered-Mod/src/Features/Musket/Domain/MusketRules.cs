@@ -21,40 +21,40 @@ namespace GunPowdered.Features.Musket.Domain
         /// <summary>How many cartridges one reload moves from the backpack into the musket: as many as fit and as many as the player carries. Never below 0.</summary>
         internal static int CartridgesToLoad(int loaded, int carried)
         {
-            if (RuleLog.On) RuleLog.Verbose($"MusketRules.CartridgesToLoad(loaded={RuleLog.Shown(loaded)}, carried={RuleLog.Shown(carried)})");
+            if (RuleLog.IsOn()) RuleLog.Verbose($"MusketRules.CartridgesToLoad(loaded={RuleLog.Shown(loaded)}, carried={RuleLog.Shown(carried)})");
             int free = Capacity - ClampLoaded(loaded);
-            if (free <= 0 || carried <= 0) { if (RuleLog.On) RuleLog.Verbose("MusketRules.CartridgesToLoad: returns 0 (line 26)"); return 0; }
-            { var returnedAt27 = carried < free ? carried : free; if (RuleLog.On) RuleLog.Verbose($"MusketRules.CartridgesToLoad: returns {RuleLog.Shown(returnedAt27)} (line 27)"); return returnedAt27; }
+            if (free <= 0 || carried <= 0) { if (RuleLog.IsOn()) RuleLog.Verbose("MusketRules.CartridgesToLoad: returns 0 (line 26)"); return 0; }
+            { var returnedAt27 = carried < free ? carried : free; if (RuleLog.IsOn()) RuleLog.Verbose($"MusketRules.CartridgesToLoad: returns {RuleLog.Shown(returnedAt27)} (line 27)"); return returnedAt27; }
         }
 
         /// <summary>Why a reload is refused (null = allowed): the musket is full, or the player carries no cartridge.</summary>
         internal static string WhyNotReload(int loaded, int carried)
         {
-            if (RuleLog.On) RuleLog.Every("MusketRules.WhyNotReload", 2d, $"MusketRules.WhyNotReload(loaded={RuleLog.Shown(loaded)}, carried={RuleLog.Shown(carried)})");
-            if (ClampLoaded(loaded) >= Capacity) { var returnedAt34 = Full; if (RuleLog.On) RuleLog.Every("MusketRules.WhyNotReload:34", 2d, $"MusketRules.WhyNotReload: returns {RuleLog.Shown(returnedAt34)} (line 34)"); return returnedAt34; }
-            { var returnedAt35 = carried >= 1 ? null : NoCartridges; if (RuleLog.On) RuleLog.Every("MusketRules.WhyNotReload:35", 2d, $"MusketRules.WhyNotReload: returns {RuleLog.Shown(returnedAt35)} (line 35)"); return returnedAt35; }
+            if (RuleLog.IsOn()) RuleLog.Every("MusketRules.WhyNotReload", 2d, $"MusketRules.WhyNotReload(loaded={RuleLog.Shown(loaded)}, carried={RuleLog.Shown(carried)})");
+            if (ClampLoaded(loaded) >= Capacity) { var returnedAt34 = Full; if (RuleLog.IsOn()) RuleLog.Every("MusketRules.WhyNotReload:34", 2d, $"MusketRules.WhyNotReload: returns {RuleLog.Shown(returnedAt34)} (line 34)"); return returnedAt34; }
+            { var returnedAt35 = carried >= 1 ? null : NoCartridges; if (RuleLog.IsOn()) RuleLog.Every("MusketRules.WhyNotReload:35", 2d, $"MusketRules.WhyNotReload: returns {RuleLog.Shown(returnedAt35)} (line 35)"); return returnedAt35; }
         }
 
         /// <summary>Why a shot is refused (null = allowed): nothing is loaded.</summary>
         internal static string WhyNotFire(int loaded)
         {
-            if (RuleLog.On) RuleLog.Every("MusketRules.WhyNotFire", 2d, $"MusketRules.WhyNotFire(loaded={RuleLog.Shown(loaded)})");
-            { var returnedAt42 = ClampLoaded(loaded) >= 1 ? null : Empty; if (RuleLog.On) RuleLog.Every("MusketRules.WhyNotFire:42", 2d, $"MusketRules.WhyNotFire: returns {RuleLog.Shown(returnedAt42)} (line 42)"); return returnedAt42; }
+            if (RuleLog.IsOn()) RuleLog.Every("MusketRules.WhyNotFire", 2d, $"MusketRules.WhyNotFire(loaded={RuleLog.Shown(loaded)})");
+            { var returnedAt42 = ClampLoaded(loaded) >= 1 ? null : Empty; if (RuleLog.IsOn()) RuleLog.Every("MusketRules.WhyNotFire:42", 2d, $"MusketRules.WhyNotFire: returns {RuleLog.Shown(returnedAt42)} (line 42)"); return returnedAt42; }
         }
 
         /// <summary>The load after one shot: one cartridge less, never below 0.</summary>
         internal static int AfterShot(int loaded)
         {
-            if (RuleLog.On) RuleLog.Every("MusketRules.AfterShot", 2d, $"MusketRules.AfterShot(loaded={RuleLog.Shown(loaded)})");
+            if (RuleLog.IsOn()) RuleLog.Every("MusketRules.AfterShot", 2d, $"MusketRules.AfterShot(loaded={RuleLog.Shown(loaded)})");
             int l = ClampLoaded(loaded);
-            { var returnedAt50 = l > 0 ? l - 1 : 0; if (RuleLog.On) RuleLog.Every("MusketRules.AfterShot:50", 2d, $"MusketRules.AfterShot: returns {RuleLog.Shown(returnedAt50)} (line 50)"); return returnedAt50; }
+            { var returnedAt50 = l > 0 ? l - 1 : 0; if (RuleLog.IsOn()) RuleLog.Every("MusketRules.AfterShot:50", 2d, $"MusketRules.AfterShot: returns {RuleLog.Shown(returnedAt50)} (line 50)"); return returnedAt50; }
         }
 
         /// <summary>The load after a reload from <paramref name="carried"/> cartridges: it grows by <see cref="CartridgesToLoad"/> and never passes <see cref="Capacity"/>.</summary>
         internal static int AfterReload(int loaded, int carried)
         {
-            if (RuleLog.On) RuleLog.Verbose($"MusketRules.AfterReload(loaded={RuleLog.Shown(loaded)}, carried={RuleLog.Shown(carried)})");
-            { var returnedAt57 = ClampLoaded(loaded) + CartridgesToLoad(loaded, carried); if (RuleLog.On) RuleLog.Verbose($"MusketRules.AfterReload: returns {RuleLog.Shown(returnedAt57)} (line 57)"); return returnedAt57; }
+            if (RuleLog.IsOn()) RuleLog.Verbose($"MusketRules.AfterReload(loaded={RuleLog.Shown(loaded)}, carried={RuleLog.Shown(carried)})");
+            { var returnedAt57 = ClampLoaded(loaded) + CartridgesToLoad(loaded, carried); if (RuleLog.IsOn()) RuleLog.Verbose($"MusketRules.AfterReload: returns {RuleLog.Shown(returnedAt57)} (line 57)"); return returnedAt57; }
         }
 
         /// <summary>The shortest time between two shots (s): holding the attack button fires again only after it (D-095).</summary>
@@ -77,49 +77,49 @@ namespace GunPowdered.Features.Musket.Domain
         /// </summary>
         internal static float RecoilPushForce(float metres, float mass, float equipmentModifier)
         {
-            if (RuleLog.On) RuleLog.Every("MusketRules.RecoilPushForce", 2d, $"MusketRules.RecoilPushForce(metres={RuleLog.Shown(metres)}, mass={RuleLog.Shown(mass)}, equipmentModifier={RuleLog.Shown(equipmentModifier)})");
+            if (RuleLog.IsOn()) RuleLog.Every("MusketRules.RecoilPushForce", 2d, $"MusketRules.RecoilPushForce(metres={RuleLog.Shown(metres)}, mass={RuleLog.Shown(mass)}, equipmentModifier={RuleLog.Shown(equipmentModifier)})");
             float factor = 1f + equipmentModifier;
             if (factor > 1f) factor = 1f;
-            if (metres <= 0f || mass <= 0f || factor <= 0f) { if (RuleLog.On) RuleLog.Every("MusketRules.RecoilPushForce:83", 2d, "MusketRules.RecoilPushForce: returns 0f (line 83)"); return 0f; }
-            { var returnedAt84 = 5f * metres * mass / (2.5f * factor); if (RuleLog.On) RuleLog.Every("MusketRules.RecoilPushForce:84", 2d, $"MusketRules.RecoilPushForce: returns {RuleLog.Shown(returnedAt84)} (line 84)"); return returnedAt84; }
+            if (metres <= 0f || mass <= 0f || factor <= 0f) { if (RuleLog.IsOn()) RuleLog.Every("MusketRules.RecoilPushForce:83", 2d, "MusketRules.RecoilPushForce: returns 0f (line 83)"); return 0f; }
+            { var returnedAt84 = 5f * metres * mass / (2.5f * factor); if (RuleLog.IsOn()) RuleLog.Every("MusketRules.RecoilPushForce:84", 2d, $"MusketRules.RecoilPushForce: returns {RuleLog.Shown(returnedAt84)} (line 84)"); return returnedAt84; }
         }
 
         /// <summary>Whether enough time has passed since the last shot (<paramref name="lastShot"/>, s) to fire again at <paramref name="now"/>.</summary>
         internal static bool ShotIntervalOver(float now, float lastShot)
         {
-            if (RuleLog.On) RuleLog.Every("MusketRules.ShotIntervalOver", 2d, $"MusketRules.ShotIntervalOver(now={RuleLog.Shown(now)}, lastShot={RuleLog.Shown(lastShot)})");
-            { var returnedAt91 = now - lastShot >= ShotIntervalSeconds; if (RuleLog.On) RuleLog.Every("MusketRules.ShotIntervalOver:91", 2d, $"MusketRules.ShotIntervalOver: returns {RuleLog.Shown(returnedAt91)} (line 91)"); return returnedAt91; }
+            if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ShotIntervalOver", 2d, $"MusketRules.ShotIntervalOver(now={RuleLog.Shown(now)}, lastShot={RuleLog.Shown(lastShot)})");
+            { var returnedAt91 = now - lastShot >= ShotIntervalSeconds; if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ShotIntervalOver:91", 2d, $"MusketRules.ShotIntervalOver: returns {RuleLog.Shown(returnedAt91)} (line 91)"); return returnedAt91; }
         }
 
         /// <summary>How many cartridges a reload that began at <paramref name="started"/> should have moved in by <paramref name="now"/>: one at the end of each 1.2 s stroke.</summary>
         internal static int CartridgesDue(float started, float now)
         {
-            if (RuleLog.On) RuleLog.Every("MusketRules.CartridgesDue", 2d, $"MusketRules.CartridgesDue(started={RuleLog.Shown(started)}, now={RuleLog.Shown(now)})");
-            if (now <= started) { if (RuleLog.On) RuleLog.Every("MusketRules.CartridgesDue:98", 2d, "MusketRules.CartridgesDue: returns 0 (line 98)"); return 0; }
-            { var returnedAt99 = (int)Math.Floor((now - started) / ReloadSecondsPerCartridge + 1e-4); if (RuleLog.On) RuleLog.Every("MusketRules.CartridgesDue:99", 2d, $"MusketRules.CartridgesDue: returns {RuleLog.Shown(returnedAt99)} (line 99)"); return returnedAt99; }
+            if (RuleLog.IsOn()) RuleLog.Every("MusketRules.CartridgesDue", 2d, $"MusketRules.CartridgesDue(started={RuleLog.Shown(started)}, now={RuleLog.Shown(now)})");
+            if (now <= started) { if (RuleLog.IsOn()) RuleLog.Every("MusketRules.CartridgesDue:98", 2d, "MusketRules.CartridgesDue: returns 0 (line 98)"); return 0; }
+            { var returnedAt99 = (int)Math.Floor((now - started) / ReloadSecondsPerCartridge + 1e-4); if (RuleLog.IsOn()) RuleLog.Every("MusketRules.CartridgesDue:99", 2d, $"MusketRules.CartridgesDue: returns {RuleLog.Shown(returnedAt99)} (line 99)"); return returnedAt99; }
         }
 
         /// <summary>Reads a stored load ("0".."5"); anything unreadable counts as empty, anything outside 0..Capacity as the nearest valid load.</summary>
         internal static int ParseLoaded(string stored)
         {
-            if (RuleLog.On) RuleLog.Every("MusketRules.ParseLoaded", 2d, $"MusketRules.ParseLoaded(stored={RuleLog.Shown(stored)})");
+            if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ParseLoaded", 2d, $"MusketRules.ParseLoaded(stored={RuleLog.Shown(stored)})");
             int v;
-            { var returnedAt107 = int.TryParse(stored, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out v) ? ClampLoaded(v) : 0; if (RuleLog.On) RuleLog.Every("MusketRules.ParseLoaded:107", 2d, $"MusketRules.ParseLoaded: returns {RuleLog.Shown(returnedAt107)} (line 107)"); return returnedAt107; }
+            { var returnedAt107 = int.TryParse(stored, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out v) ? ClampLoaded(v) : 0; if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ParseLoaded:107", 2d, $"MusketRules.ParseLoaded: returns {RuleLog.Shown(returnedAt107)} (line 107)"); return returnedAt107; }
         }
 
         /// <summary>The load counter next to the crosshair: "3/5" (user 2026-11-19 12:32).</summary>
         internal static string LoadText(int loaded)
         {
-            if (RuleLog.On) RuleLog.Every("MusketRules.LoadText", 2d, $"MusketRules.LoadText(loaded={RuleLog.Shown(loaded)})");
-            { var returnedAt114 = ClampLoaded(loaded).ToString(System.Globalization.CultureInfo.InvariantCulture) + "/" + Capacity.ToString(System.Globalization.CultureInfo.InvariantCulture); if (RuleLog.On) RuleLog.Every("MusketRules.LoadText:114", 2d, $"MusketRules.LoadText: returns {RuleLog.Shown(returnedAt114)} (line 114)"); return returnedAt114; }
+            if (RuleLog.IsOn()) RuleLog.Every("MusketRules.LoadText", 2d, $"MusketRules.LoadText(loaded={RuleLog.Shown(loaded)})");
+            { var returnedAt114 = ClampLoaded(loaded).ToString(System.Globalization.CultureInfo.InvariantCulture) + "/" + Capacity.ToString(System.Globalization.CultureInfo.InvariantCulture); if (RuleLog.IsOn()) RuleLog.Every("MusketRules.LoadText:114", 2d, $"MusketRules.LoadText: returns {RuleLog.Shown(returnedAt114)} (line 114)"); return returnedAt114; }
         }
 
         /// <summary>A stored load outside 0..Capacity (a damaged save, a changed constant) counts as the nearest valid load.</summary>
         internal static int ClampLoaded(int loaded)
         {
-            if (RuleLog.On) RuleLog.Every("MusketRules.ClampLoaded", 2d, $"MusketRules.ClampLoaded(loaded={RuleLog.Shown(loaded)})");
-            if (loaded < 0) { if (RuleLog.On) RuleLog.Every("MusketRules.ClampLoaded:121", 2d, "MusketRules.ClampLoaded: returns 0 (line 121)"); return 0; }
-            { var returnedAt122 = loaded > Capacity ? Capacity : loaded; if (RuleLog.On) RuleLog.Every("MusketRules.ClampLoaded:122", 2d, $"MusketRules.ClampLoaded: returns {RuleLog.Shown(returnedAt122)} (line 122)"); return returnedAt122; }
+            if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ClampLoaded", 2d, $"MusketRules.ClampLoaded(loaded={RuleLog.Shown(loaded)})");
+            if (loaded < 0) { if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ClampLoaded:121", 2d, "MusketRules.ClampLoaded: returns 0 (line 121)"); return 0; }
+            { var returnedAt122 = loaded > Capacity ? Capacity : loaded; if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ClampLoaded:122", 2d, $"MusketRules.ClampLoaded: returns {RuleLog.Shown(returnedAt122)} (line 122)"); return returnedAt122; }
         }
     }
 }

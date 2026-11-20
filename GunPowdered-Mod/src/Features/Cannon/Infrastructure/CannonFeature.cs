@@ -20,7 +20,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
 
         internal CannonFeature()
         {
-            if (RuleLog.On) ModLog.Verbose($"CannonFeature.CannonFeature()");
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonFeature.CannonFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.CannonBall, ItemCatalog.Cannon, ItemCatalog.CannonStock);
         }
 

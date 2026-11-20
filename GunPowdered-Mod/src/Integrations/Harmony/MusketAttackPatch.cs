@@ -19,10 +19,10 @@ namespace GunPowdered.Integrations.HarmonyPatches
             try
             {
                 Player player = __instance as Player;
-                if (player == null || player != Player.m_localPlayer || MusketGun.Held(player) == null) { if (RuleLog.On) ModLog.Every("MusketAttackPatch.Prefix:22", 2d, "MusketAttackPatch.Prefix: returns true (line 22)"); return true; }
+                if (player == null || player != Player.m_localPlayer || MusketGun.Held(player) == null) { if (RuleLog.IsOn()) ModLog.Every("MusketAttackPatch.Prefix:22", 2d, "MusketAttackPatch.Prefix: returns true (line 22)"); return true; }
                 if (!secondaryAttack) MusketGun.Fire(player);     // the secondary attack does nothing with the musket: reload has its own key (D-100)
                 __result = false;
-                { if (RuleLog.On) ModLog.Every("MusketAttackPatch.Prefix:25", 2d, "MusketAttackPatch.Prefix: returns false (line 25)"); return false; }
+                { if (RuleLog.IsOn()) ModLog.Every("MusketAttackPatch.Prefix:25", 2d, "MusketAttackPatch.Prefix: returns false (line 25)"); return false; }
             }
             catch (Exception e)
             {

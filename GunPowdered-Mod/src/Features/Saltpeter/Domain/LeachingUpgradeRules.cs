@@ -26,14 +26,14 @@ namespace GunPowdered.Features.Saltpeter.Domain
         /// <summary>The station's step: the number of DIFFERENT extension kinds in range, at most <see cref="MaxStep"/>. Expected outcome: 0 for none, null or empty kinds; duplicates count once.</summary>
         internal static int Step(IEnumerable<string> kindsInRange)
         {
-            if (kindsInRange == null) { if (RuleLog.On) RuleLog.Every("LeachingUpgradeRules.Step:null", 2d, "LeachingUpgradeRules.Step: returns 0 (no kinds)"); return 0; }
+            if (kindsInRange == null) { if (RuleLog.IsOn()) RuleLog.Every("LeachingUpgradeRules.Step:null", 2d, "LeachingUpgradeRules.Step: returns 0 (no kinds)"); return 0; }
             var distinct = new HashSet<string>(StringComparer.Ordinal);
             foreach (string kind in kindsInRange)
             {
                 if (!string.IsNullOrEmpty(kind)) distinct.Add(kind);
             }
             int step = Math.Min(distinct.Count, MaxStep);
-            if (RuleLog.On) RuleLog.Every("LeachingUpgradeRules.Step", 2d, $"LeachingUpgradeRules.Step: {distinct.Count} kind(s) in range, returns {step}");
+            if (RuleLog.IsOn()) RuleLog.Every("LeachingUpgradeRules.Step", 2d, $"LeachingUpgradeRules.Step: {distinct.Count} kind(s) in range, returns {step}");
             return step;
         }
 
@@ -41,7 +41,7 @@ namespace GunPowdered.Features.Saltpeter.Domain
         internal static int UnitsPerBatch(int step)
         {
             int units = Math.Max(0, Math.Min(step, MaxStep)) + 1;
-            if (RuleLog.On) RuleLog.Every("LeachingUpgradeRules.UnitsPerBatch", 2d, $"LeachingUpgradeRules.UnitsPerBatch(step={step}): returns {units}");
+            if (RuleLog.IsOn()) RuleLog.Every("LeachingUpgradeRules.UnitsPerBatch", 2d, $"LeachingUpgradeRules.UnitsPerBatch(step={step}): returns {units}");
             return units;
         }
 
@@ -50,7 +50,7 @@ namespace GunPowdered.Features.Saltpeter.Domain
         {
             int n = UnitsPerBatch(step);
             var full = new LeachingVatRules.VatAmounts(Math.Max(0, unit.Guano) * n, Math.Max(0, unit.Water) * n, Math.Max(0, unit.Fuel) * n);
-            if (RuleLog.On) RuleLog.Every("LeachingUpgradeRules.FullBatch", 2d, $"LeachingUpgradeRules.FullBatch(step={step}): returns {Text(full)}");
+            if (RuleLog.IsOn()) RuleLog.Every("LeachingUpgradeRules.FullBatch", 2d, $"LeachingUpgradeRules.FullBatch(step={step}): returns {Text(full)}");
             return full;
         }
 
@@ -59,7 +59,7 @@ namespace GunPowdered.Features.Saltpeter.Domain
         {
             LeachingVatRules.VatAmounts full = FullBatch(unit, step);
             var half = new LeachingVatRules.VatAmounts((full.Guano + 1) / 2, (full.Water + 1) / 2, (full.Fuel + 1) / 2);
-            if (RuleLog.On) RuleLog.Every("LeachingUpgradeRules.FillPerUse", 2d, $"LeachingUpgradeRules.FillPerUse(step={step}): returns {Text(half)}");
+            if (RuleLog.IsOn()) RuleLog.Every("LeachingUpgradeRules.FillPerUse", 2d, $"LeachingUpgradeRules.FillPerUse(step={step}): returns {Text(half)}");
             return half;
         }
 
@@ -73,7 +73,7 @@ namespace GunPowdered.Features.Saltpeter.Domain
                 One(have.Guano, full.Guano, perUse.Guano, player.Guano),
                 One(have.Water, full.Water, perUse.Water, player.Water),
                 One(have.Fuel, full.Fuel, perUse.Fuel, player.Fuel));
-            if (RuleLog.On) RuleLog.Verbose($"LeachingUpgradeRules.Take(have={Text(have)}, full={Text(full)}, perUse={Text(perUse)}, player={Text(player)}): returns {Text(take)}");
+            if (RuleLog.IsOn()) RuleLog.Verbose($"LeachingUpgradeRules.Take(have={Text(have)}, full={Text(full)}, perUse={Text(perUse)}, player={Text(player)}): returns {Text(take)}");
             return take;
         }
 
@@ -81,7 +81,7 @@ namespace GunPowdered.Features.Saltpeter.Domain
         {
             int room = Math.Max(0, full - Math.Max(0, have));
             int one = Math.Max(0, Math.Min(Math.Min(room, perUse), player));
-            if (RuleLog.On) RuleLog.Every("LeachingUpgradeRules.One", 2d, $"LeachingUpgradeRules.One(have={have}, full={full}, perUse={perUse}, player={player}): returns {one}");
+            if (RuleLog.IsOn()) RuleLog.Every("LeachingUpgradeRules.One", 2d, $"LeachingUpgradeRules.One(have={have}, full={full}, perUse={perUse}, player={player}): returns {one}");
             return one;
         }
 
@@ -91,10 +91,10 @@ namespace GunPowdered.Features.Saltpeter.Domain
         /// </summary>
         internal static int Units(LeachingVatRules.VatAmounts have, LeachingVatRules.VatAmounts unit, int step)
         {
-            if (unit.Guano < 1 || unit.Water < 1 || unit.Fuel < 1) { if (RuleLog.On) RuleLog.Verbose($"LeachingUpgradeRules.Units: returns 0 (bad unit {Text(unit)})"); return 0; }
+            if (unit.Guano < 1 || unit.Water < 1 || unit.Fuel < 1) { if (RuleLog.IsOn()) RuleLog.Verbose($"LeachingUpgradeRules.Units: returns 0 (bad unit {Text(unit)})"); return 0; }
             int units = Math.Min(Math.Min(have.Guano / unit.Guano, have.Water / unit.Water), have.Fuel / unit.Fuel);
             units = Math.Max(0, Math.Min(units, UnitsPerBatch(step)));
-            if (RuleLog.On) RuleLog.Verbose($"LeachingUpgradeRules.Units(have={Text(have)}, unit={Text(unit)}, step={step}): returns {units}");
+            if (RuleLog.IsOn()) RuleLog.Verbose($"LeachingUpgradeRules.Units(have={Text(have)}, unit={Text(unit)}, step={step}): returns {units}");
             return units;
         }
 
@@ -103,7 +103,7 @@ namespace GunPowdered.Features.Saltpeter.Domain
         {
             int n = Math.Max(0, units);
             var used = new LeachingVatRules.VatAmounts(unit.Guano * n, unit.Water * n, unit.Fuel * n);
-            if (RuleLog.On) RuleLog.Verbose($"LeachingUpgradeRules.Used(units={units}): returns {Text(used)}");
+            if (RuleLog.IsOn()) RuleLog.Verbose($"LeachingUpgradeRules.Used(units={units}): returns {Text(used)}");
             return used;
         }
 
@@ -114,7 +114,7 @@ namespace GunPowdered.Features.Saltpeter.Domain
         internal static bool StartsNow(int state, LeachingVatRules.VatAmounts have, LeachingVatRules.VatAmounts unit, int step)
         {
             bool starts = state == LeachingVatRules.StateIdle && Units(have, unit, step) >= 1;
-            if (RuleLog.On) RuleLog.Every("LeachingUpgradeRules.StartsNow", 2d, $"LeachingUpgradeRules.StartsNow(state={state}, have={Text(have)}, step={step}): returns {starts}");
+            if (RuleLog.IsOn()) RuleLog.Every("LeachingUpgradeRules.StartsNow", 2d, $"LeachingUpgradeRules.StartsNow(state={state}, have={Text(have)}, step={step}): returns {starts}");
             return starts;
         }
 
@@ -122,7 +122,7 @@ namespace GunPowdered.Features.Saltpeter.Domain
         internal static int Pile(int ready, int runSaltpeter)
         {
             int pile = Math.Max(0, ready) + Math.Max(0, runSaltpeter);
-            if (RuleLog.On) RuleLog.Verbose($"LeachingUpgradeRules.Pile(ready={ready}, runSaltpeter={runSaltpeter}): returns {pile}");
+            if (RuleLog.IsOn()) RuleLog.Verbose($"LeachingUpgradeRules.Pile(ready={ready}, runSaltpeter={runSaltpeter}): returns {pile}");
             return pile;
         }
 
@@ -136,15 +136,15 @@ namespace GunPowdered.Features.Saltpeter.Domain
             if (have.Water < unit.Water) parts.Add($"{unit.Water - Math.Max(0, have.Water)} more Water");
             if (have.Fuel < unit.Fuel) parts.Add($"{unit.Fuel - Math.Max(0, have.Fuel)} more Wood");
             string text = parts.Count == 0 ? string.Empty : "Needs " + Join(parts);
-            if (RuleLog.On) RuleLog.Every("LeachingUpgradeRules.Missing", 2d, $"LeachingUpgradeRules.Missing(have={Text(have)}, unit={Text(unit)}): returns '{text}'");
+            if (RuleLog.IsOn()) RuleLog.Every("LeachingUpgradeRules.Missing", 2d, $"LeachingUpgradeRules.Missing(have={Text(have)}, unit={Text(unit)}): returns '{text}'");
             return text;
         }
 
         static string Join(List<string> parts)
         {
-            if (parts.Count == 1) { if (RuleLog.On) RuleLog.Every("LeachingUpgradeRules.Join:1", 2d, "LeachingUpgradeRules.Join: returns one part"); return parts[0]; }
+            if (parts.Count == 1) { if (RuleLog.IsOn()) RuleLog.Every("LeachingUpgradeRules.Join:1", 2d, "LeachingUpgradeRules.Join: returns one part"); return parts[0]; }
             string text = string.Join(", ", parts.GetRange(0, parts.Count - 1)) + " and " + parts[parts.Count - 1];
-            if (RuleLog.On) RuleLog.Every("LeachingUpgradeRules.Join", 2d, $"LeachingUpgradeRules.Join: returns '{text}'");
+            if (RuleLog.IsOn()) RuleLog.Every("LeachingUpgradeRules.Join", 2d, $"LeachingUpgradeRules.Join: returns '{text}'");
             return text;
         }
 
@@ -156,7 +156,7 @@ namespace GunPowdered.Features.Saltpeter.Domain
         {
             int s = Math.Max(0, Math.Min(step, MaxStep));
             double minutes = Math.Max(MinMinutes, baseMinutes - Math.Max(0d, minutesPerStep) * s);
-            if (RuleLog.On) RuleLog.Every("LeachingUpgradeRules.Minutes", 2d, $"LeachingUpgradeRules.Minutes(step={step}, base={baseMinutes}, perStep={minutesPerStep}): returns {minutes}");
+            if (RuleLog.IsOn()) RuleLog.Every("LeachingUpgradeRules.Minutes", 2d, $"LeachingUpgradeRules.Minutes(step={step}, base={baseMinutes}, perStep={minutesPerStep}): returns {minutes}");
             return minutes;
         }
 

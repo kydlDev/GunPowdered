@@ -21,7 +21,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
             try
             {
                 Character c = CharacterRef(__instance);
-                if (c == null || !c.IsPlayer() || MobileCannonPull.PulledBy(c) == null) { if (RuleLog.On) ModLog.Every("MobileCannonSpeedPatch.Postfix:24", 2d, "MobileCannonSpeedPatch.Postfix: returns (line 24)"); return; }
+                if (c == null || !c.IsPlayer() || MobileCannonPull.PulledBy(c) == null) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonSpeedPatch.Postfix:24", 2d, "MobileCannonSpeedPatch.Postfix: returns (line 24)"); return; }
                 speed = MobileCannonPullRules.CapSpeed(speed, ModSettings.MobileCannonPullSpeed.Value);
             }
             catch (NullReferenceException e)
@@ -37,7 +37,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
     {
         static void Postfix(Player __instance, ref bool __result)
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonFacePatch.Postfix", 2d, $"MobileCannonFacePatch.Postfix(__instance={RuleLog.Shown(__instance)}, __result={RuleLog.Shown(__result)})");
+            if (RuleLog.IsOn()) ModLog.Every("MobileCannonFacePatch.Postfix", 2d, $"MobileCannonFacePatch.Postfix(__instance={RuleLog.Shown(__instance)}, __result={RuleLog.Shown(__result)})");
             if (!__result && MobileCannonPull.PulledBy(__instance) != null) __result = true;
         }
     }
@@ -50,10 +50,10 @@ namespace GunPowdered.Integrations.HarmonyPatches
 
         static void Prefix(Character __instance, ref float turnSpeed, out Quaternion? __state)
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonTurnPatch.Prefix", 2d, $"MobileCannonTurnPatch.Prefix(__instance={RuleLog.Shown(__instance)}, turnSpeed={RuleLog.Shown(turnSpeed)})");
+            if (RuleLog.IsOn()) ModLog.Every("MobileCannonTurnPatch.Prefix", 2d, $"MobileCannonTurnPatch.Prefix(__instance={RuleLog.Shown(__instance)}, turnSpeed={RuleLog.Shown(turnSpeed)})");
             __state = null;
             MobileCannonPull pull = __instance.IsPlayer() ? MobileCannonPull.PulledBy(__instance) : null;
-            if (pull == null) { if (RuleLog.On) ModLog.Every("MobileCannonTurnPatch.Prefix:56", 2d, "MobileCannonTurnPatch.Prefix: returns (line 56)"); return; }
+            if (pull == null) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTurnPatch.Prefix:56", 2d, "MobileCannonTurnPatch.Prefix: returns (line 56)"); return; }
             turnSpeed = Mathf.Max(turnSpeed, __instance.m_turnSpeed);   // the game passes the turn speed through the same speed mods, so the walking cap would make turning crawl
             __state = LookYawRef(__instance);
             LookYawRef(__instance) = pull.FacingFor(__instance);
@@ -61,7 +61,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
 
         static void Postfix(Character __instance, Quaternion? __state)
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonTurnPatch.Postfix", 2d, $"MobileCannonTurnPatch.Postfix(__instance={RuleLog.Shown(__instance)}, __state={RuleLog.Shown(__state)})");
+            if (RuleLog.IsOn()) ModLog.Every("MobileCannonTurnPatch.Postfix", 2d, $"MobileCannonTurnPatch.Postfix(__instance={RuleLog.Shown(__instance)}, __state={RuleLog.Shown(__state)})");
             if (__state.HasValue) LookYawRef(__instance) = __state.Value;
         }
     }

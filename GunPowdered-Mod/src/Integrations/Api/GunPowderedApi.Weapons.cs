@@ -43,8 +43,8 @@ namespace GunPowdered
 
             static void Hook()
             {
-                if (RuleLog.On) ModLog.Verbose($"Musket.Hook()");
-                if (_hooked) { if (RuleLog.On) ModLog.Verbose("Musket.Hook: returns (line 47)"); return; }
+                if (RuleLog.IsOn()) ModLog.Verbose($"Musket.Hook()");
+                if (_hooked) { if (RuleLog.IsOn()) ModLog.Verbose("Musket.Hook: returns (line 47)"); return; }
                 _hooked = true;
                 MusketGun.Fired += Pass;
             }
@@ -52,7 +52,7 @@ namespace GunPowdered
             static void Pass(Player shooter, ItemDrop.ItemData musket, Vector3 muzzle, Vector3 direction, int left, GameObject bullet)
             {
                 Action<MusketShot> listeners = _shotFired;
-                if (listeners == null) { if (RuleLog.On) ModLog.Verbose("Musket.Pass: returns (line 55)"); return; }
+                if (listeners == null) { if (RuleLog.IsOn()) ModLog.Verbose("Musket.Pass: returns (line 55)"); return; }
                 var shot = new MusketShot(shooter, musket, muzzle, direction, left, bullet);
                 foreach (Delegate d in listeners.GetInvocationList())
                 {
@@ -67,7 +67,7 @@ namespace GunPowdered
         {
             internal MusketShot(Player shooter, ItemDrop.ItemData musket, Vector3 muzzle, Vector3 direction, int cartridgesLeft, GameObject bullet)
             {
-                if (RuleLog.On) ModLog.Verbose($"MusketShot.MusketShot(shooter={RuleLog.Shown(shooter)}, musket={RuleLog.Shown(musket)}, muzzle={RuleLog.Shown(muzzle)}, direction={RuleLog.Shown(direction)}, cartridgesLeft={RuleLog.Shown(cartridgesLeft)}, bullet={RuleLog.Shown(bullet)})");
+                if (RuleLog.IsOn()) ModLog.Verbose($"MusketShot.MusketShot(shooter={RuleLog.Shown(shooter)}, musket={RuleLog.Shown(musket)}, muzzle={RuleLog.Shown(muzzle)}, direction={RuleLog.Shown(direction)}, cartridgesLeft={RuleLog.Shown(cartridgesLeft)}, bullet={RuleLog.Shown(bullet)})");
                 Shooter = shooter;
                 Weapon = musket;
                 Muzzle = muzzle;

@@ -18,7 +18,7 @@ namespace GunPowdered.Features.Water.Infrastructure
 
         internal WaterFeature()
         {
-            if (RuleLog.On) ModLog.Verbose($"WaterFeature.WaterFeature()");
+            if (RuleLog.IsOn()) ModLog.Verbose($"WaterFeature.WaterFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.Water, ItemCatalog.Bucket, ItemCatalog.BucketFull, ItemCatalog.RainBarrel);
         }
 

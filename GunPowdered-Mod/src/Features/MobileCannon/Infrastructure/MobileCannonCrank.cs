@@ -20,10 +20,10 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>The crank the local player looks at right now (null when none).</summary>
         internal static MobileCannonCrank Hovered()
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonCrank.Hovered", 2d, $"MobileCannonCrank.Hovered()");
+            if (RuleLog.IsOn()) ModLog.Every("MobileCannonCrank.Hovered", 2d, $"MobileCannonCrank.Hovered()");
             Player p = Player.m_localPlayer;
             GameObject go = p != null ? p.GetHoverObject() : null;
-            { var returnedAt26 = go != null ? go.GetComponent<MobileCannonCrank>() : null; if (RuleLog.On) ModLog.Every("MobileCannonCrank.Hovered:26", 2d, $"MobileCannonCrank.Hovered: returns {RuleLog.Shown(returnedAt26)} (line 26)"); return returnedAt26; }
+            { var returnedAt26 = go != null ? go.GetComponent<MobileCannonCrank>() : null; if (RuleLog.IsOn()) ModLog.Every("MobileCannonCrank.Hovered:26", 2d, $"MobileCannonCrank.Hovered: returns {RuleLog.Shown(returnedAt26)} (line 26)"); return returnedAt26; }
         }
     }
 }

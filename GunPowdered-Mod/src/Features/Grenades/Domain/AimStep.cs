@@ -6,7 +6,7 @@ namespace GunPowdered.Features.Grenades.Domain
     {
         internal AimStep(AimPhase next, bool intercept, bool attack, bool suppressBlock, AimEvent happened)
         {
-            if (RuleLog.On) RuleLog.Every("AimStep.AimStep", 2d, $"AimStep.AimStep(next={RuleLog.Shown(next)}, intercept={RuleLog.Shown(intercept)}, attack={RuleLog.Shown(attack)}, suppressBlock={RuleLog.Shown(suppressBlock)}, happened={RuleLog.Shown(happened)})");
+            if (RuleLog.IsOn()) RuleLog.Every("AimStep.AimStep", 2d, $"AimStep.AimStep(next={RuleLog.Shown(next)}, intercept={RuleLog.Shown(intercept)}, attack={RuleLog.Shown(attack)}, suppressBlock={RuleLog.Shown(suppressBlock)}, happened={RuleLog.Shown(happened)})");
             Next = next;
             Intercept = intercept;
             Attack = attack;

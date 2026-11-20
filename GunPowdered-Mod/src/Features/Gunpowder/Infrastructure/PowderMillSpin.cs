@@ -23,7 +23,7 @@ namespace GunPowdered.Features.Gunpowder.Infrastructure
 
         void Awake()
         {
-            if (RuleLog.On) ModLog.Verbose($"PowderMillSpin.Awake()");
+            if (RuleLog.IsOn()) ModLog.Verbose($"PowderMillSpin.Awake()");
             _nview = GetComponent<ZNetView>();
             _station = GetComponent<CraftingStation>();
             _arm = FindDeep(transform, ArmName);
@@ -32,24 +32,24 @@ namespace GunPowdered.Features.Gunpowder.Infrastructure
 
         static Transform FindDeep(Transform root, string name)
         {
-            if (RuleLog.On) ModLog.Verbose($"PowderMillSpin.FindDeep(root={RuleLog.Shown(root)}, name={RuleLog.Shown(name)})");
+            if (RuleLog.IsOn()) ModLog.Verbose($"PowderMillSpin.FindDeep(root={RuleLog.Shown(root)}, name={RuleLog.Shown(name)})");
             foreach (Transform c in root)
             {
-                if (c.name == name) { var returnedAt38 = c; if (RuleLog.On) ModLog.Verbose($"PowderMillSpin.FindDeep: returns {RuleLog.Shown(returnedAt38)} (line 38)"); return returnedAt38; }
+                if (c.name == name) { var returnedAt38 = c; if (RuleLog.IsOn()) ModLog.Verbose($"PowderMillSpin.FindDeep: returns {RuleLog.Shown(returnedAt38)} (line 38)"); return returnedAt38; }
                 Transform f = FindDeep(c, name);
-                if (f != null) { var returnedAt40 = f; if (RuleLog.On) ModLog.Verbose($"PowderMillSpin.FindDeep: returns {RuleLog.Shown(returnedAt40)} (line 40)"); return returnedAt40; }
+                if (f != null) { var returnedAt40 = f; if (RuleLog.IsOn()) ModLog.Verbose($"PowderMillSpin.FindDeep: returns {RuleLog.Shown(returnedAt40)} (line 40)"); return returnedAt40; }
             }
-            { if (RuleLog.On) ModLog.Verbose("PowderMillSpin.FindDeep: returns null (line 42)"); return null; }
+            { if (RuleLog.IsOn()) ModLog.Verbose("PowderMillSpin.FindDeep: returns null (line 42)"); return null; }
         }
 
         void Update()
         {
             try
             {
-                if (_nview == null || !_nview.IsValid() || ZNet.instance == null) { if (RuleLog.On) ModLog.Every("PowderMillSpin.Update:49", 2d, "PowderMillSpin.Update: returns (line 49)"); return; }
+                if (_nview == null || !_nview.IsValid() || ZNet.instance == null) { if (RuleLog.IsOn()) ModLog.Every("PowderMillSpin.Update:49", 2d, "PowderMillSpin.Update: returns (line 49)"); return; }
                 double now = ZNet.instance.GetTimeSeconds();
                 Stamp(now);
-                if (!GunpowderRules.IsTurning(_nview.GetZDO().GetLong(KeyUse, 0L) / 1000d, now, GunpowderRules.TurnGraceSeconds)) { if (RuleLog.On) ModLog.Every("PowderMillSpin.Update:52", 2d, "PowderMillSpin.Update: returns (line 52)"); return; }
+                if (!GunpowderRules.IsTurning(_nview.GetZDO().GetLong(KeyUse, 0L) / 1000d, now, GunpowderRules.TurnGraceSeconds)) { if (RuleLog.IsOn()) ModLog.Every("PowderMillSpin.Update:52", 2d, "PowderMillSpin.Update: returns (line 52)"); return; }
 
                 float step = GunpowderRules.TurnDegreesPerSecond * Time.deltaTime;
                 if (_arm != null) _arm.Rotate(0f, step, 0f, Space.Self);
@@ -65,9 +65,9 @@ namespace GunPowdered.Features.Gunpowder.Infrastructure
         // the local player has this mill's window open: keep the stamp fresh (the owner of the network object is not needed, any client may write it)
         void Stamp(double now)
         {
-            if (RuleLog.On) ModLog.Every("PowderMillSpin.Stamp", 2d, $"PowderMillSpin.Stamp(now={RuleLog.Shown(now)})");
-            if (Time.time < _nextStamp || Player.m_localPlayer == null || _station == null) { if (RuleLog.On) ModLog.Every("PowderMillSpin.Stamp:69", 2d, "PowderMillSpin.Stamp: returns (line 69)"); return; }
-            if (Player.m_localPlayer.GetCurrentCraftingStation() != _station) { if (RuleLog.On) ModLog.Every("PowderMillSpin.Stamp:70", 2d, "PowderMillSpin.Stamp: returns (line 70)"); return; }
+            if (RuleLog.IsOn()) ModLog.Every("PowderMillSpin.Stamp", 2d, $"PowderMillSpin.Stamp(now={RuleLog.Shown(now)})");
+            if (Time.time < _nextStamp || Player.m_localPlayer == null || _station == null) { if (RuleLog.IsOn()) ModLog.Every("PowderMillSpin.Stamp:69", 2d, "PowderMillSpin.Stamp: returns (line 69)"); return; }
+            if (Player.m_localPlayer.GetCurrentCraftingStation() != _station) { if (RuleLog.IsOn()) ModLog.Every("PowderMillSpin.Stamp:70", 2d, "PowderMillSpin.Stamp: returns (line 70)"); return; }
             _nextStamp = Time.time + StampSeconds;
             if (!_nview.IsOwner()) _nview.ClaimOwnership();
             _nview.GetZDO().Set(KeyUse, (long)(now * 1000d));

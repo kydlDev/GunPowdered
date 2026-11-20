@@ -18,7 +18,7 @@ namespace GunPowdered.Features.Gunpowder.Infrastructure
 
         internal GunpowderFeature()
         {
-            if (RuleLog.On) ModLog.Verbose($"GunpowderFeature.GunpowderFeature()");
+            if (RuleLog.IsOn()) ModLog.Verbose($"GunpowderFeature.GunpowderFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.Gunpowder, ItemCatalog.PowderMill);
         }
 

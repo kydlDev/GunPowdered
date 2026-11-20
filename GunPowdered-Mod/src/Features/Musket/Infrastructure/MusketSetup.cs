@@ -63,7 +63,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         // the game's own buttons, so they show whatever the player bound
         static void AddKeyHints()
         {
-            if (_hints) { if (RuleLog.On) ModLog.Verbose("MusketSetup.AddKeyHints: returns (line 66)"); return; }
+            if (_hints) { if (RuleLog.IsOn()) ModLog.Verbose("MusketSetup.AddKeyHints: returns (line 66)"); return; }
             _hints = KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = GunPowderedPrefabs.Musket,
@@ -80,13 +80,13 @@ namespace GunPowdered.Features.Musket.Infrastructure
         // D-095: the musket keeps its own magazine (MusketGun); the Arbalest's one-bolt reload and its bolt ammo are switched off
         static bool MakeGun(GameObject item)
         {
-            if (RuleLog.On) ModLog.Verbose($"MusketSetup.MakeGun(item={RuleLog.Shown(item)})");
+            if (RuleLog.IsOn()) ModLog.Verbose($"MusketSetup.MakeGun(item={RuleLog.Shown(item)})");
             ItemDrop drop = item.GetComponent<ItemDrop>();
-            if (drop == null) { if (RuleLog.On) ModLog.Verbose("MusketSetup.MakeGun: returns false (line 85)"); return false; }
+            if (drop == null) { if (RuleLog.IsOn()) ModLog.Verbose("MusketSetup.MakeGun: returns false (line 85)"); return false; }
             ItemDrop.ItemData.SharedData shared = drop.m_itemData.m_shared;
             shared.m_attack.m_requiresReload = false;
             shared.m_ammoType = "";
-            { var returnedAt89 = !shared.m_attack.m_requiresReload; if (RuleLog.On) ModLog.Verbose($"MusketSetup.MakeGun: returns {RuleLog.Shown(returnedAt89)} (line 89)"); return returnedAt89; }
+            { var returnedAt89 = !shared.m_attack.m_requiresReload; if (RuleLog.IsOn()) ModLog.Verbose($"MusketSetup.MakeGun: returns {RuleLog.Shown(returnedAt89)} (line 89)"); return returnedAt89; }
         }
 
         // the bullet: a clone of the vanilla iron bolt's projectile (the game's flight, hit, friendly fire and skill rules) with the Iron Bullet's model
@@ -101,7 +101,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 return null;
             }
             GameObject clone = PrefabManager.Instance.CreateClonedPrefab(BulletId, baseFlight);
-            if (clone == null) { if (RuleLog.On) ModLog.Verbose("MusketSetup.MakeBullet: returns null (line 104)"); return null; }
+            if (clone == null) { if (RuleLog.IsOn()) ModLog.Verbose("MusketSetup.MakeBullet: returns null (line 104)"); return null; }
             Projectile flight = clone.GetComponent<Projectile>();
             if (flight != null)
             {
@@ -119,10 +119,10 @@ namespace GunPowdered.Features.Musket.Infrastructure
 
         static bool BulletLook(GameObject clone, Projectile flight)
         {
-            if (RuleLog.On) ModLog.Verbose($"MusketSetup.BulletLook(clone={RuleLog.Shown(clone)}, flight={RuleLog.Shown(flight)})");
+            if (RuleLog.IsOn()) ModLog.Verbose($"MusketSetup.BulletLook(clone={RuleLog.Shown(clone)}, flight={RuleLog.Shown(flight)})");
             GameObject bulletItem = PrefabManager.Instance.GetPrefab(GunPowderedPrefabs.IronBullet);
             Transform model = bulletItem != null ? bulletItem.transform.Find("gp_model") : null;
-            if (model == null) { if (RuleLog.On) ModLog.Verbose("MusketSetup.BulletLook: returns false (line 125)"); return false; }
+            if (model == null) { if (RuleLog.IsOn()) ModLog.Verbose("MusketSetup.BulletLook: returns false (line 125)"); return false; }
             Transform parent = flight != null && flight.m_visual != null ? flight.m_visual.transform : clone.transform;
             foreach (Renderer r in parent.GetComponentsInChildren<Renderer>(true)) if (!(r is ParticleSystemRenderer)) r.enabled = false;
             GameObject copy = Object.Instantiate(model.gameObject, parent);
@@ -132,7 +132,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             foreach (Collider c in copy.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c);
             foreach (Rigidbody rb in copy.GetComponentsInChildren<Rigidbody>(true)) Object.DestroyImmediate(rb);
             foreach (Renderer r in copy.GetComponentsInChildren<Renderer>(true)) r.enabled = true;
-            { if (RuleLog.On) ModLog.Verbose("MusketSetup.BulletLook: returns true (line 135)"); return true; }
+            { if (RuleLog.IsOn()) ModLog.Verbose("MusketSetup.BulletLook: returns true (line 135)"); return true; }
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 ModLog.Warn("MusketSetup: no hand model - attach " + (attach != null) + ", bundle model " + (model != null));
                 return false;
             }
-            if (attach.Find("gp_model") != null) { if (RuleLog.On) ModLog.Verbose("MusketSetup.AttachHandModel: returns true (line 167)"); return true; }
+            if (attach.Find("gp_model") != null) { if (RuleLog.IsOn()) ModLog.Verbose("MusketSetup.AttachHandModel: returns true (line 167)"); return true; }
             foreach (Renderer old in attach.GetComponentsInChildren<Renderer>(true)) old.enabled = false;
             GameObject copy = Object.Instantiate(model.gameObject, attach);
             copy.name = "gp_model";

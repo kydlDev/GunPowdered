@@ -27,7 +27,7 @@ namespace GunPowdered.Features.Example.Infrastructure
 
         internal ExampleFeature(DependencyRegistry deps)
         {
-            if (RuleLog.On) ModLog.Verbose($"ExampleFeature.ExampleFeature(deps={RuleLog.Shown(deps)})");
+            if (RuleLog.IsOn()) ModLog.Verbose($"ExampleFeature.ExampleFeature(deps={RuleLog.Shown(deps)})");
             _deps = deps;
             var executor = new ExampleValueExecutor(new LocalOwnership(), SetValue);   // method group bound once
             deps.Commands.Register(new SetExampleValueHandler(executor, deps.Trace));

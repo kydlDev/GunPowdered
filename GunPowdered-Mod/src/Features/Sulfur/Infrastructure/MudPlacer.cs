@@ -22,16 +22,16 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
         /// <summary>Around a geyser: on dry or wet ground, any floor. Expected outcome: deposits placed.</summary>
         internal static int AroundGeyser(Vector3 centre, int seed)
         {
-            if (RuleLog.On) ModLog.Every("MudPlacer.AroundGeyser", 2d, $"MudPlacer.AroundGeyser(centre={RuleLog.Shown(centre)}, seed={RuleLog.Shown(seed)})");
-            { var returnedAt26 = Place(centre, seed, ModSettings.MudPerGeyser.Value, GeyserMin, GeyserMax, false); if (RuleLog.On) ModLog.Every("MudPlacer.AroundGeyser:26", 2d, $"MudPlacer.AroundGeyser: returns {RuleLog.Shown(returnedAt26)} (line 26)"); return returnedAt26; }
+            if (RuleLog.IsOn()) ModLog.Every("MudPlacer.AroundGeyser", 2d, $"MudPlacer.AroundGeyser(centre={RuleLog.Shown(centre)}, seed={RuleLog.Shown(seed)})");
+            { var returnedAt26 = Place(centre, seed, ModSettings.MudPerGeyser.Value, GeyserMin, GeyserMax, false); if (RuleLog.IsOn()) ModLog.Every("MudPlacer.AroundGeyser:26", 2d, $"MudPlacer.AroundGeyser: returns {RuleLog.Shown(returnedAt26)} (line 26)"); return returnedAt26; }
         }
 
         /// <summary>Next to a Draugr pile: only where the water covers the ground. Expected outcome: deposits placed.</summary>
         internal static int NearPile(Vector3 centre, int seed)
         {
-            if (RuleLog.On) ModLog.Every("MudPlacer.NearPile", 2d, $"MudPlacer.NearPile(centre={RuleLog.Shown(centre)}, seed={RuleLog.Shown(seed)})");
+            if (RuleLog.IsOn()) ModLog.Every("MudPlacer.NearPile", 2d, $"MudPlacer.NearPile(centre={RuleLog.Shown(centre)}, seed={RuleLog.Shown(seed)})");
             PilesSeen++;
-            { var returnedAt34 = Place(centre, seed, ModSettings.MudPerDraugrPile.Value, PileMin, PileMax, true); if (RuleLog.On) ModLog.Every("MudPlacer.NearPile:34", 2d, $"MudPlacer.NearPile: returns {RuleLog.Shown(returnedAt34)} (line 34)"); return returnedAt34; }
+            { var returnedAt34 = Place(centre, seed, ModSettings.MudPerDraugrPile.Value, PileMin, PileMax, true); if (RuleLog.IsOn()) ModLog.Every("MudPlacer.NearPile:34", 2d, $"MudPlacer.NearPile: returns {RuleLog.Shown(returnedAt34)} (line 34)"); return returnedAt34; }
         }
 
         static int Place(Vector3 centre, int seed, int count, float minR, float maxR, bool needWater)
@@ -55,7 +55,7 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
                     break;
                 }
             }
-            { var returnedAt58 = placed; if (RuleLog.On) ModLog.Every("MudPlacer.Place:58", 2d, $"MudPlacer.Place: returns {RuleLog.Shown(returnedAt58)} (line 58)"); return returnedAt58; }
+            { var returnedAt58 = placed; if (RuleLog.IsOn()) ModLog.Every("MudPlacer.Place:58", 2d, $"MudPlacer.Place: returns {RuleLog.Shown(returnedAt58)} (line 58)"); return returnedAt58; }
         }
 
         // the local water volume's level, or the world's sea level (lakes, rivers, the sea lie at it): at the test world's lake shore the volume lookup

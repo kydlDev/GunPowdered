@@ -20,7 +20,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
 
         internal GrenadesFeature()
         {
-            if (RuleLog.On) ModLog.Verbose($"GrenadesFeature.GrenadesFeature()");
+            if (RuleLog.IsOn()) ModLog.Verbose($"GrenadesFeature.GrenadesFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.SpikedGrenade);
         }
 

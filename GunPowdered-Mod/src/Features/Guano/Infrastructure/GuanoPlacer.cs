@@ -24,7 +24,7 @@ namespace GunPowdered.Features.Guano.Infrastructure
             var rng = new SeededRandom(seed ^ 0x6A09E667);
             int[] plan = GuanoDepositRules.Plan(kind, () => rng.NextDouble());
             planned = plan.Length;
-            if (plan.Length == 0 || spots.Count == 0) { if (RuleLog.On) ModLog.Every("GuanoPlacer.Place:27", 2d, "GuanoPlacer.Place: returns 0 (line 27)"); return 0; }
+            if (plan.Length == 0 || spots.Count == 0) { if (RuleLog.IsOn()) ModLog.Every("GuanoPlacer.Place:27", 2d, "GuanoPlacer.Place: returns 0 (line 27)"); return 0; }
 
             // every spot in a random order: a spot without a floor under it (a wall piece, a gap) is skipped and the next one is tried (seen in game: 2 of 3 missed)
             int placed = 0, noFloor = 0;

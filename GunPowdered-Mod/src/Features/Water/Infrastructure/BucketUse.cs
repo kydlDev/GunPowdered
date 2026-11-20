@@ -21,8 +21,8 @@ namespace GunPowdered.Features.Water.Infrastructure
         /// <summary>The name of the prefab an item was made from ("" when unknown).</summary>
         internal static string PrefabOf(ItemDrop.ItemData item)
         {
-            if (RuleLog.On) ModLog.Every("BucketUse.PrefabOf", 2d, $"BucketUse.PrefabOf(item={RuleLog.Shown(item)})");
-            { var returnedAt25 = item != null && item.m_dropPrefab != null ? item.m_dropPrefab.name : ""; if (RuleLog.On) ModLog.Every("BucketUse.PrefabOf:25", 2d, $"BucketUse.PrefabOf: returns {RuleLog.Shown(returnedAt25)} (line 25)"); return returnedAt25; }
+            if (RuleLog.IsOn()) ModLog.Every("BucketUse.PrefabOf", 2d, $"BucketUse.PrefabOf(item={RuleLog.Shown(item)})");
+            { var returnedAt25 = item != null && item.m_dropPrefab != null ? item.m_dropPrefab.name : ""; if (RuleLog.IsOn()) ModLog.Every("BucketUse.PrefabOf:25", 2d, $"BucketUse.PrefabOf: returns {RuleLog.Shown(returnedAt25)} (line 25)"); return returnedAt25; }
         }
 
         /// <summary>
@@ -31,17 +31,17 @@ namespace GunPowdered.Features.Water.Infrastructure
         /// </summary>
         internal static bool Use(Player player, ItemDrop.ItemData held)
         {
-            if (RuleLog.On) ModLog.Every("BucketUse.Use", 2d, $"BucketUse.Use(player={RuleLog.Shown(player)}, held={RuleLog.Shown(held)})");
+            if (RuleLog.IsOn()) ModLog.Every("BucketUse.Use", 2d, $"BucketUse.Use(player={RuleLog.Shown(player)}, held={RuleLog.Shown(held)})");
             string prefab = PrefabOf(held);
             bool isEmpty = prefab == GunPowderedPrefabs.Bucket, isFull = prefab == GunPowderedPrefabs.BucketFull;
-            if (!isEmpty && !isFull) { if (RuleLog.On) ModLog.Every("BucketUse.Use:37", 2d, "BucketUse.Use: returns false (line 37)"); return false; }
-            if (!ModSettings.FeatureOn(ModSettings.EnableWater)) { player.Message(MessageHud.MessageType.Center, "Water is switched off"); { if (RuleLog.On) ModLog.Every("BucketUse.Use:38", 2d, "BucketUse.Use: returns true (line 38)"); return true; } }
-            if (_busy) { if (RuleLog.On) ModLog.Every("BucketUse.Use:39", 2d, "BucketUse.Use: returns true (line 39)"); return true; }
+            if (!isEmpty && !isFull) { if (RuleLog.IsOn()) ModLog.Every("BucketUse.Use:37", 2d, "BucketUse.Use: returns false (line 37)"); return false; }
+            if (!ModSettings.FeatureOn(ModSettings.EnableWater)) { player.Message(MessageHud.MessageType.Center, "Water is switched off"); { if (RuleLog.IsOn()) ModLog.Every("BucketUse.Use:38", 2d, "BucketUse.Use: returns true (line 38)"); return true; } }
+            if (_busy) { if (RuleLog.IsOn()) ModLog.Every("BucketUse.Use:39", 2d, "BucketUse.Use: returns true (line 39)"); return true; }
 
             if (isFull) Plugin.Instance.StartCoroutine(PourRoutine(player, held));
             else if (WaterAhead(player)) Plugin.Instance.StartCoroutine(FillThenPour(player, held));
             else player.Message(MessageHud.MessageType.Center, "Face open water to fill the bucket");
-            { if (RuleLog.On) ModLog.Every("BucketUse.Use:44", 2d, "BucketUse.Use: returns true (line 44)"); return true; }
+            { if (RuleLog.IsOn()) ModLog.Every("BucketUse.Use:44", 2d, "BucketUse.Use: returns true (line 44)"); return true; }
         }
 
         // water within reach in front of the player: the surface lies above the ground there. The surface is the local water volume's level, or the
@@ -81,7 +81,7 @@ namespace GunPowdered.Features.Water.Infrastructure
 
         static IEnumerator PourRoutine(Player p, ItemDrop.ItemData item)
         {
-            if (RuleLog.On) ModLog.Every("BucketUse.PourRoutine", 2d, $"BucketUse.PourRoutine(p={RuleLog.Shown(p)}, item={RuleLog.Shown(item)})");
+            if (RuleLog.IsOn()) ModLog.Every("BucketUse.PourRoutine", 2d, $"BucketUse.PourRoutine(p={RuleLog.Shown(p)}, item={RuleLog.Shown(item)})");
             _busy = true;
             Pour(p, item);
             _busy = false;
@@ -98,7 +98,7 @@ namespace GunPowdered.Features.Water.Infrastructure
                 if (water == null || !p.GetInventory().CanAddItem(water, amount))
                 {
                     p.Message(MessageHud.MessageType.Center, "Your inventory is full");
-                    { if (RuleLog.On) ModLog.Every("BucketUse.Pour:101", 2d, "BucketUse.Pour: returns (line 101)"); return; }
+                    { if (RuleLog.IsOn()) ModLog.Every("BucketUse.Pour:101", 2d, "BucketUse.Pour: returns (line 101)"); return; }
                 }
                 p.GetInventory().AddItem(water, amount);
                 bool emptied = Turn(p, item, GunPowderedPrefabs.Bucket);
@@ -114,16 +114,16 @@ namespace GunPowdered.Features.Water.Infrastructure
         // The same inventory item becomes the other bucket (so it keeps its slot) and is held again so the hand model follows.
         static bool Turn(Player p, ItemDrop.ItemData item, string toPrefab)
         {
-            if (RuleLog.On) ModLog.Every("BucketUse.Turn", 2d, $"BucketUse.Turn(p={RuleLog.Shown(p)}, item={RuleLog.Shown(item)}, toPrefab={RuleLog.Shown(toPrefab)})");
+            if (RuleLog.IsOn()) ModLog.Every("BucketUse.Turn", 2d, $"BucketUse.Turn(p={RuleLog.Shown(p)}, item={RuleLog.Shown(item)}, toPrefab={RuleLog.Shown(toPrefab)})");
             GameObject to = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(toPrefab) : null;
             ItemDrop drop = to != null ? to.GetComponent<ItemDrop>() : null;
-            if (drop == null) { if (RuleLog.On) ModLog.Every("BucketUse.Turn:120", 2d, "BucketUse.Turn: returns false (line 120)"); return false; }
+            if (drop == null) { if (RuleLog.IsOn()) ModLog.Every("BucketUse.Turn:120", 2d, "BucketUse.Turn: returns false (line 120)"); return false; }
             bool wasHeld = item.m_equipped;
             if (wasHeld) p.UnequipItem(item, false);
             item.m_dropPrefab = to;
             item.m_shared = drop.m_itemData.m_shared;
             if (wasHeld) p.EquipItem(item, false);
-            { var returnedAt126 = PrefabOf(item) == toPrefab; if (RuleLog.On) ModLog.Every("BucketUse.Turn:126", 2d, $"BucketUse.Turn: returns {RuleLog.Shown(returnedAt126)} (line 126)"); return returnedAt126; }
+            { var returnedAt126 = PrefabOf(item) == toPrefab; if (RuleLog.IsOn()) ModLog.Every("BucketUse.Turn:126", 2d, $"BucketUse.Turn: returns {RuleLog.Shown(returnedAt126)} (line 126)"); return returnedAt126; }
         }
     }
 }

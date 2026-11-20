@@ -23,17 +23,17 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// <summary>True while this player reloads.</summary>
         internal static bool IsReloading(Player player)
         {
-            if (RuleLog.On) ModLog.Verbose($"MusketReloader.IsReloading(player={RuleLog.Shown(player)})");
+            if (RuleLog.IsOn()) ModLog.Verbose($"MusketReloader.IsReloading(player={RuleLog.Shown(player)})");
             MusketReloader r = player != null ? player.GetComponent<MusketReloader>() : null;
-            { var returnedAt28 = r != null && r._active; if (RuleLog.On) ModLog.Verbose($"MusketReloader.IsReloading: returns {RuleLog.Shown(returnedAt28)} (line 28)"); return returnedAt28; }
+            { var returnedAt28 = r != null && r._active; if (RuleLog.IsOn()) ModLog.Verbose($"MusketReloader.IsReloading: returns {RuleLog.Shown(returnedAt28)} (line 28)"); return returnedAt28; }
         }
 
         /// <summary>The reload key. Expected outcome: "reloading", "already reloading", or why not (full, no cartridges - also told on screen).</summary>
         internal static string Begin(Player player)
         {
-            if (RuleLog.On) ModLog.Every("MusketReloader.Begin", 2d, $"MusketReloader.Begin(player={RuleLog.Shown(player)})");
+            if (RuleLog.IsOn()) ModLog.Every("MusketReloader.Begin", 2d, $"MusketReloader.Begin(player={RuleLog.Shown(player)})");
             LastBegin = BeginCore(player);
-            { var returnedAt36 = LastBegin; if (RuleLog.On) ModLog.Every("MusketReloader.Begin:36", 2d, $"MusketReloader.Begin: returns {RuleLog.Shown(returnedAt36)} (line 36)"); return returnedAt36; }
+            { var returnedAt36 = LastBegin; if (RuleLog.IsOn()) ModLog.Every("MusketReloader.Begin:36", 2d, $"MusketReloader.Begin: returns {RuleLog.Shown(returnedAt36)} (line 36)"); return returnedAt36; }
         }
 
         /// <summary>What the last press of the reload key did (for test hooks).</summary>
@@ -59,7 +59,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             if (why != null)
             {
                 player.Message(MessageHud.MessageType.Center, why);
-                { var returnedAt62 = why; if (RuleLog.On) ModLog.Every("MusketReloader.BeginCore:62", 2d, $"MusketReloader.BeginCore: returns {RuleLog.Shown(returnedAt62)} (line 62)"); return returnedAt62; }
+                { var returnedAt62 = why; if (RuleLog.IsOn()) ModLog.Every("MusketReloader.BeginCore:62", 2d, $"MusketReloader.BeginCore: returns {RuleLog.Shown(returnedAt62)} (line 62)"); return returnedAt62; }
             }
             if (r == null) r = player.gameObject.AddComponent<MusketReloader>();
             r._player = player;
@@ -82,17 +82,17 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 return false;
             }
             r.End("stopped by " + why);
-            { if (RuleLog.On) ModLog.Every("MusketReloader.Stop:85", 2d, "MusketReloader.Stop: returns true (line 85)"); return true; }
+            { if (RuleLog.IsOn()) ModLog.Every("MusketReloader.Stop:85", 2d, "MusketReloader.Stop: returns true (line 85)"); return true; }
         }
 
         void Update()
         {
-            if (!_active) { if (RuleLog.On) ModLog.Every("MusketReloader.Update:90", 2d, "MusketReloader.Update: returns (line 90)"); return; }
+            if (!_active) { if (RuleLog.IsOn()) ModLog.Every("MusketReloader.Update:90", 2d, "MusketReloader.Update: returns (line 90)"); return; }
             ItemDrop.ItemData musket = MusketGun.Held(_player);
             if (musket == null)
             {
                 End("the musket was put away");
-                { if (RuleLog.On) ModLog.Every("MusketReloader.Update:95", 2d, "MusketReloader.Update: returns (line 95)"); return; }
+                { if (RuleLog.IsOn()) ModLog.Every("MusketReloader.Update:95", 2d, "MusketReloader.Update: returns (line 95)"); return; }
             }
             int due = MusketRules.CartridgesDue(_started, Time.time);
             ModLog.Every("musket-reload", 1f, "MusketReloader: " + (Time.time - _started).ToString("0.0") + " s in, " + _done + " of " + due + " due cartridge(s) in, loaded " + MusketGun.Loaded(musket));
@@ -121,17 +121,17 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// <summary>How many Paper Cartridges the player carries.</summary>
         internal static int Carried(Player player)
         {
-            if (RuleLog.On) ModLog.Every("MusketReloader.Carried", 2d, $"MusketReloader.Carried(player={RuleLog.Shown(player)})");
+            if (RuleLog.IsOn()) ModLog.Every("MusketReloader.Carried", 2d, $"MusketReloader.Carried(player={RuleLog.Shown(player)})");
             string name = CartridgeName();
-            { var returnedAt126 = player != null && name != null ? player.GetInventory().CountItems(name) : 0; if (RuleLog.On) ModLog.Every("MusketReloader.Carried:126", 2d, $"MusketReloader.Carried: returns {RuleLog.Shown(returnedAt126)} (line 126)"); return returnedAt126; }
+            { var returnedAt126 = player != null && name != null ? player.GetInventory().CountItems(name) : 0; if (RuleLog.IsOn()) ModLog.Every("MusketReloader.Carried:126", 2d, $"MusketReloader.Carried: returns {RuleLog.Shown(returnedAt126)} (line 126)"); return returnedAt126; }
         }
 
         static string CartridgeName()
         {
-            if (RuleLog.On) ModLog.Every("MusketReloader.CartridgeName", 2d, $"MusketReloader.CartridgeName()");
+            if (RuleLog.IsOn()) ModLog.Every("MusketReloader.CartridgeName", 2d, $"MusketReloader.CartridgeName()");
             GameObject prefab = ObjectDB.instance != null ? ObjectDB.instance.GetItemPrefab(GunPowderedPrefabs.PaperCartridge) : null;
             ItemDrop drop = prefab != null ? prefab.GetComponent<ItemDrop>() : null;
-            { var returnedAt134 = drop != null ? drop.m_itemData.m_shared.m_name : null; if (RuleLog.On) ModLog.Every("MusketReloader.CartridgeName:134", 2d, $"MusketReloader.CartridgeName: returns {RuleLog.Shown(returnedAt134)} (line 134)"); return returnedAt134; }
+            { var returnedAt134 = drop != null ? drop.m_itemData.m_shared.m_name : null; if (RuleLog.IsOn()) ModLog.Every("MusketReloader.CartridgeName:134", 2d, $"MusketReloader.CartridgeName: returns {RuleLog.Shown(returnedAt134)} (line 134)"); return returnedAt134; }
         }
     }
 }

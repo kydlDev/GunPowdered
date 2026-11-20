@@ -19,7 +19,7 @@ namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
 
         internal ExplosiveArrowsFeature()
         {
-            if (RuleLog.On) ModLog.Verbose($"ExplosiveArrowsFeature.ExplosiveArrowsFeature()");
+            if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowsFeature.ExplosiveArrowsFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.ExplosiveArrow);
         }
 

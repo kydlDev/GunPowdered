@@ -6,7 +6,7 @@ namespace GunPowdered.Features.Grenades.Domain
     {
         internal AimTuning(float metersPerUnit, float degreesPerUnit, float minDistance, float maxDistance, float maxSideDegrees)
         {
-            if (RuleLog.On) RuleLog.Verbose($"AimTuning.AimTuning(metersPerUnit={RuleLog.Shown(metersPerUnit)}, degreesPerUnit={RuleLog.Shown(degreesPerUnit)}, minDistance={RuleLog.Shown(minDistance)}, maxDistance={RuleLog.Shown(maxDistance)}, maxSideDegrees={RuleLog.Shown(maxSideDegrees)})");
+            if (RuleLog.IsOn()) RuleLog.Verbose($"AimTuning.AimTuning(metersPerUnit={RuleLog.Shown(metersPerUnit)}, degreesPerUnit={RuleLog.Shown(degreesPerUnit)}, minDistance={RuleLog.Shown(minDistance)}, maxDistance={RuleLog.Shown(maxDistance)}, maxSideDegrees={RuleLog.Shown(maxSideDegrees)})");
             MetersPerUnit = metersPerUnit;
             DegreesPerUnit = degreesPerUnit;
             MinDistance = minDistance;

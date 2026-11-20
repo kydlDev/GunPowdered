@@ -49,8 +49,8 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>A small solid box on the crank that the player can look at (MobileCannonCrank answers the hover and takes the mouse wheel).</summary>
         void AddCrankHandle()
         {
-            if (RuleLog.On) ModLog.Verbose($"MobileCannonAim.AddCrankHandle()");
-            if (_crank == null || transform.Find(MobileCannonCrank.ObjectName) != null) { if (RuleLog.On) ModLog.Verbose("MobileCannonAim.AddCrankHandle: returns (line 53)"); return; }
+            if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonAim.AddCrankHandle()");
+            if (_crank == null || transform.Find(MobileCannonCrank.ObjectName) != null) { if (RuleLog.IsOn()) ModLog.Verbose("MobileCannonAim.AddCrankHandle: returns (line 53)"); return; }
             var go = new GameObject(MobileCannonCrank.ObjectName);
             go.layer = gameObject.layer;
             go.transform.SetParent(transform, false);
@@ -65,15 +65,15 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>Turns the crank by wheel notches (+ = muzzle up). Any client may call it; the owner applies it. Expected outcome: true when sent.</summary>
         internal bool Turn(int notches)
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonAim.Turn", 2d, $"MobileCannonAim.Turn(notches={RuleLog.Shown(notches)})");
-            if (notches == 0 || _nview == null || !_nview.IsValid()) { if (RuleLog.On) ModLog.Every("MobileCannonAim.Turn:69", 2d, "MobileCannonAim.Turn: returns false (line 69)"); return false; }
+            if (RuleLog.IsOn()) ModLog.Every("MobileCannonAim.Turn", 2d, $"MobileCannonAim.Turn(notches={RuleLog.Shown(notches)})");
+            if (notches == 0 || _nview == null || !_nview.IsValid()) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonAim.Turn:69", 2d, "MobileCannonAim.Turn: returns false (line 69)"); return false; }
             _nview.InvokeRPC(ZNetView.Everybody, RpcTurn, notches);
-            { if (RuleLog.On) ModLog.Every("MobileCannonAim.Turn:71", 2d, "MobileCannonAim.Turn: returns true (line 71)"); return true; }
+            { if (RuleLog.IsOn()) ModLog.Every("MobileCannonAim.Turn:71", 2d, "MobileCannonAim.Turn: returns true (line 71)"); return true; }
         }
 
         void RPC_Turn(long sender, int notches)
         {
-            if (!_nview.IsOwner()) { if (RuleLog.On) ModLog.Verbose("MobileCannonAim.RPC_Turn: returns (line 76)"); return; }
+            if (!_nview.IsOwner()) { if (RuleLog.IsOn()) ModLog.Verbose("MobileCannonAim.RPC_Turn: returns (line 76)"); return; }
             float before = Pitch;
             float after = MobileCannonAimRules.Turn(before, notches, ModSettings.MobileCannonPitchStep.Value, ModSettings.MobileCannonMinPitch.Value, ModSettings.MobileCannonMaxPitch.Value);
             _nview.GetZDO().Set(KeyPitch, after);

@@ -23,9 +23,9 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             try
             {
-                if (!ModSettings.FeatureOn(ModSettings.EnableSulfur) || __result == null || __instance == null) { if (RuleLog.On) ModLog.Every("SulfurDropPatch.Postfix:26", 2d, "SulfurDropPatch.Postfix: returns (line 26)"); return; }
+                if (!ModSettings.FeatureOn(ModSettings.EnableSulfur) || __result == null || __instance == null) { if (RuleLog.IsOn()) ModLog.Every("SulfurDropPatch.Postfix:26", 2d, "SulfurDropPatch.Postfix: returns (line 26)"); return; }
                 SulfurSource? source = SourceOf(Utils.GetPrefabName(__instance.gameObject));
-                if (source == null) { if (RuleLog.On) ModLog.Every("SulfurDropPatch.Postfix:28", 2d, "SulfurDropPatch.Postfix: returns (line 28)"); return; }
+                if (source == null) { if (RuleLog.IsOn()) ModLog.Every("SulfurDropPatch.Postfix:28", 2d, "SulfurDropPatch.Postfix: returns (line 28)"); return; }
 
                 if (!Roll.Chance(ModSettings.KillSulfurChance.Value, UnityEngine.Random.value))
                 {
@@ -48,10 +48,10 @@ namespace GunPowdered.Integrations.HarmonyPatches
         /// <summary>Which sulfur source this creature prefab is, or null when it is neither a Blob nor an Oozer.</summary>
         internal static SulfurSource? SourceOf(string prefabName)
         {
-            if (RuleLog.On) ModLog.Every("SulfurDropPatch.SourceOf", 2d, $"SulfurDropPatch.SourceOf(prefabName={RuleLog.Shown(prefabName)})");
-            if (prefabName == BlobPrefab) { var returnedAt52 = SulfurSource.Blob; if (RuleLog.On) ModLog.Every("SulfurDropPatch.SourceOf:52", 2d, $"SulfurDropPatch.SourceOf: returns {RuleLog.Shown(returnedAt52)} (line 52)"); return returnedAt52; }
-            if (prefabName == OozerPrefab) { var returnedAt53 = SulfurSource.Oozer; if (RuleLog.On) ModLog.Every("SulfurDropPatch.SourceOf:53", 2d, $"SulfurDropPatch.SourceOf: returns {RuleLog.Shown(returnedAt53)} (line 53)"); return returnedAt53; }
-            { if (RuleLog.On) ModLog.Every("SulfurDropPatch.SourceOf:54", 2d, "SulfurDropPatch.SourceOf: returns null (line 54)"); return null; }
+            if (RuleLog.IsOn()) ModLog.Every("SulfurDropPatch.SourceOf", 2d, $"SulfurDropPatch.SourceOf(prefabName={RuleLog.Shown(prefabName)})");
+            if (prefabName == BlobPrefab) { var returnedAt52 = SulfurSource.Blob; if (RuleLog.IsOn()) ModLog.Every("SulfurDropPatch.SourceOf:52", 2d, $"SulfurDropPatch.SourceOf: returns {RuleLog.Shown(returnedAt52)} (line 52)"); return returnedAt52; }
+            if (prefabName == OozerPrefab) { var returnedAt53 = SulfurSource.Oozer; if (RuleLog.IsOn()) ModLog.Every("SulfurDropPatch.SourceOf:53", 2d, $"SulfurDropPatch.SourceOf: returns {RuleLog.Shown(returnedAt53)} (line 53)"); return returnedAt53; }
+            { if (RuleLog.IsOn()) ModLog.Every("SulfurDropPatch.SourceOf:54", 2d, "SulfurDropPatch.SourceOf: returns null (line 54)"); return null; }
         }
     }
 }

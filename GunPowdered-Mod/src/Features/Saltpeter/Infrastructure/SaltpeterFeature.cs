@@ -18,7 +18,7 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
 
         internal SaltpeterFeature()
         {
-            if (RuleLog.On) ModLog.Verbose($"SaltpeterFeature.SaltpeterFeature()");
+            if (RuleLog.IsOn()) ModLog.Verbose($"SaltpeterFeature.SaltpeterFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.Saltpeter, ItemCatalog.LeachingVat, ItemCatalog.LeachBarrel, ItemCatalog.SettlingTank, ItemCatalog.BlackMetalBoiler, ItemCatalog.DvergrDripPipes, ItemCatalog.FlametalHeater);
         }
 

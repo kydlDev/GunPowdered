@@ -21,7 +21,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
 
         static System.Collections.Generic.IEnumerable<MethodBase> TargetMethods()
         {
-            if (RuleLog.On) ModLog.Verbose($"MobileCannonScrollPatch.TargetMethods()");
+            if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonScrollPatch.TargetMethods()");
             foreach (MethodInfo m in AccessTools.GetDeclaredMethods(typeof(ZInput)))
                 if (m.Name == "GetMouseScrollWheel" && m.ReturnType == typeof(float) && !m.IsGenericMethod) yield return m;
         }
@@ -30,9 +30,9 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             try
             {
-                if (__result == 0f) { if (RuleLog.On) ModLog.Every("MobileCannonScrollPatch.Postfix:33", 2d, "MobileCannonScrollPatch.Postfix: returns (line 33)"); return; }
+                if (__result == 0f) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonScrollPatch.Postfix:33", 2d, "MobileCannonScrollPatch.Postfix: returns (line 33)"); return; }
                 MobileCannonCrank crank = MobileCannonCrank.Hovered();
-                if (crank == null || crank.Aim == null) { if (RuleLog.On) ModLog.Every("MobileCannonScrollPatch.Postfix:35", 2d, "MobileCannonScrollPatch.Postfix: returns (line 35)"); return; }
+                if (crank == null || crank.Aim == null) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonScrollPatch.Postfix:35", 2d, "MobileCannonScrollPatch.Postfix: returns (line 35)"); return; }
                 if (_lastFrame != Time.frameCount)
                 {
                     _lastFrame = Time.frameCount;

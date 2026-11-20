@@ -12,18 +12,18 @@ namespace GunPowdered.Features.Guano.Domain
         /// <summary>The cave kind of a location (by its prefab name) or of its dungeon generator; null when guano never goes there.</summary>
         public static CaveKind? KindOf(string locationName, string generatorName)
         {
-            if (RuleLog.On) RuleLog.Every("CaveEntryRules.KindOf", 2d, $"CaveEntryRules.KindOf(locationName={RuleLog.Shown(locationName)}, generatorName={RuleLog.Shown(generatorName)})");
+            if (RuleLog.IsOn()) RuleLog.Every("CaveEntryRules.KindOf", 2d, $"CaveEntryRules.KindOf(locationName={RuleLog.Shown(locationName)}, generatorName={RuleLog.Shown(generatorName)})");
             // Stryker disable String : any fallback text without the cave words gives the same answer as an empty name
             string loc = locationName ?? string.Empty;
             string gen = generatorName ?? string.Empty;
             // Stryker restore String
-            if (Contains(loc, "Sunken") || Contains(gen, "Sunken") || Contains(loc, "Hildir") || Contains(gen, "Hildir")) { if (RuleLog.On) RuleLog.Every("CaveEntryRules.KindOf:20", 2d, "CaveEntryRules.KindOf: returns null (line 20)"); return null; }
-            if (loc.StartsWith("TrollCave", StringComparison.Ordinal)) { var returnedAt21 = CaveKind.TrollCaveOrBurialChamber; if (RuleLog.On) RuleLog.Every("CaveEntryRules.KindOf:21", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(returnedAt21)} (line 21)"); return returnedAt21; }
-            if (loc.StartsWith("Crypt", StringComparison.Ordinal)) { var returnedAt22 = CaveKind.TrollCaveOrBurialChamber; if (RuleLog.On) RuleLog.Every("CaveEntryRules.KindOf:22", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(returnedAt22)} (line 22)"); return returnedAt22; }
-            if (loc.StartsWith("MountainCave", StringComparison.Ordinal)) { var returnedAt23 = CaveKind.MountainCave; if (RuleLog.On) RuleLog.Every("CaveEntryRules.KindOf:23", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(returnedAt23)} (line 23)"); return returnedAt23; }
-            if (gen.StartsWith("DG_ForestCrypt", StringComparison.Ordinal) || gen.StartsWith("DG_HalfBurried_ForestCrypt", StringComparison.Ordinal)) { var returnedAt24 = CaveKind.TrollCaveOrBurialChamber; if (RuleLog.On) RuleLog.Every("CaveEntryRules.KindOf:24", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(returnedAt24)} (line 24)"); return returnedAt24; }
-            if (gen.StartsWith("DG_Cave", StringComparison.Ordinal)) { var returnedAt25 = CaveKind.MountainCave; if (RuleLog.On) RuleLog.Every("CaveEntryRules.KindOf:25", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(returnedAt25)} (line 25)"); return returnedAt25; }
-            { if (RuleLog.On) RuleLog.Every("CaveEntryRules.KindOf:26", 2d, "CaveEntryRules.KindOf: returns null (line 26)"); return null; }
+            if (Contains(loc, "Sunken") || Contains(gen, "Sunken") || Contains(loc, "Hildir") || Contains(gen, "Hildir")) { if (RuleLog.IsOn()) RuleLog.Every("CaveEntryRules.KindOf:20", 2d, "CaveEntryRules.KindOf: returns null (line 20)"); return null; }
+            if (loc.StartsWith("TrollCave", StringComparison.Ordinal)) { var returnedAt21 = CaveKind.TrollCaveOrBurialChamber; if (RuleLog.IsOn()) RuleLog.Every("CaveEntryRules.KindOf:21", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(returnedAt21)} (line 21)"); return returnedAt21; }
+            if (loc.StartsWith("Crypt", StringComparison.Ordinal)) { var returnedAt22 = CaveKind.TrollCaveOrBurialChamber; if (RuleLog.IsOn()) RuleLog.Every("CaveEntryRules.KindOf:22", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(returnedAt22)} (line 22)"); return returnedAt22; }
+            if (loc.StartsWith("MountainCave", StringComparison.Ordinal)) { var returnedAt23 = CaveKind.MountainCave; if (RuleLog.IsOn()) RuleLog.Every("CaveEntryRules.KindOf:23", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(returnedAt23)} (line 23)"); return returnedAt23; }
+            if (gen.StartsWith("DG_ForestCrypt", StringComparison.Ordinal) || gen.StartsWith("DG_HalfBurried_ForestCrypt", StringComparison.Ordinal)) { var returnedAt24 = CaveKind.TrollCaveOrBurialChamber; if (RuleLog.IsOn()) RuleLog.Every("CaveEntryRules.KindOf:24", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(returnedAt24)} (line 24)"); return returnedAt24; }
+            if (gen.StartsWith("DG_Cave", StringComparison.Ordinal)) { var returnedAt25 = CaveKind.MountainCave; if (RuleLog.IsOn()) RuleLog.Every("CaveEntryRules.KindOf:25", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(returnedAt25)} (line 25)"); return returnedAt25; }
+            { if (RuleLog.IsOn()) RuleLog.Every("CaveEntryRules.KindOf:26", 2d, "CaveEntryRules.KindOf: returns null (line 26)"); return null; }
         }
 
         /// <summary>Place on this entry only when the player goes IN (not out), the location is a guano cave, and nobody placed there before.</summary>

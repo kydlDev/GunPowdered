@@ -22,7 +22,7 @@ namespace GunPowdered.Core
     {
         public CostLine(string prefab, int amount)
         {
-            if (RuleLog.On) RuleLog.Verbose($"CostLine.CostLine(prefab={RuleLog.Shown(prefab)}, amount={RuleLog.Shown(amount)})");
+            if (RuleLog.IsOn()) RuleLog.Verbose($"CostLine.CostLine(prefab={RuleLog.Shown(prefab)}, amount={RuleLog.Shown(amount)})");
             Prefab = prefab;
             Amount = amount;
         }
@@ -39,7 +39,7 @@ namespace GunPowdered.Core
     {
         public ItemSpec(string id, string name, string description, ItemKind kind, string cloneOf, int stack, float weight, string station, int yield, params CostLine[] cost)
         {
-            if (RuleLog.On) RuleLog.Verbose($"ItemSpec.ItemSpec(id={RuleLog.Shown(id)}, name={RuleLog.Shown(name)}, description={RuleLog.Shown(description)}, kind={RuleLog.Shown(kind)}, cloneOf={RuleLog.Shown(cloneOf)}, stack={RuleLog.Shown(stack)}, weight={RuleLog.Shown(weight)}, station={RuleLog.Shown(station)}, yield={RuleLog.Shown(yield)})");
+            if (RuleLog.IsOn()) RuleLog.Verbose($"ItemSpec.ItemSpec(id={RuleLog.Shown(id)}, name={RuleLog.Shown(name)}, description={RuleLog.Shown(description)}, kind={RuleLog.Shown(kind)}, cloneOf={RuleLog.Shown(cloneOf)}, stack={RuleLog.Shown(stack)}, weight={RuleLog.Shown(weight)}, station={RuleLog.Shown(station)}, yield={RuleLog.Shown(yield)})");
             Id = id;
             Name = name;
             Description = description;
@@ -74,17 +74,17 @@ namespace GunPowdered.Core
         /// <summary>Hides the recipe until the world has the global key. Expected outcome: this entry, with <see cref="RequiredGlobalKey"/> = key.</summary>
         public ItemSpec AfterGlobalKey(string key)
         {
-            if (RuleLog.On) RuleLog.Verbose($"ItemSpec.AfterGlobalKey(key={RuleLog.Shown(key)})");
+            if (RuleLog.IsOn()) RuleLog.Verbose($"ItemSpec.AfterGlobalKey(key={RuleLog.Shown(key)})");
             RequiredGlobalKey = string.IsNullOrEmpty(key) ? null : key;
-            { var returnedAt79 = this; if (RuleLog.On) RuleLog.Verbose($"ItemSpec.AfterGlobalKey: returns {RuleLog.Shown(returnedAt79)} (line 79)"); return returnedAt79; }
+            { var returnedAt79 = this; if (RuleLog.IsOn()) RuleLog.Verbose($"ItemSpec.AfterGlobalKey: returns {RuleLog.Shown(returnedAt79)} (line 79)"); return returnedAt79; }
         }
 
         /// <summary>Sets the station level the recipe needs. Expected outcome: this entry, with <see cref="StationLevel"/> = level (at least 1).</summary>
         public ItemSpec AtStationLevel(int level)
         {
-            if (RuleLog.On) RuleLog.Verbose($"ItemSpec.AtStationLevel(level={RuleLog.Shown(level)})");
+            if (RuleLog.IsOn()) RuleLog.Verbose($"ItemSpec.AtStationLevel(level={RuleLog.Shown(level)})");
             StationLevel = level < 1 ? 1 : level;
-            { var returnedAt87 = this; if (RuleLog.On) RuleLog.Verbose($"ItemSpec.AtStationLevel: returns {RuleLog.Shown(returnedAt87)} (line 87)"); return returnedAt87; }
+            { var returnedAt87 = this; if (RuleLog.IsOn()) RuleLog.Verbose($"ItemSpec.AtStationLevel: returns {RuleLog.Shown(returnedAt87)} (line 87)"); return returnedAt87; }
         }
     }
 

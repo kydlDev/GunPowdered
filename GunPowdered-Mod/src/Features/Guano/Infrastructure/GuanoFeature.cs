@@ -18,7 +18,7 @@ namespace GunPowdered.Features.Guano.Infrastructure
 
         internal GuanoFeature()
         {
-            if (RuleLog.On) ModLog.Verbose($"GuanoFeature.GuanoFeature()");
+            if (RuleLog.IsOn()) ModLog.Verbose($"GuanoFeature.GuanoFeature()");
             ItemRegistry.Register(FeatureId, ItemCatalog.BatGuano, ItemCatalog.GuanoDeposit);
             Jotunn.Managers.PrefabManager.OnVanillaPrefabsAvailable += AttachCaveClaim;
         }

@@ -24,15 +24,15 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
         void OnEnable()
         {
             if (Kind == null) Kind = Utils.GetPrefabName(gameObject);
-            if (Player.IsPlacementGhost(gameObject)) { if (RuleLog.On) ModLog.Verbose($"LeachingExtension.OnEnable: {Kind} is a build ghost, not counted - returns"); return; }
+            if (Player.IsPlacementGhost(gameObject)) { if (RuleLog.IsOn()) ModLog.Verbose($"LeachingExtension.OnEnable: {Kind} is a build ghost, not counted - returns"); return; }
             if (!Live.Contains(this)) Live.Add(this);
-            if (RuleLog.On) ModLog.Verbose($"LeachingExtension.OnEnable: {Kind} at {transform.position} counted, {Live.Count} live extension(s)");
+            if (RuleLog.IsOn()) ModLog.Verbose($"LeachingExtension.OnEnable: {Kind} at {transform.position} counted, {Live.Count} live extension(s)");
         }
 
         void OnDisable()
         {
             Live.Remove(this);
-            if (RuleLog.On) ModLog.Verbose($"LeachingExtension.OnDisable: {Kind} removed, {Live.Count} live extension(s)");
+            if (RuleLog.IsOn()) ModLog.Verbose($"LeachingExtension.OnDisable: {Kind} removed, {Live.Count} live extension(s)");
         }
 
         /// <summary>The kinds of the extensions within <see cref="Range"/> m of a point (duplicates included; the rules count each kind once).</summary>
@@ -46,7 +46,7 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
                 if (e == null) { Live.RemoveAt(i); continue; }
                 if ((e.transform.position - point).sqrMagnitude <= rangeSq) kinds.Add(e.Kind);
             }
-            if (RuleLog.On) ModLog.Every("LeachingExtension.KindsNear", 2d, $"LeachingExtension.KindsNear({point}): returns {kinds.Count} of {Live.Count} live extension(s)");
+            if (RuleLog.IsOn()) ModLog.Every("LeachingExtension.KindsNear", 2d, $"LeachingExtension.KindsNear({point}): returns {kinds.Count} of {Live.Count} live extension(s)");
             return kinds;
         }
     }

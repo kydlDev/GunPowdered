@@ -23,6 +23,9 @@ namespace GunPowdered.Core
         /// <summary>True when a line would be written: callers check it before building the text, so a game with debug logging off pays nothing.</summary>
         public static bool On => Sink != null && DebugOn != null && DebugOn();
 
+        /// <summary>Same as <see cref="On"/> as a method call, so mutation testing can leave the log guard out (quality.json ignoreMethods; D-133).</summary>
+        public static bool IsOn() => On;
+
         /// <summary>Writes the line when debug logging is on.</summary>
         public static void Verbose(string message)
         {

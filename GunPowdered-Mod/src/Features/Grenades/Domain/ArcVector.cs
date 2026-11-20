@@ -18,9 +18,9 @@ namespace GunPowdered.Features.Grenades.Domain
         /// <summary>Distance on the ground plane (y ignored).</summary>
         internal float FlatDistanceTo(ArcVector other)
         {
-            if (RuleLog.On) RuleLog.Every("ArcVector.FlatDistanceTo", 2d, $"ArcVector.FlatDistanceTo(other={RuleLog.Shown(other)})");
+            if (RuleLog.IsOn()) RuleLog.Every("ArcVector.FlatDistanceTo", 2d, $"ArcVector.FlatDistanceTo(other={RuleLog.Shown(other)})");
             float dx = other.X - X, dz = other.Z - Z;
-            { var returnedAt23 = (float)Math.Sqrt((dx * dx) + (dz * dz)); if (RuleLog.On) RuleLog.Every("ArcVector.FlatDistanceTo:23", 2d, $"ArcVector.FlatDistanceTo: returns {RuleLog.Shown(returnedAt23)} (line 23)"); return returnedAt23; }
+            { var returnedAt23 = (float)Math.Sqrt((dx * dx) + (dz * dz)); if (RuleLog.IsOn()) RuleLog.Every("ArcVector.FlatDistanceTo:23", 2d, $"ArcVector.FlatDistanceTo: returns {RuleLog.Shown(returnedAt23)} (line 23)"); return returnedAt23; }
         }
 
         internal float DistanceTo(ArcVector other) => (other - this).Length;
