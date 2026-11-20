@@ -171,6 +171,8 @@
     "mill-turns",
     "mill-step3",
     "mill-extension-rules",
+    "meta-station-on-top-check-fails",
+    "station-placement",
     "bucket-pour",
     "bucket-no-water",
     "deposit-pick-guano",

@@ -1,0 +1,184 @@
+{
+  "name": "station-placement",
+  "description": "D-140 (user 2026-11-20): with the real build ghost of the Hammer - a mill extension glues to the Powder Mill's side (snap, gap 0, no overlap, green), turns red on top of the mill, overlaps (clips) inside it, does NOT glue to the Leaching Station; a Leaching Station extension glues to the Leaching Station. The 5 m bubble: an extension 4.6 m above or below the mill counts, 5.4 m above does not.",
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "use",
+      "block": "stationPlacementStart"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.buildSelect",
+      "args": {
+        "prefab": "GP_MillOven"
+      },
+      "expect": "selected GP_MillOven",
+      "stop": true,
+      "label": "the Drying Oven is chosen in the Hammer menu"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.ghostAt",
+      "args": {
+        "target": "mill",
+        "where": "side"
+      },
+      "contains": "snap GP_PowderMill, gap 0.00, clip False, status Valid",
+      "label": "beside the mill: snaps to it, touches (gap 0), no overlap, green"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.ghostAt",
+      "args": {
+        "target": "mill",
+        "where": "top"
+      },
+      "contains": "status Invalid",
+      "label": "on top of the mill: red"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.ghostAt",
+      "args": {
+        "target": "mill",
+        "where": "inside"
+      },
+      "contains": "clip True, status Invalid",
+      "label": "inside the mill: overlaps, red"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.ghostAt",
+      "args": {
+        "target": "vat",
+        "where": "side"
+      },
+      "contains": "snap none",
+      "label": "a mill extension does not glue to the Leaching Station"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.buildSelect",
+      "args": {
+        "prefab": "GP_LeachBarrel"
+      },
+      "expect": "selected GP_LeachBarrel",
+      "stop": true,
+      "label": "the Second Leaching Barrel is chosen"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.ghostAt",
+      "args": {
+        "target": "vat",
+        "where": "side"
+      },
+      "contains": "snap GP_LeachingVat, gap 0.00, clip False, status Valid",
+      "label": "beside the Leaching Station: its own extension snaps, touches, green"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.ghostAt",
+      "args": {
+        "target": "mill",
+        "where": "side"
+      },
+      "contains": "snap none",
+      "label": "a Leaching Station extension does not glue to the mill"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.buildDone",
+      "expect": "done"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_MillGrindstone",
+      "dz": 5,
+      "owner": "me",
+      "as": "stone"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.movePiece",
+      "args": {
+        "target": "stone",
+        "dx": 0,
+        "dy": 4.6,
+        "dz": 0
+      },
+      "expect": "moved",
+      "label": "the grindstone 4.6 m straight above the mill"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "mill",
+      "contains": "Upgrades 1/3:",
+      "label": "4.6 m above counts (a bubble, not a flat circle)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.movePiece",
+      "args": {
+        "target": "stone",
+        "dx": 0,
+        "dy": 0.8,
+        "dz": 0
+      },
+      "expect": "moved",
+      "label": "now 5.4 m above"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "mill",
+      "contains": "Upgrades 0/3:",
+      "label": "5.4 m above is outside the bubble"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.movePiece",
+      "args": {
+        "target": "stone",
+        "dx": 0,
+        "dy": -10,
+        "dz": 0
+      },
+      "expect": "moved",
+      "label": "now 4.6 m below"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "mill",
+      "contains": "Upgrades 1/3:",
+      "label": "4.6 m below counts"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

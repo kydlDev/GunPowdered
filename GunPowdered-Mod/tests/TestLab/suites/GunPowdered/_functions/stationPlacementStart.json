@@ -1,0 +1,36 @@
+{
+  "params": [],
+  "actions": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_PowderMill",
+      "dz": 5,
+      "owner": "me",
+      "as": "mill"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_LeachingVat",
+      "dx": 9,
+      "dz": 5,
+      "owner": "me",
+      "as": "vat"
+    },
+    {
+      "do": "give",
+      "prefab": "Hammer",
+      "equip": true
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    }
+  ],
+  "asserts": []
+}

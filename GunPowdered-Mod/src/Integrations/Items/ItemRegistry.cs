@@ -205,6 +205,8 @@ namespace GunPowdered.Integrations.Items
             BundleVisuals.Apply(s.Id, piece.PiecePrefab);
             if (s.Id == GunPowderedPrefabs.CannonStock) CannonSetup.ConfigureStock(piece.PiecePrefab);     // needs the bundle look in place
             if (s.Id == GunPowderedPrefabs.MobileCannon) GunPowdered.Features.MobileCannon.Infrastructure.MobileCannonSetup.Configure(piece.PiecePrefab);   // cart clone, D-104
+            // D-140: stations and extensions glue side by side (snap points at ground level) and never overlap; needs the bundle look in place
+            if (s.Id == GunPowderedPrefabs.LeachingVat || s.Id == GunPowderedPrefabs.PowderMill || StationOf(s.Id) != null) StationSnapPoints.Configure(piece.PiecePrefab);
             Sprite icon = BundleVisuals.Icon(s.Id);
             if (icon != null) piece.Piece.m_icon = icon;
             set.Pieces.Add(piece.Piece);

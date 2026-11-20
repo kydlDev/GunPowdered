@@ -1,0 +1,44 @@
+{
+  "name": "meta-station-on-top-check-fails",
+  "description": "Negative test for station-placement: an extension ghost on top of the Powder Mill is NOT green - the check that expects green there must fail.",
+  "timeout": 60,
+  "expectFailure": "status",
+  "steps": [
+    {
+      "do": "use",
+      "block": "stationPlacementStart"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.buildSelect",
+      "args": {
+        "prefab": "GP_MillGrindstone"
+      },
+      "expect": "selected GP_MillGrindstone",
+      "stop": true,
+      "label": "the grindstone is chosen"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.ghostAt",
+      "args": {
+        "target": "mill",
+        "where": "top"
+      },
+      "contains": "status Valid",
+      "label": "on top of the mill: status Valid (wrong on purpose)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.buildDone",
+      "expect": "done"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": []
+}

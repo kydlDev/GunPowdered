@@ -29,6 +29,8 @@ namespace GunPowdered.Integrations.Valheim
         /// <summary>The extension's kind: its prefab name. Two pieces of one kind count once.</summary>
         internal string Kind { get { return _kind; } set { _kind = value; } }
 
+        bool Placed { get { var nview = GetComponent<ZNetView>(); return nview != null && nview.IsValid(); } }
+
         void OnEnable()
         {
             if (Kind == null) Kind = Utils.GetPrefabName(gameObject);
@@ -47,12 +49,13 @@ namespace GunPowdered.Integrations.Valheim
         internal static List<string> KindsNear(string station, Vector3 point)
         {
             var kinds = new List<string>();
-            float rangeSq = Range * Range;
             for (int i = Live.Count - 1; i >= 0; i--)
             {
                 BatchStationExtension e = Live[i];
                 if (e == null) { Live.RemoveAt(i); continue; }
-                if (e.Station == station && (e.transform.position - point).sqrMagnitude <= rangeSq) kinds.Add(e.Kind);
+                if (!e.Placed) continue;                                       // a build ghost (enabled before the game marks it) never counts
+                Vector3 d = e.transform.position - point;
+                if (e.Station == station && StationPlacementRules.InRange(d.x, d.y, d.z, Range)) kinds.Add(e.Kind);   // D-140: a 5 m bubble, up and down count
             }
             if (RuleLog.IsOn()) ModLog.Every("BatchStationExtension.KindsNear:" + station, 2d, $"BatchStationExtension.KindsNear({station}, {point}): returns {kinds.Count} of {Live.Count} live extension(s)");
             return kinds;

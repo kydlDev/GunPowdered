@@ -26,6 +26,14 @@ namespace GunPowdered.Integrations.Valheim
         const float TickSeconds = 2f;
         ZNetView _nview;
         static readonly List<BatchStation> Live = new List<BatchStation>();
+        Bounds _footprint;
+        bool _measured;
+
+        /// <summary>The station's prefab name (the key its extensions carry).</summary>
+        internal string StationKey { get { return Config.StationKey; } }
+
+        // a build ghost is created (and enabled) before the game marks it as the ghost: only a piece with a valid network view is a real, placed one
+        bool Placed { get { return _nview != null && _nview.IsValid(); } }
 
         /// <summary>The station's names, keys, inputs and numbers.</summary>
         protected abstract BatchStationConfig Config { get; }
@@ -64,12 +72,12 @@ namespace GunPowdered.Integrations.Valheim
         /// <summary>True when a station with this prefab name within <paramref name="range"/> m of the point is running (D-138: the extension ovens' fire).</summary>
         internal static bool AnyRunningNear(string stationKey, Vector3 point, float range)
         {
-            float rangeSq = range * range;
             for (int i = Live.Count - 1; i >= 0; i--)
             {
                 BatchStation s = Live[i];
                 if (s == null) { Live.RemoveAt(i); continue; }
-                if (s.Config.StationKey == stationKey && s.Running && (s.transform.position - point).sqrMagnitude <= rangeSq)
+                Vector3 d = s.transform.position - point;
+                if (s.Config.StationKey == stationKey && s.Running && StationPlacementRules.InRange(d.x, d.y, d.z, range))
                 {
                     if (RuleLog.IsOn()) ModLog.Every("BatchStation.AnyRunningNear:yes:" + stationKey, 2d, $"BatchStation.AnyRunningNear({stationKey}, {point}): returns true");
                     return true;
@@ -77,6 +85,27 @@ namespace GunPowdered.Integrations.Valheim
             }
             if (RuleLog.IsOn()) ModLog.Every("BatchStation.AnyRunningNear:no:" + stationKey, 2d, $"BatchStation.AnyRunningNear({stationKey}, {point}): returns false of {Live.Count} live station(s)");
             return false;
+        }
+
+        /// <summary>The placed batch station a point stands on (StationPlacementRules.IsOnStation, D-140), or null. Expected outcome: null beside a station, on the ground or high above it.</summary>
+        internal static BatchStation StandsOn(Vector3 point)
+        {
+            for (int i = Live.Count - 1; i >= 0; i--)
+            {
+                BatchStation s = Live[i];
+                if (s == null) { Live.RemoveAt(i); continue; }
+                if (!s.Placed) continue;
+                if (!s._measured) { s._footprint = StationSnapPoints.Footprint(s.gameObject); s._measured = true; }
+                Vector3 local = s.transform.InverseTransformPoint(point);
+                Bounds f = s._footprint;
+                if (StationPlacementRules.IsOnStation(local.x, local.y, local.z, f.min.x, f.max.x, f.min.z, f.max.z, f.max.y))
+                {
+                    if (RuleLog.IsOn()) ModLog.Every("BatchStation.StandsOn:yes", 2d, $"BatchStation.StandsOn({point}): returns {s.StationKey}");
+                    return s;
+                }
+            }
+            if (RuleLog.IsOn()) ModLog.Every("BatchStation.StandsOn:no", 2d, $"BatchStation.StandsOn({point}): returns null");
+            return null;
         }
 
         /// <summary>A child of the model by name, searched at every depth; null when the model has no such part.</summary>
