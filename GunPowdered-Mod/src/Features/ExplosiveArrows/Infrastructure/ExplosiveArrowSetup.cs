@@ -87,10 +87,6 @@ namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
             { var returnedAt87 = flight != null && blast.m_hitProps && Mathf.Approximately(blast.m_radius, ModSettings.ExplosiveArrowRadius.Value); if (RuleLog.IsOn()) ModLog.Every("ExplosiveArrowSetup.Apply:87", 2d, $"ExplosiveArrowSetup.Apply: returns {RuleLog.Shown(returnedAt87)} (line 87)"); return returnedAt87; }
         }
 
-        /// <summary>Is this item an Explosive Arrow (by prefab name).</summary>
-        internal static bool IsExplosiveArrow(ItemDrop.ItemData item) =>
-            item != null && item.m_dropPrefab != null && item.m_dropPrefab.name == Core.GunPowderedPrefabs.ExplosiveArrow;
-
         // the flight shows the arrow's own model (the bundle's gp_model) instead of the iron arrow's
         static bool ArrowLook(GameObject item, GameObject flightPrefab)
         {
