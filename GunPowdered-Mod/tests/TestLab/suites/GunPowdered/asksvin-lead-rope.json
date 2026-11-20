@@ -1,6 +1,6 @@
 {
   "name": "asksvin-lead-rope",
-  "description": "D-144 (T-014): on foot, E on the saddle chest rope of a saddled Asksvin takes it by the rope (toggle); standing close in front of the rope backs it up (half its walk speed, facing ahead), standing further off leads it forward, E again lets go.",
+  "description": "D-144 (T-014): on foot, E on the saddle chest rope of a saddled Asksvin takes it by the rope (toggle); standing close in front of the rope backs it up (half its walk speed, facing ahead), standing further off leads it forward, E again lets go. (A Mobile Cannon is placed only because the Asksvin spawn hook puts the animal beside one; it is not hitched.)",
   "timeout": 90,
   "steps": [
     {
@@ -8,6 +8,9 @@
       "name": "GunPowdered.arena",
       "contains": "arena at",
       "label": "start on the arena spot"
+    },
+    {
+      "do": "mobileCannonPlaced"
     },
     {
       "do": "hook",
@@ -32,6 +35,15 @@
       },
       "contains": "before the rope",
       "label": "stand in front of the chest rope"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.ropeFirstHit",
+      "args": {
+        "metres": 2
+      },
+      "contains": "rope True",
+      "label": "looking at the chest from 2 m in front, the rope is what the look hits first (not the body)"
     },
     {
       "do": "hook",
@@ -145,15 +157,7 @@
       "label": "let go"
     },
     {
-      "do": "hook",
-      "name": "GunPowdered.asksvinRemove",
-      "contains": "removed"
-    },
-    {
-      "do": "clearInventory"
-    },
-    {
-      "do": "cleanArena"
+      "do": "mobileCannonAsksvinCleanup"
     }
   ],
   "asserts": [

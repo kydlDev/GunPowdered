@@ -62,8 +62,15 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             Transform seat = tame != null && tame.m_saddle != null ? tame.m_saddle.m_attachPoint : null;
             if (seat == null) { ModLog.Info("AsksvinLeadRope: no saddle seat on " + _reverse.name + ", the chest rope stays at " + FallbackLocal); return; }
             Vector3 s = a.InverseTransformPoint(seat.position);
-            transform.localPosition = new Vector3(0f, s.y + SeatToRope.y, s.z + SeatToRope.z);
             Collider body = _reverse.GetComponent<Collider>();
+            float front = float.MinValue;
+            if (body != null)
+                for (int i = 0; i < 8; i++)
+                    front = Mathf.Max(front, a.InverseTransformPoint(body.bounds.center + Vector3.Scale(body.bounds.extents, new Vector3((i & 1) == 0 ? -1 : 1, (i & 2) == 0 ? -1 : 1, (i & 4) == 0 ? -1 : 1))).z);
+            // a14back2: from the seat alone the box sat inside the body collider (front 1.23 m), where the player's look hits the body first: it goes just
+            // outside the body's front, on the chest
+            float z = Mathf.Max(s.z + SeatToRope.z, front + 0.1f + 0.175f);
+            transform.localPosition = new Vector3(0f, s.y + SeatToRope.y, z);
             ModLog.Info($"AsksvinLeadRope: chest rope of {_reverse.name} at {transform.localPosition:0.00} (seat {s:0.00}; body collider "
                 + (body != null ? a.InverseTransformPoint(body.bounds.min).ToString("0.00") + ".." + a.InverseTransformPoint(body.bounds.max).ToString("0.00") : "none") + ")");
         }

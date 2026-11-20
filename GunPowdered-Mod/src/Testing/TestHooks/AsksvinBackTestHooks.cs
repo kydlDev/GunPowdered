@@ -73,6 +73,29 @@ namespace GunPowdered.Testing.TestHooks
             return s;
         }
 
+        /// <summary>
+        /// What the player's look hits first from <paramref name="metres"/> in front of the chest rope at eye height, aimed at the rope (the game's interact layers
+        /// and its sort: the nearest hit wins, as in Player.FindHoverObject). Returns "first hit NAME, rope True/False".
+        /// </summary>
+        [TestHook("GunPowdered.ropeFirstHit")]
+        static string RopeFirstHit(double metres)
+        {
+            ModLog.Verbose($"AsksvinBackTestHooks.RopeFirstHit(metres={metres})");
+            AsksvinReverse rev = Animal != null ? Animal.GetComponent<AsksvinReverse>() : null;
+            Player p = Player.m_localPlayer;
+            if (rev == null) { ModLog.Verbose("AsksvinBackTestHooks.RopeFirstHit: no Asksvin - returns why"); return "no Asksvin"; }
+            Vector3 rope = AsksvinLeadRope.WorldPoint(rev);
+            Vector3 eye = rope + Flat(Animal.transform.forward) * (float)metres + Vector3.up * 0.8f;
+            int mask = LayerMask.GetMask("item", "piece", "piece_nonsolid", "Default", "static_solid", "Default_small", "character", "character_net", "terrain", "vehicle", "character_ghost");
+            RaycastHit[] hits = Physics.RaycastAll(eye, (rope - eye).normalized, 10f, mask);
+            System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
+            RaycastHit first = default(RaycastHit);
+            foreach (RaycastHit h in hits) if (p == null || h.collider.attachedRigidbody == null || h.collider.attachedRigidbody.gameObject != p.gameObject) { first = h; break; }
+            string s = first.collider != null ? "first hit " + first.collider.name + ", rope " + (first.collider.GetComponent<AsksvinLeadRope>() != null) : "first hit nothing, rope False";
+            ModLog.Info("AsksvinBackTestHooks.RopeFirstHit: returns " + s);
+            return s;
+        }
+
         /// <summary>Whether the local player leads the Asksvin by the chest rope. Returns "leader me True/False".</summary>
         [TestHook("GunPowdered.asksvinLeader")]
         static string Leader()
