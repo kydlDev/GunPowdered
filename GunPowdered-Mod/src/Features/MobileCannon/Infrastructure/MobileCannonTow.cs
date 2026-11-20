@@ -340,6 +340,8 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 return;
             }
             if (_joint == null) MakeJoint();
+            if (_ring != null && ModLog.IsDue("tow-align-" + GetInstanceID(), 2d))
+                ModLog.Every("tow-align-" + GetInstanceID(), 2d, "MobileCannonTow: " + name + " " + _animal.AlignReport(_ring.position));      // D-143: cart tip vs harness end
             Rigidbody b = GetComponent<Rigidbody>();
             if (b != null) MaxSpeedSeen = Mathf.Max(MaxSpeedSeen, Vector3.ProjectOnPlane(b.linearVelocity, Vector3.up).magnitude);
             Rigidbody ab = _animal.GetComponent<Rigidbody>();

@@ -174,6 +174,32 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 + (pose.MultiplyPoint3x4(hook) - hook).magnitude.ToString("0.000") + " m (the rear now stays on the root), blend z " + _front.ToString("0.00") + " .. " + _rear.ToString("0.00");
         }
 
+        /// <summary>
+        /// D-143 diagnostics (user: uphill the cart's tip sits higher than the harness end): the tow ring (cart tip), the joint's hook point (HookLocal on the
+        /// upright root) and the drawn spreader (its rest point carried by the saddle's spine bone, as the skin draws it) in world space, their height
+        /// differences, and how much the spine bone is pitched against the root. Returns one line.
+        /// </summary>
+        internal string AlignReport(Vector3 ring)
+        {
+            if (RuleLog.IsOn()) ModLog.Every("AsksvinHarness.AlignReport", 2d, $"AsksvinHarness.AlignReport(ring={RuleLog.Shown(ring)})");
+            Vector3 hook = transform.TransformPoint(HookLocal);
+            Transform spreader = _visual != null ? Find(_visual.transform, "SpreaderCentre") : null;
+            if (_saddle == null || _saddleBone < 0 || spreader == null)
+            {
+                var early = $"align: ring {ring:0.00}, hook {hook:0.00} (ring - hook dy {ring.y - hook.y:0.00} m), no saddle bone / spreader yet";
+                if (RuleLog.IsOn()) ModLog.Every("AsksvinHarness.AlignReport:early", 2d, "AsksvinHarness.AlignReport: no saddle bone or spreader - returns " + early);
+                return early;
+            }
+            Transform bone = _saddle.bones[_saddleBone];
+            Matrix4x4 pose = bone.localToWorldMatrix * _saddle.sharedMesh.bindposes[_saddleBone] * _saddle.transform.worldToLocalMatrix;
+            Vector3 drawn = pose.MultiplyPoint3x4(spreader.position);
+            float bonePitch = Vector3.SignedAngle(Vector3.ProjectOnPlane(transform.forward, transform.right), Vector3.ProjectOnPlane(pose.MultiplyVector(transform.forward), transform.right), transform.right);
+            var report = $"align: ring {ring:0.00}, hook {hook:0.00}, spreader drawn {drawn:0.00} (rest {spreader.position:0.00}); ring - spreader dy {ring.y - drawn.y:0.00} m, "
+                + $"ring - hook dy {ring.y - hook.y:0.00} m, hook - spreader {(hook - drawn).magnitude:0.00} m; root pitch {Vector3.SignedAngle(Vector3.ProjectOnPlane(transform.forward, Vector3.up), transform.forward, transform.right):0} deg, saddle-bone pitch against the root {bonePitch:0} deg";
+            if (RuleLog.IsOn()) ModLog.Every("AsksvinHarness.AlignReport:end", 2d, "AsksvinHarness.AlignReport: returns " + report);
+            return report;
+        }
+
         void FollowSaddle()
         {
             if (_saddleSearched) { if (RuleLog.IsOn()) ModLog.Every("AsksvinHarness.FollowSaddle:179", 2d, "AsksvinHarness.FollowSaddle: returns (line 179)"); return; }
