@@ -18,11 +18,16 @@ namespace GunPowdered.Integrations.Valheim
 
         static readonly List<BatchStationExtension> Live = new List<BatchStationExtension>();
 
+        // serialized fields: Unity copies only serialized fields when the game instantiates the piece from the registered prefab - a plain C# property
+        // set on the prefab came back null on every placed piece, so no extension counted (found 2026-11-20 while adding ExtensionFire)
+        [SerializeField] string _station;
+        [SerializeField] string _kind;
+
         /// <summary>Which station this extension belongs to (the station's prefab name).</summary>
-        internal string Station { get; set; }
+        internal string Station { get { return _station; } set { _station = value; } }
 
         /// <summary>The extension's kind: its prefab name. Two pieces of one kind count once.</summary>
-        internal string Kind { get; set; }
+        internal string Kind { get { return _kind; } set { _kind = value; } }
 
         void OnEnable()
         {

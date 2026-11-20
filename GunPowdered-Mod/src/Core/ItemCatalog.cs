@@ -218,7 +218,7 @@ namespace GunPowdered.Core
 
         // D-129 (user 2026-11-20): the Leaching Station extensions, one per biome after the Black Forest. Each DIFFERENT one within 5 m of a station is one
         // upgrade step (bigger batch, 5 minutes shorter run). Built with the hammer at a Workbench. Costs are Claude's proposal, the user sets the amounts.
-        public const string Silver = "Silver", FineWood = "FineWood", Copper = "Copper", YggdrasilWood = "YggdrasilWood", BlackMarble = "BlackMarble";
+        public const string Grausten = "Grausten", Silver = "Silver", FineWood = "FineWood", Copper = "Copper", YggdrasilWood = "YggdrasilWood", BlackMarble = "BlackMarble";
 
         public static readonly ItemSpec LeachBarrel = new ItemSpec(GunPowderedPrefabs.LeachBarrel, "Second Leaching Barrel",
             "A second stone-filled barrel for a Leaching Station nearby: it takes a bigger batch and leaches faster. Leaching Station upgrade 1 (Swamp).",
@@ -264,9 +264,9 @@ namespace GunPowdered.Core
             new CostLine(Copper, 6), new CostLine(YggdrasilWood, 10), new CostLine(BlackMarble, 6));
 
         public static readonly ItemSpec MillOven = new ItemSpec(GunPowderedPrefabs.MillOven, "Flametal Drying Oven",
-            "A glowing flametal oven that dries the powder before it is ground. Powder Mill upgrade (Ashlands): with all three the mill grinds its biggest batch in 2.5 minutes.",
+            "A flametal oven on a grausten table that dries the powder before it is ground; a bright fire burns behind its panes while the mill grinds. Powder Mill upgrade (Ashlands): with all three the mill grinds its biggest batch in 2.5 minutes.",
             ItemKind.Piece, "piece_chest_wood", 1, 0f, Workbench, 1,
-            new CostLine(Flametal, 6), new CostLine(Ashwood, 10));
+            new CostLine(Flametal, 10), new CostLine(Grausten, 6));          // D-138 (user): 10 Flametal + 6 Grausten
 
         /// <summary>The Powder Mill extensions (D-137), in biome order.</summary>
         public static IList<ItemSpec> MillExtensions

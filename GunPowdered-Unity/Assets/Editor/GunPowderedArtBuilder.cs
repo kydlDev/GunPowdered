@@ -10,7 +10,7 @@ public static class GunPowderedArtBuilder
     private const string Art = "Assets/GunPowdered_Art";
     private const string Bundle = "gunpowdered";
 
-    private enum Kind { Wood, Ash, Iron, Metal, Leather, Horn, Powder, Wax, Feather, Twine, Paper, Dark, Glow }
+    private enum Kind { Wood, Ash, Iron, Metal, Leather, Horn, Powder, Wax, Feather, Twine, Paper, Dark, Glow, Flametal, Grausten, Marble, Glass }
 
     private sealed class MatDef
     {
@@ -59,12 +59,15 @@ public static class GunPowderedArtBuilder
         new MatDef("ext_brine", Kind.Wax, 0.67f, 0.66f, 0.53f, 0.90f),
         new MatDef("ext_finewood", Kind.Wood, 0.67f, 0.53f, 0.38f, 0.30f),
         new MatDef("ext_blackmetal", Kind.Iron, 0.20f, 0.22f, 0.20f, 0.60f, 0.9f),
-        new MatDef("ext_yggwood", Kind.Wood, 0.35f, 0.38f, 0.48f, 0.40f),
+        new MatDef("ext_yggwood", Kind.Wood, 0.62f, 0.66f, 0.74f, 0.35f),          // D-138: pale blue-grey like the game's Yggdrasil wood
         new MatDef("ext_copper", Kind.Metal, 0.79f, 0.56f, 0.38f, 0.65f, 0.8f),
-        new MatDef("ext_marble", Kind.Dark, 0.26f, 0.26f, 0.27f, 0.70f),
+        new MatDef("ext_marble", Kind.Marble, 0.24f, 0.24f, 0.26f, 0.70f),
         new MatDef("ext_ashwood", Kind.Wood, 0.40f, 0.37f, 0.35f, 0.15f),
-        new MatDef("ext_flametal", Kind.Iron, 0.33f, 0.33f, 0.33f, 0.55f, 0.8f),
+        new MatDef("ext_flametal", Kind.Flametal, 0.30f, 0.28f, 0.28f, 0.55f, 0.8f),     // D-138: dark metal with orange veins like flametal
         new MatDef("ext_glow", Kind.Glow, 0.98f, 0.58f, 0.25f, 0.50f),
+        new MatDef("ext_grausten", Kind.Grausten, 0.46f, 0.48f, 0.52f, 0.10f),   // D-138: the Flametal Drying Oven's table, like Grausten
+        new MatDef("ext_glass", Kind.Glass, 1.00f, 0.55f, 0.20f, 0.90f),        // D-138: the see-through orange panes of the fire boxes
+        new MatDef("ext_flame", Kind.Glow, 1.00f, 0.72f, 0.28f, 0.50f),         // D-138: the flames inside (shown only while the station runs)
     };
 
     private sealed class ItemDef
@@ -89,6 +92,9 @@ public static class GunPowderedArtBuilder
         new ItemDef("BlackMetalBoiler", "GP_BlackMetalBoiler", "BlackMetalBoiler", new Vector3(1f, 0.55f, -0.80f), false, 0f),
         new ItemDef("DvergrDripPipes", "GP_DvergrDripPipes", "DvergrDripPipes", new Vector3(1f, 0.55f, -0.80f), false, 0f),
         new ItemDef("FlametalHeater", "GP_FlametalHeater", "FlametalHeater", new Vector3(1f, 0.55f, -0.80f), false, 0f),
+        new ItemDef("MillGrindstone", "GP_MillGrindstone", "MillGrindstone", new Vector3(1f, 0.55f, -0.80f), false, 0f),
+        new ItemDef("MillSieve", "GP_MillSieve", "MillSieve", new Vector3(1f, 0.55f, -0.80f), false, 0f),
+        new ItemDef("MillOven", "GP_MillOven", "MillOven", new Vector3(1f, 0.55f, -0.80f), false, 0f),
     };
 
     [MenuItem("GunPowdered/Build weapon art")]
@@ -121,7 +127,7 @@ public static class GunPowderedArtBuilder
 
     private static void WriteTexture(MatDef d)
     {
-        if (d.Kind == Kind.Glow) return;
+        if (d.Kind == Kind.Glow || d.Kind == Kind.Glass) return;
         const int N = 64;
         int seed = d.Name.GetHashCode() & 0xfff;
         var tex = new Texture2D(N, N, TextureFormat.RGBA32, false);
@@ -130,6 +136,7 @@ public static class GunPowderedArtBuilder
             {
                 float v = Shade(d.Kind, x, y, N, seed);                        // 1 = base colour
                 var c = new Color(Mathf.Clamp01(d.Color.r * v), Mathf.Clamp01(d.Color.g * v), Mathf.Clamp01(d.Color.b * v), 1f);
+                if (d.Kind == Kind.Flametal && FlametalVein(x, y, seed)) c = new Color(0.95f, 0.45f, 0.10f, 1f);
                 tex.SetPixel(x, y, c);
             }
         tex.Apply();
@@ -139,12 +146,19 @@ public static class GunPowderedArtBuilder
 
     private static void ConfigureTexture(MatDef d)
     {
-        if (d.Kind == Kind.Glow) return;
+        if (d.Kind == Kind.Glow || d.Kind == Kind.Glass) return;
         string p = Art + "/Textures/" + d.Name + "_tex.png";
         var imp = (TextureImporter)AssetImporter.GetAtPath(p);
         imp.filterMode = FilterMode.Point; imp.mipmapEnabled = false; imp.wrapMode = TextureWrapMode.Repeat;
         imp.textureCompression = TextureImporterCompression.Uncompressed; imp.sRGBTexture = true;
         imp.SaveAndReimport();
+    }
+
+    // thin glowing-orange cracks over the dark metal, like the game's flametal
+    private static bool FlametalVein(int x, int y, int seed)
+    {
+        float wave = Mathf.Sin((x * 0.9f + y * 0.45f) * 0.32f + 6f * Hash(x / 10, y / 10, seed));
+        return Mathf.Abs(wave) < 0.07f && Hash(x / 3, y / 3, seed + 7) > 0.35f;
     }
 
     private static float Shade(Kind k, int x, int y, int n, int seed)
@@ -174,6 +188,10 @@ public static class GunPowderedArtBuilder
             { float s = ((x * 2 + y) % 8 < 4) ? 0.10f : -0.12f; return 0.96f + s + 0.04f * (r - 0.5f); }
             case Kind.Paper:
                 return 0.95f + 0.08f * (Hash(x / 2, y, seed) - 0.5f) + 0.03f * (r - 0.5f);
+            case Kind.Grausten:   // grey stone with darker and lighter speckles and faint blocks
+            { float blot = Hash(x / 6, y / 6, seed); return 0.86f + 0.16f * blot + 0.10f * (r - 0.5f) + ((y % 21 == 0) ? -0.10f : 0f); }
+            case Kind.Marble:     // dark stone with thin light veins
+            { float vein = Mathf.Abs(Mathf.Sin((x + 1.7f * y + 9f * Hash(x / 8, y / 8, seed)) * 0.35f)); return 0.85f + 0.08f * (r - 0.5f) + (vein < 0.06f ? 1.6f : 0f); }
             default:
                 return 0.94f + 0.12f * (r - 0.5f);
         }
@@ -188,7 +206,21 @@ public static class GunPowderedArtBuilder
         m.name = d.Name + "_mat";
         m.SetFloat("_Metallic", d.Metal);
         m.SetFloat("_Glossiness", d.Smooth);
-        if (d.Kind == Kind.Glow)
+        if (d.Kind == Kind.Glass)
+        {
+            m.SetFloat("_Mode", 2f);                                           // Fade: see-through (D-138)
+            m.SetOverrideTag("RenderType", "Transparent");
+            m.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            m.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            m.SetInt("_ZWrite", 0);
+            m.DisableKeyword("_ALPHATEST_ON");
+            m.EnableKeyword("_ALPHABLEND_ON");
+            m.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+            m.renderQueue = 3000;
+            m.color = new Color(d.Color.r, d.Color.g, d.Color.b, 0.28f);
+            m.mainTexture = null;
+        }
+        else if (d.Kind == Kind.Glow)
         {
             m.color = d.Color;
             m.EnableKeyword("_EMISSION");

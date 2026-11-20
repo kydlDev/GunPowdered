@@ -57,6 +57,16 @@ namespace GunPowdered.Tests.Unit
         }
 
         [Test]
+        public void NoRecipe_UsesTheRemovedEarlyAccessFlametal()
+        {
+            // user 2026-11-20: Flametal is the prefab FlametalNew, Flametal Ore is FlametalOreNew; the early-access prefabs Flametal / FlametalOre were removed from the game
+            var used = ItemCatalog.All.SelectMany(i => i.Cost).Select(c => c.Prefab).ToList();
+            Assert.That(used, Has.None.EqualTo("Flametal").And.None.EqualTo("FlametalOre"));
+            Assert.That(ItemCatalog.Flametal, Is.EqualTo("FlametalNew"));
+            Assert.That(ItemCatalog.MillOven.Cost.Select(c => c.Prefab + ":" + c.Amount), Is.EquivalentTo(new[] { "FlametalNew:10", "Grausten:6" }), "D-138");
+        }
+
+        [Test]
         public void MillExtensions_AreThreePiecesBuiltAtAWorkbench()
         {
             Assert.That(ItemCatalog.MillExtensions.Select(e => e.Id), Is.EqualTo(new[] { GunPowderedPrefabs.MillGrindstone, GunPowderedPrefabs.MillSieve, GunPowderedPrefabs.MillOven }));

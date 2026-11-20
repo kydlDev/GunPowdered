@@ -245,6 +245,8 @@ namespace GunPowdered.Integrations.Items
                 var extension = prefab.AddComponent<BatchStationExtension>();
                 extension.Station = StationOf(s.Id);
                 extension.Kind = s.Id;
+                // D-138: the two flametal ovens show a fire behind their panes while their station runs
+                if (s.Id == GunPowderedPrefabs.FlametalHeater || s.Id == GunPowderedPrefabs.MillOven) prefab.AddComponent<ExtensionFire>();
                 ModLog.Verbose("ItemRegistry: " + s.Id + " is an extension of " + extension.Station);
             }
             else if (s.Id == GunPowderedPrefabs.RainBarrel)

@@ -141,27 +141,22 @@ def dvergr_drip_pipes():
 
 def flametal_heater():
     ash = g.mat("ext_ashwood", (0.13, 0.11, 0.10), 0.85)
-    iron = g.mat("ext_flametal", (0.09, 0.085, 0.09), 0.45, 0.8)
-    glow = g.mat("ext_glow", (0.95, 0.30, 0.05), 0.5)
-    names = []
+    flametal = g.mat("ext_flametal", (0.09, 0.085, 0.09), 0.45, 0.8)
+    glass = g.mat("ext_glass", (0.95, 0.40, 0.08), 0.1)
+    flame = g.mat("ext_flame", (1.0, 0.55, 0.12), 0.5)
+    names = g.fire_box("ext_heater", (0.9, 0.7, 0.55), Vector((0, 0, 0.40)), 5, flametal, glass, flame)
     bm = bmesh.new()
-    g.box(bm, (0.9, 0.7, 0.55), Vector((0, 0, 0.40)))
-    for sx in (-1, 1):                                                  # short legs
+    for sx in (-1, 1):                                                  # short legs and the flue
         for sy in (-1, 1):
             g.box(bm, (0.10, 0.10, 0.14), Vector((sx * 0.38, sy * 0.28, 0.07)))
-    g.cyl(bm, 0.08, 0.6, T((0.25, 0.15, 0.95)), 16)                     # flue
-    names.append(g.put("ext_heater_box", bm, iron, smooth=False).name)
+    g.cyl(bm, 0.08, 0.6, T((0.25, 0.15, 0.95)), 16)
+    names.append(g.put("ext_heater_flue", bm, flametal, smooth=False).name)
     bm = bmesh.new()
     for sx in (-1, 1):
         g.box(bm, (0.08, 0.8, 0.08), Vector((sx * 0.50, 0, 0.70)))
         g.box(bm, (0.08, 0.08, 0.75), Vector((sx * 0.50, 0.36, 0.38)))
         g.box(bm, (0.08, 0.08, 0.75), Vector((sx * 0.50, -0.36, 0.38)))
     names.append(g.put("ext_heater_frame", bm, ash, smooth=False).name)
-    bm = bmesh.new()                                                     # glowing grate in the front and the core seen through it
-    for k in range(5):
-        g.box(bm, (0.08, 0.02, 0.22), Vector((-0.28 + 0.14 * k, -0.355, 0.40)))
-    bmesh.ops.create_icosphere(bm, subdivisions=2, radius=0.12, matrix=T((0, -0.18, 0.40)))
-    names.append(g.put("ext_heater_core", bm, glow).name)
     return "FlametalHeater", names, (0, 0, 0.5), 3.0
 
 

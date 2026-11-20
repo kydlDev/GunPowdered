@@ -243,3 +243,44 @@ def shift(names, dz):
     """Moves objects up / down (a preview lifts the model off the ground plane; the export lowers it again)."""
     for n in names:
         bpy.data.objects[n].location.z += dz
+
+
+def fire_box(prefix, size, centre, slits, body_mat, glass_mat, flame_mat, wall=0.04):
+    """A closed metal fire box whose FRONT (-Y) has `slits` real openings (D-138: see-through), a thin glass pane in each opening and flames inside.
+    size = (w, d, h), centre = Vector of the box centre. Openings: 0.10 m wide, 55 % of the height, 0.04 m bars between them.
+    Returns the object names: <prefix>_box (walls), <prefix>_glass (panes, separate material) and 'fire' (the flame shapes the game shows
+    only while the station runs; one object, so the mod finds it by name)."""
+    w, d, h = size
+    c = Vector(centre)
+    names = []
+    bm = bmesh.new()
+    box(bm, (w, wall, h), c + Vector((0, d / 2 - wall / 2, 0)))                         # back
+    box(bm, (wall, d - 2 * wall, h), c + Vector((w / 2 - wall / 2, 0, 0)))             # sides
+    box(bm, (wall, d - 2 * wall, h), c + Vector((-w / 2 + wall / 2, 0, 0)))
+    box(bm, (w - 2 * wall, d - 2 * wall, wall), c + Vector((0, 0, h / 2 - wall / 2)))  # top, bottom
+    box(bm, (w - 2 * wall, d - 2 * wall, wall), c + Vector((0, 0, -h / 2 + wall / 2)))
+    sw, sh, gap = 0.10, h * 0.55, 0.04
+    span = slits * sw + (slits - 1) * gap
+    fy = -d / 2 + wall / 2
+    margin = (w - span) / 2
+    box(bm, (margin, wall, h), c + Vector((-w / 2 + margin / 2, fy, 0)))               # front: left and right of the openings
+    box(bm, (margin, wall, h), c + Vector((w / 2 - margin / 2, fy, 0)))
+    band = (h - sh) / 2
+    box(bm, (span, wall, band), c + Vector((0, fy, h / 2 - band / 2)))                 # above and below the openings
+    box(bm, (span, wall, band), c + Vector((0, fy, -h / 2 + band / 2)))
+    x0 = -span / 2
+    for k in range(slits - 1):                                                         # bars between the openings
+        box(bm, (gap, wall, sh), c + Vector((x0 + (k + 1) * sw + k * gap + gap / 2, fy, 0)))
+    names.append(put(prefix + "_box", bm, body_mat, smooth=False).name)
+    bm = bmesh.new()
+    for k in range(slits):
+        box(bm, (sw, 0.006, sh), c + Vector((x0 + k * (sw + gap) + sw / 2, fy, 0)))
+    names.append(put(prefix + "_glass", bm, glass_mat, smooth=False).name)
+    bm = bmesh.new()                                                                   # flames: tapered cones standing on the floor inside
+    floor = c.z - h / 2 + wall
+    for k, (fx, fz) in enumerate(((-0.22, 0.30), (-0.08, 0.38), (0.06, 0.34), (0.20, 0.28), (0.0, 0.22))):
+        x = fx * (w - 2 * wall) / 0.82
+        hgt = fz * h / 0.7
+        cyl(bm, 0.07 if k < 4 else 0.11, hgt, Matrix.Translation(c + Vector((x, 0.02 * (k % 2), 0)) + Vector((0, 0, floor + hgt / 2 - c.z))), 10, r2=0.005)
+    names.append(put("fire", bm, flame_mat).name)
+    return names

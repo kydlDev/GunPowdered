@@ -12,8 +12,18 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: ext_flame
+    second: {fileID: 2100000, guid: e43dce4caf2208f48a437b1132a2da49, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: ext_flametal
     second: {fileID: 2100000, guid: d211b5927fc53b64384b055dd32fda22, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ext_glass
+    second: {fileID: 2100000, guid: 8d5febfb3deebe848a5eafdb232d34e3, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
