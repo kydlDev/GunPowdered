@@ -225,8 +225,21 @@ namespace GunPowdered.Testing.TestHooks
                 foreach (BaseAI ai in made.GetComponentsInChildren<BaseAI>()) ai.enabled = false;
                 FlightRecorder.Track(c, "cannon test target " + prefab, () => "AI off, stands on the shot line, health " + F(c.GetHealth()));
             }
-            ModLog.Verbose("CannonTestHooks: placed " + prefab + " at " + F((float)distance) + " m on the line, " + at.ToString("0.0"));
+            string standing = c != null ? "creature" : made.GetComponent<Piece>() != null ? StandOnGround(made, at.y) : "not a building piece, left as placed";
+            ModLog.Info("CannonTestHooks: placed " + prefab + " at " + F((float)distance) + " m on the line, " + at.ToString("0.0") + ", " + standing);
             return "placed " + prefab;
+        }
+
+        /// Lifts a placed piece whose colliders reach below the ground (a pivot in the middle, like the wood wall) so it stands on the ground. Returns the collider bounds for the log.
+        static string StandOnGround(GameObject made, float groundY)
+        {
+            Collider[] cols = made.GetComponentsInChildren<Collider>();
+            if (cols.Length == 0) return "no collider";
+            Bounds b = cols[0].bounds;
+            foreach (Collider col in cols) b.Encapsulate(col.bounds);
+            float lift = groundY - b.min.y;
+            if (lift > 0.01f) made.transform.position += Vector3.up * lift;
+            return "colliders y " + F(b.min.y) + ".." + F(b.max.y) + ", lifted " + F(lift > 0.01f ? lift : 0f) + " m";
         }
 
         /// How many of the placed creatures of a prefab have lost health.

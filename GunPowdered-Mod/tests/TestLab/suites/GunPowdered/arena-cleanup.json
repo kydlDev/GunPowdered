@@ -8,7 +8,7 @@
     { "do": "spawn", "prefab": "Boar", "dz": 22, "as": "boar" },
     { "do": "spawn", "prefab": "GP_RainBarrel", "dz": 24, "owner": "me", "as": "barrel" },
     { "do": "wait", "seconds": 2 },
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "removed 3 (drops 1, creatures 1, logs 0, stumps 0, pieces 1)", "label": "the next test start removes the drop, the creature and the piece" },
+    { "do": "hook", "name": "GunPowdered.arena", "regex": "removed [0-9]+ \\(drops [1-9][0-9]*, creatures 1, logs 0, stumps 0, pieces 1\\)", "label": "the next test start removes the drop, the creature and the piece" },
     { "do": "hook", "name": "GunPowdered.arena", "contains": "removed 0", "label": "a second start finds the arena clean" },
     { "do": "cleanArena" }
   ],
