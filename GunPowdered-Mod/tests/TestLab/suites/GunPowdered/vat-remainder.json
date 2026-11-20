@@ -1,0 +1,197 @@
+{
+  "name": "vat-remainder",
+  "description": "Leaching Station whole base batches only (D-129, user example): with one extension (step 1, full batch 20 + 20 + 8) and 15 Bat Guano + 15 Water + 6 Wood inside, Shift+E starts ONE base batch (10 + 10 + 4 -> 5 Saltpeter, 25 min) and 5 + 5 + 2 stay in for the next run; after the run the 5 Saltpeter are collected and the rest is still there",
+  "timeout": 90,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_LeachBarrel",
+      "dx": 3,
+      "dz": 4,
+      "owner": "me"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_BatGuano",
+      "count": 15
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Water",
+      "count": 15
+    },
+    {
+      "do": "give",
+      "prefab": "Wood",
+      "count": 6
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_LeachingVat",
+      "dz": 4,
+      "owner": "me",
+      "as": "vat"
+    },
+    {
+      "do": "interact",
+      "target": "vat"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "10",
+      "label": "step 1: one use puts in 10 Bat Guano (half of 20)"
+    },
+    {
+      "do": "interact",
+      "target": "vat"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "15",
+      "label": "the second use puts in the other 5"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "none",
+      "label": "15 + 15 + 6 is not the full batch of step 1: no start by itself"
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "vat",
+      "contains": "Start: 1 batch -> 5 Saltpeter",
+      "label": "the hover offers a start of one batch"
+    },
+    {
+      "do": "interact",
+      "target": "vat",
+      "alt": true
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "Shift+E starts it"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_units",
+      "value": "1",
+      "label": "one whole base batch"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_out",
+      "value": "5",
+      "label": "for 5 Saltpeter"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_minutes",
+      "value": "25",
+      "label": "in 25 minutes (step 1)"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "5",
+      "label": "5 Bat Guano stay in"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_water",
+      "value": "5",
+      "label": "5 Water stay in"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_fuel",
+      "value": "2",
+      "label": "2 Wood stay in"
+    },
+    {
+      "do": "console",
+      "command": "skiptime 1600"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "2",
+      "label": "done after 25 minutes on the world clock"
+    },
+    {
+      "do": "interact",
+      "target": "vat"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hasItem",
+      "prefab": "GP_Saltpeter",
+      "count": 5,
+      "label": "5 Saltpeter collected"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "0",
+      "label": "idle again"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "5",
+      "label": "the 5 Bat Guano are still in for the next run"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

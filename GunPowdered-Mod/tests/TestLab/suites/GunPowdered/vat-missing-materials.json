@@ -1,23 +1,129 @@
 {
   "name": "vat-missing-materials",
-  "description": "Leaching Station (D-035): with only 5 of the 10 Bat Guano, using the station puts in the 5 Bat Guano and the 10 Water but the barrel is not ready until the rest comes",
-  "timeout": 60,
+  "description": "Leaching Station start rule (D-129): with 10 Bat Guano + 7 Water + 4 Wood inside it does not start; using it with nothing more to add says exactly what is missing ('Needs 3 more Water'), on screen and in the hover; 3 more Water fill the batch and it starts by itself",
+  "timeout": 90,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "give", "prefab": "GP_BatGuano", "count": 5 },
-    { "do": "give", "prefab": "GP_Water", "count": 10 },
-    { "do": "spawn", "prefab": "GP_LeachingVat", "dz": 4, "owner": "me", "as": "vat" },
-    { "do": "interact", "target": "vat" },
-    { "do": "wait", "seconds": 1 },
-    { "do": "zdoIs", "target": "vat", "key": "gp_vat_guano", "value": "5", "label": "5 Bat Guano in the barrel" },
-    { "do": "zdoIs", "target": "vat", "key": "gp_vat_water", "value": "10", "label": "10 Water in the barrel" },
-    { "do": "zdoIs", "target": "vat", "key": "gp_vat_loaded", "value": "none", "label": "barrel NOT ready (5 Bat Guano missing)" },
-    { "do": "check", "check": "noItem", "prefab": "GP_BatGuano", "label": "the Bat Guano left the inventory" },
-    { "do": "give", "prefab": "GP_BatGuano", "count": 5 },
-    { "do": "interact", "target": "vat" },
-    { "do": "wait", "seconds": 1 },
-    { "do": "zdoIs", "target": "vat", "key": "gp_vat_loaded", "value": "1", "label": "with the other 5 Bat Guano the barrel is ready" },
-    { "do": "cleanArena" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_BatGuano",
+      "count": 10
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Water",
+      "count": 7
+    },
+    {
+      "do": "give",
+      "prefab": "Wood",
+      "count": 4
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_LeachingVat",
+      "dz": 4,
+      "owner": "me",
+      "as": "vat"
+    },
+    {
+      "do": "interact",
+      "target": "vat"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "message",
+      "contains": "Added 5 Bat Guano, 5 Water and 2 Wood",
+      "label": "the first use says what went in"
+    },
+    {
+      "do": "interact",
+      "target": "vat"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_water",
+      "value": "7",
+      "label": "all 7 Water are in"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_guano",
+      "value": "10",
+      "label": "and 10 Bat Guano"
+    },
+    {
+      "do": "interact",
+      "target": "vat"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "message",
+      "kind": "Center",
+      "contains": "Needs 3 more Water",
+      "label": "nothing left to add: the start is refused and names the missing Water"
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "vat",
+      "contains": "Cannot start yet: Needs 3 more Water",
+      "label": "the hover names the missing Water too"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "none",
+      "label": "it did not start"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Water",
+      "count": 3
+    },
+    {
+      "do": "interact",
+      "target": "vat"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "with the 3 Water the batch is full and starts by itself"
+    },
+    {
+      "do": "cleanArena"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

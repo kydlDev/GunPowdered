@@ -1,29 +1,100 @@
 {
   "name": "vat-batch",
-  "description": "Leaching Station (D-025): fill the barrel (10 Bat Guano + 10 Water), feed the hearth (4 Wood), it burns; a day later (start time moved back) 5 Saltpeter are collected and the station is idle again",
+  "description": "Leaching Station without extensions (D-129): one use puts in half the batch (5 + 5 + 2), the second fills 10 Bat Guano + 10 Water + 4 Wood and the run starts by itself; it is measured on the world clock (D-129 addendum: sleeping counts), so skipping 1000 s of the 30 minutes leaves it leaching and another 900 s finishes it; then 5 Saltpeter are collected and the station is idle again",
   "timeout": 90,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "give", "prefab": "GP_BatGuano", "count": 10 },
-    { "do": "give", "prefab": "GP_Water", "count": 10 },
-    { "do": "give", "prefab": "Wood", "count": 4 },
-    { "do": "spawn", "prefab": "GP_LeachingVat", "dz": 4, "owner": "me", "as": "vat" },
-    { "do": "interact", "target": "vat" },
-    { "do": "wait", "seconds": 1 },
-    { "do": "zdoIs", "target": "vat", "key": "gp_vat_loaded", "value": "1", "label": "barrel filled" },
-    { "do": "check", "check": "noItem", "prefab": "GP_BatGuano", "label": "the 10 Bat Guano went into the barrel" },
-    { "do": "interact", "target": "vat" },
-    { "do": "wait", "seconds": 5 },
-    { "do": "zdoIs", "target": "vat", "key": "gp_vat_state", "value": "1", "label": "the hearth burns (state 1)" },
-    { "do": "check", "check": "noItem", "prefab": "Wood", "label": "the 4 Wood went into the hearth" },
-    { "do": "setZdo", "target": "vat", "key": "gp_vat_start", "type": "long", "value": 1 },
-    { "do": "wait", "seconds": 5 },
-    { "do": "zdoIs", "target": "vat", "key": "gp_vat_state", "value": "2", "label": "a day later the saltpeter is done (state 2)" },
-    { "do": "interact", "target": "vat" },
-    { "do": "wait", "seconds": 1 },
-    { "do": "check", "check": "hasItem", "prefab": "GP_Saltpeter", "count": 5, "label": "5 Saltpeter collected" },
-    { "do": "zdoIs", "target": "vat", "key": "gp_vat_state", "value": "0", "label": "the station is idle again" },
-    { "do": "cleanArena" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "vatStepRun",
+      "level": "0",
+      "units": "1",
+      "guano": 10,
+      "water": 10,
+      "wood": 4,
+      "halfGuano": "5",
+      "halfWood": "2",
+      "saltpeter": "5",
+      "minutes": "30"
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "vat",
+      "contains": "Leaching 5 Saltpeter (",
+      "label": "the hover shows the running batch"
+    },
+    {
+      "do": "console",
+      "command": "skiptime 1000"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "1",
+      "label": "after 1000 s of the 1800 s run it is still leaching"
+    },
+    {
+      "do": "console",
+      "command": "skiptime 900"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "2",
+      "label": "1900 s on the world clock: the saltpeter is done"
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "vat",
+      "contains": "Collect 5 Saltpeter",
+      "label": "the hover offers the 5 Saltpeter"
+    },
+    {
+      "do": "interact",
+      "target": "vat"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hasItem",
+      "prefab": "GP_Saltpeter",
+      "count": 5,
+      "label": "5 Saltpeter collected"
+    },
+    {
+      "do": "zdoIs",
+      "target": "vat",
+      "key": "gp_vat_state",
+      "value": "0",
+      "label": "the station is idle again"
+    },
+    {
+      "do": "cleanArena"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

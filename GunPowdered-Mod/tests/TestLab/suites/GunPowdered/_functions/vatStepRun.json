@@ -1,0 +1,29 @@
+{
+  "params": [ "level", "units", "guano", "water", "wood", "halfGuano", "halfWood", "saltpeter", "minutes", { "barrel": null }, { "tank": null }, { "boiler": null }, { "pipes": null }, { "heater": null } ],
+  "actions": [
+    { "if": "{{barrel}}", "do": "spawn", "prefab": "GP_LeachBarrel", "dx": 3, "dz": 4, "owner": "me" },
+    { "if": "{{tank}}", "do": "spawn", "prefab": "GP_SettlingTank", "dx": -3, "dz": 4, "owner": "me" },
+    { "if": "{{boiler}}", "do": "spawn", "prefab": "GP_BlackMetalBoiler", "dx": 0, "dz": 7.5, "owner": "me" },
+    { "if": "{{pipes}}", "do": "spawn", "prefab": "GP_DvergrDripPipes", "dx": 3, "dz": 7, "owner": "me" },
+    { "if": "{{heater}}", "do": "spawn", "prefab": "GP_FlametalHeater", "dx": -3, "dz": 7, "owner": "me" },
+    { "do": "give", "prefab": "GP_BatGuano", "count": "{{guano}}" },
+    { "do": "give", "prefab": "GP_Water", "count": "{{water}}" },
+    { "do": "give", "prefab": "Wood", "count": "{{wood}}" },
+    { "do": "spawn", "prefab": "GP_LeachingVat", "dz": 4, "owner": "me", "as": "vat" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "check", "check": "hoverText", "target": "vat", "contains": "Upgrades {{level}}/5: up to {{guano}} Bat Guano + {{water}} Water + {{wood}} Wood -> {{saltpeter}} Saltpeter, {{minutes}} min", "label": "step {{level}}: the hover names the step's full batch and run time", "stop": true },
+    { "do": "interact", "target": "vat" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "zdoIs", "target": "vat", "key": "gp_vat_guano", "value": "{{halfGuano}}", "label": "one use puts in half the full batch of Bat Guano ({{halfGuano}})" },
+    { "do": "zdoIs", "target": "vat", "key": "gp_vat_fuel", "value": "{{halfWood}}", "label": "and half the Wood ({{halfWood}})" },
+    { "do": "zdoIs", "target": "vat", "key": "gp_vat_state", "value": "none", "label": "half a batch does not start by itself" },
+    { "do": "interact", "target": "vat" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "zdoIs", "target": "vat", "key": "gp_vat_state", "value": "1", "label": "the second use fills the full batch and it starts by itself" },
+    { "do": "zdoIs", "target": "vat", "key": "gp_vat_units", "value": "{{units}}", "label": "the run leaches {{units}} base batches" },
+    { "do": "zdoIs", "target": "vat", "key": "gp_vat_out", "value": "{{saltpeter}}", "label": "for {{saltpeter}} Saltpeter" },
+    { "do": "zdoIs", "target": "vat", "key": "gp_vat_minutes", "value": "{{minutes}}", "label": "in {{minutes}} minutes" },
+    { "do": "check", "check": "noItem", "prefab": "GP_BatGuano", "label": "the whole batch left the inventory" }
+  ],
+  "asserts": []
+}

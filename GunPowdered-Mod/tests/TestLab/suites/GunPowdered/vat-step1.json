@@ -1,0 +1,35 @@
+{
+  "name": "vat-step1",
+  "description": "Leaching Station upgrade step 1 (D-129): Second Leaching Barrel within 5 m of the station. Full batch 20 Bat Guano + 20 Water + 8 Wood -> 10 Saltpeter in 25 min; one use puts in half of it, the second use fills it and the run starts by itself",
+  "timeout": 60,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "vatStepRun",
+      "level": "1",
+      "units": "2",
+      "guano": 20,
+      "water": 20,
+      "wood": 8,
+      "halfGuano": "10",
+      "halfWood": "4",
+      "saltpeter": "10",
+      "minutes": "25",
+      "barrel": true
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

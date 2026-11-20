@@ -1,0 +1,110 @@
+{
+  "name": "vat-extension-rules",
+  "description": "Leaching Station extensions (D-129): only DIFFERENT kinds within 5 m count - two Second Leaching Barrels count once and a Settling Tank 6 m away does not count (step 1); moving the tank to 3 m makes step 2; removing the extensions takes the station back to step 0",
+  "timeout": 90,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_LeachBarrel",
+      "dx": 3,
+      "dz": 4,
+      "owner": "me",
+      "as": "barrel1"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_LeachBarrel",
+      "dx": -3,
+      "dz": 4,
+      "owner": "me",
+      "as": "barrel2"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_SettlingTank",
+      "dx": 0,
+      "dz": 10,
+      "owner": "me",
+      "as": "farTank"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_LeachingVat",
+      "dz": 4,
+      "owner": "me",
+      "as": "vat"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "vat",
+      "contains": "Upgrades 1/5:",
+      "label": "two barrels count once, the tank 6 m away does not count: step 1"
+    },
+    {
+      "do": "destroy",
+      "target": "farTank"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_SettlingTank",
+      "dx": 0,
+      "dz": 7,
+      "owner": "me",
+      "as": "nearTank"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "vat",
+      "contains": "Upgrades 2/5:",
+      "label": "the tank 3 m away counts: step 2"
+    },
+    {
+      "do": "destroy",
+      "target": "barrel1"
+    },
+    {
+      "do": "destroy",
+      "target": "barrel2"
+    },
+    {
+      "do": "destroy",
+      "target": "nearTank"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "check",
+      "check": "hoverText",
+      "target": "vat",
+      "contains": "Upgrades 0/5:",
+      "label": "without extensions: step 0"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

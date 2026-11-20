@@ -1,0 +1,39 @@
+{
+  "name": "vat-step5",
+  "description": "Leaching Station upgrade step 5 (D-129): Second Leaching Barrel, Settling Tank, Black Metal-banded Boiler, Dvergr Drip Pipes, Flametal Heater within 5 m of the station. Full batch 60 Bat Guano + 60 Water + 24 Wood -> 30 Saltpeter in 5 min; one use puts in half of it, the second use fills it and the run starts by itself",
+  "timeout": 60,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "vatStepRun",
+      "level": "5",
+      "units": "6",
+      "guano": 60,
+      "water": 60,
+      "wood": 24,
+      "halfGuano": "30",
+      "halfWood": "12",
+      "saltpeter": "30",
+      "minutes": "5",
+      "barrel": true,
+      "tank": true,
+      "boiler": true,
+      "pipes": true,
+      "heater": true
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}
