@@ -18,6 +18,8 @@ namespace GunPowdered.Testing.TestHooks
         static readonly Dictionary<int, Color> Idle = new Dictionary<int, Color>();
         static Vector3? _returnTo;
         static Quaternion _returnRotation;
+        static float _returnDistance;
+        static readonly HarmonyLib.AccessTools.FieldRef<GameCamera, float> CameraDistance = HarmonyLib.AccessTools.FieldRefAccess<GameCamera, float>("m_distance");
 
         /// "burning &lt;bool&gt;, flames &lt;bool&gt;, light &lt;intensity&gt;" of the tagged oven, or why not.
         [TestHook("GunPowdered.fireState")]
@@ -61,7 +63,8 @@ namespace GunPowdered.Testing.TestHooks
         }
 
         /// <summary>
-        /// Puts the player 2.5 m in front of the tagged oven's panes, facing them, so a GameProbe screenshot (ProbeApi.Screenshot, named by GameProbe in the
+        /// Puts the player 1.6 m in front of the tagged oven's panes in first person (the camera zoomed all the way in, so the player's body does not
+        /// hide the oven, user 2026-11-20), looking at the panes, so a GameProbe screenshot (ProbeApi.Screenshot, named by GameProbe in the
         /// mod's _testruns session) shows what a player sees. <c>viewBack</c> returns the player. Returns "in front of &lt;oven&gt;" or why not.
         /// </summary>
         [TestHook("GunPowdered.viewPanes")]
@@ -71,12 +74,18 @@ namespace GunPowdered.Testing.TestHooks
             Renderer glass = Glass(target);
             if (p == null || glass == null) return "no player or no panes";
             Vector3 centre = glass.bounds.center, front = Front(target, centre);
-            if (!_returnTo.HasValue) { _returnTo = p.transform.position; _returnRotation = p.transform.rotation; }
-            Vector3 at = centre + front * 2.5f;
+            GameCamera cam = GameCamera.instance;
+            if (!_returnTo.HasValue)
+            {
+                _returnTo = p.transform.position;
+                _returnRotation = p.transform.rotation;
+                _returnDistance = cam != null ? CameraDistance(cam) : 4f;
+            }
+            Vector3 at = centre + front * 1.6f;
             at.y = target.transform.position.y;
-            Quaternion facing = Quaternion.LookRotation(-front);
-            p.transform.SetPositionAndRotation(at, facing);
-            p.SetLookDir(-front);
+            p.transform.SetPositionAndRotation(at, Quaternion.LookRotation(-front));
+            if (cam != null) CameraDistance(cam) = 0f;                          // first person
+            p.SetLookDir((centre - p.GetEyePoint()).normalized);
             ModLog.Verbose("ExtensionFireTestHooks: player in front of the panes of " + target.name + " at " + at);
             return "in front of " + Utils.GetPrefabName(target);
         }
@@ -89,6 +98,7 @@ namespace GunPowdered.Testing.TestHooks
             if (p == null || !_returnTo.HasValue) return "nothing to undo";
             p.transform.SetPositionAndRotation(_returnTo.Value, _returnRotation);
             p.SetLookDir(_returnRotation * Vector3.forward);
+            if (GameCamera.instance != null) CameraDistance(GameCamera.instance) = _returnDistance;
             _returnTo = null;
             return "back";
         }
