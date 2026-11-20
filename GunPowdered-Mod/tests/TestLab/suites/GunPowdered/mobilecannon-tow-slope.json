@@ -84,6 +84,25 @@
       "label": "GameProbe shot: towing down the cliff"
     },
     {
+      "do": "hook",
+      "name": "GunPowdered.freeCamOnHitch",
+      "label": "camera close beside the hitch",
+      "args": {
+        "azimuth": 90,
+        "metres": 3
+      },
+      "contains": "free camera on the hitch"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.3
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: hitch close-up going down"
+    },
+    {
       "do": "wait",
       "until": {
         "check": "hook",
@@ -120,6 +139,25 @@
       "do": "invoke",
       "method": "Kydl.GameProbe.ProbeApi.Screenshot",
       "label": "GameProbe shot: towing up the cliff"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCamOnHitch",
+      "label": "camera close beside the hitch",
+      "args": {
+        "azimuth": 90,
+        "metres": 3
+      },
+      "contains": "free camera on the hitch"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.3
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: hitch close-up going up"
     },
     {
       "do": "wait",

@@ -43,6 +43,30 @@ namespace GunPowdered.Testing.TestHooks
             return "free camera at " + go.transform.position.ToString("0.0");
         }
 
+        /// <summary>
+        /// D-143: the free camera close beside the hitch (the cannon's tow ring, where the harness chain ends), <paramref name="metres"/> m out to the
+        /// Asksvin's side at <paramref name="azimuth"/> degrees, level with the ring: the picture shows whether the cart tip and the harness end meet on a
+        /// slope. Returns "free camera on the hitch at ..." or why not.
+        /// </summary>
+        [TestHook("GunPowdered.freeCamOnHitch")]
+        static string FreeCamOnHitch(double azimuth, double metres)
+        {
+            ModLog.Verbose($"AsksvinTowTestHooks.FreeCamOnHitch(azimuth={azimuth}, metres={metres})");
+            GameObject cannon = MobileCannonTestHooks.Cannon;
+            MobileCannonTow tow = cannon != null ? cannon.GetComponent<MobileCannonTow>() : null;
+            if (_animal == null || tow == null || tow.Ring == null) { ModLog.Verbose("AsksvinTowTestHooks.FreeCamOnHitch: no Asksvin, cannon or ring - returns why"); return "no Asksvin, cannon or ring"; }
+            string placed = FreeCamOnAsksvin(azimuth, 0, metres);
+            GameObject go = GameObject.Find("gp_freecam");
+            if (go == null) { ModLog.Verbose("AsksvinTowTestHooks.FreeCamOnHitch: " + placed); return placed; }
+            Vector3 centre = tow.Ring.position;
+            Vector3 dir = Quaternion.AngleAxis((float)azimuth, Vector3.up) * Vector3.ProjectOnPlane(_animal.transform.forward, Vector3.up).normalized;
+            go.transform.position = centre + dir * (float)metres + Vector3.up * 0.3f;
+            go.transform.LookAt(centre);
+            string s = "free camera on the hitch at " + go.transform.position.ToString("0.0") + ", ring " + centre.ToString("0.00");
+            ModLog.Verbose("AsksvinTowTestHooks.FreeCamOnHitch: returns " + s);
+            return s;
+        }
+
         /// <summary>Where the saddle really sits on the Asksvin, in the Asksvin's own space (x right, y up, z forward): centre, size and the pitch of its up axis, for every renderer of the saddle. T-009i fit check.</summary>
         [TestHook("GunPowdered.asksvinSaddleFit")]
         static string SaddleFit()

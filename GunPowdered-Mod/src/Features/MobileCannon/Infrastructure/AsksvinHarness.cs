@@ -128,6 +128,8 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         // hung away from the saddle. The model now rides with the saddle's bone: its rest pose (under the root) is carried by the same matrix that moves the saddle
         // mesh from its rest pose to its current pose.
         SkinnedMeshRenderer _saddle;
+        readonly System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<SkinnedMeshRenderer, int>> _tails = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<SkinnedMeshRenderer, int>>();   // D-143: each skinned harness mesh and its rearmost vertex
+        Mesh _baked;
         int _saddleBone = -1;
         bool _saddleSearched;
 
@@ -196,8 +198,30 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             float bonePitch = Vector3.SignedAngle(Vector3.ProjectOnPlane(transform.forward, transform.right), Vector3.ProjectOnPlane(pose.MultiplyVector(transform.forward), transform.right), transform.right);
             var report = $"align: ring {ring:0.00}, hook {hook:0.00}, spreader drawn {drawn:0.00} (rest {spreader.position:0.00}); ring - spreader dy {ring.y - drawn.y:0.00} m, "
                 + $"ring - hook dy {ring.y - hook.y:0.00} m, hook - spreader {(hook - drawn).magnitude:0.00} m; root pitch {Vector3.SignedAngle(Vector3.ProjectOnPlane(transform.forward, Vector3.up), transform.forward, transform.right):0} deg, saddle-bone pitch against the root {bonePitch:0} deg";
+            report += TailReport(ring);
             if (RuleLog.IsOn()) ModLog.Every("AsksvinHarness.AlignReport:end", 2d, "AsksvinHarness.AlignReport: returns " + report);
             return report;
+        }
+
+        // D-143: where the skin really draws each harness mesh's rearmost vertex (the chain end): the mesh is baked as drawn this frame.
+        string TailReport(Vector3 ring)
+        {
+            if (RuleLog.IsOn()) ModLog.Every("AsksvinHarness.TailReport", 2d, $"AsksvinHarness.TailReport(ring={RuleLog.Shown(ring)})");
+            if (_baked == null) _baked = new Mesh();
+            var sb = new System.Text.StringBuilder();
+            foreach (System.Collections.Generic.KeyValuePair<SkinnedMeshRenderer, int> t in _tails)
+            {
+                if (t.Key == null) continue;
+                t.Key.BakeMesh(_baked, true);
+                Vector3[] v = _baked.vertices;
+                if (t.Value >= v.Length) continue;
+                Transform s = t.Key.transform;
+                Vector3 drawn = Matrix4x4.TRS(s.position, s.rotation, Vector3.one).MultiplyPoint3x4(v[t.Value]);
+                sb.Append($"; {s.name} tail drawn {drawn:0.00} (ring - tail dy {ring.y - drawn.y:0.00} m, {(ring - drawn).magnitude:0.00} m apart)");
+            }
+            string tails = sb.Length > 0 ? sb.ToString() : "; no skinned harness meshes";
+            if (RuleLog.IsOn()) ModLog.Every("AsksvinHarness.TailReport:end", 2d, "AsksvinHarness.TailReport: returns " + tails);
+            return tails;
         }
 
         void FollowSaddle()
@@ -279,9 +303,12 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 mesh.name = src.name + "_skinned";
                 Vector3[] v = mesh.vertices;
                 var w = new BoneWeight[v.Length];
+                int tail = 0;
+                float tailZ = float.MaxValue;
                 for (int i = 0; i < v.Length; i++)
                 {
                     float z = toAnimal.MultiplyPoint3x4(v[i]).z;
+                    if (z < tailZ) { tailZ = z; tail = i; }                  // D-143: the rearmost vertex, the chain end at the cannon's ring
                     float onSaddle = GunPowdered.Features.MobileCannon.Domain.AsksvinTowRules.SaddleWeight(z, _front, _rear);
                     if (onSaddle <= 0f)
                     {
@@ -312,6 +339,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 smr.rootBone = transform;
                 smr.quality = SkinQuality.Bone4;
                 smr.updateWhenOffscreen = true;
+                _tails.Add(new System.Collections.Generic.KeyValuePair<SkinnedMeshRenderer, int>(smr, tail));
                 skinned++;
             }
             ModLog.Info("AsksvinHarness: " + name + " harness skinned: " + skinned + " meshes (" + kept + " kept rigid), " + allBones.Length + " bones from " + donors + " animal skins"

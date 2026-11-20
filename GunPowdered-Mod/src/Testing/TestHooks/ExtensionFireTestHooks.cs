@@ -75,43 +75,23 @@ namespace GunPowdered.Testing.TestHooks
         {
             Player p = Player.m_localPlayer;
             Renderer glass = Glass(target);
-            GameCamera game = GameCamera.instance;
-            Camera cam = game != null ? game.GetComponent<Camera>() : null;
-            if (p == null || glass == null || cam == null) return "no player, no panes or no game camera";
+            if (p == null || glass == null) { ModLog.Verbose("ExtensionFireTestHooks.ViewPanes: no player or no panes"); return "no player or no panes"; }
             Vector3 centre = glass.bounds.center, front = Front(target, centre);
-            game.enabled = false;                                             // only for the picture: viewBack turns it on again
-            cam.transform.position = centre + front * CameraDistance + Vector3.up * CameraHeight;
-            cam.transform.LookAt(centre);
-            if (Visual(p) != null) Visual(p).SetActive(false);
-            Plugin.Instance.StartCoroutine(GiveBackLater(++_pause, SafetySeconds));   // a test that fails before viewBack must not leave the camera paused
-            ModLog.Verbose($"ExtensionFireTestHooks: game camera paused at {cam.transform.position:0.00}, looking at the panes of {target.name} at {centre:0.00}");
+            if (!TestCamera.Place(centre + front * CameraDistance + Vector3.up * CameraHeight, centre, "panes of " + target.name)) return "no game camera";
+            if (Visual(p) != null) Visual(p).SetActive(false);                // only for the picture: viewBack shows the body again
+            ModLog.Verbose($"ExtensionFireTestHooks: camera in front of the panes of {target.name} at {centre:0.00}");
             return "in front of " + Utils.GetPrefabName(target);
         }
 
-        const float SafetySeconds = 10f;
-        static int _pause;   // which pause a timer belongs to: an older picture's timer must not end a newer pause
-
-        static System.Collections.IEnumerator GiveBackLater(int pause, float seconds)
-        {
-            yield return new WaitForSeconds(seconds);
-            if (pause == _pause && GameCamera.instance != null && !GameCamera.instance.enabled)
-            {
-                ModLog.Info($"ExtensionFireTestHooks: game camera still paused {seconds:0} s after viewPanes (viewBack never came) - running again");
-                ViewBack();
-            }
-        }
-
-        /// Gives the camera back to the game and shows the player's body again. Returns "back" or "nothing to undo".
+        /// Gives the camera back to the game and shows the player's body again (after viewPanes). Returns "back" or why not.
         [TestHook("GunPowdered.viewBack")]
         static string ViewBack()
         {
             Player p = Player.m_localPlayer;
             if (p != null && Visual(p) != null) Visual(p).SetActive(true);
-            GameCamera game = GameCamera.instance;
-            if (game == null || game.enabled) { ModLog.Verbose("ExtensionFireTestHooks.ViewBack: the game camera runs - nothing to undo"); return "nothing to undo"; }
-            game.enabled = true;
-            ModLog.Verbose("ExtensionFireTestHooks.ViewBack: game camera running again");
-            return game.enabled ? "back" : "camera still paused";
+            bool running = TestCamera.GiveBack("viewBack");
+            ModLog.Verbose("ExtensionFireTestHooks.ViewBack: game camera running " + running);
+            return running ? "back" : "no game camera";
         }
 
         static Renderer Glass(GameObject oven)
