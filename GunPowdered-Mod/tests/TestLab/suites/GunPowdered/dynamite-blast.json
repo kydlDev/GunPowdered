@@ -48,6 +48,12 @@
     },
     {
       "do": "hook",
+      "name": "GunPowdered.rightHand",
+      "expect": "GP_Dynamite, model True",
+      "label": "one stick left: still in the hand"
+    },
+    {
+      "do": "hook",
       "name": "GunPowdered.dynamiteSticks",
       "expect": 1,
       "label": "one stick stands there"

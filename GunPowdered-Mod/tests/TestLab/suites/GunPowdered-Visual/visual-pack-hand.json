@@ -1,0 +1,157 @@
+{
+  "name": "visual-pack-hand",
+  "description": "D-124: the Deep North Dynamite Pack in the player's hand (PackGripPosition is a first guess) from the side, front and above, then set down 2 m ahead.",
+  "timeout": 90,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_DeepNorthPack",
+      "count": 1,
+      "equip": true
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteHandState",
+      "contains": "hand item",
+      "label": "where the pack sits in the hand (logged)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 70,
+        "elevation": 5,
+        "metres": 1.4
+      },
+      "contains": "free camera",
+      "label": "close, right side"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: pack-hand-right"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 180,
+        "elevation": 10,
+        "metres": 1.6
+      },
+      "contains": "free camera",
+      "label": "from the front"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: pack-hand-front"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 20,
+        "elevation": 55,
+        "metres": 1.5
+      },
+      "contains": "free camera",
+      "label": "from above"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: pack-hand-above"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCamOff",
+      "label": "free camera removed"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamitePlaceAt",
+      "args": {
+        "metres": 2
+      },
+      "contains": "placed at",
+      "label": "set the pack down 2 m ahead"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.rightHand",
+      "expect": "none, model False",
+      "label": "the last pack set down: the hand is empty, no pack model left in it"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 30,
+        "elevation": 30,
+        "metres": 3.5
+      },
+      "contains": "free camera",
+      "label": "the pack on the ground"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
+      "label": "GameProbe shot: pack-set-down"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCamOff",
+      "label": "free camera removed"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteRemoveSticks",
+      "contains": "removed",
+      "label": "the pack is taken away"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

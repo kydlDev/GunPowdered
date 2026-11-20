@@ -254,6 +254,35 @@ namespace GunPowdered.Testing.TestHooks
             return lost >= min && lost <= max;
         }
 
+        /// <summary>Removes every unlit or lit charge (stick or pack) within 30 m of the local player, so a visual test leaves none for the next test. Returns "removed N".</summary>
+        [TestHook("GunPowdered.dynamiteRemoveSticks")]
+        static string RemoveSticks()
+        {
+            Player p = Player.m_localPlayer;
+            int n = 0;
+            foreach (DynamiteCharge c in Object.FindObjectsByType<DynamiteCharge>(FindObjectsSortMode.None))
+            {
+                if (p != null && Vector3.Distance(c.transform.position, p.transform.position) > 30f) continue;
+                ZNetView v = c.GetComponent<ZNetView>();
+                if (v != null && v.IsValid()) { v.ClaimOwnership(); ZNetScene.instance.Destroy(c.gameObject); } else Object.Destroy(c.gameObject);
+                n++;
+            }
+            return "removed " + n;
+        }
+
+        /// <summary>What the local player holds in the right hand: the item's prefab name and whether its model is shown, or "none" (also no model).</summary>
+        [TestHook("GunPowdered.rightHand")]
+        static string RightHand()
+        {
+            Player p = Player.m_localPlayer;
+            if (p == null) return "no player";
+            ItemDrop.ItemData item = HarmonyLib.AccessTools.Field(typeof(Humanoid), "m_rightItem").GetValue(p) as ItemDrop.ItemData;      // private in the game
+            VisEquipment vis = p.GetComponent<VisEquipment>();
+            GameObject inst = vis != null ? HarmonyLib.AccessTools.Field(typeof(VisEquipment), "m_rightItemInstance")?.GetValue(vis) as GameObject : null;
+            string s = item == null ? "none" : (item.m_dropPrefab != null ? item.m_dropPrefab.name : item.m_shared.m_name);
+            return s + ", model " + (inst != null);
+        }
+
         static DynamiteCharge Nearest(Vector3 at)
         {
             DynamiteCharge best = null;

@@ -207,6 +207,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
                 return DynamiteRules.NoGround;
             }
             Object.Instantiate(kind.Charge, hit.point, Quaternion.Euler(0f, player.transform.eulerAngles.y, 0f));
+            if (held.m_stack <= 1) player.UnequipItem(held, false);     // the last one: unequip first like the game's Attack.ConsumeItem, or its model stays in the hand (Agent-10, lab a10packvis1)
             player.GetInventory().RemoveItem(held, 1);
             _lastPlaced = Time.time;
             ModLog.Info("DynamiteSetup: " + player.GetPlayerName() + " set " + kind.Name + " down at " + hit.point.ToString("0.00"));
