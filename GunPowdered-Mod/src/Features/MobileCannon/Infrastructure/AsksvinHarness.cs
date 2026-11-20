@@ -143,6 +143,11 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         // Third bone: the chain's end and the hook ring ride the cannon's tow ring itself (between the clevis plates, on the pin), so they stay connected
         // whatever the tow joint's sag or the animal's pose; the chain blends from the spreader (root) to the ring.
         Transform _hookBone, _towRing;
+
+        // Fourth bone (D-143): the root moved by the tow ring's offset from the rest hook, the animal's own turn. The spreader and the chain's start ride it and
+        // the traces fade into it, so where the hook follows the ground down a slope (MobileCannonTow.HookNow) the harness end goes down with the cart's tip
+        // instead of staying at the level body's height with the chain hanging 2-3 m down to the ring (a14slope4).
+        Transform _dropBone;
         float _ringLogAt = -99f;
 
         void FollowRing()
@@ -152,11 +157,13 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             {
                 Transform cannon = _towRing.parent != null ? _towRing.parent : _towRing;
                 _hookBone.SetPositionAndRotation(_towRing.position, cannon.rotation);
+                if (_dropBone != null) _dropBone.SetPositionAndRotation(transform.position + (_towRing.position - transform.TransformPoint(HookLocal)), transform.rotation);
             }
             else
             {
                 _hookBone.localPosition = HookLocal;
                 _hookBone.localRotation = Quaternion.identity;
+                if (_dropBone != null) { _dropBone.localPosition = Vector3.zero; _dropBone.localRotation = Quaternion.identity; }
             }
             if (Time.time - _ringLogAt < 10f) { if (RuleLog.IsOn()) ModLog.Every("AsksvinHarness.FollowRing:159", 2d, "AsksvinHarness.FollowRing: returns (line 159)"); return; }
             _ringLogAt = Time.time;
@@ -243,6 +250,8 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             _hookBone.SetParent(transform, false);
             _hookBone.localPosition = HookLocal;
             _hookBone.localRotation = Quaternion.identity;
+            _dropBone = new GameObject("gp_drop_follow").transform;
+            _dropBone.SetParent(transform, false);
             float hookZ = HookLocal.z + HookRingRadius;
 
             // Bone list: every bone of the animal's skins (saddle and body), then the root, then the hook follower. The straps take the skin weights of the
@@ -285,9 +294,10 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             }
             int saddleIndex = boneList.IndexOf(bones[_saddleBone]);
             if (saddleIndex < 0) { boneList.Add(bones[_saddleBone]); bindList.Add(_saddle.sharedMesh.bindposes[_saddleBone] * _saddle.transform.worldToLocalMatrix); saddleIndex = boneList.Count - 1; }
-            int rootIndex = boneList.Count, hookIndex = boneList.Count + 1;
+            int rootIndex = boneList.Count, hookIndex = boneList.Count + 1, dropIndex = boneList.Count + 2;
             boneList.Add(transform);
             boneList.Add(_hookBone);
+            boneList.Add(_dropBone);
             Transform[] allBones = boneList.ToArray();
 
             int skinned = 0, kept = 0, copied = 0;
@@ -313,20 +323,21 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                     if (onSaddle <= 0f)
                     {
                         float onRing = 1f - GunPowdered.Features.MobileCannon.Domain.AsksvinTowRules.SaddleWeight(z, _rear, hookZ);
-                        w[i] = new BoneWeight { boneIndex0 = hookIndex, weight0 = onRing, boneIndex1 = saddleIndex, weight1 = 1f - onRing };      // spreader on the spine bone, chain to the cannon's ring
+                        w[i] = new BoneWeight { boneIndex0 = hookIndex, weight0 = onRing, boneIndex1 = dropIndex, weight1 = 1f - onRing };      // spreader on the drop follower (D-143), chain to the cannon's ring
                         continue;
                     }
                     float dist;
                     BoneWeight body;
                     if (donors > 0 && donor.Nearest(restWorld.MultiplyPoint3x4(v[i]), out body, out dist)) { copied++; far = Mathf.Max(far, dist); }
                     else body = new BoneWeight { boneIndex0 = saddleIndex, weight0 = 1f };
-                    w[i] = SkinDonor.Blend(body, onSaddle, saddleIndex);      // straps on the hide's own weights, the traces fading to the spine bone towards the spreader
+                    w[i] = SkinDonor.Blend(body, onSaddle, dropIndex);        // straps on the hide's own weights, the traces fading to the drop follower towards the spreader (D-143)
                 }
                 mesh.boneWeights = w;
                 var bind = new Matrix4x4[allBones.Length];
                 for (int b = 0; b < bindList.Count; b++) bind[b] = bindList[b] * restWorld;
                 bind[rootIndex] = transform.worldToLocalMatrix * restWorld;
                 bind[hookIndex] = _hookBone.worldToLocalMatrix * restWorld;
+                bind[dropIndex] = _dropBone.worldToLocalMatrix * restWorld;
                 mesh.bindposes = bind;
                 Material[] mats = mr.sharedMaterials;
                 GameObject go = mf.gameObject;
