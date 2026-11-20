@@ -21,6 +21,9 @@ namespace GunPowdered.Testing.TestHooks
         static Vector3? _blast;
         static bool _running;
         static float _thrownAt;
+        // the throw flew with grenadeTestDrag on (the negative test meta-grenade-arc-check-fails): its miss is intended, so it is not a CHECK OFF
+        // (a11gate: that one intended miss was the only CHECK OFF of every session and turned G06 / G12 into WARN)
+        static float _throwTestDrag;
         static string _note = "no throw yet";
         static readonly System.Collections.Generic.List<GameObject> Placed = new System.Collections.Generic.List<GameObject>();
         // blasts that already existed at the throw (an earlier test's blast lives 3 s): never taken for this throw's (runs gren1: meta + creature test read a stale one)
@@ -57,6 +60,7 @@ namespace GunPowdered.Testing.TestHooks
             _predicted = predicted;
             _blast = null;
             _thrownAt = Time.time;
+            _throwTestDrag = GrenadeSetup.TestFlightDrag;
             OldBlasts.Clear();
             foreach (Aoe a in Object.FindObjectsByType<Aoe>(FindObjectsSortMode.None)) OldBlasts.Add(a.GetInstanceID());
             ModLog.Verbose("GrenadeTestHooks: watching a throw, predicted landing " + (predicted.HasValue ? predicted.Value.ToString("0.00") : "none") + ", " + OldBlasts.Count + " older blast(s) ignored");
@@ -91,7 +95,8 @@ namespace GunPowdered.Testing.TestHooks
             if (!_blast.HasValue) return "bad: no blast seen (" + _note + ")";
             float flat = Vector2.Distance(new Vector2(_predicted.Value.x, _predicted.Value.z), new Vector2(_blast.Value.x, _blast.Value.z));
             string nums = "drawn " + _predicted.Value.ToString("0.00") + ", blast " + _blast.Value.ToString("0.00") + ", " + flat.ToString("0.00", CultureInfo.InvariantCulture) + " m apart";
-            ModLog.Check("grenade blast distance from the drawn landing", flat, 0d, Tolerance, "m");
+            if (_throwTestDrag > 0f) ModLog.Info("GrenadeTestHooks: intended miss of the negative test (test flight drag " + _throwTestDrag.ToString("0.###", CultureInfo.InvariantCulture) + " at the throw): " + nums);
+            else ModLog.Check("grenade blast distance from the drawn landing", flat, 0d, Tolerance, "m");
             ModLog.Verbose("GrenadeTestHooks: " + nums);
             return flat <= Tolerance ? "ok" : "bad: " + nums;
         }
