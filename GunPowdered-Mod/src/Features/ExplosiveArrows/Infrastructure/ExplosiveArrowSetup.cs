@@ -84,7 +84,7 @@ namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
             blast.m_hitFriendly = false;         // not tamed animals / players without PvP
             blast.m_ignorePVP = false;
             blast.m_hitAfterTtl = false;         // hit WITH the burst (the dynamite base would hit only when its 3 s life ends)
-            { var returnedAt87 = flight != null && blast.m_hitProps && Mathf.Approximately(blast.m_radius, ModSettings.ExplosiveArrowRadius.Value); if (RuleLog.On) ModLog.Every("ExplosiveArrowSetup.Apply:87", 2d, $"ExplosiveArrowSetup.Apply: returns {returnedAt87} (line 87)"); return returnedAt87; }
+            { var returnedAt87 = flight != null && blast.m_hitProps && Mathf.Approximately(blast.m_radius, ModSettings.ExplosiveArrowRadius.Value); if (RuleLog.On) ModLog.Every("ExplosiveArrowSetup.Apply:87", 2d, $"ExplosiveArrowSetup.Apply: returns {RuleLog.Shown(returnedAt87)} (line 87)"); return returnedAt87; }
         }
 
         /// <summary>Is this item an Explosive Arrow (by prefab name).</summary>
@@ -94,7 +94,7 @@ namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
         // the flight shows the arrow's own model (the bundle's gp_model) instead of the iron arrow's
         static bool ArrowLook(GameObject item, GameObject flightPrefab)
         {
-            if (RuleLog.On) ModLog.Verbose($"ExplosiveArrowSetup.ArrowLook(item={item}, flightPrefab={flightPrefab})");
+            if (RuleLog.On) ModLog.Verbose($"ExplosiveArrowSetup.ArrowLook(item={RuleLog.Shown(item)}, flightPrefab={RuleLog.Shown(flightPrefab)})");
             Transform model = item.transform.Find("gp_model");
             Projectile flight = flightPrefab != null ? flightPrefab.GetComponent<Projectile>() : null;
             if (model == null || flight == null) { if (RuleLog.On) ModLog.Verbose("ExplosiveArrowSetup.ArrowLook: returns false (line 100)"); return false; }
@@ -117,7 +117,7 @@ namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
             {
                 if (PrefabManager.Instance.GetPrefab(b) == null) continue;
                 GameObject clone = PrefabManager.Instance.CreateClonedPrefab(id, b);
-                if (clone != null) { var returnedAt120 = clone; if (RuleLog.On) ModLog.Verbose($"ExplosiveArrowSetup.CloneFirst: returns {returnedAt120} (line 120)"); return returnedAt120; }
+                if (clone != null) { var returnedAt120 = clone; if (RuleLog.On) ModLog.Verbose($"ExplosiveArrowSetup.CloneFirst: returns {RuleLog.Shown(returnedAt120)} (line 120)"); return returnedAt120; }
             }
             ModLog.Error("ExplosiveArrowSetup: no vanilla base for " + id);
             return null;
@@ -125,7 +125,7 @@ namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
 
         static void StripTerrainWork(GameObject explosion)
         {
-            if (RuleLog.On) ModLog.Verbose($"ExplosiveArrowSetup.StripTerrainWork(explosion={explosion})");
+            if (RuleLog.On) ModLog.Verbose($"ExplosiveArrowSetup.StripTerrainWork(explosion={RuleLog.Shown(explosion)})");
             foreach (TerrainOp op in explosion.GetComponentsInChildren<TerrainOp>(true)) Object.DestroyImmediate(op);
         }
     }

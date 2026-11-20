@@ -30,7 +30,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
         // The asked mode is read in the Prefix, before the game runs.
         static void Prefix(object[] __args, ref int __state)
         {
-            if (RuleLog.On) ModLog.Every("LocationSpawnPatch.Prefix", 2d, $"LocationSpawnPatch.Prefix(__args={__args}, __state={__state})");
+            if (RuleLog.On) ModLog.Every("LocationSpawnPatch.Prefix", 2d, $"LocationSpawnPatch.Prefix(__args={RuleLog.Shown(__args)}, __state={RuleLog.Shown(__state)})");
             __state = __args != null && __args.Length > 4 && __args[4] is ZoneSystem.SpawnMode ? (int)(ZoneSystem.SpawnMode)__args[4] : -1;
         }
 
@@ -64,13 +64,13 @@ namespace GunPowdered.Integrations.HarmonyPatches
         // The Draugr piles of the location prefab, turned into world positions of this copy.
         static List<Vector3> Spots(ZoneSystem.ZoneLocation loc, Vector3 pos, Quaternion rot)
         {
-            if (RuleLog.On) ModLog.Every("LocationSpawnPatch.Spots", 2d, $"LocationSpawnPatch.Spots(loc={loc}, pos={pos}, rot={rot})");
+            if (RuleLog.On) ModLog.Every("LocationSpawnPatch.Spots", 2d, $"LocationSpawnPatch.Spots(loc={RuleLog.Shown(loc)}, pos={RuleLog.Shown(pos)}, rot={RuleLog.Shown(rot)})");
             var spots = new List<Vector3>();
-            if (loc.m_prefab == null || !loc.m_prefab.IsLoaded) { var returnedAt69 = spots; if (RuleLog.On) ModLog.Every("LocationSpawnPatch.Spots:69", 2d, $"LocationSpawnPatch.Spots: returns {returnedAt69} (line 69)"); return returnedAt69; }
+            if (loc.m_prefab == null || !loc.m_prefab.IsLoaded) { var returnedAt69 = spots; if (RuleLog.On) ModLog.Every("LocationSpawnPatch.Spots:69", 2d, $"LocationSpawnPatch.Spots: returns {RuleLog.Shown(returnedAt69)} (line 69)"); return returnedAt69; }
             Transform root = loc.m_prefab.Asset.transform;
             foreach (Transform t in root.GetComponentsInChildren<Transform>(true))
                 if (t.name.StartsWith(DraugrPile)) spots.Add(pos + rot * root.InverseTransformPoint(t.position));
-            { var returnedAt73 = spots; if (RuleLog.On) ModLog.Every("LocationSpawnPatch.Spots:73", 2d, $"LocationSpawnPatch.Spots: returns {returnedAt73} (line 73)"); return returnedAt73; }
+            { var returnedAt73 = spots; if (RuleLog.On) ModLog.Every("LocationSpawnPatch.Spots:73", 2d, $"LocationSpawnPatch.Spots: returns {RuleLog.Shown(returnedAt73)} (line 73)"); return returnedAt73; }
         }
 
         static IEnumerator PlaceLater(string name, bool geyser, Vector3 pos, List<Vector3> spots, int seed)

@@ -32,12 +32,12 @@ namespace GunPowdered.Features.Gunpowder.Infrastructure
 
         static Transform FindDeep(Transform root, string name)
         {
-            if (RuleLog.On) ModLog.Verbose($"PowderMillSpin.FindDeep(root={root}, name={name})");
+            if (RuleLog.On) ModLog.Verbose($"PowderMillSpin.FindDeep(root={RuleLog.Shown(root)}, name={RuleLog.Shown(name)})");
             foreach (Transform c in root)
             {
-                if (c.name == name) { var returnedAt38 = c; if (RuleLog.On) ModLog.Verbose($"PowderMillSpin.FindDeep: returns {returnedAt38} (line 38)"); return returnedAt38; }
+                if (c.name == name) { var returnedAt38 = c; if (RuleLog.On) ModLog.Verbose($"PowderMillSpin.FindDeep: returns {RuleLog.Shown(returnedAt38)} (line 38)"); return returnedAt38; }
                 Transform f = FindDeep(c, name);
-                if (f != null) { var returnedAt40 = f; if (RuleLog.On) ModLog.Verbose($"PowderMillSpin.FindDeep: returns {returnedAt40} (line 40)"); return returnedAt40; }
+                if (f != null) { var returnedAt40 = f; if (RuleLog.On) ModLog.Verbose($"PowderMillSpin.FindDeep: returns {RuleLog.Shown(returnedAt40)} (line 40)"); return returnedAt40; }
             }
             { if (RuleLog.On) ModLog.Verbose("PowderMillSpin.FindDeep: returns null (line 42)"); return null; }
         }
@@ -65,7 +65,7 @@ namespace GunPowdered.Features.Gunpowder.Infrastructure
         // the local player has this mill's window open: keep the stamp fresh (the owner of the network object is not needed, any client may write it)
         void Stamp(double now)
         {
-            if (RuleLog.On) ModLog.Every("PowderMillSpin.Stamp", 2d, $"PowderMillSpin.Stamp(now={now})");
+            if (RuleLog.On) ModLog.Every("PowderMillSpin.Stamp", 2d, $"PowderMillSpin.Stamp(now={RuleLog.Shown(now)})");
             if (Time.time < _nextStamp || Player.m_localPlayer == null || _station == null) { if (RuleLog.On) ModLog.Every("PowderMillSpin.Stamp:69", 2d, "PowderMillSpin.Stamp: returns (line 69)"); return; }
             if (Player.m_localPlayer.GetCurrentCraftingStation() != _station) { if (RuleLog.On) ModLog.Every("PowderMillSpin.Stamp:70", 2d, "PowderMillSpin.Stamp: returns (line 70)"); return; }
             _nextStamp = Time.time + StampSeconds;

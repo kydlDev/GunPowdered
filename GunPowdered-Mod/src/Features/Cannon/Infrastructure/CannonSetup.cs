@@ -91,7 +91,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         // our "attach" takes the Ooze Bomb attach's own place under its item, so the ball centre measured in that space means the same in ours
         static void CopyGrip(Transform attach)
         {
-            if (RuleLog.On) ModLog.Verbose($"CannonSetup.CopyGrip(attach={attach})");
+            if (RuleLog.On) ModLog.Verbose($"CannonSetup.CopyGrip(attach={RuleLog.Shown(attach)})");
             GameObject bomb = PrefabManager.Instance.GetPrefab("BombOoze");
             Transform grip = bomb != null ? bomb.transform.Find("attach") : null;
             if (grip == null) { if (RuleLog.On) ModLog.Verbose("CannonSetup.CopyGrip: returns (line 97)"); return; }

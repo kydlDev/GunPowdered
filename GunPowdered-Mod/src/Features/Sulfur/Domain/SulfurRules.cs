@@ -25,21 +25,21 @@ namespace GunPowdered.Features.Sulfur.Domain
         /// <summary>Expected outcome: true when the roll is a hit. Mud deposits always give sulfur; only kills use this.</summary>
         internal static bool KillDrops(double roll01)
         {
-            if (RuleLog.On) RuleLog.Verbose($"SulfurRules.KillDrops(roll01={roll01})");
-            { var returnedAt29 = Roll.Chance(KillDropChance, roll01); if (RuleLog.On) RuleLog.Verbose($"SulfurRules.KillDrops: returns {returnedAt29} (line 29)"); return returnedAt29; }
+            if (RuleLog.On) RuleLog.Verbose($"SulfurRules.KillDrops(roll01={RuleLog.Shown(roll01)})");
+            { var returnedAt29 = Roll.Chance(KillDropChance, roll01); if (RuleLog.On) RuleLog.Verbose($"SulfurRules.KillDrops: returns {RuleLog.Shown(returnedAt29)} (line 29)"); return returnedAt29; }
         }
 
         /// <summary>Expected outcome: a whole number from <see cref="Min"/> to <see cref="Max"/> of the source.</summary>
         internal static int Amount(SulfurSource source, Func<double> next01)
         {
-            if (RuleLog.On) RuleLog.Every("SulfurRules.Amount", 2d, $"SulfurRules.Amount(source={source}, next01={next01})");
-            { var returnedAt36 = Roll.IntInclusive(Min, Max(source), next01()); if (RuleLog.On) RuleLog.Every("SulfurRules.Amount:36", 2d, $"SulfurRules.Amount: returns {returnedAt36} (line 36)"); return returnedAt36; }
+            if (RuleLog.On) RuleLog.Every("SulfurRules.Amount", 2d, $"SulfurRules.Amount(source={RuleLog.Shown(source)}, next01={RuleLog.Shown(next01)})");
+            { var returnedAt36 = Roll.IntInclusive(Min, Max(source), next01()); if (RuleLog.On) RuleLog.Every("SulfurRules.Amount:36", 2d, $"SulfurRules.Amount: returns {RuleLog.Shown(returnedAt36)} (line 36)"); return returnedAt36; }
         }
 
         internal static int Max(SulfurSource source)
         {
-            if (RuleLog.On) RuleLog.Every("SulfurRules.Max", 2d, $"SulfurRules.Max(source={source})");
-            { var returnedAt42 = source == SulfurSource.SulfurousMud ? 3 : 2; if (RuleLog.On) RuleLog.Every("SulfurRules.Max:42", 2d, $"SulfurRules.Max: returns {returnedAt42} (line 42)"); return returnedAt42; }
+            if (RuleLog.On) RuleLog.Every("SulfurRules.Max", 2d, $"SulfurRules.Max(source={RuleLog.Shown(source)})");
+            { var returnedAt42 = source == SulfurSource.SulfurousMud ? 3 : 2; if (RuleLog.On) RuleLog.Every("SulfurRules.Max:42", 2d, $"SulfurRules.Max: returns {RuleLog.Shown(returnedAt42)} (line 42)"); return returnedAt42; }
         }
     }
 }

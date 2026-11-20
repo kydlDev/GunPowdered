@@ -13,7 +13,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
     {
         static void Prefix(Humanoid character, ref bool __state)
         {
-            if (RuleLog.On) ModLog.Every("CaveEntryPatch.Prefix", 2d, $"CaveEntryPatch.Prefix(character={character}, __state={__state})");
+            if (RuleLog.On) ModLog.Every("CaveEntryPatch.Prefix", 2d, $"CaveEntryPatch.Prefix(character={RuleLog.Shown(character)}, __state={RuleLog.Shown(__state)})");
             __state = character != null && !character.InInterior();     // outside before the teleport = going in
         }
 

@@ -11,7 +11,7 @@ namespace GunPowdered.Features.Grenades.Domain
     {
         internal AimSpot(float distance, float sideDegrees)
         {
-            if (RuleLog.On) RuleLog.Verbose($"AimSpot.AimSpot(distance={distance}, sideDegrees={sideDegrees})");
+            if (RuleLog.On) RuleLog.Verbose($"AimSpot.AimSpot(distance={RuleLog.Shown(distance)}, sideDegrees={RuleLog.Shown(sideDegrees)})");
             Distance = distance;
             SideDegrees = sideDegrees;
         }

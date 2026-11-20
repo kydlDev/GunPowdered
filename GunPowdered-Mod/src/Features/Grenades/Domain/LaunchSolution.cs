@@ -6,7 +6,7 @@ namespace GunPowdered.Features.Grenades.Domain
     {
         internal LaunchSolution(ArcVector direction, float elevationDegrees, bool reachable)
         {
-            if (RuleLog.On) RuleLog.Every("LaunchSolution.LaunchSolution", 2d, $"LaunchSolution.LaunchSolution(direction={direction}, elevationDegrees={elevationDegrees}, reachable={reachable})");
+            if (RuleLog.On) RuleLog.Every("LaunchSolution.LaunchSolution", 2d, $"LaunchSolution.LaunchSolution(direction={RuleLog.Shown(direction)}, elevationDegrees={RuleLog.Shown(elevationDegrees)}, reachable={RuleLog.Shown(reachable)})");
             Direction = direction;
             ElevationDegrees = elevationDegrees;
             Reachable = reachable;

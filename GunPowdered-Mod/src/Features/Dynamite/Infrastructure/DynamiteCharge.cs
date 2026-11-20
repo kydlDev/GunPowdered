@@ -49,14 +49,14 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         public string GetHoverText()
         {
             if (RuleLog.On) ModLog.Verbose($"DynamiteCharge.GetHoverText()");
-            if (IsLit) { var returnedAt52 = Kind.Name + "\n" + DynamiteRules.Burning + " (" + DynamiteRules.FuseLeft(LitAt, Now()).ToString("0.0") + " s)"; if (RuleLog.On) ModLog.Verbose($"DynamiteCharge.GetHoverText: returns {returnedAt52} (line 52)"); return returnedAt52; }
-            { var returnedAt53 = Localization.instance.Localize(Kind.Name + "\n[<color=yellow><b>$KEY_Use</b></color>] Light the fuse (hold a Torch)"); if (RuleLog.On) ModLog.Verbose($"DynamiteCharge.GetHoverText: returns {returnedAt53} (line 53)"); return returnedAt53; }
+            if (IsLit) { var returnedAt52 = Kind.Name + "\n" + DynamiteRules.Burning + " (" + DynamiteRules.FuseLeft(LitAt, Now()).ToString("0.0") + " s)"; if (RuleLog.On) ModLog.Verbose($"DynamiteCharge.GetHoverText: returns {RuleLog.Shown(returnedAt52)} (line 52)"); return returnedAt52; }
+            { var returnedAt53 = Localization.instance.Localize(Kind.Name + "\n[<color=yellow><b>$KEY_Use</b></color>] Light the fuse (hold a Torch)"); if (RuleLog.On) ModLog.Verbose($"DynamiteCharge.GetHoverText: returns {RuleLog.Shown(returnedAt53)} (line 53)"); return returnedAt53; }
         }
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
-            if (RuleLog.On) ModLog.Every("DynamiteCharge.Interact", 2d, $"DynamiteCharge.Interact(user={user}, hold={hold}, alt={alt})");
-            { var returnedAt59 = !hold && Light(user) == null; if (RuleLog.On) ModLog.Every("DynamiteCharge.Interact:59", 2d, $"DynamiteCharge.Interact: returns {returnedAt59} (line 59)"); return returnedAt59; }
+            if (RuleLog.On) ModLog.Every("DynamiteCharge.Interact", 2d, $"DynamiteCharge.Interact(user={RuleLog.Shown(user)}, hold={RuleLog.Shown(hold)}, alt={RuleLog.Shown(alt)})");
+            { var returnedAt59 = !hold && Light(user) == null; if (RuleLog.On) ModLog.Every("DynamiteCharge.Interact:59", 2d, $"DynamiteCharge.Interact: returns {RuleLog.Shown(returnedAt59)} (line 59)"); return returnedAt59; }
         }
 
         public bool UseItem(Humanoid user, ItemDrop.ItemData item) => false;
@@ -69,7 +69,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             if (why != null)
             {
                 user.Message(MessageHud.MessageType.Center, why);
-                { var returnedAt72 = why; if (RuleLog.On) ModLog.Every("DynamiteCharge.Light:72", 2d, $"DynamiteCharge.Light: returns {returnedAt72} (line 72)"); return returnedAt72; }
+                { var returnedAt72 = why; if (RuleLog.On) ModLog.Every("DynamiteCharge.Light:72", 2d, $"DynamiteCharge.Light: returns {RuleLog.Shown(returnedAt72)} (line 72)"); return returnedAt72; }
             }
             Player p = user as Player;
             _nview.InvokeRPC(LightRpc, p != null ? p.GetPlayerID() : 0L);
@@ -80,7 +80,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 
         void RPC_Light(long sender, long playerId)
         {
-            if (RuleLog.On) ModLog.Verbose($"DynamiteCharge.RPC_Light(sender={sender}, playerId={playerId})");
+            if (RuleLog.On) ModLog.Verbose($"DynamiteCharge.RPC_Light(sender={RuleLog.Shown(sender)}, playerId={RuleLog.Shown(playerId)})");
             if (!_nview.IsOwner() || IsLit) { if (RuleLog.On) ModLog.Verbose("DynamiteCharge.RPC_Light: returns (line 84)"); return; }
             ZDO zdo = _nview.GetZDO();
             zdo.Set(LitKey, (long)(Now() * 1000d));
@@ -154,7 +154,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         // a Torch type item equipped in either hand (the hand cannon's rule, CannonInventory.HoldsTorch)
         internal static bool TorchInHand(Humanoid user)
         {
-            if (RuleLog.On) ModLog.Every("DynamiteCharge.TorchInHand", 2d, $"DynamiteCharge.TorchInHand(user={user})");
+            if (RuleLog.On) ModLog.Every("DynamiteCharge.TorchInHand", 2d, $"DynamiteCharge.TorchInHand(user={RuleLog.Shown(user)})");
             Inventory inv = user != null ? user.GetInventory() : null;
             if (inv == null) { if (RuleLog.On) ModLog.Every("DynamiteCharge.TorchInHand:159", 2d, "DynamiteCharge.TorchInHand: returns false (line 159)"); return false; }
             foreach (ItemDrop.ItemData i in inv.GetAllItems())

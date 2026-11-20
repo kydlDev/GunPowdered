@@ -61,12 +61,12 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             Read(Wanted);
             bool same = _everApplied;
             for (int i = 0; same && i < Wanted.Length; i++) same = Wanted[i].CompareTo(Applied[i]) == 0;
-            { var returnedAt64 = same ? _item != null : Apply(); if (RuleLog.On) ModLog.Every("GrenadeSetup.ApplyIfChanged:64", 2d, $"GrenadeSetup.ApplyIfChanged: returns {returnedAt64} (line 64)"); return returnedAt64; }
+            { var returnedAt64 = same ? _item != null : Apply(); if (RuleLog.On) ModLog.Every("GrenadeSetup.ApplyIfChanged:64", 2d, $"GrenadeSetup.ApplyIfChanged: returns {RuleLog.Shown(returnedAt64)} (line 64)"); return returnedAt64; }
         }
 
         static void Read(float[] into)
         {
-            if (RuleLog.On) ModLog.Every("GrenadeSetup.Read", 2d, $"GrenadeSetup.Read(into={into})");
+            if (RuleLog.On) ModLog.Every("GrenadeSetup.Read", 2d, $"GrenadeSetup.Read(into={RuleLog.Shown(into)})");
             into[0] = ModSettings.GrenadeSpeed.Value;
             into[1] = ModSettings.GrenadeGravity.Value;
             into[2] = ModSettings.GrenadeFuseSeconds.Value;
@@ -131,7 +131,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             ModLog.Verbose("GrenadeSetup: applied - speed " + speed + " m/s, gravity " + flight.m_gravity + ", fuse " + flight.m_ttl + " s, burst offset " + flight.m_spawnOffset + ", radius " + blast.m_radius
                 + " m, damage blunt " + blast.m_damage.m_blunt + " pierce " + blast.m_damage.m_pierce + " fire " + blast.m_damage.m_fire + ", recoil " + attack.m_recoilPushback
                 + (TestFlightDrag > 0f ? ", TEST flight drag " + TestFlightDrag : ""));
-            { var returnedAt134 = Mathf.Approximately(attack.m_projectileVel, speed) && Mathf.Approximately(blast.m_radius, ModSettings.GrenadeRadius.Value) && blast.m_hitProps; if (RuleLog.On) ModLog.Every("GrenadeSetup.Apply:134", 2d, $"GrenadeSetup.Apply: returns {returnedAt134} (line 134)"); return returnedAt134; }
+            { var returnedAt134 = Mathf.Approximately(attack.m_projectileVel, speed) && Mathf.Approximately(blast.m_radius, ModSettings.GrenadeRadius.Value) && blast.m_hitProps; if (RuleLog.On) ModLog.Every("GrenadeSetup.Apply:134", 2d, $"GrenadeSetup.Apply: returns {RuleLog.Shown(returnedAt134)} (line 134)"); return returnedAt134; }
         }
 
         static GameObject CloneFirst(string id, string[] bases)

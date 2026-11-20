@@ -72,20 +72,20 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>The cannon a character is hitched to (null when none): used by the speed and turning patches.</summary>
         internal static MobileCannonPull PulledBy(Character c)
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonPull.PulledBy", 2d, $"MobileCannonPull.PulledBy(c={c})");
+            if (RuleLog.On) ModLog.Every("MobileCannonPull.PulledBy", 2d, $"MobileCannonPull.PulledBy(c={RuleLog.Shown(c)})");
             if (c == null) { if (RuleLog.On) ModLog.Every("MobileCannonPull.PulledBy:76", 2d, "MobileCannonPull.PulledBy: returns null (line 76)"); return null; }
             foreach (MobileCannonPull p in Instances)
-                if (p != null && p.Hitched == c) { var returnedAt78 = p; if (RuleLog.On) ModLog.Every("MobileCannonPull.PulledBy:78", 2d, $"MobileCannonPull.PulledBy: returns {returnedAt78} (line 78)"); return returnedAt78; }
+                if (p != null && p.Hitched == c) { var returnedAt78 = p; if (RuleLog.On) ModLog.Every("MobileCannonPull.PulledBy:78", 2d, $"MobileCannonPull.PulledBy: returns {RuleLog.Shown(returnedAt78)} (line 78)"); return returnedAt78; }
             { if (RuleLog.On) ModLog.Every("MobileCannonPull.PulledBy:79", 2d, "MobileCannonPull.PulledBy: returns null (line 79)"); return null; }
         }
 
         /// <summary>Where the character should face: towards the cannon's body, flat.</summary>
         internal Quaternion FacingFor(Character c)
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonPull.FacingFor", 2d, $"MobileCannonPull.FacingFor(c={c})");
+            if (RuleLog.On) ModLog.Every("MobileCannonPull.FacingFor", 2d, $"MobileCannonPull.FacingFor(c={RuleLog.Shown(c)})");
             Vector3 to = transform.position - c.transform.position;
             to.y = 0f;
-            { var returnedAt88 = to.sqrMagnitude > 0.0001f ? Quaternion.LookRotation(to.normalized) : c.transform.rotation; if (RuleLog.On) ModLog.Every("MobileCannonPull.FacingFor:88", 2d, $"MobileCannonPull.FacingFor: returns {returnedAt88} (line 88)"); return returnedAt88; }
+            { var returnedAt88 = to.sqrMagnitude > 0.0001f ? Quaternion.LookRotation(to.normalized) : c.transform.rotation; if (RuleLog.On) ModLog.Every("MobileCannonPull.FacingFor:88", 2d, $"MobileCannonPull.FacingFor: returns {RuleLog.Shown(returnedAt88)} (line 88)"); return returnedAt88; }
         }
 
         void Update()

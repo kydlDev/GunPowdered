@@ -42,5 +42,15 @@ namespace GunPowdered.Core
             Sink(message);
             return true;
         }
+        /// <summary>
+        /// A value as one short log text: line breaks become " | ", at most 160 characters (then "... (N chars)"), and "CHECK OFF" is written "CHECK_OFF" -
+        /// a logged value (a flight recorder dump, a log line passed on) must not count as a real failed check (rule log check common.no-check-off).
+        /// </summary>
+        public static string Shown(object value)
+        {
+            string text = value == null ? "null" : value.ToString();
+            text = text.Replace("\r\n", " | ").Replace("\n", " | ").Replace("\r", " | ").Replace("CHECK OFF", "CHECK_OFF");
+            return text.Length <= 160 ? text : text.Substring(0, 160) + "... (" + text.Length + " chars)";
+        }
     }
 }

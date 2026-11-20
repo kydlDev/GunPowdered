@@ -30,7 +30,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
 
         static bool Prefix(MonsterAI __instance, ref bool __result)
         {
-            if (RuleLog.On) ModLog.Every("AsksvinTestDrivePatch.Prefix", 2d, $"AsksvinTestDrivePatch.Prefix(__instance={__instance}, __result={__result})");
+            if (RuleLog.On) ModLog.Every("AsksvinTestDrivePatch.Prefix", 2d, $"AsksvinTestDrivePatch.Prefix(__instance={RuleLog.Shown(__instance)}, __result={RuleLog.Shown(__result)})");
             Vector3? to = _target != null ? _target(__instance) : null;
             if (to == null) { if (RuleLog.On) ModLog.Every("AsksvinTestDrivePatch.Prefix:35", 2d, "AsksvinTestDrivePatch.Prefix: returns true (line 35)"); return true; }
             Vector3 d = to.Value - __instance.transform.position;

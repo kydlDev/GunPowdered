@@ -67,7 +67,7 @@ namespace GunPowdered
         {
             internal MusketShot(Player shooter, ItemDrop.ItemData musket, Vector3 muzzle, Vector3 direction, int cartridgesLeft, GameObject bullet)
             {
-                if (RuleLog.On) ModLog.Verbose($"MusketShot.MusketShot(shooter={shooter}, musket={musket}, muzzle={muzzle}, direction={direction}, cartridgesLeft={cartridgesLeft}, bullet={bullet})");
+                if (RuleLog.On) ModLog.Verbose($"MusketShot.MusketShot(shooter={RuleLog.Shown(shooter)}, musket={RuleLog.Shown(musket)}, muzzle={RuleLog.Shown(muzzle)}, direction={RuleLog.Shown(direction)}, cartridgesLeft={RuleLog.Shown(cartridgesLeft)}, bullet={RuleLog.Shown(bullet)})");
                 Shooter = shooter;
                 Weapon = musket;
                 Muzzle = muzzle;

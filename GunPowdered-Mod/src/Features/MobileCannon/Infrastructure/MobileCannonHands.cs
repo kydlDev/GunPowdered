@@ -13,7 +13,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>Bends both arms onto the grips. Expected outcome: true when both hands were placed (false without a humanoid animator or grips).</summary>
         internal static bool Hold(Animator animator, Transform gripA, Transform gripB, Vector3 towardsCannon)
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonHands.Hold", 2d, $"MobileCannonHands.Hold(animator={animator}, gripA={gripA}, gripB={gripB}, towardsCannon={towardsCannon})");
+            if (RuleLog.On) ModLog.Every("MobileCannonHands.Hold", 2d, $"MobileCannonHands.Hold(animator={RuleLog.Shown(animator)}, gripA={RuleLog.Shown(gripA)}, gripB={RuleLog.Shown(gripB)}, towardsCannon={RuleLog.Shown(towardsCannon)})");
             if (animator == null || !animator.isHuman || gripA == null || gripB == null) { if (RuleLog.On) ModLog.Every("MobileCannonHands.Hold:17", 2d, "MobileCannonHands.Hold: returns false (line 17)"); return false; }
             Transform body = animator.transform;
             Vector3 right = body.right;
@@ -21,12 +21,12 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             bool aIsRight = Vector3.Dot(gripA.position - body.position, right) > Vector3.Dot(gripB.position - body.position, right);
             bool r = Arm(animator, true, aIsRight ? gripA.position : gripB.position, towardsCannon, body);
             bool l = Arm(animator, false, aIsRight ? gripB.position : gripA.position, towardsCannon, body);
-            { var returnedAt24 = r && l; if (RuleLog.On) ModLog.Every("MobileCannonHands.Hold:24", 2d, $"MobileCannonHands.Hold: returns {returnedAt24} (line 24)"); return returnedAt24; }
+            { var returnedAt24 = r && l; if (RuleLog.On) ModLog.Every("MobileCannonHands.Hold:24", 2d, $"MobileCannonHands.Hold: returns {RuleLog.Shown(returnedAt24)} (line 24)"); return returnedAt24; }
         }
 
         static bool Arm(Animator a, bool right, Vector3 grip, Vector3 forward, Transform body)
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonHands.Arm", 2d, $"MobileCannonHands.Arm(a={a}, right={right}, grip={grip}, forward={forward}, body={body})");
+            if (RuleLog.On) ModLog.Every("MobileCannonHands.Arm", 2d, $"MobileCannonHands.Arm(a={RuleLog.Shown(a)}, right={RuleLog.Shown(right)}, grip={RuleLog.Shown(grip)}, forward={RuleLog.Shown(forward)}, body={RuleLog.Shown(body)})");
             Transform upper = a.GetBoneTransform(right ? HumanBodyBones.RightUpperArm : HumanBodyBones.LeftUpperArm);
             Transform lower = a.GetBoneTransform(right ? HumanBodyBones.RightLowerArm : HumanBodyBones.LeftLowerArm);
             Transform hand = a.GetBoneTransform(right ? HumanBodyBones.RightHand : HumanBodyBones.LeftHand);
@@ -51,7 +51,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>Turns the hand so the fingers point along <paramref name="fingers"/> and the palm faces <paramref name="palm"/> (palm normal = cross(fingers, thumb) x side).</summary>
         static void Orient(Transform hand, Transform mid, Transform thumb, float side, Vector3 fingers, Vector3 palm)
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonHands.Orient", 2d, $"MobileCannonHands.Orient(hand={hand}, mid={mid}, thumb={thumb}, side={side}, fingers={fingers}, palm={palm})");
+            if (RuleLog.On) ModLog.Every("MobileCannonHands.Orient", 2d, $"MobileCannonHands.Orient(hand={RuleLog.Shown(hand)}, mid={RuleLog.Shown(mid)}, thumb={RuleLog.Shown(thumb)}, side={RuleLog.Shown(side)}, fingers={RuleLog.Shown(fingers)}, palm={RuleLog.Shown(palm)})");
             Vector3 cf = (mid.position - hand.position).normalized;
             Vector3 cn = Vector3.ProjectOnPlane(Vector3.Cross(cf, (thumb.position - hand.position).normalized) * side, cf).normalized;
             Vector3 dn = Vector3.ProjectOnPlane(palm, fingers).normalized;
@@ -62,7 +62,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>Two-bone IK: the end bone on the target (or as close as the arm reaches), the elbow towards the hint.</summary>
         static void Solve(Transform upper, Transform lower, Transform end, Vector3 target, Vector3 hint)
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonHands.Solve", 2d, $"MobileCannonHands.Solve(upper={upper}, lower={lower}, end={end}, target={target}, hint={hint})");
+            if (RuleLog.On) ModLog.Every("MobileCannonHands.Solve", 2d, $"MobileCannonHands.Solve(upper={RuleLog.Shown(upper)}, lower={RuleLog.Shown(lower)}, end={RuleLog.Shown(end)}, target={RuleLog.Shown(target)}, hint={RuleLog.Shown(hint)})");
             Vector3 a = upper.position;
             float ab = (lower.position - a).magnitude, bc = (end.position - lower.position).magnitude;
             if (ab < 1e-4f || bc < 1e-4f) { if (RuleLog.On) ModLog.Every("MobileCannonHands.Solve:68", 2d, "MobileCannonHands.Solve: returns (line 68)"); return; }

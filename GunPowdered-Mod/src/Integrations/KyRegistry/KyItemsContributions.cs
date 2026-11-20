@@ -42,7 +42,7 @@ namespace GunPowdered.Integrations.KyRegistry
             if (RuleLog.On) ModLog.Verbose($"KyItemsContributions.ListedCount()");
             int n = 0;
             foreach (ItemSpec s in Wanted()) if (KyItems.FindById(IdOf(s.Id)) != null) n++;
-            { var returnedAt45 = n; if (RuleLog.On) ModLog.Verbose($"KyItemsContributions.ListedCount: returns {returnedAt45} (line 45)"); return returnedAt45; }
+            { var returnedAt45 = n; if (RuleLog.On) ModLog.Verbose($"KyItemsContributions.ListedCount: returns {RuleLog.Shown(returnedAt45)} (line 45)"); return returnedAt45; }
         }
 
         /// <summary>Does KY-Items list this prefab of the mod now (test hook).</summary>
@@ -56,7 +56,7 @@ namespace GunPowdered.Integrations.KyRegistry
             if (RuleLog.On) ModLog.Every("KyItemsContributions.Wanted", 2d, $"KyItemsContributions.Wanted()");
             var list = new List<ItemSpec>();
             foreach (ItemSpec s in ItemCatalog.All) list.Add(s);
-            { var returnedAt59 = list; if (RuleLog.On) ModLog.Every("KyItemsContributions.Wanted:59", 2d, $"KyItemsContributions.Wanted: returns {returnedAt59} (line 59)"); return returnedAt59; }
+            { var returnedAt59 = list; if (RuleLog.On) ModLog.Every("KyItemsContributions.Wanted:59", 2d, $"KyItemsContributions.Wanted: returns {RuleLog.Shown(returnedAt59)} (line 59)"); return returnedAt59; }
         }
 
         /// <summary>Ingredients (what recipes and stations consume) and gatherables / deposits: the Materials tab of the item viewer.</summary>
@@ -75,7 +75,7 @@ namespace GunPowdered.Integrations.KyRegistry
                 KyEntry e = KyItems.FindById(IdOf(s.Id));
                 if (e != null && e.Kind == KyKind.Material) listed++;
             }
-            { var returnedAt78 = listed + "/" + wanted; if (RuleLog.On) ModLog.Verbose($"KyItemsContributions.MaterialsListed: returns {returnedAt78} (line 78)"); return returnedAt78; }
+            { var returnedAt78 = listed + "/" + wanted; if (RuleLog.On) ModLog.Verbose($"KyItemsContributions.MaterialsListed: returns {RuleLog.Shown(returnedAt78)} (line 78)"); return returnedAt78; }
         }
 
         static void OnPrefabsRegistered() => ModLog.Verbose("KyItemsContributions: prefabs registered, " + ContributeAll() + " entries listed");
@@ -85,7 +85,7 @@ namespace GunPowdered.Integrations.KyRegistry
             if (RuleLog.On) ModLog.Every("KyItemsContributions.ContributeAll", 2d, $"KyItemsContributions.ContributeAll()");
             int listed = 0;
             foreach (ItemSpec s in Wanted()) if (TryContribute(s)) listed++;
-            { var returnedAt88 = listed; if (RuleLog.On) ModLog.Every("KyItemsContributions.ContributeAll:88", 2d, $"KyItemsContributions.ContributeAll: returns {returnedAt88} (line 88)"); return returnedAt88; }
+            { var returnedAt88 = listed; if (RuleLog.On) ModLog.Every("KyItemsContributions.ContributeAll:88", 2d, $"KyItemsContributions.ContributeAll: returns {RuleLog.Shown(returnedAt88)} (line 88)"); return returnedAt88; }
         }
 
         static bool TryContribute(ItemSpec s)
@@ -111,12 +111,12 @@ namespace GunPowdered.Integrations.KyRegistry
 
         static KyRecipe RecipeOf(ItemSpec s)
         {
-            if (RuleLog.On) ModLog.Every("KyItemsContributions.RecipeOf", 2d, $"KyItemsContributions.RecipeOf(s={s})");
+            if (RuleLog.On) ModLog.Every("KyItemsContributions.RecipeOf", 2d, $"KyItemsContributions.RecipeOf(s={RuleLog.Shown(s)})");
             if (!s.HasRecipe) { if (RuleLog.On) ModLog.Every("KyItemsContributions.RecipeOf:115", 2d, "KyItemsContributions.RecipeOf: returns null (line 115)"); return null; }
             IList<CostLine> cost = Integrations.Items.ItemRegistry.CostsOf(s);
             var resources = new KyResource[cost.Count];
             for (int i = 0; i < resources.Length; i++) resources[i] = new KyResource(cost[i].Prefab, cost[i].Amount);
-            { var returnedAt119 = new KyRecipe { CraftingStation = s.Station, MinStationLevel = s.StationLevel, Amount = Integrations.Items.ItemRegistry.YieldOf(s), Resources = resources }; if (RuleLog.On) ModLog.Every("KyItemsContributions.RecipeOf:119", 2d, $"KyItemsContributions.RecipeOf: returns {returnedAt119} (line 119)"); return returnedAt119; }
+            { var returnedAt119 = new KyRecipe { CraftingStation = s.Station, MinStationLevel = s.StationLevel, Amount = Integrations.Items.ItemRegistry.YieldOf(s), Resources = resources }; if (RuleLog.On) ModLog.Every("KyItemsContributions.RecipeOf:119", 2d, $"KyItemsContributions.RecipeOf: returns {RuleLog.Shown(returnedAt119)} (line 119)"); return returnedAt119; }
         }
     }
 }

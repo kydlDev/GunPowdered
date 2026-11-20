@@ -33,7 +33,7 @@ namespace GunPowdered.Features.Guano.Infrastructure
         /// <summary>Asks the owner whether this client may fill the cave; the answer arrives in <paramref name="onAnswer"/>. Expected outcome: the request was sent.</summary>
         internal bool Request(Action<bool> onAnswer)
         {
-            if (_nview == null || !_nview.IsValid()) { var returnedAt36 = _nview != null && _nview.IsValid(); if (RuleLog.On) ModLog.Every("CaveClaim.Request:36", 2d, $"CaveClaim.Request: returns {returnedAt36} (line 36)"); return returnedAt36; }
+            if (_nview == null || !_nview.IsValid()) { var returnedAt36 = _nview != null && _nview.IsValid(); if (RuleLog.On) ModLog.Every("CaveClaim.Request:36", 2d, $"CaveClaim.Request: returns {RuleLog.Shown(returnedAt36)} (line 36)"); return returnedAt36; }
             _onAnswer = onAnswer;
             _nview.InvokeRPC(RpcClaim);
             ModLog.Verbose("CaveClaim: asked the owner of " + name + " (owner is me " + _nview.IsOwner() + ")");

@@ -105,7 +105,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         // where the camera looks, clamped into the cannon's range, on the ground
         static Vector3 Spot(CannonMount mount, Player p)
         {
-            if (RuleLog.On) ModLog.Every("CannonAim.Spot", 2d, $"CannonAim.Spot(mount={mount}, p={p})");
+            if (RuleLog.On) ModLog.Every("CannonAim.Spot", 2d, $"CannonAim.Spot(mount={RuleLog.Shown(mount)}, p={RuleLog.Shown(p)})");
             Vector3 origin = mount.transform.position, dir;
             float wanted;
             if (TestAim.HasValue)
@@ -122,12 +122,12 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             float d = CannonRules.ClampAim(wanted, ModSettings.CannonMinRange.Value, ModSettings.CannonRange.Value);
             Vector3 spot = origin + (dir * d);
             spot.y = GroundY(spot);
-            { var returnedAt125 = spot; if (RuleLog.On) ModLog.Every("CannonAim.Spot:125", 2d, $"CannonAim.Spot: returns {returnedAt125} (line 125)"); return returnedAt125; }
+            { var returnedAt125 = spot; if (RuleLog.On) ModLog.Every("CannonAim.Spot:125", 2d, $"CannonAim.Spot: returns {RuleLog.Shown(returnedAt125)} (line 125)"); return returnedAt125; }
         }
 
         static Vector3 LookPoint(CannonMount mount, Player p)
         {
-            if (RuleLog.On) ModLog.Every("CannonAim.LookPoint", 2d, $"CannonAim.LookPoint(mount={mount}, p={p})");
+            if (RuleLog.On) ModLog.Every("CannonAim.LookPoint", 2d, $"CannonAim.LookPoint(mount={RuleLog.Shown(mount)}, p={RuleLog.Shown(p)})");
             Transform cam = GameCamera.instance != null ? GameCamera.instance.transform : p.transform;
             int n = Physics.RaycastNonAlloc(cam.position, cam.forward, Hits, RayLength, CannonBallFlight.Mask(), QueryTriggerInteraction.Ignore);
             float best = float.MaxValue;
@@ -139,12 +139,12 @@ namespace GunPowdered.Features.Cannon.Infrastructure
                 best = Hits[i].distance;
                 point = Hits[i].point;
             }
-            { var returnedAt142 = point; if (RuleLog.On) ModLog.Every("CannonAim.LookPoint:142", 2d, $"CannonAim.LookPoint: returns {returnedAt142} (line 142)"); return returnedAt142; }
+            { var returnedAt142 = point; if (RuleLog.On) ModLog.Every("CannonAim.LookPoint:142", 2d, $"CannonAim.LookPoint: returns {RuleLog.Shown(returnedAt142)} (line 142)"); return returnedAt142; }
         }
 
         static void DrawLine(CannonMount mount)
         {
-            if (RuleLog.On) ModLog.Every("CannonAim.DrawLine", 2d, $"CannonAim.DrawLine(mount={mount})");
+            if (RuleLog.On) ModLog.Every("CannonAim.DrawLine", 2d, $"CannonAim.DrawLine(mount={RuleLog.Shown(mount)})");
             float meters = ModSettings.CannonPreviewMeters.Value;
             if (_line == null) _line = MakeLine();
             if (meters <= 0f || mount.Muzzle == null || _velocity.sqrMagnitude <= 0f) { _line.enabled = false; { if (RuleLog.On) ModLog.Every("CannonAim.DrawLine:150", 2d, "CannonAim.DrawLine: returns (line 150)"); return; } }
@@ -171,23 +171,23 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             lr.useWorldSpace = true;
             lr.numCapVertices = 2;
             lr.enabled = false;
-            { var returnedAt174 = lr; if (RuleLog.On) ModLog.Every("CannonAim.MakeLine:174", 2d, $"CannonAim.MakeLine: returns {returnedAt174} (line 174)"); return returnedAt174; }
+            { var returnedAt174 = lr; if (RuleLog.On) ModLog.Every("CannonAim.MakeLine:174", 2d, $"CannonAim.MakeLine: returns {RuleLog.Shown(returnedAt174)} (line 174)"); return returnedAt174; }
         }
 
         static float GroundY(Vector3 spot)
         {
-            if (RuleLog.On) ModLog.Every("CannonAim.GroundY", 2d, $"CannonAim.GroundY(spot={spot})");
+            if (RuleLog.On) ModLog.Every("CannonAim.GroundY", 2d, $"CannonAim.GroundY(spot={RuleLog.Shown(spot)})");
             RaycastHit h;
             int ground = LayerMask.GetMask("Default", "static_solid", "terrain", "piece");
-            if (Physics.Raycast(spot + (Vector3.up * 60f), Vector3.down, out h, 200f, ground, QueryTriggerInteraction.Ignore)) { var returnedAt182 = h.point.y; if (RuleLog.On) ModLog.Every("CannonAim.GroundY:182", 2d, $"CannonAim.GroundY: returns {returnedAt182} (line 182)"); return returnedAt182; }
-            { var returnedAt183 = ZoneSystem.instance != null ? ZoneSystem.instance.GetGroundHeight(spot) : spot.y; if (RuleLog.On) ModLog.Every("CannonAim.GroundY:183", 2d, $"CannonAim.GroundY: returns {returnedAt183} (line 183)"); return returnedAt183; }
+            if (Physics.Raycast(spot + (Vector3.up * 60f), Vector3.down, out h, 200f, ground, QueryTriggerInteraction.Ignore)) { var returnedAt182 = h.point.y; if (RuleLog.On) ModLog.Every("CannonAim.GroundY:182", 2d, $"CannonAim.GroundY: returns {RuleLog.Shown(returnedAt182)} (line 182)"); return returnedAt182; }
+            { var returnedAt183 = ZoneSystem.instance != null ? ZoneSystem.instance.GetGroundHeight(spot) : spot.y; if (RuleLog.On) ModLog.Every("CannonAim.GroundY:183", 2d, $"CannonAim.GroundY: returns {RuleLog.Shown(returnedAt183)} (line 183)"); return returnedAt183; }
         }
 
         static Vector3 Flatten(Vector3 v)
         {
-            if (RuleLog.On) ModLog.Every("CannonAim.Flatten", 2d, $"CannonAim.Flatten(v={v})");
+            if (RuleLog.On) ModLog.Every("CannonAim.Flatten", 2d, $"CannonAim.Flatten(v={RuleLog.Shown(v)})");
             v.y = 0f;
-            { var returnedAt190 = v.sqrMagnitude > 0.0001f ? v.normalized : Vector3.forward; if (RuleLog.On) ModLog.Every("CannonAim.Flatten:190", 2d, $"CannonAim.Flatten: returns {returnedAt190} (line 190)"); return returnedAt190; }
+            { var returnedAt190 = v.sqrMagnitude > 0.0001f ? v.normalized : Vector3.forward; if (RuleLog.On) ModLog.Every("CannonAim.Flatten:190", 2d, $"CannonAim.Flatten: returns {RuleLog.Shown(returnedAt190)} (line 190)"); return returnedAt190; }
         }
 
         static float Flat(Vector3 a, Vector3 b) => new Vector2(b.x - a.x, b.z - a.z).magnitude;

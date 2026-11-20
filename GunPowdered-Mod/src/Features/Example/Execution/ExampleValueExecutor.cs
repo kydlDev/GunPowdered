@@ -16,7 +16,7 @@ namespace GunPowdered.Features.Example.Execution
 
         internal ExampleValueExecutor(IOwnership owner, Action<float> apply)
         {
-            if (RuleLog.On) RuleLog.Verbose($"ExampleValueExecutor.ExampleValueExecutor(owner={owner}, apply={apply})");
+            if (RuleLog.On) RuleLog.Verbose($"ExampleValueExecutor.ExampleValueExecutor(owner={RuleLog.Shown(owner)}, apply={RuleLog.Shown(apply)})");
             if (owner == null) throw new ArgumentNullException("owner");
             if (apply == null) throw new ArgumentNullException("apply");
             _owner = owner;
@@ -26,10 +26,10 @@ namespace GunPowdered.Features.Example.Execution
         /// Expected outcome: Success with the applied value; Rejected (nothing applied) when this client is not the owner.
         internal OperationResponse<float> Apply(float value)
         {
-            if (RuleLog.On) RuleLog.Every("ExampleValueExecutor.Apply", 2d, $"ExampleValueExecutor.Apply(value={value})");
-            if (!_owner.IsOwner) { var returnedAt31 = OperationResponse<float>.Rejected(NotOwner); if (RuleLog.On) RuleLog.Every("ExampleValueExecutor.Apply:31", 2d, $"ExampleValueExecutor.Apply: returns {returnedAt31} (line 31)"); return returnedAt31; }
+            if (RuleLog.On) RuleLog.Every("ExampleValueExecutor.Apply", 2d, $"ExampleValueExecutor.Apply(value={RuleLog.Shown(value)})");
+            if (!_owner.IsOwner) { var returnedAt31 = OperationResponse<float>.Rejected(NotOwner); if (RuleLog.On) RuleLog.Every("ExampleValueExecutor.Apply:31", 2d, $"ExampleValueExecutor.Apply: returns {RuleLog.Shown(returnedAt31)} (line 31)"); return returnedAt31; }
             _apply(value);
-            { var returnedAt33 = OperationResponse<float>.Success(value, Applied); if (RuleLog.On) RuleLog.Every("ExampleValueExecutor.Apply:33", 2d, $"ExampleValueExecutor.Apply: returns {returnedAt33} (line 33)"); return returnedAt33; }
+            { var returnedAt33 = OperationResponse<float>.Success(value, Applied); if (RuleLog.On) RuleLog.Every("ExampleValueExecutor.Apply:33", 2d, $"ExampleValueExecutor.Apply: returns {RuleLog.Shown(returnedAt33)} (line 33)"); return returnedAt33; }
         }
     }
 }

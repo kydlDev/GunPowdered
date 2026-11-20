@@ -54,7 +54,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
 
         LineRenderer MakeLine(string name, Material mat, float width, bool loop)
         {
-            if (RuleLog.On) ModLog.Every("ThrowArcView.MakeLine", 2d, $"ThrowArcView.MakeLine(name={name}, mat={mat}, width={width}, loop={loop})");
+            if (RuleLog.On) ModLog.Every("ThrowArcView.MakeLine", 2d, $"ThrowArcView.MakeLine(name={RuleLog.Shown(name)}, mat={RuleLog.Shown(mat)}, width={RuleLog.Shown(width)}, loop={RuleLog.Shown(loop)})");
             var child = new GameObject(name);
             child.transform.SetParent(transform, false);
             var lr = child.AddComponent<LineRenderer>();
@@ -65,7 +65,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             lr.receiveShadows = false;
             lr.numCapVertices = 2;
-            { var returnedAt68 = lr; if (RuleLog.On) ModLog.Every("ThrowArcView.MakeLine:68", 2d, $"ThrowArcView.MakeLine: returns {returnedAt68} (line 68)"); return returnedAt68; }
+            { var returnedAt68 = lr; if (RuleLog.On) ModLog.Every("ThrowArcView.MakeLine:68", 2d, $"ThrowArcView.MakeLine: returns {RuleLog.Shown(returnedAt68)} (line 68)"); return returnedAt68; }
         }
 
         // white dashes on a clear background; the line tiles it once per metre-ish (width-relative tiling)
@@ -75,7 +75,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             var tex = new Texture2D(8, 1, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Repeat, filterMode = FilterMode.Point };
             for (int x = 0; x < 8; x++) tex.SetPixel(x, 0, x < 5 ? Color.white : Color.clear);
             tex.Apply();
-            { var returnedAt78 = tex; if (RuleLog.On) ModLog.Verbose($"ThrowArcView.DashTexture: returns {returnedAt78} (line 78)"); return returnedAt78; }
+            { var returnedAt78 = tex; if (RuleLog.On) ModLog.Verbose($"ThrowArcView.DashTexture: returns {RuleLog.Shown(returnedAt78)} (line 78)"); return returnedAt78; }
         }
 
         void LateUpdate()
@@ -134,7 +134,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         /// </summary>
         internal static void SpawnAndAim(Player player, Attack attack, out Vector3 spawn, out Vector3 aim)
         {
-            if (RuleLog.On) ModLog.Every("ThrowArcView.SpawnAndAim", 2d, $"ThrowArcView.SpawnAndAim(player={player}, attack={attack})");
+            if (RuleLog.On) ModLog.Every("ThrowArcView.SpawnAndAim", 2d, $"ThrowArcView.SpawnAndAim(player={RuleLog.Shown(player)}, attack={RuleLog.Shown(attack)})");
             aim = player.GetLookDir();
             Transform origin = string.IsNullOrEmpty(attack.m_attackOriginJoint) ? player.transform : Utils.FindChild(player.GetVisual().transform, attack.m_attackOriginJoint);
             if (origin == null) origin = player.transform;
@@ -150,7 +150,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         // the game's projectile collides with s_rayMaskSolids; read it so the preview hits the same things (fallback: the usual solid layers)
         float? HitFraction(ArcVector from, ArcVector to)
         {
-            if (RuleLog.On) ModLog.Verbose($"ThrowArcView.HitFraction(from={from}, to={to})");
+            if (RuleLog.On) ModLog.Verbose($"ThrowArcView.HitFraction(from={RuleLog.Shown(from)}, to={RuleLog.Shown(to)})");
             if (_mask == 0) _mask = SolidsMask();
             Vector3 a = ToUnity(from), b = ToUnity(to), d = b - a;
             float len = d.magnitude;
@@ -159,7 +159,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             if (Physics.Raycast(a, d / len, out hit, len, _mask, QueryTriggerInteraction.Ignore) && !IsLocalPlayer(hit.collider))
             {
                 _stoppedBy = hit.collider.name + " (layer " + LayerMask.LayerToName(hit.collider.gameObject.layer) + ", root " + hit.collider.transform.root.name + ")";
-                { var returnedAt162 = hit.distance / len; if (RuleLog.On) ModLog.Verbose($"ThrowArcView.HitFraction: returns {returnedAt162} (line 162)"); return returnedAt162; }
+                { var returnedAt162 = hit.distance / len; if (RuleLog.On) ModLog.Verbose($"ThrowArcView.HitFraction: returns {RuleLog.Shown(returnedAt162)} (line 162)"); return returnedAt162; }
             }
             { if (RuleLog.On) ModLog.Verbose("ThrowArcView.HitFraction: returns null (line 164)"); return null; }
         }
@@ -173,7 +173,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         {
             if (RuleLog.On) ModLog.Every("ThrowArcView.SolidsMask", 2d, $"ThrowArcView.SolidsMask()");
             if (_solidsMask == 0) _solidsMask = ReadSolidsMask();
-            { var returnedAt176 = _solidsMask; if (RuleLog.On) ModLog.Every("ThrowArcView.SolidsMask:176", 2d, $"ThrowArcView.SolidsMask: returns {returnedAt176} (line 176)"); return returnedAt176; }
+            { var returnedAt176 = _solidsMask; if (RuleLog.On) ModLog.Every("ThrowArcView.SolidsMask:176", 2d, $"ThrowArcView.SolidsMask: returns {RuleLog.Shown(returnedAt176)} (line 176)"); return returnedAt176; }
         }
 
         static int ReadSolidsMask()
@@ -189,7 +189,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         // the ring sits on the ground around the landing: each point is dropped onto what is below it
         void PlaceRing(Vector3 centre, float radius)
         {
-            if (RuleLog.On) ModLog.Every("ThrowArcView.PlaceRing", 2d, $"ThrowArcView.PlaceRing(centre={centre}, radius={radius})");
+            if (RuleLog.On) ModLog.Every("ThrowArcView.PlaceRing", 2d, $"ThrowArcView.PlaceRing(centre={RuleLog.Shown(centre)}, radius={RuleLog.Shown(radius)})");
             for (int i = 0; i < RingSegments; i++)
             {
                 float a = i * Mathf.PI * 2f / RingSegments;

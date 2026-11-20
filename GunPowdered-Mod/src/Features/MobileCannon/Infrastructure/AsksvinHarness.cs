@@ -88,18 +88,18 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (RuleLog.On) ModLog.Verbose($"AsksvinHarness.NewKey()");
             long key = 0L;
             while (key == 0L) key = ((long)UnityEngine.Random.Range(int.MinValue, int.MaxValue) << 32) ^ (uint)UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-            { var returnedAt91 = key; if (RuleLog.On) ModLog.Verbose($"AsksvinHarness.NewKey: returns {returnedAt91} (line 91)"); return returnedAt91; }
+            { var returnedAt91 = key; if (RuleLog.On) ModLog.Verbose($"AsksvinHarness.NewKey: returns {RuleLog.Shown(returnedAt91)} (line 91)"); return returnedAt91; }
         }
 
         /// <summary>The loaded, harnessed Asksvin with this tow key. Expected outcome: it, or null when none is loaded here.</summary>
         internal static AsksvinHarness WithKey(long key)
         {
-            if (RuleLog.On) ModLog.Every("AsksvinHarness.WithKey", 2d, $"AsksvinHarness.WithKey(key={key})");
+            if (RuleLog.On) ModLog.Every("AsksvinHarness.WithKey", 2d, $"AsksvinHarness.WithKey(key={RuleLog.Shown(key)})");
             if (key == 0L) { if (RuleLog.On) ModLog.Every("AsksvinHarness.WithKey:98", 2d, "AsksvinHarness.WithKey: returns null (line 98)"); return null; }
             foreach (Character c in Character.GetAllCharacters())
             {
                 AsksvinHarness h = c != null ? c.GetComponent<AsksvinHarness>() : null;
-                if (h != null && h.TowKey == key) { var returnedAt102 = h; if (RuleLog.On) ModLog.Every("AsksvinHarness.WithKey:102", 2d, $"AsksvinHarness.WithKey: returns {returnedAt102} (line 102)"); return returnedAt102; }
+                if (h != null && h.TowKey == key) { var returnedAt102 = h; if (RuleLog.On) ModLog.Every("AsksvinHarness.WithKey:102", 2d, $"AsksvinHarness.WithKey: returns {RuleLog.Shown(returnedAt102)} (line 102)"); return returnedAt102; }
             }
             { if (RuleLog.On) ModLog.Every("AsksvinHarness.WithKey:104", 2d, "AsksvinHarness.WithKey: returns null (line 104)"); return null; }
         }
@@ -305,20 +305,20 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             v.transform.localScale = Vector3.one;
             foreach (Collider c in v.GetComponentsInChildren<Collider>(true)) Destroy(c);
             foreach (Transform t in v.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = gameObject.layer;
-            { var returnedAt308 = v; if (RuleLog.On) ModLog.Every("AsksvinHarness.MakeVisual:308", 2d, $"AsksvinHarness.MakeVisual: returns {returnedAt308} (line 308)"); return returnedAt308; }
+            { var returnedAt308 = v; if (RuleLog.On) ModLog.Every("AsksvinHarness.MakeVisual:308", 2d, $"AsksvinHarness.MakeVisual: returns {RuleLog.Shown(returnedAt308)} (line 308)"); return returnedAt308; }
         }
 
         static Transform Model()
         {
             if (RuleLog.On) ModLog.Every("AsksvinHarness.Model", 2d, $"AsksvinHarness.Model()");
             GameObject source = Plugin.Bundle != null ? Plugin.Bundle.LoadAsset<GameObject>(GunPowderedPrefabs.AsksvinHarness) : null;
-            { var returnedAt315 = source != null ? source.transform.Find("model") : null; if (RuleLog.On) ModLog.Every("AsksvinHarness.Model:315", 2d, $"AsksvinHarness.Model: returns {returnedAt315} (line 315)"); return returnedAt315; }
+            { var returnedAt315 = source != null ? source.transform.Find("model") : null; if (RuleLog.On) ModLog.Every("AsksvinHarness.Model:315", 2d, $"AsksvinHarness.Model: returns {RuleLog.Shown(returnedAt315)} (line 315)"); return returnedAt315; }
         }
 
         static Transform Find(Transform root, string name)
         {
-            if (RuleLog.On) ModLog.Every("AsksvinHarness.Find", 2d, $"AsksvinHarness.Find(root={root}, name={name})");
-            foreach (Transform t in root.GetComponentsInChildren<Transform>(true)) if (t.name == name) { var returnedAt321 = t; if (RuleLog.On) ModLog.Every("AsksvinHarness.Find:321", 2d, $"AsksvinHarness.Find: returns {returnedAt321} (line 321)"); return returnedAt321; }
+            if (RuleLog.On) ModLog.Every("AsksvinHarness.Find", 2d, $"AsksvinHarness.Find(root={RuleLog.Shown(root)}, name={RuleLog.Shown(name)})");
+            foreach (Transform t in root.GetComponentsInChildren<Transform>(true)) if (t.name == name) { var returnedAt321 = t; if (RuleLog.On) ModLog.Every("AsksvinHarness.Find:321", 2d, $"AsksvinHarness.Find: returns {RuleLog.Shown(returnedAt321)} (line 321)"); return returnedAt321; }
             { if (RuleLog.On) ModLog.Every("AsksvinHarness.Find:322", 2d, "AsksvinHarness.Find: returns null (line 322)"); return null; }
         }
     }
@@ -334,7 +334,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         internal static bool Load()
         {
-            if (_tried) { var returnedAt337 = Points != null; if (RuleLog.On) ModLog.Every("DonorFile.Load:337", 2d, $"DonorFile.Load: returns {returnedAt337} (line 337)"); return returnedAt337; }
+            if (_tried) { var returnedAt337 = Points != null; if (RuleLog.On) ModLog.Every("DonorFile.Load:337", 2d, $"DonorFile.Load: returns {RuleLog.Shown(returnedAt337)} (line 337)"); return returnedAt337; }
             _tried = true;
             TextAsset text = Plugin.Bundle != null ? Plugin.Bundle.LoadAsset<TextAsset>(AssetName) : null;
             if (text == null) { ModLog.Warn("AsksvinHarness: no " + AssetName + " in the bundle"); return false; }
@@ -375,7 +375,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         internal void Add(Vector3[] vertices, BoneWeight[] weights, int[] map, Matrix4x4 toWorld)
         {
-            if (RuleLog.On) ModLog.Every("SkinDonor.Add", 2d, $"SkinDonor.Add(vertices={vertices}, weights={weights}, map={map}, toWorld={toWorld})");
+            if (RuleLog.On) ModLog.Every("SkinDonor.Add", 2d, $"SkinDonor.Add(vertices={RuleLog.Shown(vertices)}, weights={RuleLog.Shown(weights)}, map={RuleLog.Shown(map)}, toWorld={RuleLog.Shown(toWorld)})");
             if (vertices == null || weights == null || weights.Length != vertices.Length) { if (RuleLog.On) ModLog.Every("SkinDonor.Add:379", 2d, "SkinDonor.Add: returns (line 379)"); return; }
             for (int i = 0; i < vertices.Length; i++)
             {
@@ -394,7 +394,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>The weights of the nearest donor vertex (searched out to 4 cells, 0.6 m). Expected outcome: true with its distance, false when none is that close.</summary>
         internal bool Nearest(Vector3 p, out BoneWeight weight, out float distance)
         {
-            if (RuleLog.On) ModLog.Every("SkinDonor.Nearest", 2d, $"SkinDonor.Nearest(p={p})");
+            if (RuleLog.On) ModLog.Every("SkinDonor.Nearest", 2d, $"SkinDonor.Nearest(p={RuleLog.Shown(p)})");
             weight = default(BoneWeight);
             distance = float.MaxValue;
             int best = -1;
@@ -421,7 +421,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>The donor's weights scaled by <paramref name="share"/>, the rest on the root bone; four strongest kept and normalised.</summary>
         internal static BoneWeight Blend(BoneWeight body, float share, int root)
         {
-            if (RuleLog.On) ModLog.Every("SkinDonor.Blend", 2d, $"SkinDonor.Blend(body={body}, share={share}, root={root})");
+            if (RuleLog.On) ModLog.Every("SkinDonor.Blend", 2d, $"SkinDonor.Blend(body={RuleLog.Shown(body)}, share={RuleLog.Shown(share)}, root={RuleLog.Shown(root)})");
             var idx = new[] { body.boneIndex0, body.boneIndex1, body.boneIndex2, body.boneIndex3, root };
             var wt = new[] { body.weight0 * share, body.weight1 * share, body.weight2 * share, body.weight3 * share, 1f - share };
             for (int i = 0; i < 5; i++)
@@ -431,7 +431,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             System.Array.Reverse(wt);
             System.Array.Reverse(idx);
             float sum = wt[0] + wt[1] + wt[2] + wt[3];
-            if (sum <= 0f) { var returnedAt434 = new BoneWeight { boneIndex0 = root, weight0 = 1f }; if (RuleLog.On) ModLog.Every("SkinDonor.Blend:434", 2d, $"SkinDonor.Blend: returns {returnedAt434} (line 434)"); return returnedAt434; }
+            if (sum <= 0f) { var returnedAt434 = new BoneWeight { boneIndex0 = root, weight0 = 1f }; if (RuleLog.On) ModLog.Every("SkinDonor.Blend:434", 2d, $"SkinDonor.Blend: returns {RuleLog.Shown(returnedAt434)} (line 434)"); return returnedAt434; }
             return new BoneWeight
             {
                 boneIndex0 = idx[0], weight0 = wt[0] / sum, boneIndex1 = idx[1], weight1 = wt[1] / sum,

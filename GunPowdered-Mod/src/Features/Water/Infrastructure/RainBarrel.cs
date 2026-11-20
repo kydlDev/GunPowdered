@@ -74,7 +74,7 @@ namespace GunPowdered.Features.Water.Infrastructure
         {
             if (RuleLog.On) ModLog.Verbose($"RainBarrel.GetHoverText()");
             string line = Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>] Take all water");
-            { var returnedAt77 = ItemCatalog.RainBarrel.Name + " (" + Mathf.FloorToInt(Water) + "/" + Mathf.FloorToInt(ModSettings.RainBarrelCapacity.Value) + ")\n" + line; if (RuleLog.On) ModLog.Verbose($"RainBarrel.GetHoverText: returns {returnedAt77} (line 77)"); return returnedAt77; }
+            { var returnedAt77 = ItemCatalog.RainBarrel.Name + " (" + Mathf.FloorToInt(Water) + "/" + Mathf.FloorToInt(ModSettings.RainBarrelCapacity.Value) + ")\n" + line; if (RuleLog.On) ModLog.Verbose($"RainBarrel.GetHoverText: returns {RuleLog.Shown(returnedAt77)} (line 77)"); return returnedAt77; }
         }
 
         public string GetHoverName() { return ItemCatalog.RainBarrel.Name; }
@@ -83,7 +83,7 @@ namespace GunPowdered.Features.Water.Infrastructure
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
-            if (RuleLog.On) ModLog.Every("RainBarrel.Interact", 2d, $"RainBarrel.Interact(user={user}, hold={hold}, alt={alt})");
+            if (RuleLog.On) ModLog.Every("RainBarrel.Interact", 2d, $"RainBarrel.Interact(user={RuleLog.Shown(user)}, hold={RuleLog.Shown(hold)}, alt={RuleLog.Shown(alt)})");
             if (hold || user == null || !_nview.IsValid()) { if (RuleLog.On) ModLog.Every("RainBarrel.Interact:87", 2d, "RainBarrel.Interact: returns false (line 87)"); return false; }
             int fits = FreeRoom(user.GetInventory());
             if (fits <= 0) { user.Message(MessageHud.MessageType.Center, "Your inventory is full"); { if (RuleLog.On) ModLog.Every("RainBarrel.Interact:89", 2d, "RainBarrel.Interact: returns true (line 89)"); return true; } }
@@ -96,7 +96,7 @@ namespace GunPowdered.Features.Water.Infrastructure
         // owner: take the water out of the barrel and tell the asking player how much arrived
         void OnTake(long sender, int requested)
         {
-            if (RuleLog.On) ModLog.Verbose($"RainBarrel.OnTake(sender={sender}, requested={requested})");
+            if (RuleLog.On) ModLog.Verbose($"RainBarrel.OnTake(sender={RuleLog.Shown(sender)}, requested={RuleLog.Shown(requested)})");
             if (!_nview.IsOwner()) { if (RuleLog.On) ModLog.Verbose("RainBarrel.OnTake: returns (line 100)"); return; }
             var r = RainBarrelRules.Take(Water, Mathf.Clamp(requested, 0, MaxTake));
             if (r.Status != ResponseStatus.Success) { if (RuleLog.On) ModLog.Verbose("RainBarrel.OnTake: returns (line 102)"); return; }
@@ -107,7 +107,7 @@ namespace GunPowdered.Features.Water.Infrastructure
         // the asking player's client: add the water to the inventory
         void OnTaken(long sender, int amount)
         {
-            if (RuleLog.On) ModLog.Verbose($"RainBarrel.OnTaken(sender={sender}, amount={amount})");
+            if (RuleLog.On) ModLog.Verbose($"RainBarrel.OnTaken(sender={RuleLog.Shown(sender)}, amount={RuleLog.Shown(amount)})");
             Player p = Player.m_localPlayer;
             GameObject water = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(GunPowderedPrefabs.Water) : null;
             if (p == null || water == null || amount <= 0) { if (RuleLog.On) ModLog.Verbose("RainBarrel.OnTaken: returns (line 113)"); return; }
@@ -117,10 +117,10 @@ namespace GunPowdered.Features.Water.Infrastructure
 
         static int FreeRoom(Inventory inv)
         {
-            if (RuleLog.On) ModLog.Every("RainBarrel.FreeRoom", 2d, $"RainBarrel.FreeRoom(inv={inv})");
+            if (RuleLog.On) ModLog.Every("RainBarrel.FreeRoom", 2d, $"RainBarrel.FreeRoom(inv={RuleLog.Shown(inv)})");
             GameObject water = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(GunPowderedPrefabs.Water) : null;
             if (inv == null || water == null) { if (RuleLog.On) ModLog.Every("RainBarrel.FreeRoom:122", 2d, "RainBarrel.FreeRoom: returns 0 (line 122)"); return 0; }
-            for (int n = Mathf.Min(MaxTake, Mathf.FloorToInt(ModSettings.RainBarrelCapacity.Value)); n > 0; n--) if (inv.CanAddItem(water, n)) { var returnedAt123 = n; if (RuleLog.On) ModLog.Every("RainBarrel.FreeRoom:123", 2d, $"RainBarrel.FreeRoom: returns {returnedAt123} (line 123)"); return returnedAt123; }
+            for (int n = Mathf.Min(MaxTake, Mathf.FloorToInt(ModSettings.RainBarrelCapacity.Value)); n > 0; n--) if (inv.CanAddItem(water, n)) { var returnedAt123 = n; if (RuleLog.On) ModLog.Every("RainBarrel.FreeRoom:123", 2d, $"RainBarrel.FreeRoom: returns {RuleLog.Shown(returnedAt123)} (line 123)"); return returnedAt123; }
             { if (RuleLog.On) ModLog.Every("RainBarrel.FreeRoom:124", 2d, "RainBarrel.FreeRoom: returns 0 (line 124)"); return 0; }
         }
     }

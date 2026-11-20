@@ -87,9 +87,9 @@ namespace GunPowdered.Features.Guano.Infrastructure
         // m_generator is empty on a spawned copy of a crypt (seen in run entry4), so the generator is also looked for among the children.
         static DungeonGenerator Generator(Location loc)
         {
-            if (RuleLog.On) ModLog.Every("Stats.Generator", 2d, $"Stats.Generator(loc={loc})");
+            if (RuleLog.On) ModLog.Every("Stats.Generator", 2d, $"Stats.Generator(loc={RuleLog.Shown(loc)})");
             if (loc == null) { if (RuleLog.On) ModLog.Every("Stats.Generator:91", 2d, "Stats.Generator: returns null (line 91)"); return null; }
-            { var returnedAt92 = loc.m_generator != null ? loc.m_generator : loc.GetComponentInChildren<DungeonGenerator>(true); if (RuleLog.On) ModLog.Every("Stats.Generator:92", 2d, $"Stats.Generator: returns {returnedAt92} (line 92)"); return returnedAt92; }
+            { var returnedAt92 = loc.m_generator != null ? loc.m_generator : loc.GetComponentInChildren<DungeonGenerator>(true); if (RuleLog.On) ModLog.Every("Stats.Generator:92", 2d, $"Stats.Generator: returns {RuleLog.Shown(returnedAt92)} (line 92)"); return returnedAt92; }
         }
 
         // Rooms of a generated dungeon, the fixed room pieces under a Troll cave's Interior, or else every Room within the interior radius of the

@@ -65,7 +65,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>Turns the crank by wheel notches (+ = muzzle up). Any client may call it; the owner applies it. Expected outcome: true when sent.</summary>
         internal bool Turn(int notches)
         {
-            if (RuleLog.On) ModLog.Every("MobileCannonAim.Turn", 2d, $"MobileCannonAim.Turn(notches={notches})");
+            if (RuleLog.On) ModLog.Every("MobileCannonAim.Turn", 2d, $"MobileCannonAim.Turn(notches={RuleLog.Shown(notches)})");
             if (notches == 0 || _nview == null || !_nview.IsValid()) { if (RuleLog.On) ModLog.Every("MobileCannonAim.Turn:69", 2d, "MobileCannonAim.Turn: returns false (line 69)"); return false; }
             _nview.InvokeRPC(ZNetView.Everybody, RpcTurn, notches);
             { if (RuleLog.On) ModLog.Every("MobileCannonAim.Turn:71", 2d, "MobileCannonAim.Turn: returns true (line 71)"); return true; }

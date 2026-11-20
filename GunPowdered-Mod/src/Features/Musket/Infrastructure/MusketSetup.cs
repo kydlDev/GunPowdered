@@ -80,13 +80,13 @@ namespace GunPowdered.Features.Musket.Infrastructure
         // D-095: the musket keeps its own magazine (MusketGun); the Arbalest's one-bolt reload and its bolt ammo are switched off
         static bool MakeGun(GameObject item)
         {
-            if (RuleLog.On) ModLog.Verbose($"MusketSetup.MakeGun(item={item})");
+            if (RuleLog.On) ModLog.Verbose($"MusketSetup.MakeGun(item={RuleLog.Shown(item)})");
             ItemDrop drop = item.GetComponent<ItemDrop>();
             if (drop == null) { if (RuleLog.On) ModLog.Verbose("MusketSetup.MakeGun: returns false (line 85)"); return false; }
             ItemDrop.ItemData.SharedData shared = drop.m_itemData.m_shared;
             shared.m_attack.m_requiresReload = false;
             shared.m_ammoType = "";
-            { var returnedAt89 = !shared.m_attack.m_requiresReload; if (RuleLog.On) ModLog.Verbose($"MusketSetup.MakeGun: returns {returnedAt89} (line 89)"); return returnedAt89; }
+            { var returnedAt89 = !shared.m_attack.m_requiresReload; if (RuleLog.On) ModLog.Verbose($"MusketSetup.MakeGun: returns {RuleLog.Shown(returnedAt89)} (line 89)"); return returnedAt89; }
         }
 
         // the bullet: a clone of the vanilla iron bolt's projectile (the game's flight, hit, friendly fire and skill rules) with the Iron Bullet's model
@@ -119,7 +119,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
 
         static bool BulletLook(GameObject clone, Projectile flight)
         {
-            if (RuleLog.On) ModLog.Verbose($"MusketSetup.BulletLook(clone={clone}, flight={flight})");
+            if (RuleLog.On) ModLog.Verbose($"MusketSetup.BulletLook(clone={RuleLog.Shown(clone)}, flight={RuleLog.Shown(flight)})");
             GameObject bulletItem = PrefabManager.Instance.GetPrefab(GunPowderedPrefabs.IronBullet);
             Transform model = bulletItem != null ? bulletItem.transform.Find("gp_model") : null;
             if (model == null) { if (RuleLog.On) ModLog.Verbose("MusketSetup.BulletLook: returns false (line 125)"); return false; }
