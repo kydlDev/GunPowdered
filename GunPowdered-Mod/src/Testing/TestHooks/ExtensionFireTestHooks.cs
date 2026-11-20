@@ -1,8 +1,9 @@
-// kydl:read-only-observer - test-only: reads the oven fire's state and measures what a camera in front of the panes really sees
+// kydl:read-only-observer - test-only, drives no creature: reads the oven fire's state, measures what a camera in front of the panes sees, points the camera for the GameProbe pictures
 using System.Collections.Generic;
 using System.Globalization;
 using KydlCore.Common;
 using UnityEngine;
+using GunPowdered.Bootstrap;
 using GunPowdered.Integrations.Valheim;
 
 namespace GunPowdered.Testing.TestHooks
@@ -15,9 +16,9 @@ namespace GunPowdered.Testing.TestHooks
     internal static class ExtensionFireTestHooks
     {
         const int Size = 128;
+        // where the picture camera stands: in front of the panes and a little above them (m)
+        const float CameraDistance = 2.5f, CameraHeight = 0.6f;
         static readonly Dictionary<int, Color> Idle = new Dictionary<int, Color>();
-        static Vector3? _returnTo;
-        static Quaternion _returnRotation;
         static readonly HarmonyLib.AccessTools.FieldRef<Character, GameObject> Visual = HarmonyLib.AccessTools.FieldRefAccess<Character, GameObject>("m_visual");
 
 
@@ -63,39 +64,54 @@ namespace GunPowdered.Testing.TestHooks
         }
 
         /// <summary>
-        /// Puts the player 2.2 m in front of the tagged oven's panes with the player's body hidden (it stood between the camera and the oven in the
-        /// a13fire3 / a13fire4 shots; Valheim has no first person), so a GameProbe screenshot - aimed by the suite's lookAt step - (ProbeApi.Screenshot, named by GameProbe in the
-        /// mod's _testruns session) shows what a player sees. <c>viewBack</c> returns the player. Returns "in front of &lt;oven&gt;" or why not.
+        /// Points the game camera at the tagged oven's panes for a GameProbe screenshot (ProbeApi.Screenshot, named by GameProbe in the mod's _testruns
+        /// session): the game's camera script (GameCamera) is paused and the camera stands <see cref="CameraDistance"/> m in front of the panes, a little
+        /// above them, looking at them; the player's body is hidden. Valheim's own third-person camera could not be aimed reliably: it stayed behind the
+        /// oven (a14fire1, a14fire3) or swung over it (a14fire2 idle, a14fire4, a14fire5). <c>viewBack</c> gives the camera back to the game.
+        /// Returns "in front of &lt;oven&gt;" or why not.
         /// </summary>
         [TestHook("GunPowdered.viewPanes")]
         static string ViewPanes(GameObject target)
         {
             Player p = Player.m_localPlayer;
             Renderer glass = Glass(target);
-            if (p == null || glass == null) return "no player or no panes";
+            GameCamera game = GameCamera.instance;
+            Camera cam = game != null ? game.GetComponent<Camera>() : null;
+            if (p == null || glass == null || cam == null) return "no player, no panes or no game camera";
             Vector3 centre = glass.bounds.center, front = Front(target, centre);
-            if (!_returnTo.HasValue) { _returnTo = p.transform.position; _returnRotation = p.transform.rotation; }
-            Vector3 at = centre + front * 2.2f;
-            at.y = target.transform.position.y;
-            p.transform.SetPositionAndRotation(at, Quaternion.LookRotation(-front));
-            p.SetLookDir(-front);
-            if (Visual(p) != null) Visual(p).SetActive(false);              // only for the picture: viewBack shows the body again
-            ModLog.Verbose("ExtensionFireTestHooks: player in front of the panes of " + target.name + " at " + at);
+            game.enabled = false;                                             // only for the picture: viewBack turns it on again
+            cam.transform.position = centre + front * CameraDistance + Vector3.up * CameraHeight;
+            cam.transform.LookAt(centre);
+            if (Visual(p) != null) Visual(p).SetActive(false);
+            Plugin.Instance.StartCoroutine(GiveBackLater(++_pause, SafetySeconds));   // a test that fails before viewBack must not leave the camera paused
+            ModLog.Verbose($"ExtensionFireTestHooks: game camera paused at {cam.transform.position:0.00}, looking at the panes of {target.name} at {centre:0.00}");
             return "in front of " + Utils.GetPrefabName(target);
         }
 
-        /// Returns the player to where viewPanes found them. Returns "back" or "nothing to undo".
+        const float SafetySeconds = 10f;
+        static int _pause;   // which pause a timer belongs to: an older picture's timer must not end a newer pause
+
+        static System.Collections.IEnumerator GiveBackLater(int pause, float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+            if (pause == _pause && GameCamera.instance != null && !GameCamera.instance.enabled)
+            {
+                ModLog.Info($"ExtensionFireTestHooks: game camera still paused {seconds:0} s after viewPanes (viewBack never came) - running again");
+                ViewBack();
+            }
+        }
+
+        /// Gives the camera back to the game and shows the player's body again. Returns "back" or "nothing to undo".
         [TestHook("GunPowdered.viewBack")]
         static string ViewBack()
         {
             Player p = Player.m_localPlayer;
             if (p != null && Visual(p) != null) Visual(p).SetActive(true);
-            if (p == null || !_returnTo.HasValue) return "nothing to undo";
-            p.transform.SetPositionAndRotation(_returnTo.Value, _returnRotation);
-            p.SetLookDir(_returnRotation * Vector3.forward);
-            if (Visual(p) != null) Visual(p).SetActive(true);
-            _returnTo = null;
-            return "back";
+            GameCamera game = GameCamera.instance;
+            if (game == null || game.enabled) { ModLog.Verbose("ExtensionFireTestHooks.ViewBack: the game camera runs - nothing to undo"); return "nothing to undo"; }
+            game.enabled = true;
+            ModLog.Verbose("ExtensionFireTestHooks.ViewBack: game camera running again");
+            return game.enabled ? "back" : "camera still paused";
         }
 
         static Renderer Glass(GameObject oven)
@@ -104,11 +120,33 @@ namespace GunPowdered.Testing.TestHooks
             return null;
         }
 
-        // the panes face the side of the oven they sit on
+        // the panes face the side of the oven they sit on (both ovens: the glass is at local +z, a14fire2 logged +0.33 m for the Drying Oven)
         static Vector3 Front(GameObject oven, Vector3 centre)
         {
             Vector3 local = oven.transform.InverseTransformPoint(centre);
-            return oven.transform.TransformDirection(new Vector3(0f, 0f, local.z >= 0f ? 1f : -1f));
+            Vector3 front = oven.transform.TransformDirection(new Vector3(0f, 0f, local.z >= 0f ? 1f : -1f));
+            ModLog.Verbose($"ExtensionFireTestHooks.Front({oven.name}): glass at {local:0.000} (local) -> front {front:0.00} (world)");
+            return front;
+        }
+
+        /// <summary>
+        /// For the screenshot: whether the game camera looks at the panes from their front, so the picture shows the fire. Valheim's third-person camera
+        /// follows the look direction over a few frames and was once behind the oven (a14fire1 shot 4: the Drying Oven's back wall, the picture looked
+        /// idle while the fire burned). Returns "camera in front (N deg)" when the camera is on the panes' side within 60 degrees of their facing,
+        /// else "camera behind (N deg)" - pair it with a wait-until before the screenshot.
+        /// </summary>
+        [TestHook("GunPowdered.cameraOnPanes")]
+        static string CameraOnPanes(GameObject target)
+        {
+            Renderer glass = Glass(target);
+            Camera cam = GameCamera.instance != null ? GameCamera.instance.GetComponent<Camera>() : Camera.main;
+            if (glass == null || cam == null) return "no panes or no camera";
+            Vector3 centre = glass.bounds.center, front = Front(target, centre);
+            Vector3 toCamera = Vector3.ProjectOnPlane(cam.transform.position - centre, Vector3.up);
+            float angle = Vector3.Angle(Vector3.ProjectOnPlane(front, Vector3.up), toCamera);
+            string answer = (angle <= 60f ? "camera in front (" : "camera behind (") + angle.ToString("0", CultureInfo.InvariantCulture) + " deg)";
+            ModLog.Verbose($"ExtensionFireTestHooks: camera at {cam.transform.position:0.00}, panes of {target.name} at {centre:0.00} facing {front:0.00}: {answer}");
+            return answer;
         }
 
         static double Luma(Color c) => 0.2126d * c.r + 0.7152d * c.g + 0.0722d * c.b;

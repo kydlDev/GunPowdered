@@ -13,13 +13,14 @@
       "label": "stand in front of the panes for the picture"
     },
     {
-      "do": "lookAt",
-      "target": "{{oven}}",
-      "down": 0.1
+      "do": "wait",
+      "until": { "check": "hook", "name": "GunPowdered.cameraOnPanes", "args": { "target": "{{oven}}" }, "contains": "camera in front" },
+      "timeout": 3,
+      "label": "the camera looks at the panes from their front (a14fire1: the game's own camera once looked at the back wall)"
     },
     {
       "do": "wait",
-      "seconds": 1.5
+      "seconds": 0.5
     },
     {
       "do": "invoke",
