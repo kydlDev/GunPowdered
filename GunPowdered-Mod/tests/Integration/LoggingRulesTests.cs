@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -66,7 +66,7 @@ public class LoggingRulesTests
             foreach (Method m in Methods(f, lines))
                 if (!Logs(string.Join("\n", lines.Skip(m.Open).Take(m.Close - m.Open + 1)))) silent.Add(Path.GetFileName(f) + ": " + m.Name);
         }
-        Assert.That(silent, Is.Empty, "methods without any ModLog / RuleLog line (PROJECT_RULES 8; Claude\lessons\scripts\add_method_logging.py adds them)");
+        Assert.That(silent, Is.Empty, "methods without any ModLog / RuleLog line (PROJECT_RULES 8; Claude/lessons/scripts/add_method_logging.py adds them)");
     }
 
     [Test]
