@@ -16,6 +16,8 @@
     <Compile Include="..\..\src\Features\*\Domain\**\*.cs" Link="Mod\%(RecursiveDir)%(Filename)%(Extension)" />
     <!-- pure Core helper the Domain rules use (dice for the deposit rolls) -->
     <Compile Include="..\..\src\Core\Roll.cs" Link="Mod\Core\Roll.cs" />
+    <!-- the pure code's debug log (D-128): every rule calls it; unconnected here, so it writes nothing (a11gate: the benchmarks did not build without it) -->
+    <Compile Include="..\..\src\Core\RuleLog.cs" Link="Mod\Core\RuleLog.cs" />
   </ItemGroup>
   <ItemGroup>
     <!-- version: dotnet add package BenchmarkDotNet resolves the newest one; do not hand-write an older version -->
