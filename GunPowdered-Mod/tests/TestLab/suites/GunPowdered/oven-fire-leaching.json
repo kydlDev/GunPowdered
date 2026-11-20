@@ -49,6 +49,10 @@
       "why": "the Leaching Station is idle"
     },
     {
+      "do": "firePicture",
+      "oven": "heater"
+    },
+    {
       "do": "hook",
       "name": "GunPowdered.fireMarkIdle",
       "args": {
@@ -70,6 +74,10 @@
       "do": "fireLit",
       "oven": "heater",
       "why": "the station leaches"
+    },
+    {
+      "do": "firePicture",
+      "oven": "heater"
     },
     {
       "do": "destroy",

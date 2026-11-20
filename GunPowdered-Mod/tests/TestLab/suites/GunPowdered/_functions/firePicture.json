@@ -1,0 +1,35 @@
+{
+  "params": [
+    "oven"
+  ],
+  "actions": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.viewPanes",
+      "args": {
+        "target": "{{oven}}"
+      },
+      "contains": "in front of",
+      "label": "stand in front of the panes for the picture"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "invoke",
+      "method": "Kydl.GameProbe.ProbeApi.Screenshot"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.viewBack",
+      "expect": "back",
+      "label": "back to where the test stood"
+    }
+  ],
+  "asserts": []
+}

@@ -48,8 +48,8 @@
       "args": {
         "target": "oven"
       },
-      "min": 1.5,
-      "label": "the panes are at least 1.5 x as bright as idle (camera in front of them)"
+      "min": 1.35,
+      "label": "the panes are at least 1.35 x as bright as idle (camera in front of them)"
     },
     {
       "do": "cleanArena"

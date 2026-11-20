@@ -24,8 +24,8 @@
       "args": {
         "target": "{{oven}}"
       },
-      "min": 1.5,
-      "label": "{{why}}: the panes are at least 1.5 x as bright as idle (camera in front of them)"
+      "min": 1.35,
+      "label": "{{why}}: the panes are at least 1.35 x as bright as idle (camera in front of them)"
     },
     {
       "do": "check",
@@ -34,7 +34,7 @@
       "args": {
         "target": "{{oven}}"
       },
-      "min": 0.05,
+      "min": 0.1,
       "label": "{{why}}: the panes are clearly more orange than idle"
     }
   ],

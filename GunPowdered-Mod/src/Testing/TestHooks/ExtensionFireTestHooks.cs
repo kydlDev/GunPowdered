@@ -16,6 +16,8 @@ namespace GunPowdered.Testing.TestHooks
     {
         const int Size = 128;
         static readonly Dictionary<int, Color> Idle = new Dictionary<int, Color>();
+        static Vector3? _returnTo;
+        static Quaternion _returnRotation;
 
         /// "burning &lt;bool&gt;, flames &lt;bool&gt;, light &lt;intensity&gt;" of the tagged oven, or why not.
         [TestHook("GunPowdered.fireState")]
@@ -58,17 +60,61 @@ namespace GunPowdered.Testing.TestHooks
             return gain;
         }
 
+        /// <summary>
+        /// Puts the player 2.5 m in front of the tagged oven's panes, facing them, so a GameProbe screenshot (ProbeApi.Screenshot, named by GameProbe in the
+        /// mod's _testruns session) shows what a player sees. <c>viewBack</c> returns the player. Returns "in front of &lt;oven&gt;" or why not.
+        /// </summary>
+        [TestHook("GunPowdered.viewPanes")]
+        static string ViewPanes(GameObject target)
+        {
+            Player p = Player.m_localPlayer;
+            Renderer glass = Glass(target);
+            if (p == null || glass == null) return "no player or no panes";
+            Vector3 centre = glass.bounds.center, front = Front(target, centre);
+            if (!_returnTo.HasValue) { _returnTo = p.transform.position; _returnRotation = p.transform.rotation; }
+            Vector3 at = centre + front * 2.5f;
+            at.y = target.transform.position.y;
+            Quaternion facing = Quaternion.LookRotation(-front);
+            p.transform.SetPositionAndRotation(at, facing);
+            p.SetLookDir(-front);
+            ModLog.Verbose("ExtensionFireTestHooks: player in front of the panes of " + target.name + " at " + at);
+            return "in front of " + Utils.GetPrefabName(target);
+        }
+
+        /// Returns the player to where viewPanes found them. Returns "back" or "nothing to undo".
+        [TestHook("GunPowdered.viewBack")]
+        static string ViewBack()
+        {
+            Player p = Player.m_localPlayer;
+            if (p == null || !_returnTo.HasValue) return "nothing to undo";
+            p.transform.SetPositionAndRotation(_returnTo.Value, _returnRotation);
+            p.SetLookDir(_returnRotation * Vector3.forward);
+            _returnTo = null;
+            return "back";
+        }
+
+        static Renderer Glass(GameObject oven)
+        {
+            if (oven != null) foreach (Renderer r in oven.GetComponentsInChildren<Renderer>(true)) if (r.name.EndsWith("_glass")) return r;
+            return null;
+        }
+
+        // the panes face the side of the oven they sit on
+        static Vector3 Front(GameObject oven, Vector3 centre)
+        {
+            Vector3 local = oven.transform.InverseTransformPoint(centre);
+            return oven.transform.TransformDirection(new Vector3(0f, 0f, local.z >= 0f ? 1f : -1f));
+        }
+
         static double Luma(Color c) => 0.2126d * c.r + 0.7152d * c.g + 0.0722d * c.b;
 
         // the mean colour of the middle half of a picture of the panes, taken by a test camera in front of them
         static Color Panes(GameObject oven)
         {
-            Renderer glass = null;
-            if (oven != null) foreach (Renderer r in oven.GetComponentsInChildren<Renderer>(true)) if (r.name.EndsWith("_glass")) { glass = r; break; }
+            Renderer glass = Glass(oven);
             if (glass == null) { ModLog.Warn("ExtensionFireTestHooks: no panes ('*_glass') on " + (oven != null ? oven.name : "null")); return Color.black; }
             Vector3 centre = glass.bounds.center;
-            Vector3 local = oven.transform.InverseTransformPoint(centre);
-            Vector3 front = oven.transform.TransformDirection(new Vector3(0f, 0f, local.z >= 0f ? 1f : -1f));   // the panes face the side they sit on
+            Vector3 front = Front(oven, centre);
 
             var go = new GameObject("gp_test_fire_camera");
             var rt = RenderTexture.GetTemporary(Size, Size, 24);

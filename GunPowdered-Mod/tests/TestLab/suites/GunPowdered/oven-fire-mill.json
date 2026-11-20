@@ -57,6 +57,10 @@
       "why": "the mill is idle"
     },
     {
+      "do": "firePicture",
+      "oven": "oven"
+    },
+    {
       "do": "hook",
       "name": "GunPowdered.fireMarkIdle",
       "args": {
@@ -78,6 +82,10 @@
       "do": "fireLit",
       "oven": "oven",
       "why": "the mill grinds"
+    },
+    {
+      "do": "firePicture",
+      "oven": "oven"
     },
     {
       "do": "fireOut",
