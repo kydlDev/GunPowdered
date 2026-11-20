@@ -20,7 +20,16 @@
     },
     {
       "do": "wait",
-      "seconds": 6
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.groundUnderPlayer",
+        "expect": true
+      },
+      "timeout": 30
+    },
+    {
+      "do": "wait",
+      "seconds": 2
     },
     {
       "do": "mobileCannonPlaced"
@@ -127,6 +136,28 @@
     },
     {
       "do": "mobileCannonAsksvinCleanup"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.backFromCliff",
+      "contains": "back to the arena spot",
+      "label": "back to the arena with the game teleport (the next test must not land on unloaded ground)"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.groundUnderPlayer",
+        "expect": true
+      },
+      "timeout": 30
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "cleanArena"
     }
   ],
   "asserts": [

@@ -44,9 +44,11 @@ def build_leather(leather):
         # both short straps END INSIDE the saddle flap (the flap side is at x 0.41-0.43 at the girth and 0.22 at the rear, measured on saddle_item.obj), so nothing
         # sticks out or hangs loose; a brass plate (build_brass) covers each joint
         g.strap(bm, g.spline(side(s, [(0.46, 1.46, -0.33), (0.445, 1.55, -0.33), (0.425, 1.60, -0.33), (0.385, 1.61, -0.33)]), 4), 0.08, 0.022, along)
-        g.strap(bm, g.spline(side(s, [(0.30, 1.52, -1.14), (0.255, 1.58, -1.14), (0.235, 1.62, -1.14), (0.195, 1.63, -1.14)]), 4), 0.07, 0.022, along)
-        trace = [(0.30, 1.52, -1.14), (0.46, 1.46, -1.28), (0.60, 1.42, -1.45), (0.58, 1.36, -1.85), (0.47, 1.20, -2.35), (0.50, 1.05, -2.55)]
-        g.strap(bm, g.spline(side(s, trace), 5), 0.07, 0.022, Vector((1, 0, 0)))                              # trace to the spreader bar
+        # user 2026-11-20: the traces hung away from the body from two D-rings on the saddle's back corners. They now start at a D-ring on the GIRTH (low on the
+        # flank, where the belly band comes up) and run back low along the flank, close to the hide (flank half-widths from the ripped body: 0.43 at the girth,
+        # 0.50 over the hind legs at y 1.05-1.2, 0.3 behind z -1.2), to the spreader bar; the rear saddle straps are gone, nothing hangs loose.
+        trace = [(0.47, 1.18, -0.33), (0.54, 1.17, -0.62), (0.58, 1.15, -0.95), (0.50, 1.12, -1.35), (0.46, 1.08, -1.85), (0.48, 1.05, -2.30), (0.50, 1.05, -2.55)]
+        g.strap(bm, g.spline(side(s, trace), 6), 0.07, 0.022, Vector((1, 0, 0)))                              # trace from the girth to the spreader bar
     return g.put("harness_leather", bm, leather)
 
 
@@ -54,9 +56,8 @@ def build_brass(brass):
     bm = bmesh.new()
     for s in (-1, 1):
         g.ring(bm, 0.058, 0.038, 0.022, Matrix.Translation(U(s * 0.47, 1.46, -0.33)) @ TO_X, 20)             # girth D-rings
-        g.ring(bm, 0.058, 0.038, 0.022, Matrix.Translation(U(s * 0.30, 1.52, -1.14)) @ TO_X, 20)             # trace D-rings
+        g.ring(bm, 0.058, 0.038, 0.022, Matrix.Translation(U(s * 0.475, 1.18, -0.33)) @ TO_X, 20)            # trace D-rings on the girth, low on the flank
         g.box(bm, (0.024, 0.09, 0.06), U(s * 0.432, 1.595, -0.33))                                            # plate over the girth strap / saddle flap joint
-        g.box(bm, (0.024, 0.08, 0.06), U(s * 0.232, 1.615, -1.14))                                            # plate over the rear strap / saddle flap joint
         g.ring(bm, 0.050, 0.030, 0.026, Matrix.Translation(U(s * 0.50, 1.05, -2.55)) @ TO_Y, 20)             # spreader bar end rings
     g.ring(bm, 0.068, 0.044, 0.030, Matrix.Translation(U(0.0, 1.05, -2.55)) @ TO_X, 20)                       # centre ring
     return g.put("harness_brass", bm, brass)
@@ -137,7 +138,7 @@ brass = g.mat("harness_brass", (0.78, 0.55, 0.20), 0.35, 0.9)
 iron = g.mat("harness_iron", (0.05, 0.05, 0.055), 0.6, 0.85)
 NAMES = [build_leather(leather).name, build_brass(brass).name, build_iron(iron).name, build_chain(iron).name]
 EM = [g.empty("SaddleOrigin", U(*SADDLE)).name, g.empty("SeatAttach", U(0.0, 1.515, -0.477)).name,
-      g.empty("TraceAnchorL", U(-0.30, 1.52, -1.14)).name, g.empty("TraceAnchorR", U(0.30, 1.52, -1.14)).name,
+      g.empty("TraceAnchorL", U(-0.475, 1.18, -0.33)).name, g.empty("TraceAnchorR", U(0.475, 1.18, -0.33)).name,
       g.empty("SpreaderCentre", U(0.0, 1.05, -2.55)).name, g.empty("CannonHook", U(*HOOK)).name]
 print("HARNESS TRIANGLES", g.tris(NAMES))
 g.export(os.path.join(exports, "Harness.fbx"), NAMES + EM)
@@ -157,5 +158,5 @@ g.shoot(sc, cam, os.path.join(photos, "%s_asksvin-harness-3q.png" % stamp), Vect
 g.shoot(sc, cam, os.path.join(photos, "%s_asksvin-harness-saddle.png" % stamp), Vector((3.4, -0.6, 2.7)), Vector((0.0, 0.7, 1.3)), 50)
 g.shoot(sc, cam, os.path.join(photos, "%s_asksvin-harness-rear.png" % stamp), Vector((2.4, 4.9, 1.9)), Vector((0.0, 2.3, 0.9)), 50)
 g.shoot(sc, cam, os.path.join(photos, "%s_asksvin-harness-joint-girth.png" % stamp), Vector((1.7, -0.1, 2.0)), U(0.43, 1.57, -0.33), 50)     # close-ups of the two saddle joints
-g.shoot(sc, cam, os.path.join(photos, "%s_asksvin-harness-joint-rear.png" % stamp), Vector((1.7, 2.0, 2.0)), U(0.28, 1.57, -1.14), 50)
+g.shoot(sc, cam, os.path.join(photos, "%s_asksvin-harness-joint-trace.png" % stamp), Vector((2.2, 0.6, 1.6)), U(0.47, 1.18, -0.6), 50)
 g.shoot(sc, cam, os.path.join(photos, "%s_asksvin-harness-clevis.png" % stamp), U(*HOOK) + Vector((0.32, -0.42, 0.30)), U(*HOOK), 60)       # the tow clevis: harness ring between the two eye plates, one pin

@@ -501,11 +501,40 @@ namespace GunPowdered.Testing.TestHooks
         {
             Player p = Player.m_localPlayer;
             if (p == null) return "no player";
+            _arenaSpot = p.transform.position;
+            _arenaRot = p.transform.rotation;
             Vector3 at = MountainCliffTop + Vector3.back * (float)metres;
             p.TeleportTo(at + Vector3.up * 0.5f, p.transform.rotation, true);
             ModLog.Info("AsksvinTowTestHooks: teleport to " + at.ToString("0") + ", " + metres.ToString("0") + " m behind the mountain cliff's edge");
             return "on the mountain cliff top, " + metres.ToString("0") + " m from the edge";
         }
+        static Vector3 _arenaSpot;
+        static Quaternion _arenaRot = Quaternion.identity;
+
+        /// <summary>
+        /// Back from the cliff to where goToMountainCliffTop started (the arena spot), with the game's own distant teleport, which waits for the ground there.
+        /// Without it the next test's arena jump (270 m, instant) landed before the arena ground had loaded: the player and the cannon fell through (a9g16e:
+        /// mobilecannon-tow-break after tow-slope, the cannon 23 m off, upright False). Pair it with a "wait until" on groundUnderPlayer. Returns "back to the arena spot".
+        /// </summary>
+        [TestHook("GunPowdered.backFromCliff")]
+        static string BackFromCliff()
+        {
+            Player p = Player.m_localPlayer;
+            if (p == null || _arenaSpot == Vector3.zero) return "no player or no arena spot";
+            p.TeleportTo(_arenaSpot + Vector3.up * 0.3f, _arenaRot, true);
+            ModLog.Info("AsksvinTowTestHooks: back to the arena spot " + _arenaSpot.ToString("0"));
+            return "back to the arena spot";
+        }
+
+        /// <summary>True when the player is not teleporting and loaded ground (terrain layer) lies within 3 m under them.</summary>
+        [TestHook("GunPowdered.groundUnderPlayer")]
+        static bool GroundUnderPlayer()
+        {
+            Player p = Player.m_localPlayer;
+            if (p == null || p.IsTeleporting()) return false;
+            return Physics.Raycast(p.transform.position + Vector3.up * 1f, Vector3.down, 4f, LayerMask.GetMask("terrain"));
+        }
+
         /// <summary>Sends the towing Asksvin to a world point (x, z) on the ground: the player, its follow target, goes there. "top" / "foot" variants are the cliff's.
         /// Returns "going to (x, z), ground y".</summary>
         [TestHook("GunPowdered.asksvinFollowTo")]
