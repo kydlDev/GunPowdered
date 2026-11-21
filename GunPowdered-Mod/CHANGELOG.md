@@ -10,6 +10,7 @@
 - Deep North Dynamite Pack (after Fader): 20 m blast that breaks the frozen gammel trolls.
 - Weapons: Spiked Grenade, Cannon (stock + ball), Iron Musket (5 cartridges, R to reload, recoil), Explosive Arrow, Dynamite.
 - Mobile Cannon: move it by hand (slow, uses stamina), aim it with the elevation crank (mouse wheel), load it at the muzzle and fire it with a Torch; the load stays after a relog.
+- Ammunition: a shot deals the weapon's damage plus its ammunition's. Iron Cartridge (was Cartridge) and Iron Cannon Ball (was Cannon Ball) keep your existing items. New Flametal Cannon Ball (4 Flametal at the Black Forge): the Mobile Cannon fires Flametal balls or better, the Hand Cannon Iron balls or better.
 - Asksvin Harness: put it on a saddled tame Asksvin and hitch the Mobile Cannon. The Asksvin tows it at full speed, ridden or following, and the hitch stays after a relog.
 - Weapons API (musket load, stats, ShotFired event) and one Enable switch per weapon type.
 - All items listed in KY-Items, with a grid view.

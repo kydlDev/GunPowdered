@@ -15,15 +15,15 @@ Make gunpowder, then build weapons with it.
 
 **Weapons**
 - **Spiked Grenade**: hold the attack button to aim the landing spot (arc and ring shown), release to throw, block to cancel. Damages creatures, buildings, trees and rocks.
-- **Cannon** (with **Cannon Stock** and **Cannon Ball**): build the stock, mount the cannon, load the ball at the muzzle, light the fuse with a Torch and stand clear.
-- **Iron Musket**: holds 5 cartridges, fires at least 0.8 s apart, **R** reloads one cartridge per 1.2 s (key can be changed). Recoil pushes you back. Counter next to the crosshair; key hints in the bottom right.
+- **Cannon** (with **Cannon Stock** and **Iron Cannon Ball**): build the stock, mount the cannon, load the ball at the muzzle, light the fuse with a Torch and stand clear. It also takes the Flametal Cannon Ball.
+- **Iron Musket**: holds 5 Iron Cartridges, fires at least 0.8 s apart, **R** reloads one cartridge per 1.2 s (key can be changed). Recoil pushes you back. Counter next to the crosshair; key hints in the bottom right.
 - **Explosive Arrow**: ammo for any bow; bursts on impact (3 m) and damages buildings too.
 - **Dynamite**: set it down, light it with a Torch (4 s fuse), 4 m blast for buildings, rocks, trees and ore; creatures take a fifth of that; leaves a round crater.
 - **Deep North Dynamite Pack**: four sticks of dynamite and two grenades strapped together; unlocked after Fader is dead. Set it down, light it with a Torch (4 s fuse, countdown shown to everyone within 30 m) and run: the 20 m blast breaks even the frozen gammel trolls of the Deep North and leaves a 5 m crater.
 - **Mobile Cannon** (Ashlands): a field gun on wheels.
   - **Move it by hand**: E on the push handle. It is slow (about 3.5 m/s) and uses stamina.
   - **Aim**: look at the crank and turn the mouse wheel to set the elevation (-5 to 25 degrees). Turn the whole carriage to aim left or right.
-  - **Load and fire**: E at the muzzle loads 3 Gunpowder and 1 Cannon Ball. Then E on the touch hole with a Torch in hand lights the fuse. A loaded cannon stays loaded after a relog.
+  - **Load and fire**: E at the muzzle loads 3 Gunpowder and 1 **Flametal Cannon Ball** (4 Flametal at the Black Forge; the Iron Cannon Ball does not fit). Then E on the touch hole with a Torch in hand lights the fuse. A loaded cannon stays loaded after a relog.
 - **Asksvin Harness**: put it on a tame, saddled Asksvin, the same way as the saddle. Then E on the cannon's tow ring hitches the cannon behind the Asksvin.
   - The Asksvin tows the cannon at its full speed, ridden or following you.
   - E on the tow ring again unhitches it.
@@ -48,7 +48,7 @@ All pieces and items are listed in the KY-Items viewer (grid or list view).
 
 Edits to the file are picked up while the game runs.
 
-Damage, recipes, tiers and more: see the FAQ.
+A shot deals the weapon's damage plus its ammunition's: the ball or cartridge adds pierce damage, and a cannon ball decides what it can break. Damage, recipes, tiers and more: see the FAQ.
 
 ## For mod developers
 `GunPowderedApi` exposes the prefab names and a small weapons part: musket load (read / set), capacity and stats, and a `ShotFired` event.
