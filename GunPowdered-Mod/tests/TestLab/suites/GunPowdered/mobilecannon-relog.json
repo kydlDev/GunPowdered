@@ -28,7 +28,7 @@
     },
     {
       "do": "give",
-      "prefab": "GP_CannonBall",
+      "prefab": "GP_FlametalCannonBall",
       "count": 1
     },
     {

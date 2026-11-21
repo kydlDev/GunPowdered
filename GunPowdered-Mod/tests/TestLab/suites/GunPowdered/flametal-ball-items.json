@@ -1,0 +1,13 @@
+{
+  "name": "flametal-ball-items",
+  "description": "D-145 (user 2026-11-21): the Flametal Cannon Ball is 4 Flametal (FlametalNew) at the Black Forge, never stacks, has its own icon; the iron ball and the cartridge carry their new names",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_FlametalCannonBall" }, "expect": "blackforge level 1, makes 1, enabled True: FlametalNew x4", "label": "4 Flametal at the Black Forge" },
+    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_FlametalCannonBall" }, "expect": "stack 1, weight 4, type Material", "label": "it never stacks" },
+    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_CannonBall" }, "expect": "forge level 2, makes 1, enabled True: Iron x2", "label": "the iron ball's recipe is unchanged" },
+    { "do": "console", "command": "killall" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

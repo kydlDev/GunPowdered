@@ -1,6 +1,6 @@
 {
   "name": "mobilecannon-fire",
-  "description": "D-045 / D-104: the Mobile Cannon is loaded at the muzzle (3 gunpowder + 1 Cannon Ball), the torch on the touch hole lights the fuse, the ball flies about the range of the crank's elevation, the load is used up.",
+  "description": "D-045 / D-104: the Mobile Cannon is loaded at the muzzle (3 gunpowder + 1 Flametal Cannon Ball, D-145), the torch on the touch hole lights the fuse, the ball flies about the range of the crank's elevation, the load is used up.",
   "timeout": 120,
   "steps": [
     {
@@ -25,7 +25,7 @@
     },
     {
       "do": "give",
-      "prefab": "GP_CannonBall",
+      "prefab": "GP_FlametalCannonBall",
       "count": 1
     },
     {
@@ -66,7 +66,7 @@
       "do": "hook",
       "name": "GunPowdered.invCount",
       "args": {
-        "prefab": "GP_CannonBall"
+        "prefab": "GP_FlametalCannonBall"
       },
       "expect": 0,
       "label": "the ball used"

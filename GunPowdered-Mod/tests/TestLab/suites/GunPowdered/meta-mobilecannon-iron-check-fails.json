@@ -1,0 +1,17 @@
+{
+  "name": "meta-mobilecannon-iron-check-fails",
+  "description": "Negative test for mobilecannon-ammo-tier: with only an Iron Cannon Ball the Mobile Cannon does NOT load - the check that expects 'loading' must fail.",
+  "timeout": 60,
+  "expectFailure": "wrong on purpose",
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "mobileCannonPlaced" },
+    { "do": "give", "prefab": "GP_Gunpowder", "count": 3 },
+    { "do": "give", "prefab": "GP_CannonBall", "count": 1 },
+    { "do": "hook", "name": "GunPowdered.mobileCannonLoad", "expect": "loading", "label": "the iron ball loads (wrong on purpose)" },
+    { "do": "hook", "name": "GunPowdered.mobileCannonRemove", "contains": "removed" },
+    { "do": "clearInventory" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

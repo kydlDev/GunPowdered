@@ -1,0 +1,18 @@
+{
+  "name": "visual-flametal-ball",
+  "description": "D-145 picture: the Iron Cannon Ball (left) and the new Flametal Cannon Ball (right) lying side by side on the ground - same shape, flametal = dark metal with orange veins",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "spawn", "prefab": "GP_CannonBall", "dx": -0.25, "dz": 2.8, "as": "iron" },
+    { "do": "spawn", "prefab": "GP_FlametalCannonBall", "dx": 0.25, "dz": 2.8, "as": "flametal" },
+    { "do": "wait", "seconds": 2 },
+    { "do": "lookAt", "target": "flametal", "pitch": -40 },
+    { "do": "hook", "name": "GunPowdered.cameraDistance", "args": { "metres": 0.6 }, "label": "camera close (the balls lie 2.8 m out, past the auto pickup)" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "screenshot", "name": "flametal-ball-vs-iron-ball" },
+    { "do": "hook", "name": "GunPowdered.cameraDistance", "args": { "metres": 4 }, "label": "camera distance back to the default" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

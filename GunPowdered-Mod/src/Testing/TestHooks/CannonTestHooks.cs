@@ -173,9 +173,17 @@ namespace GunPowdered.Testing.TestHooks
         static string Effects() =>
             "fuse " + (CannonEffects.FuseCount > _fuse0) + ", muzzle " + (CannonEffects.MuzzleCount - _muzzle0) + ", impact " + (CannonEffects.ImpactCount - _impact0);
 
-        /// Cannon Ball items lying within 1.5 m of where the last ball stopped.
+        // D-145: the ball that lies where the last shot stopped is the one that was fired
+        static string StoppedBall() => string.IsNullOrEmpty(CannonBallFlight.LastBall) ? GunPowderedPrefabs.CannonBall : CannonBallFlight.LastBall;
+
+        /// D-145: the last shot's ball and damage before the momentum (cannon part + ball part), e.g.
+        /// "GP_CannonBall: pierce 30, blunt 70, pickaxe 150, fire 10/s, tool tier 2".
+        [TestHook("GunPowdered.cannonShotDamage")]
+        static string ShotDamageText() => string.IsNullOrEmpty(CannonBallFlight.LastBall) ? "no shot yet" : CannonBallFlight.LastBall + ": " + CannonBallFlight.LastShotDamage;
+
+        /// Cannon Ball items (of the ball that was fired) lying within 1.5 m of where the last ball stopped.
         [TestHook("GunPowdered.cannonBallsAtStop")]
-        static int BallsAtStop() => CannonBallFlight.LastStop.HasValue ? Drops(GunPowderedPrefabs.CannonBall, CannonBallFlight.LastStop.Value, 1.5f) : 0;
+        static int BallsAtStop() => CannonBallFlight.LastStop.HasValue ? Drops(StoppedBall(), CannonBallFlight.LastStop.Value, 1.5f) : 0;
 
         /// The player picks up the Cannon Ball lying where the last ball stopped. Returns true when it went into the inventory.
         [TestHook("GunPowdered.cannonPickBall")]
@@ -184,7 +192,7 @@ namespace GunPowdered.Testing.TestHooks
             Player p = Player.m_localPlayer;
             if (p == null || !CannonBallFlight.LastStop.HasValue) return false;
             foreach (ItemDrop d in Object.FindObjectsByType<ItemDrop>(FindObjectsSortMode.None))
-                if (Utils.GetPrefabName(d.gameObject) == GunPowderedPrefabs.CannonBall && Vector3.Distance(d.transform.position, CannonBallFlight.LastStop.Value) < 1.5f)
+                if (Utils.GetPrefabName(d.gameObject) == StoppedBall() && Vector3.Distance(d.transform.position, CannonBallFlight.LastStop.Value) < 1.5f)
                     return p.Pickup(d.gameObject, false, false);
             return false;
         }
