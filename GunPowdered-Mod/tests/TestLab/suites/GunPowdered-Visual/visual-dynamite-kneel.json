@@ -1,0 +1,28 @@
+{
+  "name": "visual-dynamite-kneel",
+  "description": "D-148 / T-020: setting a Dynamite stick down plays the game's kneel emote. Pictures from the side and the front while the character bends down, then the stick on the ground 1.2 m in front.",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "clearInventory" },
+    { "do": "give", "prefab": "GP_Dynamite", "count": 2, "equip": true },
+    { "do": "wait", "seconds": 2 },
+    { "do": "hook", "name": "GunPowdered.freeCam", "args": { "azimuth": 90, "elevation": 8, "metres": 3.2 }, "contains": "free camera", "label": "right side, whole body" },
+    { "do": "wait", "seconds": 0.5 },
+    { "do": "hook", "name": "GunPowdered.dynamitePlaceAt", "args": { "metres": 1.2 }, "contains": "placed at", "label": "set a stick down 1.2 m in front (kneel)" },
+    { "do": "wait", "seconds": 0.6 },
+    { "do": "invoke", "method": "Kydl.GameProbe.ProbeApi.Screenshot", "label": "GameProbe shot: dynamite-kneel-side" },
+    { "do": "wait", "seconds": 1.5 },
+    { "do": "hook", "name": "GunPowdered.freeCam", "args": { "azimuth": 160, "elevation": 12, "metres": 3.2 }, "contains": "free camera", "label": "from the front" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.dynamitePlaceAt", "args": { "metres": 1.2 }, "regex": "placed at|too soon|place", "label": "set the second stick down (kneel again)" },
+    { "do": "wait", "seconds": 0.6 },
+    { "do": "invoke", "method": "Kydl.GameProbe.ProbeApi.Screenshot", "label": "GameProbe shot: dynamite-kneel-front" },
+    { "do": "wait", "seconds": 1.5 },
+    { "do": "invoke", "method": "Kydl.GameProbe.ProbeApi.Screenshot", "label": "GameProbe shot: dynamite-kneel-after" },
+    { "do": "hook", "name": "GunPowdered.freeCamOff", "label": "free camera removed" },
+    { "do": "clearInventory" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}
