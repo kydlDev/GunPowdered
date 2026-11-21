@@ -1,6 +1,6 @@
 {
   "name": "dynamite-alerts-mobs",
-  "description": "D-149 (user 2026-11-21 12:25): lighting the fuse alerts mobs a little (like a pickaxe hit, 15 m), the blast alerts many (60 m) and they go towards it; a mob 90 m away does not react. The player is in ghost mode, so the mobs react to the noise, not to seeing the player.",
+  "description": "D-149 (user 2026-11-21 12:25; all three mobs Greydwarfs - one faction, so they do not fight each other first): lighting the fuse alerts mobs a little (like a pickaxe hit, 15 m), the blast alerts many (60 m) and they go towards it; a mob 90 m away does not react. The player is in ghost mode, so the mobs react to the noise, not to seeing the player.",
   "timeout": 90,
   "steps": [
     {
@@ -49,13 +49,13 @@
     },
     {
       "do": "spawn",
-      "prefab": "Skeleton",
+      "prefab": "Greydwarf_Elite",
       "dz": 45,
       "as": "far"
     },
     {
       "do": "spawn",
-      "prefab": "Neck",
+      "prefab": "Greydwarf_Shaman",
       "dz": 96,
       "as": "veryfar"
     },
@@ -108,19 +108,19 @@
       "do": "hook",
       "name": "GunPowdered.noiseCreature",
       "args": {
-        "prefab": "Skeleton"
+        "prefab": "Greydwarf_Elite"
       },
       "regex": "alerted True, target .*, last known [0-1]\\.\\d m from the blast",
-      "label": "the Skeleton 39 m from the blast is alerted and knows where it was"
+      "label": "the Greydwarf Brute 39 m from the blast is alerted and knows where it was"
     },
     {
       "do": "hook",
       "name": "GunPowdered.noiseCreature",
       "args": {
-        "prefab": "Neck"
+        "prefab": "Greydwarf_Shaman"
       },
       "contains": "alerted False",
-      "label": "the Neck 90 m away did not hear it"
+      "label": "the Greydwarf Shaman 90 m away did not hear it"
     },
     {
       "do": "wait",
@@ -130,10 +130,10 @@
       "do": "hook",
       "name": "GunPowdered.noiseCreature",
       "args": {
-        "prefab": "Skeleton"
+        "prefab": "Greydwarf_Elite"
       },
       "regex": "now ([0-9]|[12][0-9]|3[0-3])\\.\\d m from the blast",
-      "label": "the Skeleton walks towards the blast (was 39 m away)"
+      "label": "the Brute walks towards the blast (was 39 m away)"
     },
     {
       "do": "hook",

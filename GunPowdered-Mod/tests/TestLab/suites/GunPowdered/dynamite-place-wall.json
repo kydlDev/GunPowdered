@@ -38,8 +38,10 @@
       "label": "the usual 1.2 m out, on the ground (within 0.3 m of the feet height)"
     },
     {
-      "do": "console",
-      "command": "killall"
+      "do": "hook",
+      "name": "GunPowdered.dynamiteRemoveSticks",
+      "contains": "removed",
+      "label": "the stick is taken away again"
     },
     {
       "do": "hook",
@@ -74,6 +76,12 @@
       "do": "hook",
       "name": "GunPowdered.wallAheadRemove",
       "contains": "removed"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteRemoveSticks",
+      "contains": "removed",
+      "label": "the sticks are taken away (the next test counts sticks)"
     },
     {
       "do": "clearInventory"
