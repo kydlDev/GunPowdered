@@ -106,6 +106,9 @@
   "resetBetweenTests": true,
   "tests": [
     "dynamite-alerts-mobs",
+    "musket-alerts-mobs",
+    "cannon-alerts-mobs",
+    "mobilecannon-alerts-mobs",
     "dynamite-place-wall",
     "items-drawn-once",
     "perf-creatures-idle",
