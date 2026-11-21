@@ -3,34 +3,189 @@
   "description": "Hand Cannon (D-053, D-054): loading at the muzzle takes 4 s with the cast ball in the hand and uses 1 Gunpowder + 1 Cannon Ball; no torch in hand = no fuse; the torch lights it, the shot follows by itself with sparks at the touch hole and the muzzle blast, the ball lands about 30 m out with a spark burst and lies there to be picked up again",
   "timeout": 90,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "cannonStock" },
-    { "do": "give", "prefab": "GP_Cannon", "count": 1 },
-    { "do": "give", "prefab": "GP_Gunpowder", "count": 2 },
-    { "do": "give", "prefab": "GP_CannonBall", "count": 1 },
-    { "do": "give", "prefab": "Torch", "count": 1 },
-    { "do": "hook", "name": "GunPowdered.cannonUse", "args": { "alt": false }, "expect": true, "label": "mount" },
-    { "do": "hook", "name": "GunPowdered.cannonUse", "args": { "alt": false }, "expect": true, "label": "load at the muzzle" },
-    { "do": "wait", "seconds": 0.5 },
-    { "do": "hook", "name": "GunPowdered.cannonBallInHand", "expect": true, "label": "the cast ball is in the hand while loading" },
-    { "do": "hook", "name": "GunPowdered.cannonState", "contains": "loaded False, barrel shown True, loading True", "label": "still loading after 0.5 s" },
-    { "do": "wait", "seconds": 4.1 },
-    { "do": "hook", "name": "GunPowdered.cannonState", "contains": "loaded True", "label": "loaded after 4 s" },
-    { "do": "hook", "name": "GunPowdered.invCount", "args": { "prefab": "GP_CannonBall" }, "expect": 0, "label": "the ball went in" },
-    { "do": "hook", "name": "GunPowdered.invCount", "args": { "prefab": "GP_Gunpowder" }, "expect": 1, "label": "one gunpowder went in" },
-    { "do": "hook", "name": "GunPowdered.cannonAim", "args": { "distance": 30, "side": 0 }, "contains": "aiming True", "label": "aim 30 m straight out" },
-    { "do": "hook", "name": "GunPowdered.cannonLight", "expect": "Hold a torch to light the fuse", "label": "no torch in hand, no fuse" },
-    { "do": "hook", "name": "GunPowdered.cannonState", "contains": "loaded True", "label": "still loaded" },
-    { "do": "give", "prefab": "Torch", "count": 1, "equip": true },
-    { "do": "wait", "seconds": 0.5 },
-    { "do": "cannonFire30" },
-    { "do": "hook", "name": "GunPowdered.cannonLandedNear", "args": { "distance": 30, "tolerance": 1.5 }, "expect": true, "label": "the ball lands about 30 m out" },
-    { "do": "hook", "name": "GunPowdered.cannonEffects", "expect": "fuse True, muzzle 1, impact 1", "label": "touch hole sparks, muzzle blast, one impact burst" },
-    { "do": "hook", "name": "GunPowdered.cannonState", "contains": "loaded False", "label": "the cannon is empty after the shot" },
-    { "do": "hook", "name": "GunPowdered.cannonBallsAtStop", "expect": 1, "label": "the ball lies where it stopped" },
-    { "do": "hook", "name": "GunPowdered.cannonPickBall", "expect": true, "label": "it is picked up" },
-    { "do": "hook", "name": "GunPowdered.invCount", "args": { "prefab": "GP_CannonBall" }, "expect": 1, "label": "and can be used again" },
-    { "do": "cannonClean" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "cannonStock"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Cannon",
+      "count": 1
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Gunpowder",
+      "count": 2
+    },
+    {
+      "do": "give",
+      "prefab": "GP_CannonBall",
+      "count": 1
+    },
+    {
+      "do": "give",
+      "prefab": "Torch",
+      "count": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonUse",
+      "args": {
+        "alt": false
+      },
+      "expect": true,
+      "label": "mount"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonUse",
+      "args": {
+        "alt": false
+      },
+      "expect": true,
+      "label": "load at the muzzle"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonBallInHand",
+      "expect": true,
+      "label": "the cast ball is in the hand while loading"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.handBallShown",
+      "contains": "ball shown True",
+      "label": "T-017: the ball in the hand is drawn (the dropped-ball fix hides the hand copy only on the ground)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonState",
+      "contains": "loaded False, barrel shown True, loading True",
+      "label": "still loading after 0.5 s"
+    },
+    {
+      "do": "wait",
+      "seconds": 4.1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonState",
+      "contains": "loaded True",
+      "label": "loaded after 4 s"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.invCount",
+      "args": {
+        "prefab": "GP_CannonBall"
+      },
+      "expect": 0,
+      "label": "the ball went in"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.invCount",
+      "args": {
+        "prefab": "GP_Gunpowder"
+      },
+      "expect": 1,
+      "label": "one gunpowder went in"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonAim",
+      "args": {
+        "distance": 30,
+        "side": 0
+      },
+      "contains": "aiming True",
+      "label": "aim 30 m straight out"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonLight",
+      "expect": "Hold a torch to light the fuse",
+      "label": "no torch in hand, no fuse"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonState",
+      "contains": "loaded True",
+      "label": "still loaded"
+    },
+    {
+      "do": "give",
+      "prefab": "Torch",
+      "count": 1,
+      "equip": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "cannonFire30"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonLandedNear",
+      "args": {
+        "distance": 30,
+        "tolerance": 1.5
+      },
+      "expect": true,
+      "label": "the ball lands about 30 m out"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonEffects",
+      "expect": "fuse True, muzzle 1, impact 1",
+      "label": "touch hole sparks, muzzle blast, one impact burst"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonState",
+      "contains": "loaded False",
+      "label": "the cannon is empty after the shot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonBallsAtStop",
+      "expect": 1,
+      "label": "the ball lies where it stopped"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonPickBall",
+      "expect": true,
+      "label": "it is picked up"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.invCount",
+      "args": {
+        "prefab": "GP_CannonBall"
+      },
+      "expect": 1,
+      "label": "and can be used again"
+    },
+    {
+      "do": "cannonClean"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }
