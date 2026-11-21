@@ -1,0 +1,30 @@
+{
+  "name": "perf-after-caves",
+  "description": "T-018: the stutter (frames of 150 ms+ every 2-3 s) came in the user's play session (mostly in a mountain cave) and in the lab run that entered 8 mountain caves (a16guano1, 42 % of world seconds), but not in the arena-only perf runs (~2 %). Measures 30 s in the arena before any cave, then enters 2 mountain caves like a player, back in the arena measures 30 s with GunPowdered on, 30 s with the whole mod off ([General] Enable Mod), 30 s on again. Measures; it does not judge yet.",
+  "timeout": 420,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "hook", "name": "GunPowdered.frameStatsStart", "expect": "collecting", "label": "0: arena, before any cave" },
+    { "do": "wait", "seconds": 30 },
+    { "do": "hook", "name": "GunPowdered.frameStatsStop", "contains": "frames ", "label": "0: before any cave" },
+    { "do": "enterCavesAndCheck", "cave": "MountainCave02", "count": 2, "seconds": 100 },
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "back on the arena spot" },
+    { "do": "wait", "seconds": 5 },
+    { "do": "hook", "name": "GunPowdered.frameStatsStart", "expect": "collecting", "label": "A: arena after 2 caves, mod on" },
+    { "do": "wait", "seconds": 30 },
+    { "do": "hook", "name": "GunPowdered.frameStatsStop", "contains": "frames ", "label": "A: after caves, mod on" },
+    { "do": "setConfig", "values": { "General/Enable Mod": false } },
+    { "do": "wait", "seconds": 3 },
+    { "do": "hook", "name": "GunPowdered.frameStatsStart", "expect": "collecting", "label": "C: after caves, mod off" },
+    { "do": "wait", "seconds": 30 },
+    { "do": "hook", "name": "GunPowdered.frameStatsStop", "contains": "frames ", "label": "C: after caves, mod off" },
+    { "do": "setConfig", "values": { "General/Enable Mod": true } },
+    { "do": "wait", "seconds": 3 },
+    { "do": "hook", "name": "GunPowdered.frameStatsStart", "expect": "collecting", "label": "D: after caves, mod on again" },
+    { "do": "wait", "seconds": 30 },
+    { "do": "hook", "name": "GunPowdered.frameStatsStop", "contains": "frames ", "label": "D: after caves, mod on again" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

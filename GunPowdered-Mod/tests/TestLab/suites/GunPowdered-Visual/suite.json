@@ -115,6 +115,7 @@
         "spawn-geysers",
         "enter-troll-caves",
         "enter-burial-chambers",
-        "enter-mountain-caves"
+        "enter-mountain-caves",
+        "perf-after-caves"
     ]
 }

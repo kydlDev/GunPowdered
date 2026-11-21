@@ -112,6 +112,7 @@
     "dynamite-place-wall",
     "items-drawn-once",
     "perf-creatures-idle",
+    "perf-gc-ab",
     "startup-clean",
     "hub-page",
     "feature-toggle",
