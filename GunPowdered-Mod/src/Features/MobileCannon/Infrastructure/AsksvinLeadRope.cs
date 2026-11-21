@@ -42,9 +42,9 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>The rope's world position (the point the leading player is measured from). Expected outcome: the box's centre, or the fallback place.</summary>
         internal static Vector3 WorldPoint(AsksvinReverse reverse)
         {
-            if (RuleLog.IsOn()) ModLog.Every("AsksvinLeadRope.WorldPoint", 2d, "AsksvinLeadRope.WorldPoint(reverse=" + RuleLog.Shown(reverse) + ")");
+            if (RuleLog.Due("AsksvinLeadRope.WorldPoint", 2d)) ModLog.Every("AsksvinLeadRope.WorldPoint", 2d, "AsksvinLeadRope.WorldPoint(reverse=" + RuleLog.Shown(reverse) + ")");
             Transform t = reverse != null ? reverse.transform.Find(ObjectName) : null;
-            { var returnedAt44 = t != null ? t.position : reverse != null ? reverse.transform.TransformPoint(FallbackLocal) : Vector3.zero; if (RuleLog.IsOn()) ModLog.Every("AsksvinLeadRope.WorldPoint:44", 2d, $"AsksvinLeadRope.WorldPoint: returns {returnedAt44} (line 44)"); return returnedAt44; }
+            { var returnedAt44 = t != null ? t.position : reverse != null ? reverse.transform.TransformPoint(FallbackLocal) : Vector3.zero; if (RuleLog.Due("AsksvinLeadRope.WorldPoint:44", 2d)) ModLog.Every("AsksvinLeadRope.WorldPoint:44", 2d, $"AsksvinLeadRope.WorldPoint: returns {returnedAt44} (line 44)"); return returnedAt44; }
         }
 
         void Update()
@@ -77,7 +77,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         public string GetHoverText()
         {
-            if (RuleLog.IsOn()) ModLog.Every("AsksvinLeadRope.GetHoverText", 2d, "AsksvinLeadRope.GetHoverText()");
+            if (RuleLog.Due("AsksvinLeadRope.GetHoverText", 2d)) ModLog.Every("AsksvinLeadRope.GetHoverText", 2d, "AsksvinLeadRope.GetHoverText()");
             if (_reverse == null || !_reverse.Saddled) return "";
             Player p = Player.m_localPlayer;
             bool mine = p != null && _reverse.Leader == p.GetZDOID();

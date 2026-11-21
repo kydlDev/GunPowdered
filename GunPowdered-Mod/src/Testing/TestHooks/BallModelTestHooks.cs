@@ -53,9 +53,9 @@ namespace GunPowdered.Testing.TestHooks
 
         static bool Shown(Transform model)
         {
-            if (model == null || !model.gameObject.activeInHierarchy) { if (RuleLog.IsOn()) ModLog.Every("BallModelTestHooks.Shown:none", 2d, "BallModelTestHooks.Shown: missing or inactive - returns false"); return false; }
-            foreach (Renderer r in model.GetComponentsInChildren<Renderer>(false)) if (r.enabled) { if (RuleLog.IsOn()) ModLog.Every("BallModelTestHooks.Shown:yes", 2d, "BallModelTestHooks.Shown: returns true"); return true; }
-            if (RuleLog.IsOn()) ModLog.Every("BallModelTestHooks.Shown:no", 2d, "BallModelTestHooks.Shown: returns false");
+            if (model == null || !model.gameObject.activeInHierarchy) { if (RuleLog.Due("BallModelTestHooks.Shown:none", 2d)) ModLog.Every("BallModelTestHooks.Shown:none", 2d, "BallModelTestHooks.Shown: missing or inactive - returns false"); return false; }
+            foreach (Renderer r in model.GetComponentsInChildren<Renderer>(false)) if (r.enabled) { if (RuleLog.Due("BallModelTestHooks.Shown:yes", 2d)) ModLog.Every("BallModelTestHooks.Shown:yes", 2d, "BallModelTestHooks.Shown: returns true"); return true; }
+            if (RuleLog.Due("BallModelTestHooks.Shown:no", 2d)) ModLog.Every("BallModelTestHooks.Shown:no", 2d, "BallModelTestHooks.Shown: returns false");
             return false;
         }
     }

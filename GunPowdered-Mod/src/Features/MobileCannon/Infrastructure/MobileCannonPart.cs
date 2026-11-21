@@ -17,10 +17,10 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
-            if (RuleLog.IsOn()) ModLog.Every("MobileCannonPart.Interact", 2d, $"MobileCannonPart.Interact(user={RuleLog.Shown(user)}, hold={RuleLog.Shown(hold)}, alt={RuleLog.Shown(alt)})");
+            if (RuleLog.Due("MobileCannonPart.Interact", 2d)) ModLog.Every("MobileCannonPart.Interact", 2d, $"MobileCannonPart.Interact(user={RuleLog.Shown(user)}, hold={RuleLog.Shown(hold)}, alt={RuleLog.Shown(alt)})");
             Player p = user as Player;
-            if (hold || p == null || Gun == null) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonPart.Interact:22", 2d, "MobileCannonPart.Interact: returns false (line 22)"); return false; }
-            { var returnedAt23 = Use(p); if (RuleLog.IsOn()) ModLog.Every("MobileCannonPart.Interact:23", 2d, $"MobileCannonPart.Interact: returns {RuleLog.Shown(returnedAt23)} (line 23)"); return returnedAt23; }
+            if (hold || p == null || Gun == null) { if (RuleLog.Due("MobileCannonPart.Interact:22", 2d)) ModLog.Every("MobileCannonPart.Interact:22", 2d, "MobileCannonPart.Interact: returns false (line 22)"); return false; }
+            { var returnedAt23 = Use(p); if (RuleLog.Due("MobileCannonPart.Interact:23", 2d)) ModLog.Every("MobileCannonPart.Interact:23", 2d, $"MobileCannonPart.Interact: returns {RuleLog.Shown(returnedAt23)} (line 23)"); return returnedAt23; }
         }
 
         public bool UseItem(Humanoid user, ItemDrop.ItemData item) => false;

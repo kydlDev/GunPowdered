@@ -75,12 +75,12 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>E on the tow ring: unhitches a towed cannon, else hitches it to the nearest harnessed Asksvin. Expected outcome: true when a request was sent.</summary>
         internal bool Use(Player p)
         {
-            if (p == null || !IsValid) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.Use:78", 2d, "MobileCannonTow.Use: returns false (line 78)"); return false; }
+            if (p == null || !IsValid) { if (RuleLog.Due("MobileCannonTow.Use:78", 2d)) ModLog.Every("MobileCannonTow.Use:78", 2d, "MobileCannonTow.Use: returns false (line 78)"); return false; }
             if (Towed)
             {
                 _nview.InvokeRPC(RpcUnhitch);
                 p.Message(MessageHud.MessageType.Center, "Unhitched the Mobile Cannon");
-                { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.Use:83", 2d, "MobileCannonTow.Use: returns true (line 83)"); return true; }
+                { if (RuleLog.Due("MobileCannonTow.Use:83", 2d)) ModLog.Every("MobileCannonTow.Use:83", 2d, "MobileCannonTow.Use: returns true (line 83)"); return true; }
             }
             AsksvinHarness near = Nearest();
             string why = AsksvinTowRules.WhyNotHitch(false, _vagon != null && _vagon.IsAttached(), near != null, Range());
@@ -92,12 +92,12 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             }
             _nview.InvokeRPC(RpcHitch, near.View.GetZDO().m_uid);
             p.Message(MessageHud.MessageType.Center, "Hitched the Mobile Cannon to " + near.Animal.GetHoverName());
-            { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.Use:95", 2d, "MobileCannonTow.Use: returns true (line 95)"); return true; }
+            { if (RuleLog.Due("MobileCannonTow.Use:95", 2d)) ModLog.Every("MobileCannonTow.Use:95", 2d, "MobileCannonTow.Use: returns true (line 95)"); return true; }
         }
 
         AsksvinHarness Nearest()
         {
-            if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.Nearest", 2d, $"MobileCannonTow.Nearest()");
+            if (RuleLog.Due("MobileCannonTow.Nearest", 2d)) ModLog.Every("MobileCannonTow.Nearest", 2d, $"MobileCannonTow.Nearest()");
             AsksvinHarness best = null;
             float bestDist = -1f;
             foreach (Character c in Character.GetAllCharacters())
@@ -108,13 +108,13 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 float d = Mathf.Min(Vector3.Distance(_ring.position, c.transform.TransformPoint(AsksvinHarness.HookLocal)), Vector3.Distance(_ring.position, c.transform.position));
                 if (AsksvinTowRules.Nearer(d, bestDist, Range())) { best = h; bestDist = d; }
             }
-            { var returnedAt111 = best; if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.Nearest:111", 2d, $"MobileCannonTow.Nearest: returns {RuleLog.Shown(returnedAt111)} (line 111)"); return returnedAt111; }
+            { var returnedAt111 = best; if (RuleLog.Due("MobileCannonTow.Nearest:111", 2d)) ModLog.Every("MobileCannonTow.Nearest:111", 2d, $"MobileCannonTow.Nearest: returns {RuleLog.Shown(returnedAt111)} (line 111)"); return returnedAt111; }
         }
 
         /// <summary>Diagnostics for a refused hitch: every Asksvin loaded here with its harness / tame / dead state and its hook and body distance from the tow ring.</summary>
         string Candidates()
         {
-            if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.Candidates", 2d, $"MobileCannonTow.Candidates()");
+            if (RuleLog.Due("MobileCannonTow.Candidates", 2d)) ModLog.Every("MobileCannonTow.Candidates", 2d, $"MobileCannonTow.Candidates()");
             var sb = new System.Text.StringBuilder("ring at " + (_ring != null ? _ring.position.ToString("0.0") : "?") + ", cart held " + (_vagon != null && _vagon.IsAttached()));
             foreach (Character c in Character.GetAllCharacters())
             {
@@ -123,7 +123,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 sb.Append("; " + c.name + " harnessed " + h.Harnessed + " tamed " + c.IsTamed() + " dead " + c.IsDead() + " hook " + Vector3.Distance(_ring.position, c.transform.TransformPoint(AsksvinHarness.HookLocal)).ToString("0.0")
                     + " m body " + Vector3.Distance(_ring.position, c.transform.position).ToString("0.0") + " m up " + c.transform.up.y.ToString("0.00"));
             }
-            { var returnedAt126 = sb.ToString(); if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.Candidates:126", 2d, $"MobileCannonTow.Candidates: returns {RuleLog.Shown(returnedAt126)} (line 126)"); return returnedAt126; }
+            { var returnedAt126 = sb.ToString(); if (RuleLog.Due("MobileCannonTow.Candidates:126", 2d)) ModLog.Every("MobileCannonTow.Candidates:126", 2d, $"MobileCannonTow.Candidates: returns {RuleLog.Shown(returnedAt126)} (line 126)"); return returnedAt126; }
         }
 
         static float Range() => ModSettings.MobileCannonHitchRange.Value;
@@ -154,8 +154,8 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// </summary>
         internal static void AnimalGone(long key, string why)
         {
-            if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.AnimalGone", 2d, $"MobileCannonTow.AnimalGone(key={RuleLog.Shown(key)}, why={RuleLog.Shown(why)})");
-            if (key == 0L) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.AnimalGone:158", 2d, "MobileCannonTow.AnimalGone: returns (line 158)"); return; }
+            if (RuleLog.Due("MobileCannonTow.AnimalGone", 2d)) ModLog.Every("MobileCannonTow.AnimalGone", 2d, $"MobileCannonTow.AnimalGone(key={RuleLog.Shown(key)}, why={RuleLog.Shown(why)})");
+            if (key == 0L) { if (RuleLog.Due("MobileCannonTow.AnimalGone:158", 2d)) ModLog.Every("MobileCannonTow.AnimalGone:158", 2d, "MobileCannonTow.AnimalGone: returns (line 158)"); return; }
             foreach (MobileCannonTow t in FindObjectsByType<MobileCannonTow>(FindObjectsSortMode.None))
             {
                 if (t == null || !t.IsValid || t._nview.GetZDO().GetLong(KeyTow, 0L) != key) continue;
@@ -195,13 +195,13 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         void Update()
         {
-            if (!IsValid) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.Update:198", 2d, "MobileCannonTow.Update: returns (line 198)"); return; }
+            if (!IsValid) { if (RuleLog.Due("MobileCannonTow.Update:198", 2d)) ModLog.Every("MobileCannonTow.Update:198", 2d, "MobileCannonTow.Update: returns (line 198)"); return; }
             long key = _nview.GetZDO().GetLong(KeyTow, 0L);
             if (key == 0L)
             {
                 if (_joint != null) DropJoint();
                 _animal = null;
-                { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.Update:204", 2d, "MobileCannonTow.Update: returns (line 204)"); return; }
+                { if (RuleLog.Due("MobileCannonTow.Update:204", 2d)) ModLog.Every("MobileCannonTow.Update:204", 2d, "MobileCannonTow.Update: returns (line 204)"); return; }
             }
             if ((_animal == null || _animal.TowKey != key) && Time.time >= _nextSearch)
             {
@@ -223,7 +223,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (!_nview.IsOwner())
             {
                 if (_joint != null) DropJoint();
-                { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.Update:226", 2d, "MobileCannonTow.Update: returns (line 226)"); return; }
+                { if (RuleLog.Due("MobileCannonTow.Update:226", 2d)) ModLog.Every("MobileCannonTow.Update:226", 2d, "MobileCannonTow.Update: returns (line 226)"); return; }
             }
             OwnerTick();
             ModLog.Every("mc-tow-" + GetInstanceID(), 5d, "MobileCannonTow: " + name + " towed by key " + key + (_animal != null ? " (" + _animal.name + ")" : " (not loaded)") + ", joint " + (_joint != null) + ", speed " + Speed().ToString("0.0") + " m/s");
@@ -248,9 +248,9 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         void FixedUpdate()
         {
-            if (_joint == null || _animal == null || !IsValid || !_nview.IsOwner()) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.FixedUpdate:251", 2d, "MobileCannonTow.FixedUpdate: returns (line 251)"); return; }
+            if (_joint == null || _animal == null || !IsValid || !_nview.IsOwner()) { if (RuleLog.Due("MobileCannonTow.FixedUpdate:251", 2d)) ModLog.Every("MobileCannonTow.FixedUpdate:251", 2d, "MobileCannonTow.FixedUpdate: returns (line 251)"); return; }
             if (_body == null) _body = GetComponent<Rigidbody>();
-            if (_body == null) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.FixedUpdate:253", 2d, "MobileCannonTow.FixedUpdate: returns (line 253)"); return; }
+            if (_body == null) { if (RuleLog.Due("MobileCannonTow.FixedUpdate:253", 2d)) ModLog.Every("MobileCannonTow.FixedUpdate:253", 2d, "MobileCannonTow.FixedUpdate: returns (line 253)"); return; }
             Vector3 ground = Vector3.up;
             RaycastHit hit;
             if (Physics.Raycast(_body.worldCenterOfMass + Vector3.up * 0.5f, Vector3.down, out hit, 3f, LayerMask.GetMask("terrain"), QueryTriggerInteraction.Ignore))
@@ -275,7 +275,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             float pitchW = Vector3.SignedAngle(Vector3.ProjectOnPlane(Vector3.up, right), Vector3.ProjectOnPlane(up, right), right);
             float rollOver = AsksvinTowRules.Tighter(AsksvinTowRules.Excess(roll, AsksvinTowRules.MaxRoll), AsksvinTowRules.Excess(rollW, AsksvinTowRules.MaxWorldRoll));
             float pitchOver = AsksvinTowRules.Tighter(AsksvinTowRules.Excess(pitch, AsksvinTowRules.MaxPitch), AsksvinTowRules.Excess(pitchW, AsksvinTowRules.MaxWorldPitch));
-            if (rollOver == 0f && pitchOver == 0f) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.FixedUpdate:278", 2d, "MobileCannonTow.FixedUpdate: returns (line 278)"); return; }
+            if (rollOver == 0f && pitchOver == 0f) { if (RuleLog.Due("MobileCannonTow.FixedUpdate:278", 2d)) ModLog.Every("MobileCannonTow.FixedUpdate:278", 2d, "MobileCannonTow.FixedUpdate: returns (line 278)"); return; }
             Quaternion back = Quaternion.AngleAxis(-rollOver, fwd) * Quaternion.AngleAxis(-pitchOver, right);
             _body.rotation = back * _body.rotation;          // at once: MoveRotation waits a step, and a tree or the joint pushes it past again meanwhile (a9miss1: 56 deg)
             if (rollOver != 0f && rollRate * rollOver > 0f) w -= fwd * rollRate;
@@ -283,7 +283,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (rollOver != 0f) w -= fwd * Vector3.Dot(w, fwd);          // past the limit: no more roll spin at all (the 0.6 damping still flipped it for a frame, a9g16g)
             _body.angularVelocity = w * 0.6f;          // a held yank loses its spin too, or the next step tips it again
             Holds++;
-            if (Time.time - _lastHoldLog < 0.5f) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.FixedUpdate:286", 2d, "MobileCannonTow.FixedUpdate: returns (line 286)"); return; }
+            if (Time.time - _lastHoldLog < 0.5f) { if (RuleLog.Due("MobileCannonTow.FixedUpdate:286", 2d)) ModLog.Every("MobileCannonTow.FixedUpdate:286", 2d, "MobileCannonTow.FixedUpdate: returns (line 286)"); return; }
             _lastHoldLog = Time.time;
             Rigidbody ab = _animal.GetComponent<Rigidbody>();
             ModLog.Info("MobileCannonTow: " + name + " tilt held - roll " + roll.ToString("0") + " deg (world " + rollW.ToString("0") + ") (rate " + (rollRate * Mathf.Rad2Deg).ToString("0") + " deg/s), pitch " + pitch.ToString("0") + " (world " + pitchW.ToString("0") + ")"
@@ -300,7 +300,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         {
             long cannon = _nview.GetZDO().GetOwner();
             long animal = _animal != null && _animal.View != null && _animal.View.IsValid() ? _animal.View.GetZDO().GetOwner() : 0L;
-            if (cannon == _lastCannonOwner && animal == _lastAnimalOwner) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.LogOwners:303", 2d, "MobileCannonTow.LogOwners: returns (line 303)"); return; }
+            if (cannon == _lastCannonOwner && animal == _lastAnimalOwner) { if (RuleLog.Due("MobileCannonTow.LogOwners:303", 2d)) ModLog.Every("MobileCannonTow.LogOwners:303", 2d, "MobileCannonTow.LogOwners: returns (line 303)"); return; }
             ModLog.Info("MobileCannonTow: " + name + " owners - cannon " + _lastCannonOwner + " -> " + cannon + ", animal " + _lastAnimalOwner + " -> " + animal
                 + " (me " + ZDOMan.GetSessionID() + ", joint " + (_joint != null) + ")");
             _lastCannonOwner = cannon;
@@ -314,13 +314,13 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 // the animal is not loaded here (yet, e.g. right after a world load): give it some seconds before giving up
                 if (_lostSince < 0f) _lostSince = Time.time;
                 if (Time.time - _lostSince > 10f) Unhitch("no Asksvin with this harness loaded for 10 s");
-                { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.OwnerTick:317", 2d, "MobileCannonTow.OwnerTick: returns (line 317)"); return; }
+                { if (RuleLog.Due("MobileCannonTow.OwnerTick:317", 2d)) ModLog.Every("MobileCannonTow.OwnerTick:317", 2d, "MobileCannonTow.OwnerTick: returns (line 317)"); return; }
             }
             _lostSince = -1f;
             if (!AsksvinTowRules.KeepsTowing(_animal.View != null && _animal.View.IsValid(), _animal.Animal == null || _animal.Animal.IsDead(), _animal.Harnessed))
             {
                 Unhitch("animal dead or without harness");
-                { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.OwnerTick:323", 2d, "MobileCannonTow.OwnerTick: returns (line 323)"); return; }
+                { if (RuleLog.Due("MobileCannonTow.OwnerTick:323", 2d)) ModLog.Every("MobileCannonTow.OwnerTick:323", 2d, "MobileCannonTow.OwnerTick: returns (line 323)"); return; }
             }
             long animalOwner = _animal.View.GetZDO().GetOwner();
             if (AsksvinTowRules.OwnerMove(ZDOMan.GetSessionID(), ZDOMan.GetSessionID(), animalOwner) == "push")
@@ -352,7 +352,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         void MakeJoint()
         {
             Rigidbody animalBody = _animal.GetComponent<Rigidbody>();
-            if (animalBody == null || _ring == null) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.MakeJoint:355", 2d, "MobileCannonTow.MakeJoint: returns (line 355)"); return; }
+            if (animalBody == null || _ring == null) { if (RuleLog.Due("MobileCannonTow.MakeJoint:355", 2d)) ModLog.Every("MobileCannonTow.MakeJoint:355", 2d, "MobileCannonTow.MakeJoint: returns (line 355)"); return; }
             _joint = gameObject.AddComponent<ConfigurableJoint>();
             _joint.autoConfigureConnectedAnchor = false;
             _joint.anchor = transform.InverseTransformPoint(_ring.position);
@@ -377,7 +377,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         void DropJoint()
         {
-            if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.DropJoint", 2d, $"MobileCannonTow.DropJoint()");
+            if (RuleLog.Due("MobileCannonTow.DropJoint", 2d)) ModLog.Every("MobileCannonTow.DropJoint", 2d, $"MobileCannonTow.DropJoint()");
             if (_joint != null) Destroy(_joint);
             _joint = null;
             Rigidbody own = GetComponent<Rigidbody>();
@@ -400,9 +400,9 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         float Speed()
         {
-            if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.Speed", 2d, $"MobileCannonTow.Speed()");
+            if (RuleLog.Due("MobileCannonTow.Speed", 2d)) ModLog.Every("MobileCannonTow.Speed", 2d, $"MobileCannonTow.Speed()");
             Rigidbody b = GetComponent<Rigidbody>();
-            { var returnedAt405 = b != null ? b.linearVelocity.magnitude : 0f; if (RuleLog.IsOn()) ModLog.Every("MobileCannonTow.Speed:405", 2d, $"MobileCannonTow.Speed: returns {RuleLog.Shown(returnedAt405)} (line 405)"); return returnedAt405; }
+            { var returnedAt405 = b != null ? b.linearVelocity.magnitude : 0f; if (RuleLog.Due("MobileCannonTow.Speed:405", 2d)) ModLog.Every("MobileCannonTow.Speed:405", 2d, $"MobileCannonTow.Speed: returns {RuleLog.Shown(returnedAt405)} (line 405)"); return returnedAt405; }
         }
     }
 

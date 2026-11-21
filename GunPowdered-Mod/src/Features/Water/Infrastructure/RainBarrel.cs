@@ -38,12 +38,12 @@ namespace GunPowdered.Features.Water.Infrastructure
         {
             try
             {
-                if (!_nview.IsValid() || !_nview.IsOwner() || ZNet.instance == null) { if (RuleLog.IsOn()) ModLog.Every("RainBarrel.Tick:41", 2d, "RainBarrel.Tick: returns (line 41)"); return; }
+                if (!_nview.IsValid() || !_nview.IsOwner() || ZNet.instance == null) { if (RuleLog.Due("RainBarrel.Tick:41", 2d)) ModLog.Every("RainBarrel.Tick:41", 2d, "RainBarrel.Tick: returns (line 41)"); return; }
                 double now = ZNet.instance.GetTimeSeconds();
                 var zdo = _nview.GetZDO();
                 long last = zdo.GetLong(KeyTime, 0L);
                 zdo.Set(KeyTime, (long)(now * 1000d));
-                if (last == 0L) { if (RuleLog.IsOn()) ModLog.Every("RainBarrel.Tick:46", 2d, "RainBarrel.Tick: returns (line 46)"); return; }                                  // first step only starts the clock
+                if (last == 0L) { if (RuleLog.Due("RainBarrel.Tick:46", 2d)) ModLog.Every("RainBarrel.Tick:46", 2d, "RainBarrel.Tick: returns (line 46)"); return; }                                  // first step only starts the clock
 
                 bool wet = EnvMan.instance != null && EnvMan.IsWet();
                 var r = RainBarrelRules.Fill(Water, ModSettings.RainBarrelCapacity.Value, ModSettings.RainBarrelRatePerMinute.Value,
@@ -63,11 +63,11 @@ namespace GunPowdered.Features.Water.Infrastructure
         // A roof, a floor or the terrain within 20 m straight above blocks the rain (D-010). The barrel's own colliders do not count.
         bool IsCovered()
         {
-            if (RuleLog.IsOn()) ModLog.Every("RainBarrel.IsCovered", 2d, $"RainBarrel.IsCovered()");
+            if (RuleLog.Due("RainBarrel.IsCovered", 2d)) ModLog.Every("RainBarrel.IsCovered", 2d, $"RainBarrel.IsCovered()");
             Vector3 from = transform.position + Vector3.up * 1.2f;
             RaycastHit[] hits = Physics.RaycastAll(from, Vector3.up, 20f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
-            foreach (RaycastHit h in hits) if (h.collider != null && !h.collider.transform.IsChildOf(transform)) { if (RuleLog.IsOn()) ModLog.Every("RainBarrel.IsCovered:69", 2d, "RainBarrel.IsCovered: returns true (line 69)"); return true; }
-            { if (RuleLog.IsOn()) ModLog.Every("RainBarrel.IsCovered:70", 2d, "RainBarrel.IsCovered: returns false (line 70)"); return false; }
+            foreach (RaycastHit h in hits) if (h.collider != null && !h.collider.transform.IsChildOf(transform)) { if (RuleLog.Due("RainBarrel.IsCovered:69", 2d)) ModLog.Every("RainBarrel.IsCovered:69", 2d, "RainBarrel.IsCovered: returns true (line 69)"); return true; }
+            { if (RuleLog.Due("RainBarrel.IsCovered:70", 2d)) ModLog.Every("RainBarrel.IsCovered:70", 2d, "RainBarrel.IsCovered: returns false (line 70)"); return false; }
         }
 
         public string GetHoverText()
@@ -83,12 +83,12 @@ namespace GunPowdered.Features.Water.Infrastructure
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
-            if (RuleLog.IsOn()) ModLog.Every("RainBarrel.Interact", 2d, $"RainBarrel.Interact(user={RuleLog.Shown(user)}, hold={RuleLog.Shown(hold)}, alt={RuleLog.Shown(alt)})");
-            if (hold || user == null || !_nview.IsValid()) { if (RuleLog.IsOn()) ModLog.Every("RainBarrel.Interact:87", 2d, "RainBarrel.Interact: returns false (line 87)"); return false; }
+            if (RuleLog.Due("RainBarrel.Interact", 2d)) ModLog.Every("RainBarrel.Interact", 2d, $"RainBarrel.Interact(user={RuleLog.Shown(user)}, hold={RuleLog.Shown(hold)}, alt={RuleLog.Shown(alt)})");
+            if (hold || user == null || !_nview.IsValid()) { if (RuleLog.Due("RainBarrel.Interact:87", 2d)) ModLog.Every("RainBarrel.Interact:87", 2d, "RainBarrel.Interact: returns false (line 87)"); return false; }
             int fits = FreeRoom(user.GetInventory());
-            if (fits <= 0) { user.Message(MessageHud.MessageType.Center, "Your inventory is full"); { if (RuleLog.IsOn()) ModLog.Every("RainBarrel.Interact:89", 2d, "RainBarrel.Interact: returns true (line 89)"); return true; } }
+            if (fits <= 0) { user.Message(MessageHud.MessageType.Center, "Your inventory is full"); { if (RuleLog.Due("RainBarrel.Interact:89", 2d)) ModLog.Every("RainBarrel.Interact:89", 2d, "RainBarrel.Interact: returns true (line 89)"); return true; } }
             _nview.InvokeRPC(RpcTake, fits);
-            { if (RuleLog.IsOn()) ModLog.Every("RainBarrel.Interact:91", 2d, "RainBarrel.Interact: returns true (line 91)"); return true; }
+            { if (RuleLog.Due("RainBarrel.Interact:91", 2d)) ModLog.Every("RainBarrel.Interact:91", 2d, "RainBarrel.Interact: returns true (line 91)"); return true; }
         }
 
         public bool UseItem(Humanoid user, ItemDrop.ItemData item) { return false; }
@@ -117,11 +117,11 @@ namespace GunPowdered.Features.Water.Infrastructure
 
         static int FreeRoom(Inventory inv)
         {
-            if (RuleLog.IsOn()) ModLog.Every("RainBarrel.FreeRoom", 2d, $"RainBarrel.FreeRoom(inv={RuleLog.Shown(inv)})");
+            if (RuleLog.Due("RainBarrel.FreeRoom", 2d)) ModLog.Every("RainBarrel.FreeRoom", 2d, $"RainBarrel.FreeRoom(inv={RuleLog.Shown(inv)})");
             GameObject water = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(GunPowderedPrefabs.Water) : null;
-            if (inv == null || water == null) { if (RuleLog.IsOn()) ModLog.Every("RainBarrel.FreeRoom:122", 2d, "RainBarrel.FreeRoom: returns 0 (line 122)"); return 0; }
-            for (int n = Mathf.Min(MaxTake, Mathf.FloorToInt(ModSettings.RainBarrelCapacity.Value)); n > 0; n--) if (inv.CanAddItem(water, n)) { var returnedAt123 = n; if (RuleLog.IsOn()) ModLog.Every("RainBarrel.FreeRoom:123", 2d, $"RainBarrel.FreeRoom: returns {RuleLog.Shown(returnedAt123)} (line 123)"); return returnedAt123; }
-            { if (RuleLog.IsOn()) ModLog.Every("RainBarrel.FreeRoom:124", 2d, "RainBarrel.FreeRoom: returns 0 (line 124)"); return 0; }
+            if (inv == null || water == null) { if (RuleLog.Due("RainBarrel.FreeRoom:122", 2d)) ModLog.Every("RainBarrel.FreeRoom:122", 2d, "RainBarrel.FreeRoom: returns 0 (line 122)"); return 0; }
+            for (int n = Mathf.Min(MaxTake, Mathf.FloorToInt(ModSettings.RainBarrelCapacity.Value)); n > 0; n--) if (inv.CanAddItem(water, n)) { var returnedAt123 = n; if (RuleLog.Due("RainBarrel.FreeRoom:123", 2d)) ModLog.Every("RainBarrel.FreeRoom:123", 2d, $"RainBarrel.FreeRoom: returns {RuleLog.Shown(returnedAt123)} (line 123)"); return returnedAt123; }
+            { if (RuleLog.Due("RainBarrel.FreeRoom:124", 2d)) ModLog.Every("RainBarrel.FreeRoom:124", 2d, "RainBarrel.FreeRoom: returns 0 (line 124)"); return 0; }
         }
     }
 }

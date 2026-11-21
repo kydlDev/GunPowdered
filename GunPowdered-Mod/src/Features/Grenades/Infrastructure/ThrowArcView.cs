@@ -54,7 +54,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
 
         LineRenderer MakeLine(string name, Material mat, float width, bool loop)
         {
-            if (RuleLog.IsOn()) ModLog.Every("ThrowArcView.MakeLine", 2d, $"ThrowArcView.MakeLine(name={RuleLog.Shown(name)}, mat={RuleLog.Shown(mat)}, width={RuleLog.Shown(width)}, loop={RuleLog.Shown(loop)})");
+            if (RuleLog.Due("ThrowArcView.MakeLine", 2d)) ModLog.Every("ThrowArcView.MakeLine", 2d, $"ThrowArcView.MakeLine(name={RuleLog.Shown(name)}, mat={RuleLog.Shown(mat)}, width={RuleLog.Shown(width)}, loop={RuleLog.Shown(loop)})");
             var child = new GameObject(name);
             child.transform.SetParent(transform, false);
             var lr = child.AddComponent<LineRenderer>();
@@ -65,7 +65,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             lr.receiveShadows = false;
             lr.numCapVertices = 2;
-            { var returnedAt68 = lr; if (RuleLog.IsOn()) ModLog.Every("ThrowArcView.MakeLine:68", 2d, $"ThrowArcView.MakeLine: returns {RuleLog.Shown(returnedAt68)} (line 68)"); return returnedAt68; }
+            { var returnedAt68 = lr; if (RuleLog.Due("ThrowArcView.MakeLine:68", 2d)) ModLog.Every("ThrowArcView.MakeLine:68", 2d, $"ThrowArcView.MakeLine: returns {RuleLog.Shown(returnedAt68)} (line 68)"); return returnedAt68; }
         }
 
         // white dashes on a clear background; the line tiles it once per metre-ish (width-relative tiling)
@@ -88,7 +88,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             {
                 if (_shown) ModLog.Verbose("ThrowArcView: hidden (" + (player == null ? "no player" : !GrenadeSetup.IsGrenade(held) ? "no grenade in hand" : "menu open, dead or feature off") + ")");
                 Show(false);
-                { if (RuleLog.IsOn()) ModLog.Every("ThrowArcView.LateUpdate:91", 2d, "ThrowArcView.LateUpdate: returns (line 91)"); return; }
+                { if (RuleLog.Due("ThrowArcView.LateUpdate:91", 2d)) ModLog.Every("ThrowArcView.LateUpdate:91", 2d, "ThrowArcView.LateUpdate: returns (line 91)"); return; }
             }
             GrenadeSetup.ApplyIfChanged();     // the flight always has the values the arc is drawn with
             Draw(player, held.m_shared.m_attack);
@@ -134,7 +134,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         /// </summary>
         internal static void SpawnAndAim(Player player, Attack attack, out Vector3 spawn, out Vector3 aim)
         {
-            if (RuleLog.IsOn()) ModLog.Every("ThrowArcView.SpawnAndAim", 2d, $"ThrowArcView.SpawnAndAim(player={RuleLog.Shown(player)}, attack={RuleLog.Shown(attack)})");
+            if (RuleLog.Due("ThrowArcView.SpawnAndAim", 2d)) ModLog.Every("ThrowArcView.SpawnAndAim", 2d, $"ThrowArcView.SpawnAndAim(player={RuleLog.Shown(player)}, attack={RuleLog.Shown(attack)})");
             aim = player.GetLookDir();
             Transform origin = string.IsNullOrEmpty(attack.m_attackOriginJoint) ? player.transform : Utils.FindChild(player.GetVisual().transform, attack.m_attackOriginJoint);
             if (origin == null) origin = player.transform;
@@ -171,9 +171,9 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         /// <summary>The layers the game's projectile hits (cached); the aim drops the chosen spot onto the same ground the grenade lands on.</summary>
         internal static int SolidsMask()
         {
-            if (RuleLog.IsOn()) ModLog.Every("ThrowArcView.SolidsMask", 2d, $"ThrowArcView.SolidsMask()");
+            if (RuleLog.Due("ThrowArcView.SolidsMask", 2d)) ModLog.Every("ThrowArcView.SolidsMask", 2d, $"ThrowArcView.SolidsMask()");
             if (_solidsMask == 0) _solidsMask = ReadSolidsMask();
-            { var returnedAt176 = _solidsMask; if (RuleLog.IsOn()) ModLog.Every("ThrowArcView.SolidsMask:176", 2d, $"ThrowArcView.SolidsMask: returns {RuleLog.Shown(returnedAt176)} (line 176)"); return returnedAt176; }
+            { var returnedAt176 = _solidsMask; if (RuleLog.Due("ThrowArcView.SolidsMask:176", 2d)) ModLog.Every("ThrowArcView.SolidsMask:176", 2d, $"ThrowArcView.SolidsMask: returns {RuleLog.Shown(returnedAt176)} (line 176)"); return returnedAt176; }
         }
 
         static int ReadSolidsMask()
@@ -189,7 +189,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         // the ring sits on the ground around the landing: each point is dropped onto what is below it
         void PlaceRing(Vector3 centre, float radius)
         {
-            if (RuleLog.IsOn()) ModLog.Every("ThrowArcView.PlaceRing", 2d, $"ThrowArcView.PlaceRing(centre={RuleLog.Shown(centre)}, radius={RuleLog.Shown(radius)})");
+            if (RuleLog.Due("ThrowArcView.PlaceRing", 2d)) ModLog.Every("ThrowArcView.PlaceRing", 2d, $"ThrowArcView.PlaceRing(centre={RuleLog.Shown(centre)}, radius={RuleLog.Shown(radius)})");
             for (int i = 0; i < RingSegments; i++)
             {
                 float a = i * Mathf.PI * 2f / RingSegments;
@@ -204,7 +204,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
 
         void Show(bool on)
         {
-            if (_shown == on) { if (RuleLog.IsOn()) ModLog.Every("ThrowArcView.Show:207", 2d, "ThrowArcView.Show: returns (line 207)"); return; }
+            if (_shown == on) { if (RuleLog.Due("ThrowArcView.Show:207", 2d)) ModLog.Every("ThrowArcView.Show:207", 2d, "ThrowArcView.Show: returns (line 207)"); return; }
             _shown = on;
             if (_line != null) _line.enabled = on;
             if (_ring != null) _ring.enabled = on;

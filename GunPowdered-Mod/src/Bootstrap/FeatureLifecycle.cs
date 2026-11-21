@@ -42,7 +42,7 @@ namespace GunPowdered.Bootstrap
             bool inPlace = apply();
             ModLog.State(Id + " feature", "stopped", inPlace ? "started" : "start failed", "Enable Mod and Enable " + Id + " are on");
             _running = inPlace;
-            { var returnedAt45 = _running; if (RuleLog.IsOn()) ModLog.Every("FeatureLifecycle.Start:45", 2d, $"FeatureLifecycle.Start: returns {RuleLog.Shown(returnedAt45)} (line 45)"); return returnedAt45; }
+            { var returnedAt45 = _running; if (RuleLog.Due("FeatureLifecycle.Start:45", 2d)) ModLog.Every("FeatureLifecycle.Start:45", 2d, $"FeatureLifecycle.Start: returns {RuleLog.Shown(returnedAt45)} (line 45)"); return returnedAt45; }
         }
 
         /// <summary>Expected outcome: true when the feature is stopped. <paramref name="apply"/> takes its contributions away and returns whether they are gone.</summary>
@@ -51,7 +51,7 @@ namespace GunPowdered.Bootstrap
             bool gone = apply();
             ModLog.State(Id + " feature", "started", gone ? "stopped" : "stop failed", "a switch was turned off or the mod unloads");
             _running = !gone;
-            { var returnedAt54 = !_running; if (RuleLog.IsOn()) ModLog.Every("FeatureLifecycle.Stop:54", 2d, $"FeatureLifecycle.Stop: returns {RuleLog.Shown(returnedAt54)} (line 54)"); return returnedAt54; }
+            { var returnedAt54 = !_running; if (RuleLog.Due("FeatureLifecycle.Stop:54", 2d)) ModLog.Every("FeatureLifecycle.Stop:54", 2d, $"FeatureLifecycle.Stop: returns {RuleLog.Shown(returnedAt54)} (line 54)"); return returnedAt54; }
         }
     }
 }

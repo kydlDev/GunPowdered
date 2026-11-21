@@ -41,7 +41,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         /// <summary>Takes control of the stock. Expected outcome: true when aiming started.</summary>
         internal static bool Begin(CannonMount mount, Player p)
         {
-            if (mount == null || p == null) { if (RuleLog.IsOn()) ModLog.Every("CannonAim.Begin:44", 2d, "CannonAim.Begin: returns false (line 44)"); return false; }
+            if (mount == null || p == null) { if (RuleLog.Due("CannonAim.Begin:44", 2d)) ModLog.Every("CannonAim.Begin:44", 2d, "CannonAim.Begin: returns false (line 44)"); return false; }
             if (Current != null && Current != mount) End("another stock was taken");
             Current = mount;
             _startFrame = Time.frameCount;
@@ -55,7 +55,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         /// <summary>Gives the stock back. Expected outcome: nobody aims, the line is hidden.</summary>
         internal static void End(string why)
         {
-            if (Current == null) { if (RuleLog.IsOn()) ModLog.Every("CannonAim.End:58", 2d, "CannonAim.End: returns (line 58)"); return; }
+            if (Current == null) { if (RuleLog.Due("CannonAim.End:58", 2d)) ModLog.Every("CannonAim.End:58", 2d, "CannonAim.End: returns (line 58)"); return; }
             Current = null;
             Target = null;
             _locked = false;
@@ -68,9 +68,9 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         internal static void Tick(CannonMount mount)
         {
             Player p = Player.m_localPlayer;
-            if (p == null || p.IsDead() || Vector3.Distance(p.transform.position, mount.transform.position) > LeaveRange) { End("the player left the stock"); { if (RuleLog.IsOn()) ModLog.Every("CannonAim.Tick:71", 2d, "CannonAim.Tick: returns (line 71)"); return; } }
-            if (Time.frameCount > _startFrame && (ZInput.GetButtonDown("Use") || ZInput.GetButtonDown("JoyUse"))) { End("the player stopped aiming"); { if (RuleLog.IsOn()) ModLog.Every("CannonAim.Tick:72", 2d, "CannonAim.Tick: returns (line 72)"); return; } }
-            if (!mount.Status().Loaded) { End("the cannon is not loaded"); { if (RuleLog.IsOn()) ModLog.Every("CannonAim.Tick:73", 2d, "CannonAim.Tick: returns (line 73)"); return; } }
+            if (p == null || p.IsDead() || Vector3.Distance(p.transform.position, mount.transform.position) > LeaveRange) { End("the player left the stock"); { if (RuleLog.Due("CannonAim.Tick:71", 2d)) ModLog.Every("CannonAim.Tick:71", 2d, "CannonAim.Tick: returns (line 71)"); return; } }
+            if (Time.frameCount > _startFrame && (ZInput.GetButtonDown("Use") || ZInput.GetButtonDown("JoyUse"))) { End("the player stopped aiming"); { if (RuleLog.Due("CannonAim.Tick:72", 2d)) ModLog.Every("CannonAim.Tick:72", 2d, "CannonAim.Tick: returns (line 72)"); return; } }
+            if (!mount.Status().Loaded) { End("the cannon is not loaded"); { if (RuleLog.Due("CannonAim.Tick:73", 2d)) ModLog.Every("CannonAim.Tick:73", 2d, "CannonAim.Tick: returns (line 73)"); return; } }
             if (!_locked)
             {
                 Vector3 spot = Spot(mount, p);
@@ -80,7 +80,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
                 TargetDistance = Flat(mount.transform.position, spot);
             }
             DrawLine(mount);
-            ModLog.Every("cannon-aim", 2d, "CannonAim: aiming at " + Fmt(TargetDistance) + " m, velocity " + _velocity.ToString("0.0") + ", locked " + _locked);
+            if (RuleLog.Due("cannon-aim", 2d)) ModLog.Every("cannon-aim", 2d, "CannonAim: aiming at " + Fmt(TargetDistance) + " m, velocity " + _velocity.ToString("0.0") + ", locked " + _locked);
         }
 
         /// <summary>
@@ -89,8 +89,8 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         /// </summary>
         internal static bool AttackPressed(Player p)
         {
-            if (Current == null || p == null || p != Player.m_localPlayer) { if (RuleLog.IsOn()) ModLog.Every("CannonAim.AttackPressed:92", 2d, "CannonAim.AttackPressed: returns false (line 92)"); return false; }
-            if (_locked) { if (RuleLog.IsOn()) ModLog.Every("CannonAim.AttackPressed:93", 2d, "CannonAim.AttackPressed: returns true (line 93)"); return true; }
+            if (Current == null || p == null || p != Player.m_localPlayer) { if (RuleLog.Due("CannonAim.AttackPressed:92", 2d)) ModLog.Every("CannonAim.AttackPressed:92", 2d, "CannonAim.AttackPressed: returns false (line 92)"); return false; }
+            if (_locked) { if (RuleLog.Due("CannonAim.AttackPressed:93", 2d)) ModLog.Every("CannonAim.AttackPressed:93", 2d, "CannonAim.AttackPressed: returns true (line 93)"); return true; }
             string why = Current.Light(p, _velocity, MuzzleTargetFlat());
             LastLight = why ?? "lit";
             if (why != null) p.Message(MessageHud.MessageType.Center, why);
@@ -105,7 +105,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         // where the camera looks, clamped into the cannon's range, on the ground
         static Vector3 Spot(CannonMount mount, Player p)
         {
-            if (RuleLog.IsOn()) ModLog.Every("CannonAim.Spot", 2d, $"CannonAim.Spot(mount={RuleLog.Shown(mount)}, p={RuleLog.Shown(p)})");
+            if (RuleLog.Due("CannonAim.Spot", 2d)) ModLog.Every("CannonAim.Spot", 2d, $"CannonAim.Spot(mount={RuleLog.Shown(mount)}, p={RuleLog.Shown(p)})");
             Vector3 origin = mount.transform.position, dir;
             float wanted;
             if (TestAim.HasValue)
@@ -122,12 +122,12 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             float d = CannonRules.ClampAim(wanted, ModSettings.CannonMinRange.Value, ModSettings.CannonRange.Value);
             Vector3 spot = origin + (dir * d);
             spot.y = GroundY(spot);
-            { var returnedAt125 = spot; if (RuleLog.IsOn()) ModLog.Every("CannonAim.Spot:125", 2d, $"CannonAim.Spot: returns {RuleLog.Shown(returnedAt125)} (line 125)"); return returnedAt125; }
+            { var returnedAt125 = spot; if (RuleLog.Due("CannonAim.Spot:125", 2d)) ModLog.Every("CannonAim.Spot:125", 2d, $"CannonAim.Spot: returns {RuleLog.Shown(returnedAt125)} (line 125)"); return returnedAt125; }
         }
 
         static Vector3 LookPoint(CannonMount mount, Player p)
         {
-            if (RuleLog.IsOn()) ModLog.Every("CannonAim.LookPoint", 2d, $"CannonAim.LookPoint(mount={RuleLog.Shown(mount)}, p={RuleLog.Shown(p)})");
+            if (RuleLog.Due("CannonAim.LookPoint", 2d)) ModLog.Every("CannonAim.LookPoint", 2d, $"CannonAim.LookPoint(mount={RuleLog.Shown(mount)}, p={RuleLog.Shown(p)})");
             Transform cam = GameCamera.instance != null ? GameCamera.instance.transform : p.transform;
             int n = Physics.RaycastNonAlloc(cam.position, cam.forward, Hits, RayLength, CannonBallFlight.Mask(), QueryTriggerInteraction.Ignore);
             float best = float.MaxValue;
@@ -139,15 +139,15 @@ namespace GunPowdered.Features.Cannon.Infrastructure
                 best = Hits[i].distance;
                 point = Hits[i].point;
             }
-            { var returnedAt142 = point; if (RuleLog.IsOn()) ModLog.Every("CannonAim.LookPoint:142", 2d, $"CannonAim.LookPoint: returns {RuleLog.Shown(returnedAt142)} (line 142)"); return returnedAt142; }
+            { var returnedAt142 = point; if (RuleLog.Due("CannonAim.LookPoint:142", 2d)) ModLog.Every("CannonAim.LookPoint:142", 2d, $"CannonAim.LookPoint: returns {RuleLog.Shown(returnedAt142)} (line 142)"); return returnedAt142; }
         }
 
         static void DrawLine(CannonMount mount)
         {
-            if (RuleLog.IsOn()) ModLog.Every("CannonAim.DrawLine", 2d, $"CannonAim.DrawLine(mount={RuleLog.Shown(mount)})");
+            if (RuleLog.Due("CannonAim.DrawLine", 2d)) ModLog.Every("CannonAim.DrawLine", 2d, $"CannonAim.DrawLine(mount={RuleLog.Shown(mount)})");
             float meters = ModSettings.CannonPreviewMeters.Value;
             if (_line == null) _line = MakeLine();
-            if (meters <= 0f || mount.Muzzle == null || _velocity.sqrMagnitude <= 0f) { _line.enabled = false; { if (RuleLog.IsOn()) ModLog.Every("CannonAim.DrawLine:150", 2d, "CannonAim.DrawLine: returns (line 150)"); return; } }
+            if (meters <= 0f || mount.Muzzle == null || _velocity.sqrMagnitude <= 0f) { _line.enabled = false; { if (RuleLog.Due("CannonAim.DrawLine:150", 2d)) ModLog.Every("CannonAim.DrawLine:150", 2d, "CannonAim.DrawLine: returns (line 150)"); return; } }
             ArcVector start = ToArc(mount.Muzzle.position);
             float len = 0f;
             ThrowArcRules.Simulate(start, ToArc(_velocity), ModSettings.CannonGravity.Value, 0f, Time.fixedDeltaTime, 2f,
@@ -159,7 +159,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
 
         static LineRenderer MakeLine()
         {
-            if (RuleLog.IsOn()) ModLog.Every("CannonAim.MakeLine", 2d, $"CannonAim.MakeLine()");
+            if (RuleLog.Due("CannonAim.MakeLine", 2d)) ModLog.Every("CannonAim.MakeLine", 2d, $"CannonAim.MakeLine()");
             var go = new GameObject("GP_CannonAimLine");
             Object.DontDestroyOnLoad(go);
             var lr = go.AddComponent<LineRenderer>();
@@ -171,23 +171,23 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             lr.useWorldSpace = true;
             lr.numCapVertices = 2;
             lr.enabled = false;
-            { var returnedAt174 = lr; if (RuleLog.IsOn()) ModLog.Every("CannonAim.MakeLine:174", 2d, $"CannonAim.MakeLine: returns {RuleLog.Shown(returnedAt174)} (line 174)"); return returnedAt174; }
+            { var returnedAt174 = lr; if (RuleLog.Due("CannonAim.MakeLine:174", 2d)) ModLog.Every("CannonAim.MakeLine:174", 2d, $"CannonAim.MakeLine: returns {RuleLog.Shown(returnedAt174)} (line 174)"); return returnedAt174; }
         }
 
         static float GroundY(Vector3 spot)
         {
-            if (RuleLog.IsOn()) ModLog.Every("CannonAim.GroundY", 2d, $"CannonAim.GroundY(spot={RuleLog.Shown(spot)})");
+            if (RuleLog.Due("CannonAim.GroundY", 2d)) ModLog.Every("CannonAim.GroundY", 2d, $"CannonAim.GroundY(spot={RuleLog.Shown(spot)})");
             RaycastHit h;
             int ground = LayerMask.GetMask("Default", "static_solid", "terrain", "piece");
-            if (Physics.Raycast(spot + (Vector3.up * 60f), Vector3.down, out h, 200f, ground, QueryTriggerInteraction.Ignore)) { var returnedAt182 = h.point.y; if (RuleLog.IsOn()) ModLog.Every("CannonAim.GroundY:182", 2d, $"CannonAim.GroundY: returns {RuleLog.Shown(returnedAt182)} (line 182)"); return returnedAt182; }
-            { var returnedAt183 = ZoneSystem.instance != null ? ZoneSystem.instance.GetGroundHeight(spot) : spot.y; if (RuleLog.IsOn()) ModLog.Every("CannonAim.GroundY:183", 2d, $"CannonAim.GroundY: returns {RuleLog.Shown(returnedAt183)} (line 183)"); return returnedAt183; }
+            if (Physics.Raycast(spot + (Vector3.up * 60f), Vector3.down, out h, 200f, ground, QueryTriggerInteraction.Ignore)) { var returnedAt182 = h.point.y; if (RuleLog.Due("CannonAim.GroundY:182", 2d)) ModLog.Every("CannonAim.GroundY:182", 2d, $"CannonAim.GroundY: returns {RuleLog.Shown(returnedAt182)} (line 182)"); return returnedAt182; }
+            { var returnedAt183 = ZoneSystem.instance != null ? ZoneSystem.instance.GetGroundHeight(spot) : spot.y; if (RuleLog.Due("CannonAim.GroundY:183", 2d)) ModLog.Every("CannonAim.GroundY:183", 2d, $"CannonAim.GroundY: returns {RuleLog.Shown(returnedAt183)} (line 183)"); return returnedAt183; }
         }
 
         static Vector3 Flatten(Vector3 v)
         {
-            if (RuleLog.IsOn()) ModLog.Every("CannonAim.Flatten", 2d, $"CannonAim.Flatten(v={RuleLog.Shown(v)})");
+            if (RuleLog.Due("CannonAim.Flatten", 2d)) ModLog.Every("CannonAim.Flatten", 2d, $"CannonAim.Flatten(v={RuleLog.Shown(v)})");
             v.y = 0f;
-            { var returnedAt190 = v.sqrMagnitude > 0.0001f ? v.normalized : Vector3.forward; if (RuleLog.IsOn()) ModLog.Every("CannonAim.Flatten:190", 2d, $"CannonAim.Flatten: returns {RuleLog.Shown(returnedAt190)} (line 190)"); return returnedAt190; }
+            { var returnedAt190 = v.sqrMagnitude > 0.0001f ? v.normalized : Vector3.forward; if (RuleLog.Due("CannonAim.Flatten:190", 2d)) ModLog.Every("CannonAim.Flatten:190", 2d, $"CannonAim.Flatten: returns {RuleLog.Shown(returnedAt190)} (line 190)"); return returnedAt190; }
         }
 
         static float Flat(Vector3 a, Vector3 b) => new Vector2(b.x - a.x, b.z - a.z).magnitude;

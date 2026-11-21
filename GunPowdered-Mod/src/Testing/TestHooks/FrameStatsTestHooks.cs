@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Bootstrap;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -46,7 +47,7 @@ namespace GunPowdered.Testing.TestHooks
         void Update()
         {
             _ms.Add(Time.unscaledDeltaTime * 1000f);
-            ModLog.Every("frame-stats-probe", 10d, "FrameStatsProbe: " + _ms.Count + " frames recorded");
+            if (RuleLog.Due("frame-stats-probe", 10d)) ModLog.Every("frame-stats-probe", 10d, "FrameStatsProbe: " + _ms.Count + " frames recorded");
         }
 
         internal string Report()

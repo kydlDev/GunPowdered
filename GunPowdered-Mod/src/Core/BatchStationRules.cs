@@ -18,14 +18,14 @@ namespace GunPowdered.Core
         /// <summary>The station's step: the number of DIFFERENT extension kinds in range, at most spec.MaxStep. Expected outcome: 0 for none, null or empty kinds; duplicates count once.</summary>
         internal static int Step(BatchStationSpec spec, IEnumerable<string> kindsInRange)
         {
-            if (kindsInRange == null) { if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.Step:null", 2d, "BatchStationRules.Step: returns 0 (no kinds)"); return 0; }
+            if (kindsInRange == null) { if (RuleLog.Due("BatchStationRules.Step:null", 2d)) RuleLog.Every("BatchStationRules.Step:null", 2d, "BatchStationRules.Step: returns 0 (no kinds)"); return 0; }
             var distinct = new HashSet<string>(StringComparer.Ordinal);
             foreach (string kind in kindsInRange)
             {
                 if (!string.IsNullOrEmpty(kind)) distinct.Add(kind);
             }
             int step = Math.Min(distinct.Count, spec.MaxStep);
-            if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.Step", 2d, $"BatchStationRules.Step: {distinct.Count} kind(s) in range, max {spec.MaxStep}, returns {step}");
+            if (RuleLog.Due("BatchStationRules.Step", 2d)) RuleLog.Every("BatchStationRules.Step", 2d, $"BatchStationRules.Step: {distinct.Count} kind(s) in range, max {spec.MaxStep}, returns {step}");
             return step;
         }
 
@@ -33,7 +33,7 @@ namespace GunPowdered.Core
         internal static int UnitsPerBatch(BatchStationSpec spec, int step)
         {
             int units = Clamp(spec, step) + 1;
-            if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.UnitsPerBatch", 2d, $"BatchStationRules.UnitsPerBatch(step={step}): returns {units}");
+            if (RuleLog.Due("BatchStationRules.UnitsPerBatch", 2d)) RuleLog.Every("BatchStationRules.UnitsPerBatch", 2d, $"BatchStationRules.UnitsPerBatch(step={step}): returns {units}");
             return units;
         }
 
@@ -42,7 +42,7 @@ namespace GunPowdered.Core
         {
             int n = UnitsPerBatch(spec, step);
             var full = new BatchAmounts(Math.Max(0, unit.First) * n, Math.Max(0, unit.Second) * n, Math.Max(0, unit.Third) * n);
-            if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.FullBatch", 2d, $"BatchStationRules.FullBatch(step={step}): returns {Text(full)}");
+            if (RuleLog.Due("BatchStationRules.FullBatch", 2d)) RuleLog.Every("BatchStationRules.FullBatch", 2d, $"BatchStationRules.FullBatch(step={step}): returns {Text(full)}");
             return full;
         }
 
@@ -51,7 +51,7 @@ namespace GunPowdered.Core
         {
             BatchAmounts full = FullBatch(spec, unit, step);
             var half = new BatchAmounts((full.First + 1) / 2, (full.Second + 1) / 2, (full.Third + 1) / 2);
-            if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.FillPerUse", 2d, $"BatchStationRules.FillPerUse(step={step}): returns {Text(half)}");
+            if (RuleLog.Due("BatchStationRules.FillPerUse", 2d)) RuleLog.Every("BatchStationRules.FillPerUse", 2d, $"BatchStationRules.FillPerUse(step={step}): returns {Text(half)}");
             return half;
         }
 
@@ -73,7 +73,7 @@ namespace GunPowdered.Core
         {
             int room = Math.Max(0, full - Math.Max(0, have));
             int one = Math.Max(0, Math.Min(Math.Min(room, perUse), player));
-            if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.One", 2d, $"BatchStationRules.One(have={have}, full={full}, perUse={perUse}, player={player}): returns {one}");
+            if (RuleLog.Due("BatchStationRules.One", 2d)) RuleLog.Every("BatchStationRules.One", 2d, $"BatchStationRules.One(have={have}, full={full}, perUse={perUse}, player={player}): returns {one}");
             return one;
         }
 
@@ -103,7 +103,7 @@ namespace GunPowdered.Core
         internal static bool StartsNow(BatchStationSpec spec, bool idle, BatchAmounts have, BatchAmounts unit, int step)
         {
             bool starts = idle && Units(spec, have, unit, step) >= 1;
-            if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.StartsNow", 2d, $"BatchStationRules.StartsNow(idle={idle}, have={Text(have)}, step={step}): returns {starts}");
+            if (RuleLog.Due("BatchStationRules.StartsNow", 2d)) RuleLog.Every("BatchStationRules.StartsNow", 2d, $"BatchStationRules.StartsNow(idle={idle}, have={Text(have)}, step={step}): returns {starts}");
             return starts;
         }
 
@@ -119,7 +119,7 @@ namespace GunPowdered.Core
         internal static int Output(int units, int outputPerUnit)
         {
             int output = units < 1 || outputPerUnit < 1 ? 0 : units * outputPerUnit;
-            if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.Output", 2d, $"BatchStationRules.Output(units={units}, outputPerUnit={outputPerUnit}): returns {output}");
+            if (RuleLog.Due("BatchStationRules.Output", 2d)) RuleLog.Every("BatchStationRules.Output", 2d, $"BatchStationRules.Output(units={units}, outputPerUnit={outputPerUnit}): returns {output}");
             return output;
         }
 
@@ -154,15 +154,15 @@ namespace GunPowdered.Core
             if (have.Second < unit.Second) parts.Add($"{unit.Second - Math.Max(0, have.Second)} more {spec.SecondName}");
             if (have.Third < unit.Third) parts.Add($"{unit.Third - Math.Max(0, have.Third)} more {spec.ThirdName}");
             string text = parts.Count == 0 ? string.Empty : "Needs " + Join(parts);
-            if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.Missing", 2d, $"BatchStationRules.Missing(have={Text(have)}, unit={Text(unit)}): returns '{text}'");
+            if (RuleLog.Due("BatchStationRules.Missing", 2d)) RuleLog.Every("BatchStationRules.Missing", 2d, $"BatchStationRules.Missing(have={Text(have)}, unit={Text(unit)}): returns '{text}'");
             return text;
         }
 
         static string Join(List<string> parts)
         {
-            if (parts.Count == 1) { if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.Join:1", 2d, "BatchStationRules.Join: returns one part"); return parts[0]; }
+            if (parts.Count == 1) { if (RuleLog.Due("BatchStationRules.Join:1", 2d)) RuleLog.Every("BatchStationRules.Join:1", 2d, "BatchStationRules.Join: returns one part"); return parts[0]; }
             string text = string.Join(", ", parts.GetRange(0, parts.Count - 1)) + " and " + parts[parts.Count - 1];
-            if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.Join", 2d, $"BatchStationRules.Join: returns '{text}'");
+            if (RuleLog.Due("BatchStationRules.Join", 2d)) RuleLog.Every("BatchStationRules.Join", 2d, $"BatchStationRules.Join: returns '{text}'");
             return text;
         }
 
@@ -170,7 +170,7 @@ namespace GunPowdered.Core
         internal static double Minutes(BatchStationSpec spec, int step, double baseMinutes, double minutesPerStep)
         {
             double minutes = Math.Max(MinMinutes, baseMinutes - Math.Max(0d, minutesPerStep) * Clamp(spec, step));
-            if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.Minutes", 2d, $"BatchStationRules.Minutes(step={step}, base={baseMinutes}, perStep={minutesPerStep}): returns {minutes}");
+            if (RuleLog.Due("BatchStationRules.Minutes", 2d)) RuleLog.Every("BatchStationRules.Minutes", 2d, $"BatchStationRules.Minutes(step={step}, base={baseMinutes}, perStep={minutesPerStep}): returns {minutes}");
             return minutes;
         }
 
@@ -178,7 +178,7 @@ namespace GunPowdered.Core
         internal static bool IsDone(double startSeconds, double nowSeconds, double minutes)
         {
             bool done = nowSeconds >= startSeconds + minutes * 60d;
-            if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.IsDone", 2d, $"BatchStationRules.IsDone(start={startSeconds}, now={nowSeconds}, minutes={minutes}): returns {done}");
+            if (RuleLog.Due("BatchStationRules.IsDone", 2d)) RuleLog.Every("BatchStationRules.IsDone", 2d, $"BatchStationRules.IsDone(start={startSeconds}, now={nowSeconds}, minutes={minutes}): returns {done}");
             return done;
         }
 
@@ -186,7 +186,7 @@ namespace GunPowdered.Core
         internal static double SecondsLeft(double startSeconds, double nowSeconds, double minutes)
         {
             double left = Math.Max(0d, startSeconds + minutes * 60d - nowSeconds);
-            if (RuleLog.IsOn()) RuleLog.Every("BatchStationRules.SecondsLeft", 2d, $"BatchStationRules.SecondsLeft(start={startSeconds}, now={nowSeconds}, minutes={minutes}): returns {left}");
+            if (RuleLog.Due("BatchStationRules.SecondsLeft", 2d)) RuleLog.Every("BatchStationRules.SecondsLeft", 2d, $"BatchStationRules.SecondsLeft(start={startSeconds}, now={nowSeconds}, minutes={minutes}): returns {left}");
             return left;
         }
         static int Clamp(BatchStationSpec spec, int step) => Math.Max(0, Math.Min(step, spec.MaxStep));

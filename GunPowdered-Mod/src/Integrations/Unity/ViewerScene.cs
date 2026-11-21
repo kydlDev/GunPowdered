@@ -30,7 +30,7 @@ namespace GunPowdered.Integrations.Unity
         static int PickLayer()
         {
             for (int i = FirstLayer; i >= LastLayer; i--)
-                if (string.IsNullOrEmpty(LayerMask.LayerToName(i))) { var returnedAt33 = i; if (RuleLog.IsOn()) ModLog.Every("ViewerScene.PickLayer:33", 2d, $"ViewerScene.PickLayer: returns {RuleLog.Shown(returnedAt33)} (line 33)"); return returnedAt33; }
+                if (string.IsNullOrEmpty(LayerMask.LayerToName(i))) { var returnedAt33 = i; if (RuleLog.Due("ViewerScene.PickLayer:33", 2d)) ModLog.Every("ViewerScene.PickLayer:33", 2d, $"ViewerScene.PickLayer: returns {RuleLog.Shown(returnedAt33)} (line 33)"); return returnedAt33; }
             ModLog.Warn("ViewerScene: layers " + LastLayer + ".." + FirstLayer + " all have names in the game - using " + FirstLayer + " ('" + LayerMask.LayerToName(FirstLayer) + "'); the view may show other objects");
             return FirstLayer;
         }

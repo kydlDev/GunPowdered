@@ -16,10 +16,10 @@ namespace GunPowdered.Integrations.HarmonyPatches
             try
             {
                 Player player = __instance as Player;
-                if (player == null || player != Player.m_localPlayer) { if (RuleLog.IsOn()) ModLog.Every("BucketPatch.Prefix:19", 2d, "BucketPatch.Prefix: returns true (line 19)"); return true; }
-                if (!BucketUse.Use(player, player.GetCurrentWeapon())) { if (RuleLog.IsOn()) ModLog.Every("BucketPatch.Prefix:20", 2d, "BucketPatch.Prefix: returns true (line 20)"); return true; }
+                if (player == null || player != Player.m_localPlayer) { if (RuleLog.Due("BucketPatch.Prefix:19", 2d)) ModLog.Every("BucketPatch.Prefix:19", 2d, "BucketPatch.Prefix: returns true (line 19)"); return true; }
+                if (!BucketUse.Use(player, player.GetCurrentWeapon())) { if (RuleLog.Due("BucketPatch.Prefix:20", 2d)) ModLog.Every("BucketPatch.Prefix:20", 2d, "BucketPatch.Prefix: returns true (line 20)"); return true; }
                 __result = false;
-                { if (RuleLog.IsOn()) ModLog.Every("BucketPatch.Prefix:22", 2d, "BucketPatch.Prefix: returns false (line 22)"); return false; }
+                { if (RuleLog.Due("BucketPatch.Prefix:22", 2d)) ModLog.Every("BucketPatch.Prefix:22", 2d, "BucketPatch.Prefix: returns false (line 22)"); return false; }
             }
             catch (Exception e)
             {

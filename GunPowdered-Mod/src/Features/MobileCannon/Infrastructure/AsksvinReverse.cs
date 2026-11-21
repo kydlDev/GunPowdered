@@ -65,9 +65,9 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>The Asksvin a MonsterAI belongs to, if it has backing. Expected outcome: null for every other creature.</summary>
         internal static AsksvinReverse Of(MonsterAI ai)
         {
-            if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Of", 2d, "AsksvinReverse.Of(ai=" + RuleLog.Shown(ai) + ")");
+            if (RuleLog.Due("AsksvinReverse.Of", 2d)) ModLog.Every("AsksvinReverse.Of", 2d, "AsksvinReverse.Of(ai=" + RuleLog.Shown(ai) + ")");
             AsksvinReverse r;
-            { var returnedAt70 = ai != null && ByAi.Count > 0 && ByAi.TryGetValue(ai, out r) ? r : null; if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Of:70", 2d, $"AsksvinReverse.Of: returns {returnedAt70} (line 70)"); return returnedAt70; }
+            { var returnedAt70 = ai != null && ByAi.Count > 0 && ByAi.TryGetValue(ai, out r) ? r : null; if (RuleLog.Due("AsksvinReverse.Of:70", 2d)) ModLog.Every("AsksvinReverse.Of:70", 2d, $"AsksvinReverse.Of: returns {returnedAt70} (line 70)"); return returnedAt70; }
         }
 
         /// <summary>The rider's controls (local player, every frame from Sadle.ApplyControlls): sends back / turn to the owner when they change.</summary>
@@ -75,7 +75,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         {
             bool back = AsksvinReverseRules.WantsBack(moveDir.z, run);
             int turn = back ? AsksvinReverseRules.TurnInput(moveDir.x) : 0;
-            if (back == _sentBack && turn == _sentTurn) { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.RiderInput:same", 2d, "AsksvinReverse.RiderInput: unchanged - returns"); return; }
+            if (back == _sentBack && turn == _sentTurn) { if (RuleLog.Due("AsksvinReverse.RiderInput:same", 2d)) ModLog.Every("AsksvinReverse.RiderInput:same", 2d, "AsksvinReverse.RiderInput: unchanged - returns"); return; }
             _sentBack = back;
             _sentTurn = turn;
             _nview.InvokeRPC(RpcRide, back, turn);
@@ -114,15 +114,15 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// </summary>
         internal bool Drive(float dt)
         {
-            if (_character == null || _ai == null || !_nview.IsValid() || !_nview.IsOwner() || _character.IsDead()) { StopBacking(); { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Drive:117", 2d, "AsksvinReverse.Drive: returns false (line 117)"); return false; } }
-            if (_rideBack && Ridden()) { Back(dt, _rideTurn); { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Drive:118", 2d, "AsksvinReverse.Drive: returns true (line 118)"); return true; } }
+            if (_character == null || _ai == null || !_nview.IsValid() || !_nview.IsOwner() || _character.IsDead()) { StopBacking(); { if (RuleLog.Due("AsksvinReverse.Drive:117", 2d)) ModLog.Every("AsksvinReverse.Drive:117", 2d, "AsksvinReverse.Drive: returns false (line 117)"); return false; } }
+            if (_rideBack && Ridden()) { Back(dt, _rideTurn); { if (RuleLog.Due("AsksvinReverse.Drive:118", 2d)) ModLog.Every("AsksvinReverse.Drive:118", 2d, "AsksvinReverse.Drive: returns true (line 118)"); return true; } }
             _rideBack = _rideBack && Ridden();
             ZDOID leader = Leader;
-            if (leader == ZDOID.None || !Saddled || Ridden()) { _ledBy = ZDOID.None; EndLeadWalk(); StopBacking(); if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Drive:ai", 2d, "AsksvinReverse.Drive: not backed nor led - returns false"); return false; }
+            if (leader == ZDOID.None || !Saddled || Ridden()) { _ledBy = ZDOID.None; EndLeadWalk(); StopBacking(); if (RuleLog.Due("AsksvinReverse.Drive:ai", 2d)) ModLog.Every("AsksvinReverse.Drive:ai", 2d, "AsksvinReverse.Drive: not backed nor led - returns false"); return false; }
             GameObject go = ZNetScene.instance != null ? ZNetScene.instance.FindInstance(leader) : null;
-            if (go == null) { LetGo("the leader is not loaded"); { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Drive:123", 2d, "AsksvinReverse.Drive: returns false (line 123)"); return false; } }
+            if (go == null) { LetGo("the leader is not loaded"); { if (RuleLog.Due("AsksvinReverse.Drive:123", 2d)) ModLog.Every("AsksvinReverse.Drive:123", 2d, "AsksvinReverse.Drive: returns false (line 123)"); return false; } }
             bool led = Lead(leader, go.transform.position, dt);
-            if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Drive:lead", 2d, "AsksvinReverse.Drive: led - returns " + led);
+            if (RuleLog.Due("AsksvinReverse.Drive:lead", 2d)) ModLog.Every("AsksvinReverse.Drive:lead", 2d, "AsksvinReverse.Drive: led - returns " + led);
             return led;
         }
 
@@ -141,13 +141,13 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (leader != _ledBy) { _ledBy = leader; _grabAhead = ahead; ModLog.Info($"AsksvinReverse: {name} rope taken, player {ahead:0.00} m ahead of the rope"); }
             string what = AsksvinReverseRules.Lead(ahead, _grabAhead, toPlayer.magnitude);
             if (ModLog.IsDue("asksvin-lead-" + GetInstanceID(), 2d)) ModLog.Every("asksvin-lead-" + GetInstanceID(), 2d, $"AsksvinReverse: {name} led, player moved {ahead - _grabAhead:0.00} m along it since taking the rope - {what}");
-            if (what == "let go") { LetGo("the player walked off"); { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Lead:letgo", 2d, "AsksvinReverse.Lead: returns false (let go)"); return false; } }
-            if (what == "back") { EndLeadWalk(); Back(dt, 0f); { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Lead:back", 2d, "AsksvinReverse.Lead: returns true (back)"); return true; } }
+            if (what == "let go") { LetGo("the player walked off"); { if (RuleLog.Due("AsksvinReverse.Lead:letgo", 2d)) ModLog.Every("AsksvinReverse.Lead:letgo", 2d, "AsksvinReverse.Lead: returns false (let go)"); return false; } }
+            if (what == "back") { EndLeadWalk(); Back(dt, 0f); { if (RuleLog.Due("AsksvinReverse.Lead:back", 2d)) ModLog.Every("AsksvinReverse.Lead:back", 2d, "AsksvinReverse.Lead: returns true (back)"); return true; } }
             StopBacking();
-            if (what == "forward") { _character.SetWalk(true); _leadWalk = true; _ai.MoveTowards(fwd, false); { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Lead:forward", 2d, "AsksvinReverse.Lead: returns true (forward)"); return true; } }
+            if (what == "forward") { _character.SetWalk(true); _leadWalk = true; _ai.MoveTowards(fwd, false); { if (RuleLog.Due("AsksvinReverse.Lead:forward", 2d)) ModLog.Every("AsksvinReverse.Lead:forward", 2d, "AsksvinReverse.Lead: returns true (forward)"); return true; } }
             EndLeadWalk();
             _ai.StopMoving();
-            { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Lead:stay", 2d, "AsksvinReverse.Lead: returns true (stay)"); return true; }
+            { if (RuleLog.Due("AsksvinReverse.Lead:stay", 2d)) ModLog.Every("AsksvinReverse.Lead:stay", 2d, "AsksvinReverse.Lead: returns true (stay)"); return true; }
         }
 
         bool _leadWalk;
@@ -155,7 +155,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         // a led Asksvin walks (not jogs) after the player; the game's AI gets its own pace back afterwards
         void EndLeadWalk()
         {
-            if (!_leadWalk) { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.EndLeadWalk:none", 2d, "AsksvinReverse.EndLeadWalk: not walking - returns"); return; }
+            if (!_leadWalk) { if (RuleLog.Due("AsksvinReverse.EndLeadWalk:none", 2d)) ModLog.Every("AsksvinReverse.EndLeadWalk:none", 2d, "AsksvinReverse.EndLeadWalk: not walking - returns"); return; }
             _leadWalk = false;
             _character.SetWalk(false);
             ModLog.Verbose("AsksvinReverse.EndLeadWalk: walk off - returns");
@@ -177,7 +177,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             _character.SetRun(false);
             _character.SetWalk(true);
             _character.SetMoveDir(-f * AsksvinReverseRules.BackSpeedFactor);
-            if (!Backing.Add(_character)) { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Back:175", 2d, "AsksvinReverse.Back: returns (line 175)"); return; }
+            if (!Backing.Add(_character)) { if (RuleLog.Due("AsksvinReverse.Back:175", 2d)) ModLog.Every("AsksvinReverse.Back:175", 2d, "AsksvinReverse.Back: returns (line 175)"); return; }
             string by = Ridden() ? "rider" : "chest rope";
             FlightRecorder.Track(_character, "Asksvin backing up (" + by + ")", () => "walks backwards at half its walk speed, backing " + IsBacking + ", leader " + Leader);
             ModLog.Info($"AsksvinReverse: {name} walks backwards ({by})");
@@ -185,7 +185,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         void StopBacking()
         {
-            if (_character == null || !Backing.Remove(_character)) { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.StopBacking:none", 2d, "AsksvinReverse.StopBacking: was not backing - returns"); return; }
+            if (_character == null || !Backing.Remove(_character)) { if (RuleLog.Due("AsksvinReverse.StopBacking:none", 2d)) ModLog.Every("AsksvinReverse.StopBacking:none", 2d, "AsksvinReverse.StopBacking: was not backing - returns"); return; }
             _character.SetWalk(false);
             _character.SetMoveDir(Vector3.zero);
             ModLog.Info("AsksvinReverse: " + name + " stops walking backwards");
@@ -193,16 +193,16 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         bool Ridden()
         {
-            if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Ridden", 2d, "AsksvinReverse.Ridden()");
+            if (RuleLog.Due("AsksvinReverse.Ridden", 2d)) ModLog.Every("AsksvinReverse.Ridden", 2d, "AsksvinReverse.Ridden()");
             Sadle s = _tame != null ? _tame.m_saddle : null;
-            { var returnedAt193 = s != null && s.HaveValidUser(); if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Ridden:193", 2d, $"AsksvinReverse.Ridden: returns {returnedAt193} (line 193)"); return returnedAt193; }
+            { var returnedAt193 = s != null && s.HaveValidUser(); if (RuleLog.Due("AsksvinReverse.Ridden:193", 2d)) ModLog.Every("AsksvinReverse.Ridden:193", 2d, $"AsksvinReverse.Ridden: returns {returnedAt193} (line 193)"); return returnedAt193; }
         }
 
         static Vector3 Flat(Vector3 v)
         {
-            if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Flat", 2d, "AsksvinReverse.Flat(v=" + RuleLog.Shown(v) + ")");
+            if (RuleLog.Due("AsksvinReverse.Flat", 2d)) ModLog.Every("AsksvinReverse.Flat", 2d, "AsksvinReverse.Flat(v=" + RuleLog.Shown(v) + ")");
             v.y = 0f;
-            { var returnedAt200 = v.sqrMagnitude > 1e-6f ? v.normalized : Vector3.forward; if (RuleLog.IsOn()) ModLog.Every("AsksvinReverse.Flat:200", 2d, $"AsksvinReverse.Flat: returns {returnedAt200} (line 200)"); return returnedAt200; }
+            { var returnedAt200 = v.sqrMagnitude > 1e-6f ? v.normalized : Vector3.forward; if (RuleLog.Due("AsksvinReverse.Flat:200", 2d)) ModLog.Every("AsksvinReverse.Flat:200", 2d, $"AsksvinReverse.Flat: returns {returnedAt200} (line 200)"); return returnedAt200; }
         }
 
         /// <summary>The move direction a backing Asksvin's turn must ignore (Character.m_moveDir).</summary>

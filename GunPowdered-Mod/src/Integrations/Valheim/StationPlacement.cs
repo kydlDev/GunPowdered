@@ -24,22 +24,22 @@ namespace GunPowdered.Integrations.Valheim
         internal static void CheckGhost(Player player)
         {
             GameObject ghost = Ghost(player);
-            if (ghost == null || !ghost.activeSelf || Status(player) != Player.PlacementStatus.Valid) { if (RuleLog.IsOn()) ModLog.Every("StationPlacement.CheckGhost:none", 2d, "StationPlacement.CheckGhost: no ghost or not valid - returns"); return; }
-            if (ghost.GetComponent<BatchStationExtension>() == null) { if (RuleLog.IsOn()) ModLog.Every("StationPlacement.CheckGhost:other", 2d, "StationPlacement.CheckGhost: not an extension - returns"); return; }
+            if (ghost == null || !ghost.activeSelf || Status(player) != Player.PlacementStatus.Valid) { if (RuleLog.Due("StationPlacement.CheckGhost:none", 2d)) ModLog.Every("StationPlacement.CheckGhost:none", 2d, "StationPlacement.CheckGhost: no ghost or not valid - returns"); return; }
+            if (ghost.GetComponent<BatchStationExtension>() == null) { if (RuleLog.Due("StationPlacement.CheckGhost:other", 2d)) ModLog.Every("StationPlacement.CheckGhost:other", 2d, "StationPlacement.CheckGhost: not an extension - returns"); return; }
             BatchStation under = BatchStation.StandsOn(ghost.transform.position);
-            if (under == null) { if (RuleLog.IsOn()) ModLog.Every("StationPlacement.CheckGhost:free", 2d, "StationPlacement.CheckGhost: on no station - returns"); return; }
+            if (under == null) { if (RuleLog.Due("StationPlacement.CheckGhost:free", 2d)) ModLog.Every("StationPlacement.CheckGhost:free", 2d, "StationPlacement.CheckGhost: on no station - returns"); return; }
             Status(player) = Player.PlacementStatus.Invalid;
             SetGhostValid(player, false);
-            ModLog.Every("station-placement-on-top", 5d, $"StationPlacement: {ghost.name} would stand on {under.StationKey} at {under.transform.position:0.0} - red (D-140)");
+            if (RuleLog.Due("station-placement-on-top", 5d)) ModLog.Every("station-placement-on-top", 5d, $"StationPlacement: {ghost.name} would stand on {under.StationKey} at {under.transform.position:0.0} - red (D-140)");
         }
 
         /// <summary>After the game chose the closest snap pair: a pair the rules forbid is replaced by the closest allowed pair, or no snap. Expected outcome: result/a/b describe an allowed pair or false.</summary>
         internal static void FilterSnap(Player player, Transform ghost, float maxDistance, ref Transform a, ref Transform b, ref bool result)
         {
-            if (!result || b == null || ghost == null) { if (RuleLog.IsOn()) ModLog.Every("StationPlacement.FilterSnap:none", 2d, "StationPlacement.FilterSnap: no snap - returns"); return; }
+            if (!result || b == null || ghost == null) { if (RuleLog.Due("StationPlacement.FilterSnap:none", 2d)) ModLog.Every("StationPlacement.FilterSnap:none", 2d, "StationPlacement.FilterSnap: no snap - returns"); return; }
             var ext = ghost.GetComponent<BatchStationExtension>();
             string ghostOf = ext != null ? ext.Station : null;
-            if (Allowed(ghostOf, b)) { if (RuleLog.IsOn()) ModLog.Every("StationPlacement.FilterSnap:ok", 2d, "StationPlacement.FilterSnap: pair allowed - returns"); return; }
+            if (Allowed(ghostOf, b)) { if (RuleLog.Due("StationPlacement.FilterSnap:ok", 2d)) ModLog.Every("StationPlacement.FilterSnap:ok", 2d, "StationPlacement.FilterSnap: pair allowed - returns"); return; }
             List<Transform> mine = GhostPoints(player), theirs = TargetPoints(player);
             int manual = ManualPoint(player);
             Transform bestA = null, bestB = null;
@@ -54,7 +54,7 @@ namespace GunPowdered.Integrations.Valheim
                 }
             }
             a = bestA; b = bestB; result = bestA != null;
-            if (RuleLog.IsOn()) ModLog.Every("StationPlacement.FilterSnap:redo", 2d, $"StationPlacement.FilterSnap({ghost.name}): forbidden pair replaced, {(result ? "snaps to " + bestB.parent.name : "no snap")}");
+            if (RuleLog.Due("StationPlacement.FilterSnap:redo", 2d)) ModLog.Every("StationPlacement.FilterSnap:redo", 2d, $"StationPlacement.FilterSnap({ghost.name}): forbidden pair replaced, {(result ? "snaps to " + bestB.parent.name : "no snap")}");
         }
 
         static bool Allowed(string ghostOf, Transform point)
@@ -62,7 +62,7 @@ namespace GunPowdered.Integrations.Valheim
             var station = point.GetComponentInParent<BatchStation>();
             var ext = point.GetComponentInParent<BatchStationExtension>();
             bool ok = StationPlacementRules.SnapAllowed(ghostOf, station != null ? station.StationKey : null, ext != null ? ext.Station : null);
-            if (RuleLog.IsOn()) ModLog.Every("StationPlacement.Allowed", 2d, $"StationPlacement.Allowed({ghostOf ?? "-"}, {point.name}): returns {ok}");
+            if (RuleLog.Due("StationPlacement.Allowed", 2d)) ModLog.Every("StationPlacement.Allowed", 2d, $"StationPlacement.Allowed({ghostOf ?? "-"}, {point.name}): returns {ok}");
             return ok;
         }
     }

@@ -21,8 +21,8 @@ namespace GunPowdered.Features.Saltpeter.Domain
         /// <summary>Can the hearth be lit: the barrel is loaded and the hearth holds enough wood. Expected outcome: false for no load, a missing or negative fuel need, or too little wood.</summary>
         internal static bool CanStart(bool barrelLoaded, int fuel, int fuelPerBatch)
         {
-            if (RuleLog.IsOn()) RuleLog.Every("LeachingVatRules.CanStart", 2d, $"LeachingVatRules.CanStart(barrelLoaded={RuleLog.Shown(barrelLoaded)}, fuel={RuleLog.Shown(fuel)}, fuelPerBatch={RuleLog.Shown(fuelPerBatch)})");
-            { var returnedAt24 = barrelLoaded && fuelPerBatch >= 1 && fuel >= fuelPerBatch; if (RuleLog.IsOn()) RuleLog.Every("LeachingVatRules.CanStart:24", 2d, $"LeachingVatRules.CanStart: returns {RuleLog.Shown(returnedAt24)} (line 24)"); return returnedAt24; }
+            if (RuleLog.Due("LeachingVatRules.CanStart", 2d)) RuleLog.Every("LeachingVatRules.CanStart", 2d, $"LeachingVatRules.CanStart(barrelLoaded={RuleLog.Shown(barrelLoaded)}, fuel={RuleLog.Shown(fuel)}, fuelPerBatch={RuleLog.Shown(fuelPerBatch)})");
+            { var returnedAt24 = barrelLoaded && fuelPerBatch >= 1 && fuel >= fuelPerBatch; if (RuleLog.Due("LeachingVatRules.CanStart:24", 2d)) RuleLog.Every("LeachingVatRules.CanStart:24", 2d, $"LeachingVatRules.CanStart: returns {RuleLog.Shown(returnedAt24)} (line 24)"); return returnedAt24; }
         }
 
         /// <summary>Guano and water in the barrel and wood in the hearth (what the station holds, or what one batch needs).</summary>
@@ -66,22 +66,22 @@ namespace GunPowdered.Features.Saltpeter.Domain
         /// <summary>Saltpeter for a number of batches. Expected outcome: batches x perBatch, 0 for no batches or a negative setting.</summary>
         internal static int Saltpeter(int batches, int saltpeterPerBatch)
         {
-            if (RuleLog.IsOn()) RuleLog.Every("VatAmounts.Saltpeter", 2d, $"VatAmounts.Saltpeter(batches={RuleLog.Shown(batches)}, saltpeterPerBatch={RuleLog.Shown(saltpeterPerBatch)})");
-            { var returnedAt69 = batches < 1 || saltpeterPerBatch < 1 ? 0 : batches * saltpeterPerBatch; if (RuleLog.IsOn()) RuleLog.Every("VatAmounts.Saltpeter:69", 2d, $"VatAmounts.Saltpeter: returns {RuleLog.Shown(returnedAt69)} (line 69)"); return returnedAt69; }
+            if (RuleLog.Due("VatAmounts.Saltpeter", 2d)) RuleLog.Every("VatAmounts.Saltpeter", 2d, $"VatAmounts.Saltpeter(batches={RuleLog.Shown(batches)}, saltpeterPerBatch={RuleLog.Shown(saltpeterPerBatch)})");
+            { var returnedAt69 = batches < 1 || saltpeterPerBatch < 1 ? 0 : batches * saltpeterPerBatch; if (RuleLog.Due("VatAmounts.Saltpeter:69", 2d)) RuleLog.Every("VatAmounts.Saltpeter:69", 2d, $"VatAmounts.Saltpeter: returns {RuleLog.Shown(returnedAt69)} (line 69)"); return returnedAt69; }
         }
 
         /// <summary>The game-clock second at which a batch started at startSeconds is done. Expected outcome: startSeconds + days x dayLengthSeconds.</summary>
         internal static double ReadyAt(double startSeconds, double dayLengthSeconds, double days)
         {
-            if (RuleLog.IsOn()) RuleLog.Every("VatAmounts.ReadyAt", 2d, $"VatAmounts.ReadyAt(startSeconds={RuleLog.Shown(startSeconds)}, dayLengthSeconds={RuleLog.Shown(dayLengthSeconds)}, days={RuleLog.Shown(days)})");
-            { var returnedAt76 = startSeconds + days * dayLengthSeconds; if (RuleLog.IsOn()) RuleLog.Every("VatAmounts.ReadyAt:76", 2d, $"VatAmounts.ReadyAt: returns {RuleLog.Shown(returnedAt76)} (line 76)"); return returnedAt76; }
+            if (RuleLog.Due("VatAmounts.ReadyAt", 2d)) RuleLog.Every("VatAmounts.ReadyAt", 2d, $"VatAmounts.ReadyAt(startSeconds={RuleLog.Shown(startSeconds)}, dayLengthSeconds={RuleLog.Shown(dayLengthSeconds)}, days={RuleLog.Shown(days)})");
+            { var returnedAt76 = startSeconds + days * dayLengthSeconds; if (RuleLog.Due("VatAmounts.ReadyAt:76", 2d)) RuleLog.Every("VatAmounts.ReadyAt:76", 2d, $"VatAmounts.ReadyAt: returns {RuleLog.Shown(returnedAt76)} (line 76)"); return returnedAt76; }
         }
 
         /// <summary>Is the batch done at nowSeconds. A clock that went backwards (a reloaded older save) means not done yet.</summary>
         internal static bool IsReady(double startSeconds, double nowSeconds, double dayLengthSeconds, double days)
         {
-            if (RuleLog.IsOn()) RuleLog.Every("VatAmounts.IsReady", 2d, $"VatAmounts.IsReady(startSeconds={RuleLog.Shown(startSeconds)}, nowSeconds={RuleLog.Shown(nowSeconds)}, dayLengthSeconds={RuleLog.Shown(dayLengthSeconds)}, days={RuleLog.Shown(days)})");
-            { var returnedAt83 = nowSeconds >= ReadyAt(startSeconds, dayLengthSeconds, days); if (RuleLog.IsOn()) RuleLog.Every("VatAmounts.IsReady:83", 2d, $"VatAmounts.IsReady: returns {RuleLog.Shown(returnedAt83)} (line 83)"); return returnedAt83; }
+            if (RuleLog.Due("VatAmounts.IsReady", 2d)) RuleLog.Every("VatAmounts.IsReady", 2d, $"VatAmounts.IsReady(startSeconds={RuleLog.Shown(startSeconds)}, nowSeconds={RuleLog.Shown(nowSeconds)}, dayLengthSeconds={RuleLog.Shown(dayLengthSeconds)}, days={RuleLog.Shown(days)})");
+            { var returnedAt83 = nowSeconds >= ReadyAt(startSeconds, dayLengthSeconds, days); if (RuleLog.Due("VatAmounts.IsReady:83", 2d)) RuleLog.Every("VatAmounts.IsReady:83", 2d, $"VatAmounts.IsReady: returns {RuleLog.Shown(returnedAt83)} (line 83)"); return returnedAt83; }
         }
 
         /// <summary>Seconds left until the batch is done, never below 0. Expected outcome: 0 exactly when <see cref="IsReady"/>.</summary>

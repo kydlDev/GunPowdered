@@ -13,11 +13,11 @@ namespace GunPowdered.Integrations.HarmonyPatches
     {
         static bool Prefix(MonsterAI __instance, float dt, ref bool __result)
         {
-            if (RuleLog.IsOn()) ModLog.Every("AsksvinReverseAiPatch.Prefix:in", 2d, "AsksvinReverseAiPatch.Prefix(" + RuleLog.Shown(__instance) + ")");
+            if (RuleLog.Due("AsksvinReverseAiPatch.Prefix:in", 2d)) ModLog.Every("AsksvinReverseAiPatch.Prefix:in", 2d, "AsksvinReverseAiPatch.Prefix(" + RuleLog.Shown(__instance) + ")");
             AsksvinReverse r = AsksvinReverse.Of(__instance);
-            if (r == null || !r.Drive(dt)) { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverseAiPatch.Prefix:18", 2d, "AsksvinReverseAiPatch.Prefix: returns true (line 18)"); return true; }
+            if (r == null || !r.Drive(dt)) { if (RuleLog.Due("AsksvinReverseAiPatch.Prefix:18", 2d)) ModLog.Every("AsksvinReverseAiPatch.Prefix:18", 2d, "AsksvinReverseAiPatch.Prefix: returns true (line 18)"); return true; }
             __result = true;
-            if (RuleLog.IsOn()) ModLog.Every("AsksvinReverseAiPatch.Prefix", 2d, "AsksvinReverseAiPatch.Prefix: " + __instance.name + " driven by AsksvinReverse - returns false (AI skipped)");
+            if (RuleLog.Due("AsksvinReverseAiPatch.Prefix", 2d)) ModLog.Every("AsksvinReverseAiPatch.Prefix", 2d, "AsksvinReverseAiPatch.Prefix: " + __instance.name + " driven by AsksvinReverse - returns false (AI skipped)");
             return false;
         }
     }
@@ -28,10 +28,10 @@ namespace GunPowdered.Integrations.HarmonyPatches
     {
         static void Prefix(Sadle __instance, Vector3 moveDir, bool run)
         {
-            if (RuleLog.IsOn()) ModLog.Every("AsksvinReverseRidePatch.Prefix:in", 2d, "AsksvinReverseRidePatch.Prefix(moveDir=" + RuleLog.Shown(moveDir) + ", run=" + run + ")");
+            if (RuleLog.Due("AsksvinReverseRidePatch.Prefix:in", 2d)) ModLog.Every("AsksvinReverseRidePatch.Prefix:in", 2d, "AsksvinReverseRidePatch.Prefix(moveDir=" + RuleLog.Shown(moveDir) + ", run=" + run + ")");
             AsksvinReverse r = __instance != null ? __instance.GetComponentInParent<AsksvinReverse>() : null;
             if (r != null) r.RiderInput(moveDir, run);
-            if (RuleLog.IsOn()) ModLog.Every("AsksvinReverseRidePatch.Prefix", 2d, "AsksvinReverseRidePatch.Prefix: Asksvin " + (r != null) + " - returns");
+            if (RuleLog.Due("AsksvinReverseRidePatch.Prefix", 2d)) ModLog.Every("AsksvinReverseRidePatch.Prefix", 2d, "AsksvinReverseRidePatch.Prefix: Asksvin " + (r != null) + " - returns");
         }
     }
 
@@ -41,16 +41,16 @@ namespace GunPowdered.Integrations.HarmonyPatches
     {
         static void Prefix(Character __instance, out Vector3 __state)
         {
-            if (RuleLog.IsOn()) ModLog.Every("AsksvinReverseTurnPatch.Prefix", 2d, "AsksvinReverseTurnPatch.Prefix(backing " + AsksvinReverse.Backing.Count + ")");
+            if (RuleLog.Due("AsksvinReverseTurnPatch.Prefix", 2d)) ModLog.Every("AsksvinReverseTurnPatch.Prefix", 2d, "AsksvinReverseTurnPatch.Prefix(backing " + AsksvinReverse.Backing.Count + ")");
             __state = Vector3.zero;
-            if (AsksvinReverse.Backing.Count == 0 || !AsksvinReverse.Backing.Contains(__instance)) { if (RuleLog.IsOn()) ModLog.Every("AsksvinReverseTurnPatch.Prefix:46", 2d, "AsksvinReverseTurnPatch.Prefix: returns (line 46)"); return; }
+            if (AsksvinReverse.Backing.Count == 0 || !AsksvinReverse.Backing.Contains(__instance)) { if (RuleLog.Due("AsksvinReverseTurnPatch.Prefix:46", 2d)) ModLog.Every("AsksvinReverseTurnPatch.Prefix:46", 2d, "AsksvinReverseTurnPatch.Prefix: returns (line 46)"); return; }
             __state = AsksvinReverse.MoveDir(__instance);
             AsksvinReverse.MoveDir(__instance) = Vector3.zero;          // the turn then follows the look direction (straight ahead)
         }
 
         static void Postfix(Character __instance, Vector3 __state)
         {
-            if (RuleLog.IsOn()) ModLog.Every("AsksvinReverseTurnPatch.Postfix", 2d, "AsksvinReverseTurnPatch.Postfix(restore " + (__state != Vector3.zero) + ")");
+            if (RuleLog.Due("AsksvinReverseTurnPatch.Postfix", 2d)) ModLog.Every("AsksvinReverseTurnPatch.Postfix", 2d, "AsksvinReverseTurnPatch.Postfix(restore " + (__state != Vector3.zero) + ")");
             if (__state != Vector3.zero) AsksvinReverse.MoveDir(__instance) = __state;
         }
     }

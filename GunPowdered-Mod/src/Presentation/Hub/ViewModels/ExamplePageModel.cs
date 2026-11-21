@@ -17,7 +17,7 @@ namespace GunPowdered.Presentation.Hub.ViewModels
     {
         internal static ExamplePage Build(ExampleFeature feature, CommandDispatcher commands)
         {
-            if (RuleLog.IsOn()) ModLog.Every("ExamplePageModel.Build", 2d, $"ExamplePageModel.Build(feature={RuleLog.Shown(feature)}, commands={RuleLog.Shown(commands)})");
+            if (RuleLog.Due("ExamplePageModel.Build", 2d)) ModLog.Every("ExamplePageModel.Build", 2d, $"ExamplePageModel.Build(feature={RuleLog.Shown(feature)}, commands={RuleLog.Shown(commands)})");
             return new ExamplePage(feature.Value, ExampleRules.Min, ExampleRules.Max, v => ExampleCommands.SetValue(commands, v));
         }
     }

@@ -62,7 +62,7 @@ namespace GunPowdered.Integrations.Valheim
         {
             try
             {
-                if (_fire == null || _station == null || Player.IsPlacementGhost(gameObject)) { if (RuleLog.IsOn()) ModLog.Every("ExtensionFire.Update:none", 2d, "ExtensionFire.Update: no fire part or a build ghost - returns"); return; }
+                if (_fire == null || _station == null || Player.IsPlacementGhost(gameObject)) { if (RuleLog.Due("ExtensionFire.Update:none", 2d)) ModLog.Every("ExtensionFire.Update:none", 2d, "ExtensionFire.Update: no fire part or a build ghost - returns"); return; }
                 if (Time.time >= _nextCheck)
                 {
                     _nextCheck = Time.time + CheckSeconds;
@@ -78,7 +78,7 @@ namespace GunPowdered.Integrations.Valheim
 
         void SetBurning(bool burning)
         {
-            if (burning == _burning) { if (RuleLog.IsOn()) ModLog.Every("ExtensionFire.SetBurning:same", 2d, $"ExtensionFire.SetBurning({burning}): unchanged - returns"); return; }
+            if (burning == _burning) { if (RuleLog.Due("ExtensionFire.SetBurning:same", 2d)) ModLog.Every("ExtensionFire.SetBurning:same", 2d, $"ExtensionFire.SetBurning({burning}): unchanged - returns"); return; }
             _burning = burning;
             _fire.SetActive(burning);
             if (burning && _light == null) _light = MakeLight();

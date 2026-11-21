@@ -58,7 +58,7 @@ namespace GunPowdered.Features.Saltpeter.Infrastructure
             SetActive(_liquid, wet);
             SetActive(_flow, wet);
             SetActive(_salt, ready > 0);
-            if (RuleLog.IsOn()) ModLog.Every("LeachingVat.ShowState", 2d, $"LeachingVat.ShowState(running={running}, held={BatchStationRules.Text(held)}, ready={ready}): wet {wet}");
+            if (RuleLog.Due("LeachingVat.ShowState", 2d)) ModLog.Every("LeachingVat.ShowState", 2d, $"LeachingVat.ShowState(running={running}, held={BatchStationRules.Text(held)}, ready={ready}): wet {wet}");
         }
     }
 }

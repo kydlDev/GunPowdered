@@ -26,7 +26,7 @@ namespace GunPowdered.Integrations.Items
                 ModLog.Every("visual-missing-" + id, 600d, "BundleVisuals: no bundle model for " + id + ", the placeholder look stays");
                 return false;
             }
-            if (target.transform.Find(ModelChild) != null) { if (RuleLog.IsOn()) ModLog.Every("BundleVisuals.Apply:29", 2d, "BundleVisuals.Apply: returns true (line 29)"); return true; }           // already swapped
+            if (target.transform.Find(ModelChild) != null) { if (RuleLog.Due("BundleVisuals.Apply:29", 2d)) ModLog.Every("BundleVisuals.Apply:29", 2d, "BundleVisuals.Apply: returns true (line 29)"); return true; }           // already swapped
 
             foreach (Renderer r in target.GetComponentsInChildren<Renderer>(true)) r.enabled = false;
             foreach (Collider c in target.GetComponentsInChildren<Collider>(true)) if (!c.isTrigger) c.enabled = false;
@@ -112,7 +112,7 @@ namespace GunPowdered.Integrations.Items
 
         static void SetLayer(GameObject go, int layer)
         {
-            if (RuleLog.IsOn()) ModLog.Every("BundleVisuals.SetLayer", 2d, $"BundleVisuals.SetLayer(go={RuleLog.Shown(go)}, layer={RuleLog.Shown(layer)})");
+            if (RuleLog.Due("BundleVisuals.SetLayer", 2d)) ModLog.Every("BundleVisuals.SetLayer", 2d, $"BundleVisuals.SetLayer(go={RuleLog.Shown(go)}, layer={RuleLog.Shown(layer)})");
             foreach (Transform t in go.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = layer;
         }
     }

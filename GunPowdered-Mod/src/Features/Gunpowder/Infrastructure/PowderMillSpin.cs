@@ -41,7 +41,7 @@ namespace GunPowdered.Features.Gunpowder.Infrastructure
         {
             try
             {
-                if (_mill == null || !_mill.IsGrinding) { if (RuleLog.IsOn()) ModLog.Every("PowderMillSpin.Update:idle", 2d, "PowderMillSpin.Update: not grinding - returns"); return; }
+                if (_mill == null || !_mill.IsGrinding) { if (RuleLog.Due("PowderMillSpin.Update:idle", 2d)) ModLog.Every("PowderMillSpin.Update:idle", 2d, "PowderMillSpin.Update: not grinding - returns"); return; }
                 float step = GunpowderRules.TurnDegreesPerSecond * Time.deltaTime;
                 if (_arm != null) _arm.Rotate(0f, step, 0f, Space.Self);
                 if (_runners != null) _runners.Rotate(0f, step, 0f, Space.Self);

@@ -15,14 +15,14 @@ namespace GunPowdered.Core
         /// <summary>Starts the sequence for a seed. The same seed always gives the same sequence.</summary>
         internal SeededRandom(int seed)
         {
-            if (RuleLog.IsOn()) RuleLog.Every("SeededRandom.SeededRandom", 2d, $"SeededRandom.SeededRandom(seed={RuleLog.Shown(seed)})");
+            if (RuleLog.Due("SeededRandom.SeededRandom", 2d)) RuleLog.Every("SeededRandom.SeededRandom", 2d, $"SeededRandom.SeededRandom(seed={RuleLog.Shown(seed)})");
             _state = unchecked((ulong)(long)seed * 0x9E3779B97F4A7C15UL);
         }
 
         /// <summary>The next raw 64-bit draw (SplitMix64 step).</summary>
         private ulong NextRaw()
         {
-            if (RuleLog.IsOn()) RuleLog.Every("SeededRandom.NextRaw", 2d, $"SeededRandom.NextRaw()");
+            if (RuleLog.Due("SeededRandom.NextRaw", 2d)) RuleLog.Every("SeededRandom.NextRaw", 2d, $"SeededRandom.NextRaw()");
             unchecked
             {
                 _state += 0x9E3779B97F4A7C15UL;
@@ -32,7 +32,7 @@ namespace GunPowdered.Core
                 // Stryker disable once Bitwise : on a ulong >> and >>> are the same (logical) shift
                 z = (z ^ (z >> 27)) * 0x94D049BB133111EBUL;
                 // Stryker disable once Bitwise : on a ulong >> and >>> are the same (logical) shift
-                { var returnedAt35 = z ^ (z >> 31); if (RuleLog.IsOn()) RuleLog.Every("SeededRandom.NextRaw:35", 2d, $"SeededRandom.NextRaw: returns {RuleLog.Shown(returnedAt35)} (line 35)"); return returnedAt35; }
+                { var returnedAt35 = z ^ (z >> 31); if (RuleLog.Due("SeededRandom.NextRaw:35", 2d)) RuleLog.Every("SeededRandom.NextRaw:35", 2d, $"SeededRandom.NextRaw: returns {RuleLog.Shown(returnedAt35)} (line 35)"); return returnedAt35; }
             }
         }
 
@@ -47,12 +47,12 @@ namespace GunPowdered.Core
         /// </summary>
         internal int Next(int maxExclusive)
         {
-            if (RuleLog.IsOn()) RuleLog.Every("SeededRandom.Next", 2d, $"SeededRandom.Next(maxExclusive={RuleLog.Shown(maxExclusive)})");
+            if (RuleLog.Due("SeededRandom.Next", 2d)) RuleLog.Every("SeededRandom.Next", 2d, $"SeededRandom.Next(maxExclusive={RuleLog.Shown(maxExclusive)})");
             if (maxExclusive < 0) throw new ArgumentOutOfRangeException(nameof(maxExclusive), maxExclusive, "must not be negative");
             // Stryker disable once Bitwise : on a ulong >> and >>> are the same (logical) shift
             ulong draw31 = NextRaw() >> 33;
             // Stryker disable once Bitwise : on a ulong >> and >>> are the same (logical) shift
-            { var returnedAt55 = (int)((draw31 * (ulong)maxExclusive) >> 31); if (RuleLog.IsOn()) RuleLog.Every("SeededRandom.Next:55", 2d, $"SeededRandom.Next: returns {RuleLog.Shown(returnedAt55)} (line 55)"); return returnedAt55; }
+            { var returnedAt55 = (int)((draw31 * (ulong)maxExclusive) >> 31); if (RuleLog.Due("SeededRandom.Next:55", 2d)) RuleLog.Every("SeededRandom.Next:55", 2d, $"SeededRandom.Next: returns {RuleLog.Shown(returnedAt55)} (line 55)"); return returnedAt55; }
         }
     }
 }

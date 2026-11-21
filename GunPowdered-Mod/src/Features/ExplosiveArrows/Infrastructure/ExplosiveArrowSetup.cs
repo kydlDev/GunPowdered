@@ -52,8 +52,8 @@ namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
         /// <summary>Puts the Tunables on the arrow, its flight and its burst. Expected outcome: the three prefabs carry the current values.</summary>
         internal static bool Apply()
         {
-            if (RuleLog.IsOn()) ModLog.Every("ExplosiveArrowSetup.Apply", 2d, $"ExplosiveArrowSetup.Apply()");
-            if (_item == null || _projectile == null || _explosion == null) { if (RuleLog.IsOn()) ModLog.Every("ExplosiveArrowSetup.Apply:56", 2d, "ExplosiveArrowSetup.Apply: returns false (line 56)"); return false; }
+            if (RuleLog.Due("ExplosiveArrowSetup.Apply", 2d)) ModLog.Every("ExplosiveArrowSetup.Apply", 2d, $"ExplosiveArrowSetup.Apply()");
+            if (_item == null || _projectile == null || _explosion == null) { if (RuleLog.Due("ExplosiveArrowSetup.Apply:56", 2d)) ModLog.Every("ExplosiveArrowSetup.Apply:56", 2d, "ExplosiveArrowSetup.Apply: returns false (line 56)"); return false; }
             ItemDrop.ItemData.SharedData shared = _item.GetComponent<ItemDrop>().m_itemData.m_shared;
             shared.m_damages = new HitData.DamageTypes { m_pierce = ModSettings.ExplosiveArrowPierce.Value };
             shared.m_attack.m_attackProjectile = _projectile;      // a bow shoots the flight of its ammunition
@@ -71,7 +71,7 @@ namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
             }
 
             var blast = _explosion.GetComponent<Aoe>();
-            if (blast == null) { if (RuleLog.IsOn()) ModLog.Every("ExplosiveArrowSetup.Apply:74", 2d, "ExplosiveArrowSetup.Apply: returns false (line 74)"); return false; }
+            if (blast == null) { if (RuleLog.Due("ExplosiveArrowSetup.Apply:74", 2d)) ModLog.Every("ExplosiveArrowSetup.Apply:74", 2d, "ExplosiveArrowSetup.Apply: returns false (line 74)"); return false; }
             blast.m_useAttackSettings = false;
             blast.m_radius = ModSettings.ExplosiveArrowRadius.Value;
             blast.m_damage = new HitData.DamageTypes { m_blunt = ModSettings.ExplosiveArrowBlunt.Value, m_fire = GunPowdered.Core.BurnRules.Total(ModSettings.ExplosiveArrowFire.Value) };
@@ -84,7 +84,7 @@ namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
             blast.m_hitFriendly = false;         // not tamed animals / players without PvP
             blast.m_ignorePVP = false;
             blast.m_hitAfterTtl = false;         // hit WITH the burst (the dynamite base would hit only when its 3 s life ends)
-            { var returnedAt87 = flight != null && blast.m_hitProps && Mathf.Approximately(blast.m_radius, ModSettings.ExplosiveArrowRadius.Value); if (RuleLog.IsOn()) ModLog.Every("ExplosiveArrowSetup.Apply:87", 2d, $"ExplosiveArrowSetup.Apply: returns {RuleLog.Shown(returnedAt87)} (line 87)"); return returnedAt87; }
+            { var returnedAt87 = flight != null && blast.m_hitProps && Mathf.Approximately(blast.m_radius, ModSettings.ExplosiveArrowRadius.Value); if (RuleLog.Due("ExplosiveArrowSetup.Apply:87", 2d)) ModLog.Every("ExplosiveArrowSetup.Apply:87", 2d, $"ExplosiveArrowSetup.Apply: returns {RuleLog.Shown(returnedAt87)} (line 87)"); return returnedAt87; }
         }
 
         // the flight shows the arrow's own model (the bundle's gp_model) instead of the iron arrow's

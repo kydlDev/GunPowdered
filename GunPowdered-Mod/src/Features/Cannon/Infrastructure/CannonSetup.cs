@@ -28,7 +28,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         internal static GameObject ProjectileFor(string ball)
         {
             GameObject p = null;
-            { var returnedAt31 = ball != null && Projectiles.TryGetValue(ball, out p) ? p : null; if (RuleLog.IsOn()) ModLog.Every("CannonSetup.ProjectileFor:31", 2d, $"CannonSetup.ProjectileFor: returns {RuleLog.Shown(returnedAt31)} (line 31)"); return returnedAt31; }
+            { var returnedAt31 = ball != null && Projectiles.TryGetValue(ball, out p) ? p : null; if (RuleLog.Due("CannonSetup.ProjectileFor:31", 2d)) ModLog.Every("CannonSetup.ProjectileFor:31", 2d, $"CannonSetup.ProjectileFor: returns {RuleLog.Shown(returnedAt31)} (line 31)"); return returnedAt31; }
         }
 
         /// <summary>

@@ -32,10 +32,10 @@ namespace GunPowdered.Features.MobileCannon.Domain
         /// <summary>How far (deg) a backing Asksvin turns this step. Expected outcome: the input (clamped to -1..1) times <see cref="BackTurnRate"/> times dt.</summary>
         public static float TurnStep(float turn, float dt)
         {
-            if (RuleLog.IsOn()) RuleLog.Every("AsksvinReverseRules.TurnStep", 2d, $"AsksvinReverseRules.TurnStep(turn={RuleLog.Shown(turn)}, dt={RuleLog.Shown(dt)})");
+            if (RuleLog.Due("AsksvinReverseRules.TurnStep", 2d)) RuleLog.Every("AsksvinReverseRules.TurnStep", 2d, $"AsksvinReverseRules.TurnStep(turn={RuleLog.Shown(turn)}, dt={RuleLog.Shown(dt)})");
             float t = turn > 1f ? 1f : turn < -1f ? -1f : turn;
             float step = t * BackTurnRate * dt;
-            if (RuleLog.IsOn()) RuleLog.Every("AsksvinReverseRules.TurnStep:end", 2d, $"AsksvinReverseRules.TurnStep: returns {RuleLog.Shown(step)}");
+            if (RuleLog.Due("AsksvinReverseRules.TurnStep:end", 2d)) RuleLog.Every("AsksvinReverseRules.TurnStep:end", 2d, $"AsksvinReverseRules.TurnStep: returns {RuleLog.Shown(step)}");
             return step;
         }
 
@@ -48,10 +48,10 @@ namespace GunPowdered.Features.MobileCannon.Domain
         /// </summary>
         public static string Lead(float ahead, float grabAhead, float distance)
         {
-            if (RuleLog.IsOn()) RuleLog.Every("AsksvinReverseRules.Lead", 2d, $"AsksvinReverseRules.Lead(ahead={RuleLog.Shown(ahead)}, grabAhead={RuleLog.Shown(grabAhead)}, distance={RuleLog.Shown(distance)})");
+            if (RuleLog.Due("AsksvinReverseRules.Lead", 2d)) RuleLog.Every("AsksvinReverseRules.Lead", 2d, $"AsksvinReverseRules.Lead(ahead={RuleLog.Shown(ahead)}, grabAhead={RuleLog.Shown(grabAhead)}, distance={RuleLog.Shown(distance)})");
             float moved = ahead - grabAhead;
             string what = distance > LeadLetGo ? "let go" : moved < -LeadBand ? "back" : moved > LeadBand ? "forward" : "stay";
-            if (RuleLog.IsOn()) RuleLog.Every("AsksvinReverseRules.Lead:end", 2d, $"AsksvinReverseRules.Lead: returns {RuleLog.Shown(what)}");
+            if (RuleLog.Due("AsksvinReverseRules.Lead:end", 2d)) RuleLog.Every("AsksvinReverseRules.Lead:end", 2d, $"AsksvinReverseRules.Lead: returns {RuleLog.Shown(what)}");
             return what;
         }
 
@@ -61,11 +61,11 @@ namespace GunPowdered.Features.MobileCannon.Domain
         /// </summary>
         public static float StraightSpin(float angleDeg, float maxSpin)
         {
-            if (RuleLog.IsOn()) RuleLog.Every("AsksvinReverseRules.StraightSpin", 2d, $"AsksvinReverseRules.StraightSpin(angleDeg={RuleLog.Shown(angleDeg)}, maxSpin={RuleLog.Shown(maxSpin)})");
+            if (RuleLog.Due("AsksvinReverseRules.StraightSpin", 2d)) RuleLog.Every("AsksvinReverseRules.StraightSpin", 2d, $"AsksvinReverseRules.StraightSpin(angleDeg={RuleLog.Shown(angleDeg)}, maxSpin={RuleLog.Shown(maxSpin)})");
             float m = System.Math.Abs(maxSpin);
             float spin = angleDeg * 0.0174533f * 3f;
             spin = spin > m ? m : spin < -m ? -m : spin;
-            if (RuleLog.IsOn()) RuleLog.Every("AsksvinReverseRules.StraightSpin:end", 2d, $"AsksvinReverseRules.StraightSpin: returns {RuleLog.Shown(spin)}");
+            if (RuleLog.Due("AsksvinReverseRules.StraightSpin:end", 2d)) RuleLog.Every("AsksvinReverseRules.StraightSpin:end", 2d, $"AsksvinReverseRules.StraightSpin: returns {RuleLog.Shown(spin)}");
             return spin;
         }
     }

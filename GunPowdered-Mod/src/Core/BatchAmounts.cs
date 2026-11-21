@@ -8,7 +8,7 @@ namespace GunPowdered.Core
             First = first;
             Second = second;
             Third = third;
-            if (RuleLog.IsOn()) RuleLog.Every("BatchAmounts", 2d, $"BatchAmounts({first}/{second}/{third})");
+            if (RuleLog.Due("BatchAmounts", 2d)) RuleLog.Every("BatchAmounts", 2d, $"BatchAmounts({first}/{second}/{third})");
         }
 
         internal int First { get; }

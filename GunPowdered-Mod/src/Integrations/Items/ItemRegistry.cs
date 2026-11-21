@@ -83,7 +83,7 @@ namespace GunPowdered.Integrations.Items
                 }
                 if (want) on++;
             }
-            { var returnedAt85 = on; if (RuleLog.IsOn()) ModLog.Every("FeatureSet.RefreshKeyed:85", 2d, $"FeatureSet.RefreshKeyed: returns {RuleLog.Shown(returnedAt85)} (line 85)"); return returnedAt85; }
+            { var returnedAt85 = on; if (RuleLog.Due("FeatureSet.RefreshKeyed:85", 2d)) ModLog.Every("FeatureSet.RefreshKeyed:85", 2d, $"FeatureSet.RefreshKeyed: returns {RuleLog.Shown(returnedAt85)} (line 85)"); return returnedAt85; }
         }
 
         static string KeyOf(Recipe r)
@@ -131,21 +131,21 @@ namespace GunPowdered.Integrations.Items
         // The Enable switch of each feature, read at call time.
         static bool IsOn(string featureId)
         {
-            if (RuleLog.IsOn()) ModLog.Every("FeatureSet.IsOn", 2d, $"FeatureSet.IsOn(featureId={RuleLog.Shown(featureId)})");
+            if (RuleLog.Due("FeatureSet.IsOn", 2d)) ModLog.Every("FeatureSet.IsOn", 2d, $"FeatureSet.IsOn(featureId={RuleLog.Shown(featureId)})");
             switch (featureId)
             {
-                case "guano": { var returnedAt136 = ModSettings.FeatureOn(ModSettings.EnableGuano); if (RuleLog.IsOn()) ModLog.Every("FeatureSet.IsOn:136", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt136)} (line 136)"); return returnedAt136; }
-                case "water": { var returnedAt137 = ModSettings.FeatureOn(ModSettings.EnableWater); if (RuleLog.IsOn()) ModLog.Every("FeatureSet.IsOn:137", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt137)} (line 137)"); return returnedAt137; }
-                case "saltpeter": { var returnedAt138 = ModSettings.FeatureOn(ModSettings.EnableSaltpeter); if (RuleLog.IsOn()) ModLog.Every("FeatureSet.IsOn:138", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt138)} (line 138)"); return returnedAt138; }
-                case "sulfur": { var returnedAt139 = ModSettings.FeatureOn(ModSettings.EnableSulfur); if (RuleLog.IsOn()) ModLog.Every("FeatureSet.IsOn:139", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt139)} (line 139)"); return returnedAt139; }
-                case "gunpowder": { var returnedAt140 = ModSettings.FeatureOn(ModSettings.EnableGunpowder); if (RuleLog.IsOn()) ModLog.Every("FeatureSet.IsOn:140", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt140)} (line 140)"); return returnedAt140; }
-                case "grenades": { var returnedAt141 = ModSettings.FeatureOn(ModSettings.EnableGrenades); if (RuleLog.IsOn()) ModLog.Every("FeatureSet.IsOn:141", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt141)} (line 141)"); return returnedAt141; }
-                case "cannon": { var returnedAt142 = ModSettings.FeatureOn(ModSettings.EnableCannon); if (RuleLog.IsOn()) ModLog.Every("FeatureSet.IsOn:142", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt142)} (line 142)"); return returnedAt142; }
-                case "musket": { var returnedAt143 = ModSettings.FeatureOn(ModSettings.EnableMusket); if (RuleLog.IsOn()) ModLog.Every("FeatureSet.IsOn:143", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt143)} (line 143)"); return returnedAt143; }
-                case "arrows": { var returnedAt144 = ModSettings.FeatureOn(ModSettings.EnableExplosiveArrows); if (RuleLog.IsOn()) ModLog.Every("FeatureSet.IsOn:144", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt144)} (line 144)"); return returnedAt144; }
-                case "dynamite": { var returnedAt145 = ModSettings.FeatureOn(ModSettings.EnableDynamite); if (RuleLog.IsOn()) ModLog.Every("FeatureSet.IsOn:145", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt145)} (line 145)"); return returnedAt145; }
-                case "mobilecannon": { var returnedAt146 = ModSettings.FeatureOn(ModSettings.EnableCannon); if (RuleLog.IsOn()) ModLog.Every("FeatureSet.IsOn:146", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt146)} (line 146)"); return returnedAt146; }   // one switch for both cannon types
-                default: { if (RuleLog.IsOn()) ModLog.Every("FeatureSet.IsOn:147", 2d, "FeatureSet.IsOn: returns false (line 147)"); return false; }
+                case "guano": { var returnedAt136 = ModSettings.FeatureOn(ModSettings.EnableGuano); if (RuleLog.Due("FeatureSet.IsOn:136", 2d)) ModLog.Every("FeatureSet.IsOn:136", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt136)} (line 136)"); return returnedAt136; }
+                case "water": { var returnedAt137 = ModSettings.FeatureOn(ModSettings.EnableWater); if (RuleLog.Due("FeatureSet.IsOn:137", 2d)) ModLog.Every("FeatureSet.IsOn:137", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt137)} (line 137)"); return returnedAt137; }
+                case "saltpeter": { var returnedAt138 = ModSettings.FeatureOn(ModSettings.EnableSaltpeter); if (RuleLog.Due("FeatureSet.IsOn:138", 2d)) ModLog.Every("FeatureSet.IsOn:138", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt138)} (line 138)"); return returnedAt138; }
+                case "sulfur": { var returnedAt139 = ModSettings.FeatureOn(ModSettings.EnableSulfur); if (RuleLog.Due("FeatureSet.IsOn:139", 2d)) ModLog.Every("FeatureSet.IsOn:139", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt139)} (line 139)"); return returnedAt139; }
+                case "gunpowder": { var returnedAt140 = ModSettings.FeatureOn(ModSettings.EnableGunpowder); if (RuleLog.Due("FeatureSet.IsOn:140", 2d)) ModLog.Every("FeatureSet.IsOn:140", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt140)} (line 140)"); return returnedAt140; }
+                case "grenades": { var returnedAt141 = ModSettings.FeatureOn(ModSettings.EnableGrenades); if (RuleLog.Due("FeatureSet.IsOn:141", 2d)) ModLog.Every("FeatureSet.IsOn:141", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt141)} (line 141)"); return returnedAt141; }
+                case "cannon": { var returnedAt142 = ModSettings.FeatureOn(ModSettings.EnableCannon); if (RuleLog.Due("FeatureSet.IsOn:142", 2d)) ModLog.Every("FeatureSet.IsOn:142", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt142)} (line 142)"); return returnedAt142; }
+                case "musket": { var returnedAt143 = ModSettings.FeatureOn(ModSettings.EnableMusket); if (RuleLog.Due("FeatureSet.IsOn:143", 2d)) ModLog.Every("FeatureSet.IsOn:143", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt143)} (line 143)"); return returnedAt143; }
+                case "arrows": { var returnedAt144 = ModSettings.FeatureOn(ModSettings.EnableExplosiveArrows); if (RuleLog.Due("FeatureSet.IsOn:144", 2d)) ModLog.Every("FeatureSet.IsOn:144", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt144)} (line 144)"); return returnedAt144; }
+                case "dynamite": { var returnedAt145 = ModSettings.FeatureOn(ModSettings.EnableDynamite); if (RuleLog.Due("FeatureSet.IsOn:145", 2d)) ModLog.Every("FeatureSet.IsOn:145", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt145)} (line 145)"); return returnedAt145; }
+                case "mobilecannon": { var returnedAt146 = ModSettings.FeatureOn(ModSettings.EnableCannon); if (RuleLog.Due("FeatureSet.IsOn:146", 2d)) ModLog.Every("FeatureSet.IsOn:146", 2d, $"FeatureSet.IsOn: returns {RuleLog.Shown(returnedAt146)} (line 146)"); return returnedAt146; }   // one switch for both cannon types
+                default: { if (RuleLog.Due("FeatureSet.IsOn:147", 2d)) ModLog.Every("FeatureSet.IsOn:147", 2d, "FeatureSet.IsOn: returns false (line 147)"); return false; }
             }
         }
 
@@ -264,13 +264,13 @@ namespace GunPowdered.Integrations.Items
         {
             foreach (ItemSpec e in ItemCatalog.LeachingExtensions)
             {
-                if (e.Id == id) { if (RuleLog.IsOn()) ModLog.Every("ItemRegistry.StationOf:vat", 2d, $"ItemRegistry.StationOf({id}): returns the Leaching Station"); return GunPowderedPrefabs.LeachingVat; }
+                if (e.Id == id) { if (RuleLog.Due("ItemRegistry.StationOf:vat", 2d)) ModLog.Every("ItemRegistry.StationOf:vat", 2d, $"ItemRegistry.StationOf({id}): returns the Leaching Station"); return GunPowderedPrefabs.LeachingVat; }
             }
             foreach (ItemSpec e in ItemCatalog.MillExtensions)
             {
-                if (e.Id == id) { if (RuleLog.IsOn()) ModLog.Every("ItemRegistry.StationOf:mill", 2d, $"ItemRegistry.StationOf({id}): returns the Powder Mill"); return GunPowderedPrefabs.PowderMill; }
+                if (e.Id == id) { if (RuleLog.Due("ItemRegistry.StationOf:mill", 2d)) ModLog.Every("ItemRegistry.StationOf:mill", 2d, $"ItemRegistry.StationOf({id}): returns the Powder Mill"); return GunPowderedPrefabs.PowderMill; }
             }
-            if (RuleLog.IsOn()) ModLog.Every("ItemRegistry.StationOf:none", 2d, $"ItemRegistry.StationOf({id}): returns null");
+            if (RuleLog.Due("ItemRegistry.StationOf:none", 2d)) ModLog.Every("ItemRegistry.StationOf:none", 2d, $"ItemRegistry.StationOf({id}): returns null");
             return null;
         }
 

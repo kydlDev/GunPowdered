@@ -27,30 +27,30 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         /// <summary>Sparks and smoke out of the touch hole. Expected outcome: the number of effect objects made (0 when none of the prefabs exists).</summary>
         internal static int PlayFuse(Vector3 at)
         {
-            if (RuleLog.IsOn()) ModLog.Every("CannonEffects.PlayFuse", 2d, $"CannonEffects.PlayFuse(at={RuleLog.Shown(at)})");
+            if (RuleLog.Due("CannonEffects.PlayFuse", 2d)) ModLog.Every("CannonEffects.PlayFuse", 2d, $"CannonEffects.PlayFuse(at={RuleLog.Shown(at)})");
             FuseCount++;
-            { var returnedAt32 = Play(Fuse, at, Quaternion.LookRotation(Vector3.up)); if (RuleLog.IsOn()) ModLog.Every("CannonEffects.PlayFuse:32", 2d, $"CannonEffects.PlayFuse: returns {RuleLog.Shown(returnedAt32)} (line 32)"); return returnedAt32; }
+            { var returnedAt32 = Play(Fuse, at, Quaternion.LookRotation(Vector3.up)); if (RuleLog.Due("CannonEffects.PlayFuse:32", 2d)) ModLog.Every("CannonEffects.PlayFuse:32", 2d, $"CannonEffects.PlayFuse: returns {RuleLog.Shown(returnedAt32)} (line 32)"); return returnedAt32; }
         }
 
         /// <summary>The blast out of the muzzle, along the shot. Expected outcome: the number of effect objects made.</summary>
         internal static int PlayMuzzle(Vector3 at, Vector3 forward)
         {
-            if (RuleLog.IsOn()) ModLog.Every("CannonEffects.PlayMuzzle", 2d, $"CannonEffects.PlayMuzzle(at={RuleLog.Shown(at)}, forward={RuleLog.Shown(forward)})");
+            if (RuleLog.Due("CannonEffects.PlayMuzzle", 2d)) ModLog.Every("CannonEffects.PlayMuzzle", 2d, $"CannonEffects.PlayMuzzle(at={RuleLog.Shown(at)}, forward={RuleLog.Shown(forward)})");
             MuzzleCount++;
-            { var returnedAt40 = Play(Muzzle, at, Quaternion.LookRotation(forward.sqrMagnitude > 0f ? forward : Vector3.forward)); if (RuleLog.IsOn()) ModLog.Every("CannonEffects.PlayMuzzle:40", 2d, $"CannonEffects.PlayMuzzle: returns {RuleLog.Shown(returnedAt40)} (line 40)"); return returnedAt40; }
+            { var returnedAt40 = Play(Muzzle, at, Quaternion.LookRotation(forward.sqrMagnitude > 0f ? forward : Vector3.forward)); if (RuleLog.Due("CannonEffects.PlayMuzzle:40", 2d)) ModLog.Every("CannonEffects.PlayMuzzle:40", 2d, $"CannonEffects.PlayMuzzle: returns {RuleLog.Shown(returnedAt40)} (line 40)"); return returnedAt40; }
         }
 
         /// <summary>The spark burst where the ball hits something. Expected outcome: the number of effect objects made.</summary>
         internal static int PlayImpact(Vector3 at, Vector3 normal)
         {
-            if (RuleLog.IsOn()) ModLog.Every("CannonEffects.PlayImpact", 2d, $"CannonEffects.PlayImpact(at={RuleLog.Shown(at)}, normal={RuleLog.Shown(normal)})");
+            if (RuleLog.Due("CannonEffects.PlayImpact", 2d)) ModLog.Every("CannonEffects.PlayImpact", 2d, $"CannonEffects.PlayImpact(at={RuleLog.Shown(at)}, normal={RuleLog.Shown(normal)})");
             ImpactCount++;
-            { var returnedAt48 = Play(Impact, at, Quaternion.LookRotation(normal.sqrMagnitude > 0f ? normal : Vector3.up)); if (RuleLog.IsOn()) ModLog.Every("CannonEffects.PlayImpact:48", 2d, $"CannonEffects.PlayImpact: returns {RuleLog.Shown(returnedAt48)} (line 48)"); return returnedAt48; }
+            { var returnedAt48 = Play(Impact, at, Quaternion.LookRotation(normal.sqrMagnitude > 0f ? normal : Vector3.up)); if (RuleLog.Due("CannonEffects.PlayImpact:48", 2d)) ModLog.Every("CannonEffects.PlayImpact:48", 2d, $"CannonEffects.PlayImpact: returns {RuleLog.Shown(returnedAt48)} (line 48)"); return returnedAt48; }
         }
 
         static int Play(string[] names, Vector3 at, Quaternion rotation)
         {
-            if (ZNetScene.instance == null) { if (RuleLog.IsOn()) ModLog.Every("CannonEffects.Play:53", 2d, "CannonEffects.Play: returns 0 (line 53)"); return 0; }
+            if (ZNetScene.instance == null) { if (RuleLog.Due("CannonEffects.Play:53", 2d)) ModLog.Every("CannonEffects.Play:53", 2d, "CannonEffects.Play: returns 0 (line 53)"); return 0; }
             int made = 0;
             foreach (string n in names)
             {
@@ -63,7 +63,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
                 Object.Instantiate(prefab, at, rotation);
                 made++;
             }
-            { var returnedAt66 = made; if (RuleLog.IsOn()) ModLog.Every("CannonEffects.Play:66", 2d, $"CannonEffects.Play: returns {RuleLog.Shown(returnedAt66)} (line 66)"); return returnedAt66; }
+            { var returnedAt66 = made; if (RuleLog.Due("CannonEffects.Play:66", 2d)) ModLog.Every("CannonEffects.Play:66", 2d, $"CannonEffects.Play: returns {RuleLog.Shown(returnedAt66)} (line 66)"); return returnedAt66; }
         }
     }
 }

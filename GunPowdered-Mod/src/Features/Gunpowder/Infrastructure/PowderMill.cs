@@ -62,7 +62,7 @@ namespace GunPowdered.Features.Gunpowder.Infrastructure
         // the arm turns by itself (PowderMillSpin); nothing else of the model changes with the state
         protected override void ShowState(bool running, BatchAmounts held, int ready)
         {
-            if (RuleLog.IsOn()) ModLog.Every("PowderMill.ShowState", 2d, $"PowderMill.ShowState(running={running}, held={BatchStationRules.Text(held)}, ready={ready})");
+            if (RuleLog.Due("PowderMill.ShowState", 2d)) ModLog.Every("PowderMill.ShowState", 2d, $"PowderMill.ShowState(running={running}, held={BatchStationRules.Text(held)}, ready={ready})");
         }
     }
 }

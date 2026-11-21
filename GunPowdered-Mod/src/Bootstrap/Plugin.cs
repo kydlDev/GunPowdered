@@ -92,7 +92,7 @@ namespace GunPowdered.Bootstrap
 
         void Update()
         {
-            if (RuleLog.IsOn()) ModLog.Every("Plugin.Update", 2d, $"Plugin.Update()");
+            if (RuleLog.Due("Plugin.Update", 2d)) ModLog.Every("Plugin.Update", 2d, $"Plugin.Update()");
             if (_cfgWatcher != null) _cfgWatcher.Tick();
         }
 

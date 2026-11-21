@@ -100,11 +100,11 @@ namespace GunPowdered.Integrations.Valheim
                 Bounds f = s._footprint;
                 if (StationPlacementRules.IsOnStation(local.x, local.y, local.z, f.min.x, f.max.x, f.min.z, f.max.z, f.max.y))
                 {
-                    if (RuleLog.IsOn()) ModLog.Every("BatchStation.StandsOn:yes", 2d, $"BatchStation.StandsOn({point}): returns {s.StationKey}");
+                    if (RuleLog.Due("BatchStation.StandsOn:yes", 2d)) ModLog.Every("BatchStation.StandsOn:yes", 2d, $"BatchStation.StandsOn({point}): returns {s.StationKey}");
                     return s;
                 }
             }
-            if (RuleLog.IsOn()) ModLog.Every("BatchStation.StandsOn:no", 2d, $"BatchStation.StandsOn({point}): returns null");
+            if (RuleLog.Due("BatchStation.StandsOn:no", 2d)) ModLog.Every("BatchStation.StandsOn:no", 2d, $"BatchStation.StandsOn({point}): returns null");
             return null;
         }
 
@@ -120,18 +120,18 @@ namespace GunPowdered.Integrations.Valheim
         {
             foreach (Transform c in root)
             {
-                if (c.name == name) { if (RuleLog.IsOn()) ModLog.Every("BatchStation.FindDeep:hit", 2d, $"BatchStation.FindDeep: returns {name}"); return c; }
+                if (c.name == name) { if (RuleLog.Due("BatchStation.FindDeep:hit", 2d)) ModLog.Every("BatchStation.FindDeep:hit", 2d, $"BatchStation.FindDeep: returns {name}"); return c; }
                 Transform f = FindDeep(c, name);
-                if (f != null) { if (RuleLog.IsOn()) ModLog.Every("BatchStation.FindDeep:child", 2d, $"BatchStation.FindDeep: returns {name} (deeper)"); return f; }
+                if (f != null) { if (RuleLog.Due("BatchStation.FindDeep:child", 2d)) ModLog.Every("BatchStation.FindDeep:child", 2d, $"BatchStation.FindDeep: returns {name} (deeper)"); return f; }
             }
-            if (RuleLog.IsOn()) ModLog.Every("BatchStation.FindDeep:none", 2d, $"BatchStation.FindDeep: returns null for {name}");
+            if (RuleLog.Due("BatchStation.FindDeep:none", 2d)) ModLog.Every("BatchStation.FindDeep:none", 2d, $"BatchStation.FindDeep: returns null for {name}");
             return null;
         }
 
         /// <summary>Shows a model part or hides it (no change when it already is).</summary>
         protected static void SetActive(GameObject go, bool on)
         {
-            if (RuleLog.IsOn()) ModLog.Every("BatchStation.SetActive", 2d, $"BatchStation.SetActive(go={RuleLog.Shown(go)}, on={on})");
+            if (RuleLog.Due("BatchStation.SetActive", 2d)) ModLog.Every("BatchStation.SetActive", 2d, $"BatchStation.SetActive(go={RuleLog.Shown(go)}, on={on})");
             if (go != null && go.activeSelf != on) go.SetActive(on);
         }
 
@@ -163,7 +163,7 @@ namespace GunPowdered.Integrations.Valheim
             BatchStationConfig c = Config;
             try
             {
-                if (!_nview.IsValid() || ZNet.instance == null) { if (RuleLog.IsOn()) ModLog.Every("BatchStation.Tick:invalid", 2d, $"BatchStation.Tick({c.Label}): no network view or no ZNet - returns"); return; }
+                if (!_nview.IsValid() || ZNet.instance == null) { if (RuleLog.Due("BatchStation.Tick:invalid", 2d)) ModLog.Every("BatchStation.Tick:invalid", 2d, $"BatchStation.Tick({c.Label}): no network view or no ZNet - returns"); return; }
                 if (_nview.IsOwner() && c.FeatureOn()) Advance(_nview.GetZDO(), ZNet.instance.GetTimeSeconds());
                 ShowState(State == StateRunning, Held, Ready);
                 ModLog.Every(c.Label + "-" + gameObject.GetInstanceID(), 30d, $"{c.Label} state {State}, step {Step}, holds {BatchStationRules.Text(Held)} of {BatchStationRules.Text(BatchStationRules.FullBatch(c.Spec, c.Unit(), Step))}, pile {Ready} {c.OutputName}");
@@ -246,7 +246,7 @@ namespace GunPowdered.Integrations.Valheim
         public string GetHoverText()
         {
             BatchStationConfig c = Config;
-            if (!_nview.IsValid()) { if (RuleLog.IsOn()) ModLog.Every("BatchStation.GetHoverText:invalid", 2d, $"BatchStation.GetHoverText({c.Label}): no network view - returns the name"); return GetHoverName(); }
+            if (!_nview.IsValid()) { if (RuleLog.Due("BatchStation.GetHoverText:invalid", 2d)) ModLog.Every("BatchStation.GetHoverText:invalid", 2d, $"BatchStation.GetHoverText({c.Label}): no network view - returns the name"); return GetHoverName(); }
             int step = Step, ready = Ready;
             BatchAmounts held = Held, unit = c.Unit(), full = BatchStationRules.FullBatch(c.Spec, unit, step);
             string run = BatchStationHover.RunLine(c, _nview.GetZDO(), State == StateRunning, held, unit);
@@ -262,12 +262,12 @@ namespace GunPowdered.Integrations.Valheim
         // E takes the whole pile and puts in half a batch (up to what the station holds), at any time; nothing to take and nothing to add says why
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
-            if (RuleLog.IsOn()) ModLog.Every("BatchStation.Interact", 2d, $"BatchStation.Interact({Config.Label}, user={RuleLog.Shown(user)}, hold={hold}, alt={alt})");
-            if (hold || user == null || !_nview.IsValid()) { if (RuleLog.IsOn()) ModLog.Every("BatchStation.Interact:no", 2d, "BatchStation.Interact: held, no user or no network view - returns false"); return false; }
+            if (RuleLog.Due("BatchStation.Interact", 2d)) ModLog.Every("BatchStation.Interact", 2d, $"BatchStation.Interact({Config.Label}, user={RuleLog.Shown(user)}, hold={hold}, alt={alt})");
+            if (hold || user == null || !_nview.IsValid()) { if (RuleLog.Due("BatchStation.Interact:no", 2d)) ModLog.Every("BatchStation.Interact:no", 2d, "BatchStation.Interact: held, no user or no network view - returns false"); return false; }
             int collected = Collect(user);
             int sent = Fill(user, -1);
             if (collected == 0 && sent == 0) TellWhyNothing(user);
-            if (RuleLog.IsOn()) ModLog.Every("BatchStation.Interact:end", 2d, $"BatchStation.Interact({Config.Label}): collected {collected}, put in {sent} - returns {collected + sent >= 0}");
+            if (RuleLog.Due("BatchStation.Interact:end", 2d)) ModLog.Every("BatchStation.Interact:end", 2d, $"BatchStation.Interact({Config.Label}): collected {collected}, put in {sent} - returns {collected + sent >= 0}");
             return collected + sent >= 0;
         }
 
@@ -354,9 +354,9 @@ namespace GunPowdered.Integrations.Valheim
         {
             foreach (ItemDrop.ItemData item in inv.GetAllItems())
             {
-                if (item.m_shared.m_name == sharedName && item.m_stack > 0) { if (RuleLog.IsOn()) ModLog.Every("BatchStation.FirstStack", 2d, $"BatchStation.FirstStack({sharedName}): returns a stack of {item.m_stack}"); return item; }
+                if (item.m_shared.m_name == sharedName && item.m_stack > 0) { if (RuleLog.Due("BatchStation.FirstStack", 2d)) ModLog.Every("BatchStation.FirstStack", 2d, $"BatchStation.FirstStack({sharedName}): returns a stack of {item.m_stack}"); return item; }
             }
-            if (RuleLog.IsOn()) ModLog.Every("BatchStation.FirstStack:none", 2d, $"BatchStation.FirstStack({sharedName}): returns null");
+            if (RuleLog.Due("BatchStation.FirstStack:none", 2d)) ModLog.Every("BatchStation.FirstStack:none", 2d, $"BatchStation.FirstStack({sharedName}): returns null");
             return null;
         }
 
@@ -366,7 +366,7 @@ namespace GunPowdered.Integrations.Valheim
             BatchStationConfig c = Config;
             GameObject prefab = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(c.OutputPrefab) : null;
             int amount = Ready;
-            if (prefab == null || amount < 1) { if (RuleLog.IsOn()) ModLog.Every("BatchStation.Collect:none", 2d, $"BatchStation.Collect({c.Label}): nothing waiting (pile {amount}) - returns 0"); return 0; }
+            if (prefab == null || amount < 1) { if (RuleLog.Due("BatchStation.Collect:none", 2d)) ModLog.Every("BatchStation.Collect:none", 2d, $"BatchStation.Collect({c.Label}): nothing waiting (pile {amount}) - returns 0"); return 0; }
             if (!user.GetInventory().CanAddItem(prefab, amount)) { user.Message(MessageHud.MessageType.Center, "Your inventory is full"); ModLog.Decision(c.Label + " collect", "not asked", $"inventory has no room for {amount} {c.OutputName}"); return 0; }
             _nview.InvokeRPC(c.RpcCollect);
             ModLog.Decision(c.Label + " collect", "asked the owner", $"{amount} {c.OutputName} waiting");

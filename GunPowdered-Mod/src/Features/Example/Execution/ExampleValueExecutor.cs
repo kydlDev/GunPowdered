@@ -26,10 +26,10 @@ namespace GunPowdered.Features.Example.Execution
         /// Expected outcome: Success with the applied value; Rejected (nothing applied) when this client is not the owner.
         internal OperationResponse<float> Apply(float value)
         {
-            if (RuleLog.IsOn()) RuleLog.Every("ExampleValueExecutor.Apply", 2d, $"ExampleValueExecutor.Apply(value={RuleLog.Shown(value)})");
-            if (!_owner.IsOwner) { var returnedAt31 = OperationResponse<float>.Rejected(NotOwner); if (RuleLog.IsOn()) RuleLog.Every("ExampleValueExecutor.Apply:31", 2d, $"ExampleValueExecutor.Apply: returns {RuleLog.Shown(returnedAt31)} (line 31)"); return returnedAt31; }
+            if (RuleLog.Due("ExampleValueExecutor.Apply", 2d)) RuleLog.Every("ExampleValueExecutor.Apply", 2d, $"ExampleValueExecutor.Apply(value={RuleLog.Shown(value)})");
+            if (!_owner.IsOwner) { var returnedAt31 = OperationResponse<float>.Rejected(NotOwner); if (RuleLog.Due("ExampleValueExecutor.Apply:31", 2d)) RuleLog.Every("ExampleValueExecutor.Apply:31", 2d, $"ExampleValueExecutor.Apply: returns {RuleLog.Shown(returnedAt31)} (line 31)"); return returnedAt31; }
             _apply(value);
-            { var returnedAt33 = OperationResponse<float>.Success(value, Applied); if (RuleLog.IsOn()) RuleLog.Every("ExampleValueExecutor.Apply:33", 2d, $"ExampleValueExecutor.Apply: returns {RuleLog.Shown(returnedAt33)} (line 33)"); return returnedAt33; }
+            { var returnedAt33 = OperationResponse<float>.Success(value, Applied); if (RuleLog.Due("ExampleValueExecutor.Apply:33", 2d)) RuleLog.Every("ExampleValueExecutor.Apply:33", 2d, $"ExampleValueExecutor.Apply: returns {RuleLog.Shown(returnedAt33)} (line 33)"); return returnedAt33; }
         }
     }
 }

@@ -18,10 +18,10 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             try
             {
-                if (__instance != Player.m_localPlayer || CannonAim.Current == null) { if (RuleLog.IsOn()) ModLog.Every("CannonAttackPatch.Prefix:21", 2d, "CannonAttackPatch.Prefix: returns true (line 21)"); return true; }
+                if (__instance != Player.m_localPlayer || CannonAim.Current == null) { if (RuleLog.Due("CannonAttackPatch.Prefix:21", 2d)) ModLog.Every("CannonAttackPatch.Prefix:21", 2d, "CannonAttackPatch.Prefix: returns true (line 21)"); return true; }
                 CannonAim.AttackPressed(Player.m_localPlayer);
                 __result = false;
-                { if (RuleLog.IsOn()) ModLog.Every("CannonAttackPatch.Prefix:24", 2d, "CannonAttackPatch.Prefix: returns false (line 24)"); return false; }
+                { if (RuleLog.Due("CannonAttackPatch.Prefix:24", 2d)) ModLog.Every("CannonAttackPatch.Prefix:24", 2d, "CannonAttackPatch.Prefix: returns false (line 24)"); return false; }
             }
             catch (Exception e)
             {

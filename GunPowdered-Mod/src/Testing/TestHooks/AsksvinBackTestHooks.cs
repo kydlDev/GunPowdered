@@ -131,7 +131,7 @@ namespace GunPowdered.Testing.TestHooks
 
         static Vector3 Flat(Vector3 v)
         {
-            if (RuleLog.IsOn()) ModLog.Every("AsksvinBackTestHooks.Flat", 2d, "AsksvinBackTestHooks.Flat()");
+            if (RuleLog.Due("AsksvinBackTestHooks.Flat", 2d)) ModLog.Every("AsksvinBackTestHooks.Flat", 2d, "AsksvinBackTestHooks.Flat()");
             v.y = 0f;
             return v.sqrMagnitude > 1e-6f ? v.normalized : Vector3.forward;
         }

@@ -18,16 +18,16 @@ namespace GunPowdered.Features.Water.Domain
         /// </summary>
         internal static OperationResponse<float> Fill(float current, float capacity, float ratePerMinute, float elapsedSeconds, bool isRaining, bool isCovered)
         {
-            if (RuleLog.IsOn()) RuleLog.Every("RainBarrelRules.Fill", 2d, $"RainBarrelRules.Fill(current={RuleLog.Shown(current)}, capacity={RuleLog.Shown(capacity)}, ratePerMinute={RuleLog.Shown(ratePerMinute)}, elapsedSeconds={RuleLog.Shown(elapsedSeconds)}, isRaining={RuleLog.Shown(isRaining)}, isCovered={RuleLog.Shown(isCovered)})");
+            if (RuleLog.Due("RainBarrelRules.Fill", 2d)) RuleLog.Every("RainBarrelRules.Fill", 2d, $"RainBarrelRules.Fill(current={RuleLog.Shown(current)}, capacity={RuleLog.Shown(capacity)}, ratePerMinute={RuleLog.Shown(ratePerMinute)}, elapsedSeconds={RuleLog.Shown(elapsedSeconds)}, isRaining={RuleLog.Shown(isRaining)}, isCovered={RuleLog.Shown(isCovered)})");
             if (!IsUsable(current) || !IsUsable(capacity) || !IsUsable(ratePerMinute) || !IsUsable(elapsedSeconds))
             {
-                { var returnedAt24 = OperationResponse<float>.Rejected(BadInput); if (RuleLog.IsOn()) RuleLog.Every("RainBarrelRules.Fill:24", 2d, $"RainBarrelRules.Fill: returns {RuleLog.Shown(returnedAt24)} (line 24)"); return returnedAt24; }
+                { var returnedAt24 = OperationResponse<float>.Rejected(BadInput); if (RuleLog.Due("RainBarrelRules.Fill:24", 2d)) RuleLog.Every("RainBarrelRules.Fill:24", 2d, $"RainBarrelRules.Fill: returns {RuleLog.Shown(returnedAt24)} (line 24)"); return returnedAt24; }
             }
-            if (current >= capacity) { var returnedAt26 = OperationResponse<float>.Success(capacity, Full); if (RuleLog.IsOn()) RuleLog.Every("RainBarrelRules.Fill:26", 2d, $"RainBarrelRules.Fill: returns {RuleLog.Shown(returnedAt26)} (line 26)"); return returnedAt26; }
-            if (isCovered) { var returnedAt27 = OperationResponse<float>.Success(current, Covered); if (RuleLog.IsOn()) RuleLog.Every("RainBarrelRules.Fill:27", 2d, $"RainBarrelRules.Fill: returns {RuleLog.Shown(returnedAt27)} (line 27)"); return returnedAt27; }
-            if (!isRaining) { var returnedAt28 = OperationResponse<float>.Success(current, NotRaining); if (RuleLog.IsOn()) RuleLog.Every("RainBarrelRules.Fill:28", 2d, $"RainBarrelRules.Fill: returns {RuleLog.Shown(returnedAt28)} (line 28)"); return returnedAt28; }
+            if (current >= capacity) { var returnedAt26 = OperationResponse<float>.Success(capacity, Full); if (RuleLog.Due("RainBarrelRules.Fill:26", 2d)) RuleLog.Every("RainBarrelRules.Fill:26", 2d, $"RainBarrelRules.Fill: returns {RuleLog.Shown(returnedAt26)} (line 26)"); return returnedAt26; }
+            if (isCovered) { var returnedAt27 = OperationResponse<float>.Success(current, Covered); if (RuleLog.Due("RainBarrelRules.Fill:27", 2d)) RuleLog.Every("RainBarrelRules.Fill:27", 2d, $"RainBarrelRules.Fill: returns {RuleLog.Shown(returnedAt27)} (line 27)"); return returnedAt27; }
+            if (!isRaining) { var returnedAt28 = OperationResponse<float>.Success(current, NotRaining); if (RuleLog.Due("RainBarrelRules.Fill:28", 2d)) RuleLog.Every("RainBarrelRules.Fill:28", 2d, $"RainBarrelRules.Fill: returns {RuleLog.Shown(returnedAt28)} (line 28)"); return returnedAt28; }
             float grown = current + ratePerMinute * elapsedSeconds / 60f;
-            { var returnedAt30 = OperationResponse<float>.Success(System.Math.Min(grown, capacity), Filled); if (RuleLog.IsOn()) RuleLog.Every("RainBarrelRules.Fill:30", 2d, $"RainBarrelRules.Fill: returns {RuleLog.Shown(returnedAt30)} (line 30)"); return returnedAt30; }
+            { var returnedAt30 = OperationResponse<float>.Success(System.Math.Min(grown, capacity), Filled); if (RuleLog.Due("RainBarrelRules.Fill:30", 2d)) RuleLog.Every("RainBarrelRules.Fill:30", 2d, $"RainBarrelRules.Fill: returns {RuleLog.Shown(returnedAt30)} (line 30)"); return returnedAt30; }
         }
 
         /// <summary>
@@ -36,17 +36,17 @@ namespace GunPowdered.Features.Water.Domain
         /// </summary>
         internal static OperationResponse<int> Take(float current, int requested)
         {
-            if (RuleLog.IsOn()) RuleLog.Every("RainBarrelRules.Take", 2d, $"RainBarrelRules.Take(current={RuleLog.Shown(current)}, requested={RuleLog.Shown(requested)})");
-            if (!IsUsable(current) || requested < 1) { var returnedAt40 = OperationResponse<int>.Rejected(BadInput); if (RuleLog.IsOn()) RuleLog.Every("RainBarrelRules.Take:40", 2d, $"RainBarrelRules.Take: returns {RuleLog.Shown(returnedAt40)} (line 40)"); return returnedAt40; }
+            if (RuleLog.Due("RainBarrelRules.Take", 2d)) RuleLog.Every("RainBarrelRules.Take", 2d, $"RainBarrelRules.Take(current={RuleLog.Shown(current)}, requested={RuleLog.Shown(requested)})");
+            if (!IsUsable(current) || requested < 1) { var returnedAt40 = OperationResponse<int>.Rejected(BadInput); if (RuleLog.Due("RainBarrelRules.Take:40", 2d)) RuleLog.Every("RainBarrelRules.Take:40", 2d, $"RainBarrelRules.Take: returns {RuleLog.Shown(returnedAt40)} (line 40)"); return returnedAt40; }
             int available = (int)current;
-            if (available < 1) { var returnedAt42 = OperationResponse<int>.Rejected(Empty); if (RuleLog.IsOn()) RuleLog.Every("RainBarrelRules.Take:42", 2d, $"RainBarrelRules.Take: returns {RuleLog.Shown(returnedAt42)} (line 42)"); return returnedAt42; }
-            { var returnedAt43 = OperationResponse<int>.Success(System.Math.Min(requested, available), Taken); if (RuleLog.IsOn()) RuleLog.Every("RainBarrelRules.Take:43", 2d, $"RainBarrelRules.Take: returns {RuleLog.Shown(returnedAt43)} (line 43)"); return returnedAt43; }
+            if (available < 1) { var returnedAt42 = OperationResponse<int>.Rejected(Empty); if (RuleLog.Due("RainBarrelRules.Take:42", 2d)) RuleLog.Every("RainBarrelRules.Take:42", 2d, $"RainBarrelRules.Take: returns {RuleLog.Shown(returnedAt42)} (line 42)"); return returnedAt42; }
+            { var returnedAt43 = OperationResponse<int>.Success(System.Math.Min(requested, available), Taken); if (RuleLog.Due("RainBarrelRules.Take:43", 2d)) RuleLog.Every("RainBarrelRules.Take:43", 2d, $"RainBarrelRules.Take: returns {RuleLog.Shown(returnedAt43)} (line 43)"); return returnedAt43; }
         }
 
         static bool IsUsable(float value)
         {
-            if (RuleLog.IsOn()) RuleLog.Every("RainBarrelRules.IsUsable", 2d, $"RainBarrelRules.IsUsable(value={RuleLog.Shown(value)})");
-            { var returnedAt49 = !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0f; if (RuleLog.IsOn()) RuleLog.Every("RainBarrelRules.IsUsable:49", 2d, $"RainBarrelRules.IsUsable: returns {RuleLog.Shown(returnedAt49)} (line 49)"); return returnedAt49; }
+            if (RuleLog.Due("RainBarrelRules.IsUsable", 2d)) RuleLog.Every("RainBarrelRules.IsUsable", 2d, $"RainBarrelRules.IsUsable(value={RuleLog.Shown(value)})");
+            { var returnedAt49 = !float.IsNaN(value) && !float.IsInfinity(value) && value >= 0f; if (RuleLog.Due("RainBarrelRules.IsUsable:49", 2d)) RuleLog.Every("RainBarrelRules.IsUsable:49", 2d, $"RainBarrelRules.IsUsable: returns {RuleLog.Shown(returnedAt49)} (line 49)"); return returnedAt49; }
         }
     }
 }

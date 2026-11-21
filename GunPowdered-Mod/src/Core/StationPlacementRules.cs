@@ -22,7 +22,7 @@ namespace GunPowdered.Core
         internal static bool InRange(float dx, float dy, float dz, float range)
         {
             bool inside = dx * dx + dy * dy + dz * dz <= range * range;
-            if (RuleLog.IsOn()) RuleLog.Every("StationPlacementRules.InRange", 2d, $"StationPlacementRules.InRange({dx:0.00}, {dy:0.00}, {dz:0.00}, {range}): returns {inside}");
+            if (RuleLog.Due("StationPlacementRules.InRange", 2d)) RuleLog.Every("StationPlacementRules.InRange", 2d, $"StationPlacementRules.InRange({dx:0.00}, {dy:0.00}, {dz:0.00}, {range}): returns {inside}");
             return inside;
         }
 
@@ -35,7 +35,7 @@ namespace GunPowdered.Core
         {
             bool inside = x > minX + EdgeMargin && x < maxX - EdgeMargin && z > minZ + EdgeMargin && z < maxZ - EdgeMargin;
             bool on = inside && y > GroundTolerance && y <= topY + AboveTopTolerance;
-            if (RuleLog.IsOn()) RuleLog.Every("StationPlacementRules.IsOnStation", 2d, $"StationPlacementRules.IsOnStation(({x:0.00}, {y:0.00}, {z:0.00}) in x {minX:0.00}..{maxX:0.00}, z {minZ:0.00}..{maxZ:0.00}, top {topY:0.00}): inside {inside}, returns {on}");
+            if (RuleLog.Due("StationPlacementRules.IsOnStation", 2d)) RuleLog.Every("StationPlacementRules.IsOnStation", 2d, $"StationPlacementRules.IsOnStation(({x:0.00}, {y:0.00}, {z:0.00}) in x {minX:0.00}..{maxX:0.00}, z {minZ:0.00}..{maxZ:0.00}, top {topY:0.00}): inside {inside}, returns {on}");
             return on;
         }
 
@@ -50,7 +50,7 @@ namespace GunPowdered.Core
             if (targetExtensionOf != null) allowed = false;
             else if (targetStation != null) allowed = ghostExtensionOf == targetStation;
             else allowed = ghostExtensionOf == null;
-            if (RuleLog.IsOn()) RuleLog.Every("StationPlacementRules.SnapAllowed", 2d, $"StationPlacementRules.SnapAllowed(ghost of {ghostExtensionOf ?? "-"}, station {targetStation ?? "-"}, extension of {targetExtensionOf ?? "-"}): returns {allowed}");
+            if (RuleLog.Due("StationPlacementRules.SnapAllowed", 2d)) RuleLog.Every("StationPlacementRules.SnapAllowed", 2d, $"StationPlacementRules.SnapAllowed(ghost of {ghostExtensionOf ?? "-"}, station {targetStation ?? "-"}, extension of {targetExtensionOf ?? "-"}): returns {allowed}");
             return allowed;
         }
 
@@ -62,7 +62,7 @@ namespace GunPowdered.Core
         {
             float cx = (minX + maxX) / 2f, cz = (minZ + maxZ) / 2f;
             var points = new[] { minX, cz, maxX, cz, cx, minZ, cx, maxZ };
-            if (RuleLog.IsOn()) RuleLog.Every("StationPlacementRules.SideSnapPoints", 2d, $"StationPlacementRules.SideSnapPoints(x {minX:0.00}..{maxX:0.00}, z {minZ:0.00}..{maxZ:0.00}): returns 4 side middles");
+            if (RuleLog.Due("StationPlacementRules.SideSnapPoints", 2d)) RuleLog.Every("StationPlacementRules.SideSnapPoints", 2d, $"StationPlacementRules.SideSnapPoints(x {minX:0.00}..{maxX:0.00}, z {minZ:0.00}..{maxZ:0.00}): returns 4 side middles");
             return points;
         }
     }

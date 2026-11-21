@@ -45,6 +45,26 @@ namespace GunPowdered.Core
             Sink(message);
             return true;
         }
+        static readonly Dictionary<string, long> DueLast = new Dictionary<string, long>();
+
+        /// <summary>
+        /// D-147 / PROJECT_RULES 38: the guard for a log line in per-frame code. True at most once per <paramref name="seconds"/> per key, and only with
+        /// debug logging on - the caller builds the text and calls ModLog / RuleLog only then, so per-frame code pays a dictionary lookup, no text, no
+        /// stack walk (ModLog resolves the calling mod by one). Its own table, so the Every call it guards still writes. Expected outcome: true when due.
+        /// </summary>
+        public static bool Due(string key, double seconds)
+        {
+            if (!On) return false;
+            long now = Clock.ElapsedMilliseconds;
+            lock (DueLast)
+            {
+                if (DueLast.TryGetValue(key, out long last) && now - last < seconds * 1000d) return false;
+                if (DueLast.Count > 4000) DueLast.Clear();
+                DueLast[key] = now;
+            }
+            return true;
+        }
+
         /// <summary>
         /// A value as one short log text: line breaks become " | ", at most 160 characters (then "... (N chars)"), and "CHECK OFF" is written "CHECK_OFF" -
         /// a logged value (a flight recorder dump, a log line passed on) must not count as a real failed check (rule log check common.no-check-off).

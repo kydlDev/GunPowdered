@@ -30,9 +30,9 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             try
             {
-                if (__result == 0f) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonScrollPatch.Postfix:33", 2d, "MobileCannonScrollPatch.Postfix: returns (line 33)"); return; }
+                if (__result == 0f) { if (RuleLog.Due("MobileCannonScrollPatch.Postfix:33", 2d)) ModLog.Every("MobileCannonScrollPatch.Postfix:33", 2d, "MobileCannonScrollPatch.Postfix: returns (line 33)"); return; }
                 MobileCannonCrank crank = MobileCannonCrank.Hovered();
-                if (crank == null || crank.Aim == null) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonScrollPatch.Postfix:35", 2d, "MobileCannonScrollPatch.Postfix: returns (line 35)"); return; }
+                if (crank == null || crank.Aim == null) { if (RuleLog.Due("MobileCannonScrollPatch.Postfix:35", 2d)) ModLog.Every("MobileCannonScrollPatch.Postfix:35", 2d, "MobileCannonScrollPatch.Postfix: returns (line 35)"); return; }
                 if (_lastFrame != Time.frameCount)
                 {
                     _lastFrame = Time.frameCount;
