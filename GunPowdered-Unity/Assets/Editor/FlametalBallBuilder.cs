@@ -15,6 +15,9 @@ public static class FlametalBallBuilder
     public static void Build()
     {
         AssetDatabase.Refresh();
+        // the mod reads the mesh at runtime (InGameTests World_BundleModels, colliders): Read/Write on, like the iron ball's CannonBall.fbx
+        var model = (ModelImporter)AssetImporter.GetAtPath(Art + "/Models/FlametalCannonBall/FlametalCannonBall.fbx");
+        if (model != null && !model.isReadable) { model.isReadable = true; model.SaveAndReimport(); }
         Mesh mesh = AssetDatabase.LoadAllAssetsAtPath(Art + "/Models/FlametalCannonBall/FlametalCannonBall.fbx").OfType<Mesh>().FirstOrDefault();
         Material mat = AssetDatabase.LoadAssetAtPath<Material>(Art + "/Materials/ext_flametal_mat.mat");
         if (mesh == null || mat == null) { Debug.LogError("[FlametalBallBuilder] mesh " + (mesh != null) + ", material " + (mat != null) + " - nothing built"); Fail(); return; }
