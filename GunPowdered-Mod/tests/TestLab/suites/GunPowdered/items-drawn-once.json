@@ -1,0 +1,187 @@
+{
+  "name": "items-drawn-once",
+  "description": "T-017 / T-019 (D-150, user 2026-11-21 12:25: spawning 1 dynamite showed 2 sticks, 1 could be picked up): every item of the mod lying on the ground is drawn once - its own model, not also the hand copy under \"attach\".",
+  "timeout": 90,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_Dynamite",
+      "dx": 0,
+      "dz": 3,
+      "as": "item0"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.droppedBallModels",
+      "args": {
+        "prefab": "GP_Dynamite"
+      },
+      "contains": "drawn 1 time(s)",
+      "label": "T-019: a dropped GP_Dynamite is drawn once (D-150: \"spawning 1 dynamite I got 2 sticks\")"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_DeepNorthPack",
+      "dx": 0,
+      "dz": 3,
+      "as": "item1"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.droppedBallModels",
+      "args": {
+        "prefab": "GP_DeepNorthPack"
+      },
+      "contains": "drawn 1 time(s)",
+      "label": "T-019: a dropped GP_DeepNorthPack is drawn once (D-150: \"spawning 1 dynamite I got 2 sticks\")"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_SpikedGrenade",
+      "dx": 0,
+      "dz": 3,
+      "as": "item2"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.droppedBallModels",
+      "args": {
+        "prefab": "GP_SpikedGrenade"
+      },
+      "contains": "drawn 1 time(s)",
+      "label": "T-019: a dropped GP_SpikedGrenade is drawn once (D-150: \"spawning 1 dynamite I got 2 sticks\")"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_Musket",
+      "dx": 0,
+      "dz": 3,
+      "as": "item3"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.droppedBallModels",
+      "args": {
+        "prefab": "GP_Musket"
+      },
+      "contains": "drawn 1 time(s)",
+      "label": "T-019: a dropped GP_Musket is drawn once (D-150: \"spawning 1 dynamite I got 2 sticks\")"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_CannonBall",
+      "dx": 0,
+      "dz": 3,
+      "as": "item4"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.droppedBallModels",
+      "args": {
+        "prefab": "GP_CannonBall"
+      },
+      "contains": "drawn 1 time(s)",
+      "label": "T-019: a dropped GP_CannonBall is drawn once (D-150: \"spawning 1 dynamite I got 2 sticks\")"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_FlametalCannonBall",
+      "dx": 0,
+      "dz": 3,
+      "as": "item5"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.droppedBallModels",
+      "args": {
+        "prefab": "GP_FlametalCannonBall"
+      },
+      "contains": "drawn 1 time(s)",
+      "label": "T-019: a dropped GP_FlametalCannonBall is drawn once (D-150: \"spawning 1 dynamite I got 2 sticks\")"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_ExplosiveArrow",
+      "dx": 0,
+      "dz": 3,
+      "as": "item6"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.droppedBallModels",
+      "args": {
+        "prefab": "GP_ExplosiveArrow"
+      },
+      "contains": "drawn 1 time(s)",
+      "label": "T-019: a dropped GP_ExplosiveArrow is drawn once (D-150: \"spawning 1 dynamite I got 2 sticks\")"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

@@ -182,6 +182,7 @@ namespace GunPowdered.Integrations.Items
             if (s.Id == GunPowderedPrefabs.Dynamite) GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.Configure(item.ItemPrefab);
             if (s.Id == GunPowderedPrefabs.DeepNorthPack) GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.ConfigurePack(item.ItemPrefab);
             if (s.Id == GunPowderedPrefabs.ExplosiveArrow) GunPowdered.Features.ExplosiveArrows.Infrastructure.ExplosiveArrowSetup.Configure(item.ItemPrefab);
+            ItemGroundModel.AddIfBoth(item.ItemPrefab);           // T-017 / T-019: an item with a hand copy is drawn once on the ground
             ModLog.Verbose("ItemRegistry: item " + s.Id + " cloned from " + s.CloneOf + ", stack " + s.Stack + ", recipe " + (item.Recipe != null) + " at station level " + s.StationLevel);
         }
 

@@ -66,7 +66,6 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         internal static bool ConfigureBall(GameObject ballItem)
         {
             bool hand = AttachHandModel(ballItem);
-            if (ballItem.GetComponent<CannonBallGroundModel>() == null) ballItem.AddComponent<CannonBallGroundModel>();     // T-017: a dropped ball shows once
             string ball = ballItem.name;
             if (ProjectileFor(ball) == null) Projectiles[ball] = MakeProjectile(ball + "_projectile");
             GameObject flight = ProjectileFor(ball);

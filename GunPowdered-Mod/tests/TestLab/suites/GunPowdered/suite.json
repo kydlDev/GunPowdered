@@ -105,6 +105,7 @@
   },
   "resetBetweenTests": true,
   "tests": [
+    "items-drawn-once",
     "perf-creatures-idle",
     "startup-clean",
     "hub-page",
