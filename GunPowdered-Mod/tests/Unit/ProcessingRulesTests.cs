@@ -105,9 +105,33 @@ namespace GunPowdered.Tests.Unit
         [TestCase(SulfurSource.Blob, 0.99, 2)]
         [TestCase(SulfurSource.Oozer, 0.0, 1)]
         [TestCase(SulfurSource.Oozer, 0.99, 2)]
+        [TestCase(SulfurSource.Writhan, 0.0, 3)]
+        [TestCase(SulfurSource.Writhan, 0.5, 4)]
+        [TestCase(SulfurSource.Writhan, 0.99, 5)]
         public void Sulfur_Amount_FollowsTheSourcesRange(SulfurSource source, double draw, int expected)
         {
             Assert.That(SulfurRules.Amount(source, () => draw), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void Sulfur_KillChance_WrithanHasItsOwn_D146()
+        {
+            Assert.That(SulfurRules.KillChance(SulfurSource.Writhan, 0.1, 0.2), Is.EqualTo(0.2), "the Writhan's own chance");
+            Assert.That(SulfurRules.KillChance(SulfurSource.Blob, 0.1, 0.2), Is.EqualTo(0.1));
+            Assert.That(SulfurRules.KillChance(SulfurSource.Oozer, 0.1, 0.2), Is.EqualTo(0.1));
+            Assert.That(SulfurRules.KillChance(SulfurSource.SulfurousMud, 0.1, 0.2), Is.EqualTo(1.0), "mud always gives sulfur");
+            Assert.That(SulfurRules.KillChance(SulfurSource.Writhan, 0.1, 1.5), Is.EqualTo(1.0), "clamped to 1");
+            Assert.That(SulfurRules.WrithanDropChance, Is.EqualTo(0.20), "the user's 20 %");
+            Assert.That(SulfurRules.MinOf(SulfurSource.Writhan), Is.EqualTo(3));
+            Assert.That(SulfurRules.Max(SulfurSource.Writhan), Is.EqualTo(5));
+        }
+
+        [Test]
+        public void Sulfur_WrithanAmount_EveryValueFrom3To5_Comes()
+        {
+            var seen = new System.Collections.Generic.HashSet<int>();
+            for (int i = 0; i < 100; i++) { double d = i / 100.0; seen.Add(SulfurRules.Amount(SulfurSource.Writhan, () => d)); }
+            Assert.That(seen, Is.EquivalentTo(new[] { 3, 4, 5 }));
         }
 
         [TestCase(0.0, 1)]

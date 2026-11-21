@@ -42,5 +42,7 @@ namespace GunPowdered.Configuration
 
         public static readonly Tunable<float> KillSulfurChance = new Tunable<float>("Sulfur", "KillSulfurChance", 0.1f, 0f, 1f,
             "Chance that a killed Blob or Oozer drops sulfur (0-1), D-016.");
+        public static readonly Tunable<float> WrithanSulfurChance = new Tunable<float>("Sulfur", "WrithanSulfurChance", 0.2f, 0f, 1f,
+            "Chance that a killed Writhan drops 3-5 sulfur (0-1), D-146.");
     }
 }

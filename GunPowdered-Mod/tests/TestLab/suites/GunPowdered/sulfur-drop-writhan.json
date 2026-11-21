@@ -1,0 +1,17 @@
+{
+  "name": "sulfur-drop-writhan",
+  "description": "Writhan (D-146): with its sulfur chance set to 100 % for the test, killing a Writhan drops 3-5 Sulfur next to its loot; the chance goes back to 20 %",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.setTunable", "args": { "field": "WrithanSulfurChance", "value": "1" }, "expect": "1", "label": "Writhan sulfur chance 100 % for the test" },
+    { "do": "spawn", "prefab": "Writhan", "dz": 8 },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.killNearest", "args": { "prefab": "Writhan" }, "expect": "killed Writhan", "label": "the Writhan is killed" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.countWithInventory", "args": { "prefab": "SulfurStone" }, "min": 3, "max": 5, "label": "3-5 Sulfur dropped" },
+    { "do": "hook", "name": "GunPowdered.setTunable", "args": { "field": "WrithanSulfurChance", "value": "reset" }, "expect": "0.2", "label": "chance back to 20 %" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

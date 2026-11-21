@@ -1,0 +1,18 @@
+{
+  "name": "meta-writhan-sulfur-chance-fails",
+  "description": "Negative test for sulfur-drop-writhan: with the Writhan sulfur chance at 0 a killed Writhan drops NO sulfur - the check that expects 3 or more must fail.",
+  "timeout": 60,
+  "expectFailure": "wrong on purpose",
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.setTunable", "args": { "field": "WrithanSulfurChance", "value": "0" }, "expect": "0", "label": "Writhan sulfur chance 0 %" },
+    { "do": "spawn", "prefab": "Writhan", "dz": 8 },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.killNearest", "args": { "prefab": "Writhan" }, "expect": "killed Writhan", "label": "the Writhan is killed" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "check", "check": "hook", "name": "GunPowdered.countWithInventory", "args": { "prefab": "SulfurStone" }, "min": 3, "label": "3 or more Sulfur dropped (wrong on purpose)" },
+    { "do": "hook", "name": "GunPowdered.setTunable", "args": { "field": "WrithanSulfurChance", "value": "reset" }, "expect": "0.2" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}
