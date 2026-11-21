@@ -35,7 +35,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
     {
         public override string GetHoverName() => "Mobile Cannon muzzle";
 
-        public override string GetHoverText() => Localization.instance.Localize("Mobile Cannon (" + LoadState() + ")\n[<color=yellow><b>$KEY_Use</b></color>] Load gunpowder and a Cannon Ball");
+        public override string GetHoverText() => Localization.instance.Localize("Mobile Cannon (" + LoadState() + ")\n[<color=yellow><b>$KEY_Use</b></color>] Load gunpowder and a Flametal Cannon Ball");
 
         protected override bool Use(Player p) => Gun.Load(p);
     }

@@ -21,7 +21,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         internal MobileCannonFeature()
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonFeature.MobileCannonFeature()");
-            ItemRegistry.Register(FeatureId, ItemCatalog.MobileCannon, ItemCatalog.AsksvinHarness);
+            ItemRegistry.Register(FeatureId, ItemCatalog.MobileCannon, ItemCatalog.AsksvinHarness, ItemCatalog.FlametalCannonBall);
         }
 
         public string Id { get { return _lifecycle.Id; } }

@@ -177,7 +177,7 @@ namespace GunPowdered.Integrations.Items
                     Keyed.Add(new KeyValuePair<Recipe, KeyValuePair<string, string>>(item.Recipe.Recipe, new KeyValuePair<string, string>(FeatureOf(set), s.RequiredGlobalKey)));
             }
             if (s.Id == GunPowderedPrefabs.SpikedGrenade) GrenadeSetup.Configure(item.ItemPrefab);
-            if (s.Id == GunPowderedPrefabs.CannonBall) CannonSetup.ConfigureBall(item.ItemPrefab);
+            if (s.Id == GunPowderedPrefabs.CannonBall || s.Id == GunPowderedPrefabs.FlametalCannonBall) CannonSetup.ConfigureBall(item.ItemPrefab);
             if (s.Id == GunPowderedPrefabs.Musket) MusketSetup.Configure(item.ItemPrefab);
             if (s.Id == GunPowderedPrefabs.Dynamite) GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.Configure(item.ItemPrefab);
             if (s.Id == GunPowderedPrefabs.DeepNorthPack) GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.ConfigurePack(item.ItemPrefab);

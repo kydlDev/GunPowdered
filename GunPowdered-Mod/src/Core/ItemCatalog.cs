@@ -93,6 +93,7 @@ namespace GunPowdered.Core
     {
         public const string Workbench = "piece_workbench";
         public const string Forge = "forge";
+        public const string BlackForge = "blackforge";       // D-145: the Mistlands Black Forge (prefab name in the ripped game assets)
         /// <summary>Vanilla prefab names of the materials the recipes use (Charcoal is the prefab "Coal", Sulfur is the prefab "SulfurStone"; checked in the Unity rip 2026-11-17).</summary>
         public const string Wood = "Wood", Iron = "Iron", Bronze = "Bronze", LeatherScraps = "LeatherScraps", Resin = "Resin", Stone = "Stone", Charcoal = "Coal", Sulfur = "SulfurStone", Obsidian = "Obsidian", LoxPelt = "LoxPelt", SealHide = "SealHide";
 
@@ -145,7 +146,8 @@ namespace GunPowdered.Core
         // D-051 / D-052 / D-053 (user answers): the mounted hand cannon, Swamp (iron) tier. The ball and the cannon are carried items that never stack and cannot be
         // equipped (Material placeholder, "cannot be shot while carried"); the stock is the build piece the cannon is mounted on (Hammer, KY-Items category).
         // The ball recipe is 2 Iron at a Forge level 2 (user, 2026-11-18).
-        public static readonly ItemSpec CannonBall = new ItemSpec(GunPowderedPrefabs.CannonBall, "Cannon Ball",
+        // D-145 (user 2026-11-21): shown as "Iron Cannon Ball" (named after its metal); the prefab keeps its name so carried balls stay.
+        public static readonly ItemSpec CannonBall = new ItemSpec(GunPowderedPrefabs.CannonBall, "Iron Cannon Ball",
             "A cast iron ball. Feed it into the muzzle of a mounted Hand Cannon together with gunpowder. It can be picked up and used again after the shot.",
             ItemKind.Material, Iron, 1, 3f, Forge, 1, new CostLine(Iron, 2)).AtStationLevel(2);
 
@@ -200,6 +202,12 @@ namespace GunPowdered.Core
             ItemKind.Material, Chain, 1, 5f, Workbench, 1,
             new CostLine(LoxPelt, 10), new CostLine(Chain, 3), new CostLine(Flametal, 2), new CostLine(Bronze, 2)).AtStationLevel(2);
 
+        // D-145 (user 2026-11-21): the Mobile Cannon's first ball (tier 2: the Mobile Cannon takes Flametal or better, the Hand Cannon takes it too),
+        // 4 Flametal at the Black Forge. Like the iron ball it never stacks, cannot be equipped and can be picked up again after the shot.
+        public static readonly ItemSpec FlametalCannonBall = new ItemSpec(GunPowderedPrefabs.FlametalCannonBall, "Flametal Cannon Ball",
+            "A heavy ball cast from flametal. Feed it into the muzzle of a Mobile Cannon (or a Hand Cannon) together with gunpowder. It breaks what an iron ball cannot and can be picked up and used again after the shot.",
+            ItemKind.Material, Flametal, 1, 4f, BlackForge, 1, new CostLine(Flametal, 4));
+
         // D-080 / D-081 (user): the musket ammunition chain. Paper (2 Resin + 1 Leather Scraps, Workbench; the user gave no yield, so 1 per craft: my reading), iron bullets
         // (1 Iron makes 5, Forge level 2), paper cartridges (1 Gunpowder + 1 bullet + 1 paper, Workbench level 2). The musket loads cartridges, never loose bullets.
         public static readonly ItemSpec Paper = new ItemSpec(GunPowderedPrefabs.Paper, "Paper",
@@ -211,7 +219,7 @@ namespace GunPowdered.Core
             "A small cast iron ball for the Iron Musket. Wrap it with gunpowder in paper to make a cartridge.",
             ItemKind.Material, Iron, 50, 0.1f, Forge, 5, new CostLine(Iron, 1)).AtStationLevel(2);
 
-        public static readonly ItemSpec PaperCartridge = new ItemSpec(GunPowderedPrefabs.PaperCartridge, "Cartridge",   // shown as "Cartridge" (user 2026-11-19 11:52); the prefab keeps its name
+        public static readonly ItemSpec PaperCartridge = new ItemSpec(GunPowderedPrefabs.PaperCartridge, "Iron Cartridge",   // D-145 (user 2026-11-21): "Iron Cartridge" (was "Cartridge"); the prefab keeps its name
             "Gunpowder and an iron bullet wrapped in paper. Load it into the Iron Musket: the bullet flies, the paper burns away in the pan.",
             ItemKind.Material, Resin, 50, 0.15f, Workbench, 1,
             new CostLine(GunPowderedPrefabs.Gunpowder, 1), new CostLine(GunPowderedPrefabs.IronBullet, 1), new CostLine(GunPowderedPrefabs.Paper, 1)).AtStationLevel(2);
@@ -279,7 +287,7 @@ namespace GunPowdered.Core
         {
             get
             {
-                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud, SpikedGrenade, CannonBall, Cannon, CannonStock, Musket, ExplosiveArrow, Dynamite, MobileCannon, AsksvinHarness, Paper, IronBullet, PaperCartridge, DeepNorthPack, LeachBarrel, SettlingTank, BlackMetalBoiler, DvergrDripPipes, FlametalHeater, MillGrindstone, MillSieve, MillOven };
+                return new[] { BatGuano, Saltpeter, Gunpowder, Water, Bucket, BucketFull, LeachingVat, PowderMill, RainBarrel, GuanoDeposit, SulfurousMud, SpikedGrenade, CannonBall, Cannon, CannonStock, Musket, ExplosiveArrow, Dynamite, MobileCannon, AsksvinHarness, FlametalCannonBall, Paper, IronBullet, PaperCartridge, DeepNorthPack, LeachBarrel, SettlingTank, BlackMetalBoiler, DvergrDripPipes, FlametalHeater, MillGrindstone, MillSieve, MillOven };
             }
         }
     }

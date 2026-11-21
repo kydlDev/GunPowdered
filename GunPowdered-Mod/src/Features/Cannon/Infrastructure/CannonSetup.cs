@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using KydlCore.Common;
@@ -18,10 +19,17 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         internal const string ProjectileId = "GP_CannonBall_projectile";
         const string StockBundleId = "GP_CannonStock", BarrelChild = "mounted_barrel";
         static readonly string[] ProjectileBases = { "oozebomb_projectile", "bilebomb_projectile" };
-        static GameObject _projectile;
+        static readonly Dictionary<string, GameObject> Projectiles = new Dictionary<string, GameObject>();
 
-        /// <summary>The flying ball prefab (null before the ball item was configured or when that failed).</summary>
-        internal static GameObject Projectile => _projectile;
+        /// <summary>The Iron Cannon Ball's flying prefab (null before the ball item was configured or when that failed).</summary>
+        internal static GameObject Projectile => ProjectileFor(GunPowderedPrefabs.CannonBall);
+
+        /// <summary>The flying prefab of a ball (D-145: each ball flies with its own look, "&lt;ball&gt;_projectile"), null when it was not made.</summary>
+        internal static GameObject ProjectileFor(string ball)
+        {
+            GameObject p = null;
+            { var returnedAt31 = ball != null && Projectiles.TryGetValue(ball, out p) ? p : null; if (RuleLog.IsOn()) ModLog.Every("CannonSetup.ProjectileFor:31", 2d, $"CannonSetup.ProjectileFor: returns {RuleLog.Shown(returnedAt31)} (line 31)"); return returnedAt31; }
+        }
 
         /// <summary>
         /// The stock: the look and the barrel turn on one pivot, the solid colliders stay where the piece stands. Expected outcome: true when the
@@ -58,9 +66,11 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         internal static bool ConfigureBall(GameObject ballItem)
         {
             bool hand = AttachHandModel(ballItem);
-            if (_projectile == null) _projectile = MakeProjectile();
-            ModLog.Verbose("CannonSetup: ball configured - hand model " + hand + ", flight prefab " + (_projectile != null));
-            return hand && _projectile != null;
+            string ball = ballItem.name;
+            if (ProjectileFor(ball) == null) Projectiles[ball] = MakeProjectile(ball + "_projectile");
+            GameObject flight = ProjectileFor(ball);
+            ModLog.Verbose("CannonSetup: ball " + ball + " configured - hand model " + hand + ", flight prefab " + (flight != null));
+            return hand && flight != null;
         }
 
         static bool AttachHandModel(GameObject item)
@@ -75,7 +85,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
                 attach.gameObject.layer = item.layer;
                 CopyGrip(attach);
             }
-            if (attach.Find("gp_model") != null) { if (RuleLog.IsOn()) ModLog.Verbose("CannonSetup.AttachHandModel: returns true (line 78)"); return true; }
+            if (attach.Find("gp_model") != null) { if (RuleLog.IsOn()) ModLog.Verbose("CannonSetup.AttachHandModel: returns true (line 88)"); return true; }
             GameObject copy = Object.Instantiate(model.gameObject, attach);
             copy.name = "gp_model";
             // the ball sits where the vanilla Ooze Bomb's ball sits in the hand (centred on the hand joint it was hidden inside the fist, run cannonV5);
@@ -85,7 +95,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             copy.transform.localScale = Vector3.one;
             foreach (Collider c in copy.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c);
             foreach (Renderer r in copy.GetComponentsInChildren<Renderer>(true)) r.enabled = true;
-            { if (RuleLog.IsOn()) ModLog.Verbose("CannonSetup.AttachHandModel: returns true (line 88)"); return true; }
+            { if (RuleLog.IsOn()) ModLog.Verbose("CannonSetup.AttachHandModel: returns true (line 98)"); return true; }
         }
 
         // our "attach" takes the Ooze Bomb attach's own place under its item, so the ball centre measured in that space means the same in ours
@@ -94,7 +104,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             if (RuleLog.IsOn()) ModLog.Verbose($"CannonSetup.CopyGrip(attach={RuleLog.Shown(attach)})");
             GameObject bomb = PrefabManager.Instance.GetPrefab("BombOoze");
             Transform grip = bomb != null ? bomb.transform.Find("attach") : null;
-            if (grip == null) { if (RuleLog.IsOn()) ModLog.Verbose("CannonSetup.CopyGrip: returns (line 97)"); return; }
+            if (grip == null) { if (RuleLog.IsOn()) ModLog.Verbose("CannonSetup.CopyGrip: returns (line 107)"); return; }
             attach.localPosition = grip.localPosition;
             attach.localRotation = grip.localRotation;
             attach.localScale = grip.localScale;
@@ -119,26 +129,26 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             return centre;
         }
 
-        static GameObject MakeProjectile()
+        static GameObject MakeProjectile(string projectileId)
         {
             foreach (string b in ProjectileBases)
             {
                 if (PrefabManager.Instance.GetPrefab(b) == null) { ModLog.Warn("CannonSetup: vanilla base " + b + " not found, trying the next one"); continue; }
-                GameObject clone = PrefabManager.Instance.CreateClonedPrefab(ProjectileId, b);
+                GameObject clone = PrefabManager.Instance.CreateClonedPrefab(projectileId, b);
                 if (clone == null) continue;
                 foreach (global::Projectile p in clone.GetComponentsInChildren<global::Projectile>(true)) Object.DestroyImmediate(p);
                 foreach (Light l in clone.GetComponentsInChildren<Light>(true)) l.enabled = false;
                 foreach (AudioSource a in clone.GetComponentsInChildren<AudioSource>(true)) a.enabled = false;
                 foreach (Rigidbody r in clone.GetComponentsInChildren<Rigidbody>(true)) { r.isKinematic = true; r.useGravity = false; }
-                BundleVisuals.Apply(ProjectileId, clone);
+                BundleVisuals.Apply(projectileId, clone);
                 foreach (Collider c in clone.GetComponentsInChildren<Collider>(true)) c.enabled = false;           // the flight tests the world itself
                 if (clone.GetComponent<ZSyncTransform>() == null) clone.AddComponent<ZSyncTransform>();
                 clone.AddComponent<CannonBallFlight>();
                 PrefabManager.Instance.AddPrefab(new CustomPrefab(clone, true));
-                ModLog.Verbose("CannonSetup: " + ProjectileId + " cloned from " + b);
+                ModLog.Verbose("CannonSetup: " + projectileId + " cloned from " + b);
                 return clone;
             }
-            ModLog.Error("CannonSetup: no vanilla base for " + ProjectileId);
+            ModLog.Error("CannonSetup: no vanilla base for " + projectileId);
             return null;
         }
     }

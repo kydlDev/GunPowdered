@@ -1,0 +1,8 @@
+﻿Weapon,Hit type,Radius (m),Pierce,Blunt,Chop,Pickaxe,Fire,Tool tier,Creatures,Notes
+Iron Musket,Direct hit,,50,,,,5/s for 5 s,,Full damage,"5 shots per load, one every 0.8 s; reload 1.2 s per cartridge; bullet speed 110 m/s"
+Hand Cannon,Direct hit,,30,70,,150,10/s for 5 s,2 (bronze),Full damage,"Range 3-30 m; keeps 50% of speed and damage after passing a tree or creature; 1 gunpowder + 1 ball per shot"
+Mobile Cannon,Direct hit,,50,120,,250,10/s for 5 s,5 (Ashlands fortresses),Full damage,"30 m/s at the muzzle (about 45 m at 15°, 69 m at 25°); 3 gunpowder + 1 ball per shot"
+Explosive Arrow,Area,3,30,20,,,5 (burst),,"Full damage, armour applies","Pierce 30 on a direct hit, plus the bow's own damage; blunt and fire are the burst"
+Spiked Grenade,Area,4,30,50,,,5/s for 5 s,,Full damage,
+Dynamite,Area,4,,100,100,100,5/s for 5 s (creatures),2 (iron pickaxe),Take 20% of the blast,"Crater 2.5 m wide, 1.5 m deep"
+Deep North Dynamite Pack,Area,20,,400,400,500,30/s for 5 s (creatures),6 (Deep North),Take 20% of the blast,"Crater 10 m wide, 2 m deep"

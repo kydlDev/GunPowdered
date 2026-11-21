@@ -18,7 +18,8 @@ namespace GunPowdered.Core
         public const string GuanoDeposit = "GP_GuanoDeposit";
         public const string SulfurousMud = "GP_SulfurousMud";
         public const string SpikedGrenade = "GP_SpikedGrenade";
-        public const string CannonBall = "GP_CannonBall";
+        public const string CannonBall = "GP_CannonBall";                       // shown as "Iron Cannon Ball" (D-145)
+        public const string FlametalCannonBall = "GP_FlametalCannonBall";       // D-145: the Mobile Cannon's first ball
         public const string Cannon = "GP_Cannon";
         public const string CannonStock = "GP_CannonStock";
         public const string Musket = "GP_Musket";

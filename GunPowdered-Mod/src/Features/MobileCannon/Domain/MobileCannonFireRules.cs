@@ -9,8 +9,8 @@ namespace GunPowdered.Features.MobileCannon.Domain
     /// </summary>
     internal static class MobileCannonFireRules
     {
-        internal const string AlreadyLoaded = "The Mobile Cannon is already loaded", NotLoaded = "Load the Mobile Cannon first (gunpowder and a Cannon Ball at the muzzle)",
-            NeedBall = "You need a Cannon Ball", NeedTorch = "Hold a torch to light the fuse", FuseBurning = "The fuse is already burning";
+        internal const string AlreadyLoaded = "The Mobile Cannon is already loaded", NotLoaded = "Load the Mobile Cannon first (gunpowder and a Flametal Cannon Ball at the muzzle)",
+            NeedBall = "You need a Flametal Cannon Ball or a better one", NeedTorch = "Hold a torch to light the fuse", FuseBurning = "The fuse is already burning";
 
         /// <summary>Loading needs an empty cannon, <paramref name="powderNeed"/> gunpowder and one Cannon Ball.</summary>
         internal static string WhyNotLoad(bool loaded, int powderHave, int powderNeed, int ballsHave)

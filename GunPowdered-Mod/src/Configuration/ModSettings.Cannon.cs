@@ -3,7 +3,7 @@ using KydlCore.Common;
 namespace GunPowdered.Configuration
 {
     /// <summary>
-    /// The mounted Hand Cannon numbers the user approved (D-051 .. D-054) as dev-only Tunables (KydlTools F7). They are read when they are used
+    /// The mounted Hand Cannon numbers the user approved (D-051 .. D-054; D-145: the cannon's part of a shot, the ball's part is in ModSettings.CannonBalls) as dev-only Tunables (KydlTools F7). They are read when they are used
     /// (loading, aiming, the shot), so a change shows in game without a restart.
     /// </summary>
     internal static partial class ModSettings
@@ -16,16 +16,12 @@ namespace GunPowdered.Configuration
             "The stock's own tilt in degrees (2-45): the rear trestle is 4 cm lower than the front one (D-052); with the range it sets the ball speed.");
         public static readonly Tunable<float> CannonGravity = new Tunable<float>("Cannon", "CannonGravity", 10f, 1f, 30f,
             "Gravity of the ball in flight, m/s per second (1-30).");
-        public static readonly Tunable<float> CannonPierce = new Tunable<float>("Cannon", "CannonPierce", 30f, 0f, 1000f,
-            "Pierce damage of the ball (0-1000, D-107).");
         public static readonly Tunable<float> CannonBlunt = new Tunable<float>("Cannon", "CannonBlunt", 70f, 0f, 1000f,
             "Blunt damage of the ball (0-1000, D-107).");
         public static readonly Tunable<float> CannonPickaxe = new Tunable<float>("Cannon", "CannonPickaxe", 150f, 0f, 2000f,
             "Pickaxe damage of the ball against stone, rocks and walls (0-2000, D-108).");
         public static readonly Tunable<float> CannonFire = new Tunable<float>("Cannon", "CannonFire", 10f, 0f, 100f,
             "Fire damage per second of the burning the ball sets, for 5 s (0-100, D-107).");
-        public static readonly Tunable<float> CannonToolTier = new Tunable<float>("Cannon", "CannonToolTier", 2f, 0f, 10f,
-            "Tool tier of the ball against trees (0-10); 2 = bronze, so the swamp's ancient trees can be broken too.");
         public static readonly Tunable<float> CannonPassFactor = new Tunable<float>("Cannon", "CannonPassFactor", 0.5f, 0f, 1f,
             "Share of speed and damage the ball keeps after passing a tree or creature (0-1, D-053 addendum: 'maybe 50% less').");
         public static readonly Tunable<float> CannonRecoil = new Tunable<float>("Cannon", "CannonRecoil", 4f, 0f, 20f,

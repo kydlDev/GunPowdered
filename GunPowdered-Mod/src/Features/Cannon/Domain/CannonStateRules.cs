@@ -27,7 +27,7 @@ namespace GunPowdered.Features.Cannon.Domain
     {
         internal const string NeedCannon = "You need a Hand Cannon to mount", AlreadyMounted = "A Hand Cannon is already mounted",
             NotMounted = "Mount a Hand Cannon first", AlreadyLoaded = "The Hand Cannon is already loaded", NotLoaded = "Load the Hand Cannon first",
-            NeedBall = "You need a Cannon Ball", NeedTorch = "Hold a torch to light the fuse", FuseBurning = "The fuse is already burning";
+            NeedBall = "You need an Iron Cannon Ball or a better one", NeedTorch = "Hold a torch to light the fuse", FuseBurning = "The fuse is already burning";
 
         /// <summary>Mounting needs an empty stock and a Hand Cannon in the inventory.</summary>
         internal static string WhyNotMount(CannonStatus s, bool haveCannon)

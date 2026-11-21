@@ -37,6 +37,7 @@ namespace GunPowdered
             public const string SulfurousMud = Core.GunPowderedPrefabs.SulfurousMud;
             public const string SpikedGrenade = Core.GunPowderedPrefabs.SpikedGrenade;
             public const string CannonBall = Core.GunPowderedPrefabs.CannonBall;
+            public const string FlametalCannonBall = Core.GunPowderedPrefabs.FlametalCannonBall;
             public const string Cannon = Core.GunPowderedPrefabs.Cannon;
             public const string CannonStock = Core.GunPowderedPrefabs.CannonStock;
             public const string Musket = Core.GunPowderedPrefabs.Musket;
@@ -112,7 +113,7 @@ namespace GunPowdered
             /// <summary>The most cartridges a musket holds; a reload never goes above it.</summary>
             public const int Capacity = MusketRules.Capacity;
 
-            /// <summary>Pierce damage of one bullet (before the target's resistances).</summary>
+            /// <summary>Pierce damage of one shot with the Iron Cartridge (before the target's resistances): the musket's part plus the cartridge's (D-145).</summary>
             public const float BulletPierce = MusketRules.BulletPierce;
 
             /// <summary>The bullet's speed out of the muzzle (m/s).</summary>
@@ -130,7 +131,7 @@ namespace GunPowdered
             /// <summary>One cartridge goes in per this many seconds of reloading.</summary>
             public const float ReloadSecondsPerCartridge = MusketRules.ReloadSecondsPerCartridge;
 
-            /// <summary>The prefab name of the ammunition the musket loads (shown to players as "Cartridge").</summary>
+            /// <summary>The prefab name of the ammunition the musket loads (shown to players as "Iron Cartridge").</summary>
             public const string Ammunition = Core.GunPowderedPrefabs.PaperCartridge;
 
             /// <summary>How many cartridges a reload moves in from <paramref name="carried"/>, starting at <paramref name="loaded"/> (never above <see cref="Capacity"/>).</summary>

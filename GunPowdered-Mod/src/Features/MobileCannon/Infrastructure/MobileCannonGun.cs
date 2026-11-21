@@ -4,20 +4,21 @@ using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
+using GunPowdered.Features.Cannon.Domain;
 using GunPowdered.Features.Cannon.Infrastructure;
 using GunPowdered.Features.MobileCannon.Domain;
 
 namespace GunPowdered.Features.MobileCannon.Infrastructure
 {
     /// <summary>
-    /// Loading and firing one Mobile Cannon (D-045, D-104). At the muzzle the player loads gunpowder and one Cannon Ball (a few seconds, staying close);
+    /// Loading and firing one Mobile Cannon (D-045, D-104). At the muzzle the player loads gunpowder and one Flametal Cannon Ball or better (D-145) (a few seconds, staying close);
     /// with a torch in hand on the touch hole the fuse burns (sparks), then the ball leaves the barrel the way the crank set it and the carriage rolls
-    /// back. The load and the fuse live in the piece's ZDO, so a loaded cannon stays loaded after a relog. The ball's flight and damage are the Hand
-    /// Cannon's (CannonBallFlight, D-055 / D-057).
+    /// back. The load and the fuse live in the piece's ZDO, so a loaded cannon stays loaded after a relog. The ball's flight is the Hand
+    /// Cannon's (CannonBallFlight, D-055 / D-057); its damage is the Mobile Cannon's part plus the ball's (D-145).
     /// </summary>
     internal sealed class MobileCannonGun : MonoBehaviour
     {
-        internal const string KeyLoaded = "gp_mc_loaded", KeyFuse = "gp_mc_fuse";
+        internal const string KeyLoaded = "gp_mc_loaded", KeyFuse = "gp_mc_fuse", KeyBall = "gp_mc_ball";   // D-145: which ball is loaded
         const string Barrel = "cannon_barrel", MuzzleName = "Muzzle", TouchHoleName = "TouchHole";
         const float UseRange = 3.5f, AnimEvery = 1.2f, SparkEvery = 0.12f;
 
@@ -27,6 +28,9 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         bool _loading, _fireQueued;
 
         internal bool Loaded => IsValid && _nview.GetZDO().GetBool(KeyLoaded, false);
+
+        /// <summary>The ball in the barrel (D-145; a cannon loaded before D-145 holds an Iron Cannon Ball).</summary>
+        internal string LoadedBall => CannonAmmoRules.LoadedOrOld(IsValid ? _nview.GetZDO().GetString(KeyBall, "") : "");
 
         internal bool Lit => _fireQueued;
 
@@ -60,18 +64,18 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         Transform Point(Transform empty, string name)
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonGun.Point(empty={RuleLog.Shown(empty)}, name={RuleLog.Shown(name)})");
-            if (empty == null) { if (RuleLog.IsOn()) ModLog.Verbose("MobileCannonGun.Point: returns null (line 63)"); return null; }
+            if (empty == null) { if (RuleLog.IsOn()) ModLog.Verbose("MobileCannonGun.Point: returns null (line 67)"); return null; }
             var go = new GameObject(name);
             go.transform.SetParent(_barrel, false);
             go.transform.position = empty.position;
             go.transform.rotation = _barrel.rotation;
-            { var returnedAt68 = go.transform; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonGun.Point: returns {RuleLog.Shown(returnedAt68)} (line 68)"); return returnedAt68; }
+            { var returnedAt72 = go.transform; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonGun.Point: returns {RuleLog.Shown(returnedAt72)} (line 72)"); return returnedAt72; }
         }
 
         void Handle<T>(Transform at, Vector3 size) where T : MobileCannonPart
         {
             if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Handle", 2d, $"MobileCannonGun.Handle(at={RuleLog.Shown(at)}, size={RuleLog.Shown(size)})");
-            if (at == null) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Handle:74", 2d, "MobileCannonGun.Handle: returns (line 74)"); return; }
+            if (at == null) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Handle:78", 2d, "MobileCannonGun.Handle: returns (line 78)"); return; }
             at.gameObject.layer = gameObject.layer;
             BoxCollider box = at.gameObject.AddComponent<BoxCollider>();
             box.size = size;
@@ -82,13 +86,13 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         internal bool Load(Player p)
         {
             if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Load", 2d, $"MobileCannonGun.Load(p={RuleLog.Shown(p)})");
-            if (p == null || !IsValid) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Load:85", 2d, "MobileCannonGun.Load: returns false (line 85)"); return false; }
-            if (_loading) { var returnedAt86 = Tell(p, "Already loading"); if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Load:86", 2d, $"MobileCannonGun.Load: returns {RuleLog.Shown(returnedAt86)} (line 86)"); return returnedAt86; }
+            if (p == null || !IsValid) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Load:89", 2d, "MobileCannonGun.Load: returns false (line 89)"); return false; }
+            if (_loading) { var returnedAt90 = Tell(p, "Already loading"); if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Load:90", 2d, $"MobileCannonGun.Load: returns {RuleLog.Shown(returnedAt90)} (line 90)"); return returnedAt90; }
             Inventory inv = p.GetInventory();
-            string why = MobileCannonFireRules.WhyNotLoad(Loaded, CannonInventory.Count(inv, GunPowderedPrefabs.Gunpowder), Powder(), CannonInventory.Count(inv, GunPowderedPrefabs.CannonBall));
-            if (why != null) { var returnedAt89 = Tell(p, why); if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Load:89", 2d, $"MobileCannonGun.Load: returns {RuleLog.Shown(returnedAt89)} (line 89)"); return returnedAt89; }
+            string why = MobileCannonFireRules.WhyNotLoad(Loaded, CannonInventory.Count(inv, GunPowderedPrefabs.Gunpowder), Powder(), CannonAmmoRules.CountTaken(CannonAmmoRules.MobileCannonMinTier, CannonInventory.BallsCarried(inv)));
+            if (why != null) { var returnedAt93 = Tell(p, why); if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Load:93", 2d, $"MobileCannonGun.Load: returns {RuleLog.Shown(returnedAt93)} (line 93)"); return returnedAt93; }
             StartCoroutine(LoadAtMuzzle(p));
-            { if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Load:91", 2d, "MobileCannonGun.Load: returns true (line 91)"); return true; }
+            { if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Load:95", 2d, "MobileCannonGun.Load: returns true (line 95)"); return true; }
         }
 
         IEnumerator LoadAtMuzzle(Player p)
@@ -114,23 +118,25 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             }
             _loading = false;
             Inventory inv = p.GetInventory();
-            string why = MobileCannonFireRules.WhyNotLoad(Loaded, CannonInventory.Count(inv, GunPowderedPrefabs.Gunpowder), Powder(), CannonInventory.Count(inv, GunPowderedPrefabs.CannonBall));
+            string why = MobileCannonFireRules.WhyNotLoad(Loaded, CannonInventory.Count(inv, GunPowderedPrefabs.Gunpowder), Powder(), CannonAmmoRules.CountTaken(CannonAmmoRules.MobileCannonMinTier, CannonInventory.BallsCarried(inv)));
             if (why != null) { Tell(p, why); yield break; }
             CannonInventory.Take(inv, GunPowderedPrefabs.Gunpowder, Powder());
-            CannonInventory.Take(inv, GunPowderedPrefabs.CannonBall, 1);
+            string ball = CannonAmmoRules.Choose(CannonAmmoRules.MobileCannonMinTier, CannonInventory.BallsCarried(inv));
+            CannonInventory.Take(inv, ball, 1);
             Claim();
             _nview.GetZDO().Set(KeyLoaded, true);
+            _nview.GetZDO().Set(KeyBall, ball);
             _nview.GetZDO().Set(KeyFuse, 0L);
-            ModLog.Decision("mobile cannon", "loaded", Powder() + " gunpowder + 1 Cannon Ball");
+            ModLog.Decision("mobile cannon", "loaded", Powder() + " gunpowder + 1 " + ball);
             p.Message(MessageHud.MessageType.TopLeft, "Mobile Cannon loaded");
         }
 
         /// <summary>Lights the fuse with the torch in the player's hand. Expected outcome: null when lit, else the reason (also shown to the player).</summary>
         internal string Light(Player p)
         {
-            if (p == null || !IsValid) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Light:131", 2d, "MobileCannonGun.Light: returns \"no cannon\" (line 131)"); return "no cannon"; }
+            if (p == null || !IsValid) { if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Light:137", 2d, "MobileCannonGun.Light: returns \"no cannon\" (line 137)"); return "no cannon"; }
             string why = MobileCannonFireRules.WhyNotLight(Loaded, _fireQueued, CannonInventory.HoldsTorch(p));
-            if (why != null) { Tell(p, why); { var returnedAt133 = why; if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Light:133", 2d, $"MobileCannonGun.Light: returns {RuleLog.Shown(returnedAt133)} (line 133)"); return returnedAt133; } }
+            if (why != null) { Tell(p, why); { var returnedAt139 = why; if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Light:139", 2d, $"MobileCannonGun.Light: returns {RuleLog.Shown(returnedAt139)} (line 139)"); return returnedAt139; } }
             Claim();
             _nview.GetZDO().Set(KeyFuse, (long)(ZNet.instance.GetTimeSeconds() * 1000d));
             _fireQueued = true;
@@ -156,8 +162,9 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         void Fire(Player p)
         {
             Claim();
+            string ball = LoadedBall;
             _nview.GetZDO().Set(KeyLoaded, false);
-            GameObject prefab = CannonSetup.Projectile;
+            GameObject prefab = CannonSetup.ProjectileFor(ball);
             if (prefab == null || _muzzle == null || _barrel == null) { ModLog.Warn("MobileCannonGun: no ball flight prefab or muzzle, the shot is lost"); return; }
             Vector3 dir = _barrel.forward;
             float speed = ModSettings.MobileCannonMuzzleSpeed.Value;
@@ -165,9 +172,9 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             float range = MobileCannonFireRules.Range(speed, pitch, ModSettings.CannonGravity.Value);
             Vector3 velocity = dir * speed;
             CannonEffects.PlayMuzzle(_muzzle.position, velocity);
-            GameObject ball = Instantiate(prefab, _muzzle.position + dir * 0.1f, Quaternion.LookRotation(velocity));
-            CannonBallFlight flight = ball.GetComponent<CannonBallFlight>();
-            if (flight != null) flight.UseMobileCannonDamage();
+            GameObject shot = Instantiate(prefab, _muzzle.position + dir * 0.1f, Quaternion.LookRotation(velocity));
+            CannonBallFlight flight = shot.GetComponent<CannonBallFlight>();
+            if (flight != null) flight.Arm(true, ball);
             bool flies = flight != null && flight.Launch(p, transform, velocity, range);
             float recoil = ModSettings.MobileCannonRecoil.Value;
             if (_body != null && recoil > 0f) _body.AddForce(-new Vector3(dir.x, 0f, dir.z).normalized * recoil, ForceMode.VelocityChange);
@@ -179,9 +186,9 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         {
             try
             {
-                if (!IsValid || !Loaded) { if (RuleLog.IsOn()) ModLog.Verbose("MobileCannonGun.OnDestroyed: returns (line 182)"); return; }
+                if (!IsValid || !Loaded) { if (RuleLog.IsOn()) ModLog.Verbose("MobileCannonGun.OnDestroyed: returns (line 189)"); return; }
                 Vector3 at = transform.position + Vector3.up * 0.6f;
-                CannonInventory.Drop(GunPowderedPrefabs.CannonBall, 1, at);
+                CannonInventory.Drop(LoadedBall, 1, at);
                 CannonInventory.Drop(GunPowderedPrefabs.Gunpowder, Powder(), at);
                 ModLog.Verbose("MobileCannonGun: destroyed while loaded - the load dropped");
             }
@@ -201,7 +208,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         {
             if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Tell", 2d, $"MobileCannonGun.Tell(p={RuleLog.Shown(p)}, why={RuleLog.Shown(why)})");
             p.Message(MessageHud.MessageType.Center, why);
-            { if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Tell:204", 2d, "MobileCannonGun.Tell: returns false (line 204)"); return false; }
+            { if (RuleLog.IsOn()) ModLog.Every("MobileCannonGun.Tell:211", 2d, "MobileCannonGun.Tell: returns false (line 211)"); return false; }
         }
 
         static int Powder() => Mathf.Max(1, ModSettings.MobileCannonPowderPerShot.Value);

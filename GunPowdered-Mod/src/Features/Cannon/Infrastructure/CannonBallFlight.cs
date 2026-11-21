@@ -276,34 +276,59 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         }
 
         bool _mobile;
+        string _ball = GunPowderedPrefabs.CannonBall;
 
-        /// <summary>D-107: this ball was fired by a Mobile Cannon: its own, heavier numbers (blunt + pickaxe + pierce + burning, tool tier 5).</summary>
-        internal void UseMobileCannonDamage() => _mobile = true;
+        /// <summary>The ball prefab the last shot flew (test hooks).</summary>
+        internal static string LastBall { get; private set; } = "";
+        /// <summary>The last shot's damage before the momentum (cannon part + ball part, D-145; test hooks).</summary>
+        internal static string LastShotDamage { get; private set; } = "";
+
+        /// <summary>
+        /// What fired this ball (D-145): the cannon's part of the damage (the Mobile Cannon's heavier one, D-107, or the Hand Cannon's) and the ball
+        /// whose part adds to it; the same ball lies where the flight stops. Call before <see cref="Launch"/>.
+        /// </summary>
+        internal void Arm(bool mobileCannon, string ball)
+        {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonBallFlight.Arm(mobileCannon={RuleLog.Shown(mobileCannon)}, ball={RuleLog.Shown(ball)})");
+            _mobile = mobileCannon;
+            _ball = CannonAmmoRules.LoadedOrOld(ball);
+            LastBall = _ball;
+            LastShotDamage = Damage().ToString();
+            ModLog.Verbose("CannonBallFlight: armed by the " + (_mobile ? "Mobile Cannon" : "Hand Cannon") + " with " + _ball + ": " + LastShotDamage);
+        }
+
+        // D-145: the shot = the cannon's part + the ball's part
+        ShotDamage Damage()
+        {
+            var cannon = _mobile
+                ? new ShotDamage(0f, ModSettings.MobileCannonBlunt.Value, ModSettings.MobileCannonPickaxe.Value, ModSettings.MobileCannonFire.Value, 0)
+                : new ShotDamage(0f, ModSettings.CannonBlunt.Value, ModSettings.CannonPickaxe.Value, ModSettings.CannonFire.Value, 0);
+            { var returnedAt306 = ShotDamage.Sum(cannon, BallDamage(_ball)); if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.Damage:306", 2d, $"CannonBallFlight.Damage: returns {RuleLog.Shown(returnedAt306)} (line 306)"); return returnedAt306; }
+        }
+
+        /// <summary>A ball's part of the shot (D-145), from its Tunables.</summary>
+        internal static ShotDamage BallDamage(string ball)
+        {
+            if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.BallDamage", 2d, $"CannonBallFlight.BallDamage(ball={RuleLog.Shown(ball)})");
+            if (ball == GunPowderedPrefabs.FlametalCannonBall) { var returnedAt313 = new ShotDamage(ModSettings.FlametalBallPierce.Value, 0f, 0f, 0f, Mathf.RoundToInt(ModSettings.FlametalBallToolTier.Value)); if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.BallDamage:313", 2d, $"CannonBallFlight.BallDamage: returns {RuleLog.Shown(returnedAt313)} (line 313)"); return returnedAt313; }
+            { var returnedAt314 = new ShotDamage(ModSettings.IronBallPierce.Value, 0f, 0f, 0f, Mathf.RoundToInt(ModSettings.IronBallToolTier.Value)); if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.BallDamage:314", 2d, $"CannonBallFlight.BallDamage: returns {RuleLog.Shown(returnedAt314)} (line 314)"); return returnedAt314; }
+        }
 
         HitData MakeHit(Vector3 at)
         {
             if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.MakeHit", 2d, $"CannonBallFlight.MakeHit(at={RuleLog.Shown(at)})");
             var hit = new HitData();
-            if (_mobile)
-            {
-                hit.m_damage.m_pierce = ModSettings.MobileCannonPierce.Value * _momentum;
-                hit.m_damage.m_blunt = ModSettings.MobileCannonBlunt.Value * _momentum;
-                hit.m_damage.m_pickaxe = ModSettings.MobileCannonPickaxe.Value * _momentum;
-                hit.m_damage.m_fire = GunPowdered.Core.BurnRules.Total(ModSettings.MobileCannonFire.Value) * _momentum;
-            }
-            else
-            {
-                hit.m_damage.m_pierce = ModSettings.CannonPierce.Value * _momentum;
-                hit.m_damage.m_blunt = ModSettings.CannonBlunt.Value * _momentum;
-                hit.m_damage.m_pickaxe = ModSettings.CannonPickaxe.Value * _momentum;
-                hit.m_damage.m_fire = GunPowdered.Core.BurnRules.Total(ModSettings.CannonFire.Value) * _momentum;
-            }
+            ShotDamage d = Damage().Times(_momentum);
+            hit.m_damage.m_pierce = d.Pierce;
+            hit.m_damage.m_blunt = d.Blunt;
+            hit.m_damage.m_pickaxe = d.Pickaxe;
+            hit.m_damage.m_fire = GunPowdered.Core.BurnRules.Total(d.FirePerSecond);
             hit.m_point = at;
             hit.m_dir = _vel.sqrMagnitude > 0f ? _vel.normalized : _flatDir;
             hit.m_pushForce = 30f * _momentum;
-            hit.m_toolTier = (short)Mathf.RoundToInt(_mobile ? ModSettings.MobileCannonToolTier.Value : ModSettings.CannonToolTier.Value);
+            hit.m_toolTier = (short)d.ToolTier;
             if (_shooter != null) hit.SetAttacker(_shooter);
-            { var returnedAt306 = hit; if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.MakeHit:306", 2d, $"CannonBallFlight.MakeHit: returns {RuleLog.Shown(returnedAt306)} (line 306)"); return returnedAt306; }
+            { var returnedAt331 = hit; if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.MakeHit:331", 2d, $"CannonBallFlight.MakeHit: returns {RuleLog.Shown(returnedAt331)} (line 331)"); return returnedAt331; }
         }
 
         void Spark(Vector3 at, Vector3 normal)
@@ -315,10 +340,10 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         // the flight ends: a Cannon Ball item lies there to be picked up and used again (D-053), the flying ball goes away a moment later
         void Stop(Vector3 at, string why)
         {
-            if (!_flying) { if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.Stop:318", 2d, "CannonBallFlight.Stop: returns (line 318)"); return; }
+            if (!_flying) { if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.Stop:343", 2d, "CannonBallFlight.Stop: returns (line 343)"); return; }
             _flying = false;
             InFlight = false;
-            CannonInventory.Drop(GunPowderedPrefabs.CannonBall, 1, at + (Vector3.up * 0.05f));
+            CannonInventory.Drop(_ball, 1, at + (Vector3.up * 0.05f));
             foreach (Renderer r in GetComponentsInChildren<Renderer>()) r.enabled = false;
             LastStop = at;
             LastDistance = Flat(_origin, at);
@@ -341,8 +366,8 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.GroundY", 2d, $"CannonBallFlight.GroundY(spot={RuleLog.Shown(spot)})");
             RaycastHit h;
             int ground = LayerMask.GetMask("Default", "static_solid", "terrain", "piece");
-            if (Physics.Raycast(spot + (Vector3.up * 60f), Vector3.down, out h, 200f, ground, QueryTriggerInteraction.Ignore)) { var returnedAt344 = h.point.y; if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.GroundY:344", 2d, $"CannonBallFlight.GroundY: returns {RuleLog.Shown(returnedAt344)} (line 344)"); return returnedAt344; }
-            { var returnedAt345 = ZoneSystem.instance != null ? ZoneSystem.instance.GetGroundHeight(spot) : spot.y; if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.GroundY:345", 2d, $"CannonBallFlight.GroundY: returns {RuleLog.Shown(returnedAt345)} (line 345)"); return returnedAt345; }
+            if (Physics.Raycast(spot + (Vector3.up * 60f), Vector3.down, out h, 200f, ground, QueryTriggerInteraction.Ignore)) { var returnedAt369 = h.point.y; if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.GroundY:369", 2d, $"CannonBallFlight.GroundY: returns {RuleLog.Shown(returnedAt369)} (line 369)"); return returnedAt369; }
+            { var returnedAt370 = ZoneSystem.instance != null ? ZoneSystem.instance.GetGroundHeight(spot) : spot.y; if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.GroundY:370", 2d, $"CannonBallFlight.GroundY: returns {RuleLog.Shown(returnedAt370)} (line 370)"); return returnedAt370; }
         }
 
         internal static int Mask()
@@ -351,7 +376,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             if (_mask == 0)
                 _mask = LayerMask.GetMask("Default", "static_solid", "Default_small", "piece", "piece_nonsolid", "terrain", "vehicle", "character",
                     "character_net", "character_ghost", "character_noenv", "hitbox");
-            { var returnedAt354 = _mask; if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.Mask:354", 2d, $"CannonBallFlight.Mask: returns {RuleLog.Shown(returnedAt354)} (line 354)"); return returnedAt354; }
+            { var returnedAt379 = _mask; if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.Mask:379", 2d, $"CannonBallFlight.Mask: returns {RuleLog.Shown(returnedAt379)} (line 379)"); return returnedAt379; }
         }
 
         static int RootId(Collider c)
@@ -359,7 +384,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.RootId", 2d, $"CannonBallFlight.RootId(c={RuleLog.Shown(c)})");
             Component owner = (Component)c.GetComponentInParent<Character>() ?? (Component)c.GetComponentInParent<TreeBase>()
                 ?? (Component)c.GetComponentInParent<TreeLog>() ?? c.transform.root;
-            { var returnedAt362 = owner.gameObject.GetInstanceID(); if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.RootId:362", 2d, $"CannonBallFlight.RootId: returns {RuleLog.Shown(returnedAt362)} (line 362)"); return returnedAt362; }
+            { var returnedAt387 = owner.gameObject.GetInstanceID(); if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.RootId:387", 2d, $"CannonBallFlight.RootId: returns {RuleLog.Shown(returnedAt387)} (line 387)"); return returnedAt387; }
         }
 
         static string Name(Collider c)
@@ -367,7 +392,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.Name", 2d, $"CannonBallFlight.Name(c={RuleLog.Shown(c)})");
             Character ch = c.GetComponentInParent<Character>();
             GameObject go = ch != null ? ch.gameObject : (c.attachedRigidbody != null ? c.attachedRigidbody.gameObject : c.transform.root.gameObject);
-            { var returnedAt370 = Utils.GetPrefabName(go.name); if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.Name:370", 2d, $"CannonBallFlight.Name: returns {RuleLog.Shown(returnedAt370)} (line 370)"); return returnedAt370; }
+            { var returnedAt395 = Utils.GetPrefabName(go.name); if (RuleLog.IsOn()) ModLog.Every("CannonBallFlight.Name:395", 2d, $"CannonBallFlight.Name: returns {RuleLog.Shown(returnedAt395)} (line 395)"); return returnedAt395; }
         }
 
         static float Flat(Vector3 a, Vector3 b) => new Vector2(b.x - a.x, b.z - a.z).magnitude;

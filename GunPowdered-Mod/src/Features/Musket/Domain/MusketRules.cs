@@ -64,8 +64,10 @@ namespace GunPowdered.Features.Musket.Domain
         internal const float ReloadSecondsPerCartridge = 1.2f;
 
         /// <summary>The bullet (D-087 proposal, D-095): pierce damage, muzzle speed (m/s), spread (degrees each way), gravity (m/s2), life (s).</summary>
-        internal const float BulletFirePerSecond = 5f;          // D-107: burns 5/s for 5 s
-        internal const float BulletPierce = 50f, BulletSpeed = 110f, BulletSpreadDegrees = 0.6f, BulletGravity = 4f, BulletSeconds = 3f;
+        // D-145: the damage is the musket's part (whatever it loads) plus the cartridge's part; BulletPierce is the shot's sum with the Iron Cartridge.
+        internal const float BulletFirePerSecond = 5f;          // D-107 / D-145: the musket's part, burns 5/s for 5 s
+        internal const float MusketPierce = 20f, IronCartridgePierce = 30f;
+        internal const float BulletPierce = MusketPierce + IronCartridgePierce, BulletSpeed = 110f, BulletSpreadDegrees = 0.6f, BulletGravity = 4f, BulletSeconds = 3f;
 
         /// <summary>How far the recoil shoves the shooter back (m; D-087 "recoil pushback", proposal).</summary>
         internal const float RecoilShoveMetres = 0.25f;
@@ -80,23 +82,23 @@ namespace GunPowdered.Features.Musket.Domain
             if (RuleLog.IsOn()) RuleLog.Every("MusketRules.RecoilPushForce", 2d, $"MusketRules.RecoilPushForce(metres={RuleLog.Shown(metres)}, mass={RuleLog.Shown(mass)}, equipmentModifier={RuleLog.Shown(equipmentModifier)})");
             float factor = 1f + equipmentModifier;
             if (factor > 1f) factor = 1f;
-            if (metres <= 0f || mass <= 0f || factor <= 0f) { if (RuleLog.IsOn()) RuleLog.Every("MusketRules.RecoilPushForce:83", 2d, "MusketRules.RecoilPushForce: returns 0f (line 83)"); return 0f; }
-            { var returnedAt84 = 5f * metres * mass / (2.5f * factor); if (RuleLog.IsOn()) RuleLog.Every("MusketRules.RecoilPushForce:84", 2d, $"MusketRules.RecoilPushForce: returns {RuleLog.Shown(returnedAt84)} (line 84)"); return returnedAt84; }
+            if (metres <= 0f || mass <= 0f || factor <= 0f) { if (RuleLog.IsOn()) RuleLog.Every("MusketRules.RecoilPushForce:85", 2d, "MusketRules.RecoilPushForce: returns 0f (line 85)"); return 0f; }
+            { var returnedAt86 = 5f * metres * mass / (2.5f * factor); if (RuleLog.IsOn()) RuleLog.Every("MusketRules.RecoilPushForce:86", 2d, $"MusketRules.RecoilPushForce: returns {RuleLog.Shown(returnedAt86)} (line 86)"); return returnedAt86; }
         }
 
         /// <summary>Whether enough time has passed since the last shot (<paramref name="lastShot"/>, s) to fire again at <paramref name="now"/>.</summary>
         internal static bool ShotIntervalOver(float now, float lastShot)
         {
             if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ShotIntervalOver", 2d, $"MusketRules.ShotIntervalOver(now={RuleLog.Shown(now)}, lastShot={RuleLog.Shown(lastShot)})");
-            { var returnedAt91 = now - lastShot >= ShotIntervalSeconds; if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ShotIntervalOver:91", 2d, $"MusketRules.ShotIntervalOver: returns {RuleLog.Shown(returnedAt91)} (line 91)"); return returnedAt91; }
+            { var returnedAt93 = now - lastShot >= ShotIntervalSeconds; if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ShotIntervalOver:93", 2d, $"MusketRules.ShotIntervalOver: returns {RuleLog.Shown(returnedAt93)} (line 93)"); return returnedAt93; }
         }
 
         /// <summary>How many cartridges a reload that began at <paramref name="started"/> should have moved in by <paramref name="now"/>: one at the end of each 1.2 s stroke.</summary>
         internal static int CartridgesDue(float started, float now)
         {
             if (RuleLog.IsOn()) RuleLog.Every("MusketRules.CartridgesDue", 2d, $"MusketRules.CartridgesDue(started={RuleLog.Shown(started)}, now={RuleLog.Shown(now)})");
-            if (now <= started) { if (RuleLog.IsOn()) RuleLog.Every("MusketRules.CartridgesDue:98", 2d, "MusketRules.CartridgesDue: returns 0 (line 98)"); return 0; }
-            { var returnedAt99 = (int)Math.Floor((now - started) / ReloadSecondsPerCartridge + 1e-4); if (RuleLog.IsOn()) RuleLog.Every("MusketRules.CartridgesDue:99", 2d, $"MusketRules.CartridgesDue: returns {RuleLog.Shown(returnedAt99)} (line 99)"); return returnedAt99; }
+            if (now <= started) { if (RuleLog.IsOn()) RuleLog.Every("MusketRules.CartridgesDue:100", 2d, "MusketRules.CartridgesDue: returns 0 (line 100)"); return 0; }
+            { var returnedAt101 = (int)Math.Floor((now - started) / ReloadSecondsPerCartridge + 1e-4); if (RuleLog.IsOn()) RuleLog.Every("MusketRules.CartridgesDue:101", 2d, $"MusketRules.CartridgesDue: returns {RuleLog.Shown(returnedAt101)} (line 101)"); return returnedAt101; }
         }
 
         /// <summary>Reads a stored load ("0".."5"); anything unreadable counts as empty, anything outside 0..Capacity as the nearest valid load.</summary>
@@ -104,22 +106,22 @@ namespace GunPowdered.Features.Musket.Domain
         {
             if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ParseLoaded", 2d, $"MusketRules.ParseLoaded(stored={RuleLog.Shown(stored)})");
             int v;
-            { var returnedAt107 = int.TryParse(stored, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out v) ? ClampLoaded(v) : 0; if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ParseLoaded:107", 2d, $"MusketRules.ParseLoaded: returns {RuleLog.Shown(returnedAt107)} (line 107)"); return returnedAt107; }
+            { var returnedAt109 = int.TryParse(stored, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out v) ? ClampLoaded(v) : 0; if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ParseLoaded:109", 2d, $"MusketRules.ParseLoaded: returns {RuleLog.Shown(returnedAt109)} (line 109)"); return returnedAt109; }
         }
 
         /// <summary>The load counter next to the crosshair: "3/5" (user 2026-11-19 12:32).</summary>
         internal static string LoadText(int loaded)
         {
             if (RuleLog.IsOn()) RuleLog.Every("MusketRules.LoadText", 2d, $"MusketRules.LoadText(loaded={RuleLog.Shown(loaded)})");
-            { var returnedAt114 = ClampLoaded(loaded).ToString(System.Globalization.CultureInfo.InvariantCulture) + "/" + Capacity.ToString(System.Globalization.CultureInfo.InvariantCulture); if (RuleLog.IsOn()) RuleLog.Every("MusketRules.LoadText:114", 2d, $"MusketRules.LoadText: returns {RuleLog.Shown(returnedAt114)} (line 114)"); return returnedAt114; }
+            { var returnedAt116 = ClampLoaded(loaded).ToString(System.Globalization.CultureInfo.InvariantCulture) + "/" + Capacity.ToString(System.Globalization.CultureInfo.InvariantCulture); if (RuleLog.IsOn()) RuleLog.Every("MusketRules.LoadText:116", 2d, $"MusketRules.LoadText: returns {RuleLog.Shown(returnedAt116)} (line 116)"); return returnedAt116; }
         }
 
         /// <summary>A stored load outside 0..Capacity (a damaged save, a changed constant) counts as the nearest valid load.</summary>
         internal static int ClampLoaded(int loaded)
         {
             if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ClampLoaded", 2d, $"MusketRules.ClampLoaded(loaded={RuleLog.Shown(loaded)})");
-            if (loaded < 0) { if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ClampLoaded:121", 2d, "MusketRules.ClampLoaded: returns 0 (line 121)"); return 0; }
-            { var returnedAt122 = loaded > Capacity ? Capacity : loaded; if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ClampLoaded:122", 2d, $"MusketRules.ClampLoaded: returns {RuleLog.Shown(returnedAt122)} (line 122)"); return returnedAt122; }
+            if (loaded < 0) { if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ClampLoaded:123", 2d, "MusketRules.ClampLoaded: returns 0 (line 123)"); return 0; }
+            { var returnedAt124 = loaded > Capacity ? Capacity : loaded; if (RuleLog.IsOn()) RuleLog.Every("MusketRules.ClampLoaded:124", 2d, $"MusketRules.ClampLoaded: returns {RuleLog.Shown(returnedAt124)} (line 124)"); return returnedAt124; }
         }
     }
 }
