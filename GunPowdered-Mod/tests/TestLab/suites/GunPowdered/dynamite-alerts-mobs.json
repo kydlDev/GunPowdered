@@ -110,8 +110,8 @@
       "args": {
         "prefab": "Greydwarf_Elite"
       },
-      "regex": "alerted True, target .*, last known [0-1]\\.\\d m from the blast",
-      "label": "the Greydwarf Brute 39 m from the blast is alerted and knows where it was"
+      "regex": "target Human, last known [0-1]\\.\\d m from the blast",
+      "label": "the Greydwarf Brute 39 m from the blast hunts the player and knows where the blast was (the game clears its alerted flag again while it cannot see the player)"
     },
     {
       "do": "hook",
