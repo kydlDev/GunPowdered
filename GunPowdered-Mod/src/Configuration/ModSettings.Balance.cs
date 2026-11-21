@@ -31,8 +31,8 @@ namespace GunPowdered.Configuration
         public static readonly Tunable<float> MillBaseMinutes = new Tunable<float>("Gunpowder", "MillBaseMinutes", 10f, 1f, 60f, "Real minutes of one Powder Mill grinding without extensions (1-60), D-137.");
         public static readonly Tunable<float> MillMinutesPerStep = new Tunable<float>("Gunpowder", "MillMinutesPerStep", 2.5f, 0f, 20f, "Minutes each Powder Mill extension takes off a grinding (0-20; 2.5 makes the last step 2.5 min), D-137.");
 
-        public static readonly Tunable<float> DepositRefillDays = new Tunable<float>("Deposits", "DepositRefillDays", 3f, 0.1f, 30f,
-            "In-game days until an emptied Bat Guano or Sulfurous Mud deposit is full again (0.1-30), D-019.");
+        public static readonly Tunable<float> DepositRefillDays = new Tunable<float>("Deposits", "DepositRefillDays", 2f, 0.1f, 30f,
+            "In-game days until an emptied Bat Guano or Sulfurous Mud deposit is full again (0.1-30), D-154.");
         public static readonly Tunable<int> MudPerGeyser = new Tunable<int>("Sulfur", "MudPerGeyser", 2, 0, 6,
             "Sulfurous Mud deposits placed around each swamp geyser (FireHole) when it is created (0-6). Assumption of Claude, not yet confirmed by the user.");
         public static readonly Tunable<int> MudPerDraugrPile = new Tunable<int>("Sulfur", "MudPerDraugrPile", 1, 0, 4,

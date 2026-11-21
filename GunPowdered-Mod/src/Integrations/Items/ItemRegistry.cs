@@ -275,7 +275,7 @@ namespace GunPowdered.Integrations.Items
             return null;
         }
 
-        // Deposits are Pickables: the vanilla Pickable respawns by itself, so the 3-day refill (D-019) is its respawn time.
+        // Deposits are Pickables: the vanilla Pickable respawns by itself, so the 2-day refill (D-154) is its respawn time.
         static void CreateDeposit(ItemSpec s)
         {
             GameObject prefab = PrefabManager.Instance.CreateClonedPrefab(s.Id, s.CloneOf);

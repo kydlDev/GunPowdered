@@ -2,22 +2,28 @@ using GunPowdered.Core;
 
 namespace GunPowdered.Tests.Unit
 {
-    /// Guano and Sulfurous Mud deposits refill 3 in-game days after they were emptied (D-019).
+    /// Guano and Sulfurous Mud deposits refill 2 in-game days after they were emptied (D-154).
     public class DepositRefillTests
     {
         [Test]
-        public void RefillAt_IsThreeDaysAfterEmptying()
+        public void RefillAt_IsTwoDaysAfterEmptying()
         {
-            Assert.That(DepositRefill.RefillAt(1000d, 3d, 1800d), Is.EqualTo(6400d));
+            Assert.That(DepositRefill.RefillAt(1000d, 2d, 1800d), Is.EqualTo(4600d));
         }
 
-        [TestCase(6399d, false)]
-        [TestCase(6400d, true)]
+        [Test]
+        public void DefaultDays_IsTwo()
+        {
+            Assert.That(DepositRefill.DefaultDays, Is.EqualTo(2d));
+        }
+
+        [TestCase(4599d, false)]
+        [TestCase(4600d, true)]
         [TestCase(99999d, true)]
         [TestCase(0d, false)]
         public void IsFull_OnlyFromTheRefillTime(double now, bool expected)
         {
-            Assert.That(DepositRefill.IsFull(1000d, now, 3d, 1800d), Is.EqualTo(expected));
+            Assert.That(DepositRefill.IsFull(1000d, now, 2d, 1800d), Is.EqualTo(expected));
         }
 
         [TestCase(double.NaN, 3d, 1800d)]
@@ -50,8 +56,8 @@ namespace GunPowdered.Tests.Unit
         [Test]
         public void SecondsLeft_CountsDownAndStopsAtZero()
         {
-            Assert.That(DepositRefill.SecondsLeft(1000d, 2000d, 3d, 1800d), Is.EqualTo(4400d));
-            Assert.That(DepositRefill.SecondsLeft(1000d, 9000d, 3d, 1800d), Is.EqualTo(0d));
+            Assert.That(DepositRefill.SecondsLeft(1000d, 2000d, 2d, 1800d), Is.EqualTo(2600d));
+            Assert.That(DepositRefill.SecondsLeft(1000d, 9000d, 2d, 1800d), Is.EqualTo(0d));
         }
     }
 }

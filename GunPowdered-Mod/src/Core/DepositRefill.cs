@@ -3,12 +3,12 @@ using System;
 namespace GunPowdered.Core
 {
     /// <summary>
-    /// When a gathered-out deposit (Bat Guano or Sulfurous Mud) holds its gatherables again: 3 in-game days after it was emptied (D-019).
+    /// When a gathered-out deposit (Bat Guano or Sulfurous Mud) holds its gatherables again: 2 in-game days after it was emptied (D-154, was 3 in D-019).
     /// Pure: times are seconds of world time, the day length comes from the caller.
     /// </summary>
     internal static class DepositRefill
     {
-        internal const double DefaultDays = 3d;
+        internal const double DefaultDays = 2d;
         internal const double DefaultDayLengthSeconds = 1800d;
 
         /// <summary>Expected outcome: world time (seconds) at which the deposit is full again; NaN when the input is bad.</summary>
