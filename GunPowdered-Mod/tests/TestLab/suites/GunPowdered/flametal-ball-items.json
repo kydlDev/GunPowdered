@@ -1,13 +1,86 @@
 {
   "name": "flametal-ball-items",
-  "description": "D-145 (user 2026-11-21): the Flametal Cannon Ball is 4 Flametal (FlametalNew) at the Black Forge, never stacks, has its own icon; the iron ball and the cartridge carry their new names",
+  "description": "D-145 (user 2026-11-21): the Flametal Cannon Ball is 4 Flametal (FlametalNew) at the Black Forge, never stacks, has its own icon; the iron ball and the cartridge carry their new names; T-017: a dropped ball (iron and flametal) is drawn once, not twice",
   "timeout": 60,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_FlametalCannonBall" }, "expect": "blackforge level 1, makes 1, enabled True: FlametalNew x4", "label": "4 Flametal at the Black Forge" },
-    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_FlametalCannonBall" }, "expect": "stack 1, weight 4, type Material", "label": "it never stacks" },
-    { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_CannonBall" }, "expect": "forge level 2, makes 1, enabled True: Iron x2", "label": "the iron ball's recipe is unchanged" },
-    { "do": "console", "command": "killall" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.recipeOf",
+      "args": {
+        "prefab": "GP_FlametalCannonBall"
+      },
+      "expect": "blackforge level 1, makes 1, enabled True: FlametalNew x4",
+      "label": "4 Flametal at the Black Forge"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.itemOf",
+      "args": {
+        "prefab": "GP_FlametalCannonBall"
+      },
+      "expect": "stack 1, weight 4, type Material",
+      "label": "it never stacks"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.recipeOf",
+      "args": {
+        "prefab": "GP_CannonBall"
+      },
+      "expect": "forge level 2, makes 1, enabled True: Iron x2",
+      "label": "the iron ball's recipe is unchanged"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_CannonBall",
+      "dx": -0.4,
+      "dz": 3,
+      "as": "iron"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_FlametalCannonBall",
+      "dx": 0.4,
+      "dz": 3,
+      "as": "flametal"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.droppedBallModels",
+      "args": {
+        "prefab": "GP_CannonBall"
+      },
+      "expect": "own model shown True, hand copy shown False, drawn 1 time(s)",
+      "label": "T-017: a dropped Iron Cannon Ball is drawn once (not its hand copy too)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.droppedBallModels",
+      "args": {
+        "prefab": "GP_FlametalCannonBall"
+      },
+      "expect": "own model shown True, hand copy shown False, drawn 1 time(s)",
+      "label": "T-017: a dropped Flametal Cannon Ball is drawn once"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }
