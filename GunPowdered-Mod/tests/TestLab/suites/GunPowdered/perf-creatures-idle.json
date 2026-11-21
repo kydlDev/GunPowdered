@@ -1,0 +1,127 @@
+{
+  "name": "perf-creatures-idle",
+  "description": "D-147 (user 2026-11-21 12:25: frame rate jumping, tiny freezes): 12 creatures (Boar / Neck) around the player, 60 s of frame times with the debug log on (the suite sets it). Measures; it does not judge yet.",
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Boar",
+      "dx": -8,
+      "dz": 8,
+      "as": "mob0"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Neck",
+      "dx": -4,
+      "dz": 10,
+      "as": "mob1"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Boar",
+      "dx": 0,
+      "dz": 12,
+      "as": "mob2"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Neck",
+      "dx": 4,
+      "dz": 10,
+      "as": "mob3"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Boar",
+      "dx": 8,
+      "dz": 8,
+      "as": "mob4"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Neck",
+      "dx": -10,
+      "dz": 0,
+      "as": "mob5"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Boar",
+      "dx": 10,
+      "dz": 0,
+      "as": "mob6"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Neck",
+      "dx": -8,
+      "dz": -8,
+      "as": "mob7"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Boar",
+      "dx": 8,
+      "dz": -8,
+      "as": "mob8"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Neck",
+      "dx": 0,
+      "dz": -12,
+      "as": "mob9"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Boar",
+      "dx": -4,
+      "dz": -10,
+      "as": "mob10"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Neck",
+      "dx": 4,
+      "dz": -10,
+      "as": "mob11"
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.frameStatsStart",
+      "expect": "collecting",
+      "label": "measure 60 s of frames with 12 creatures around"
+    },
+    {
+      "do": "wait",
+      "seconds": 60
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.frameStatsStop",
+      "contains": "frames ",
+      "label": "D-147 frame times (logged; the before / after numbers are compared in TESTLOG)"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}
