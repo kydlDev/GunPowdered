@@ -11,10 +11,10 @@
     { "do": "hook", "name": "GunPowdered.apiSetLoaded", "args": { "loaded": 9 }, "expect": "set 5, read 5", "label": "the API keeps the load at most 5" },
     { "do": "hook", "name": "GunPowdered.apiSetLoaded", "args": { "loaded": 2 }, "expect": "set 2, read 2", "label": "the API sets the load" },
     { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": false }, "expect": "fired, 1 left; loaded 1; reloading False", "label": "the shot uses the load the API set (a failing listener does not stop it)" },
-    { "do": "hook", "name": "GunPowdered.apiShots", "expect": "1 shot(s), last left 1", "label": "the event reported the shot" },
+    { "do": "hook", "name": "GunPowdered.apiShots", "expect": "1 shot(s), last left 1, 1 expected listener warning(s)", "label": "the event reported the shot" },
     { "do": "wait", "seconds": 1 },
     { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": false }, "expect": "fired, 0 left; loaded 0; reloading False", "label": "second shot" },
-    { "do": "hook", "name": "GunPowdered.apiShots", "expect": "2 shot(s), last left 0", "label": "and the second" },
+    { "do": "hook", "name": "GunPowdered.apiShots", "expect": "2 shot(s), last left 0, 2 expected listener warning(s)", "label": "and the second" },
     { "do": "clearInventory" },
     { "do": "cleanArena" }
   ],

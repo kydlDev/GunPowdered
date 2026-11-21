@@ -209,6 +209,8 @@ namespace GunPowdered.Testing.TestHooks
 
         static int _apiShots, _apiLastLeft = -1;
         static bool _apiListening;
+        // Open for the whole test session: the failing listener below makes ShotFired warn ON PURPOSE; the warning is written as Info and counted here (T-023).
+        static KydlCore.Common.ExpectedWarning _apiExpectedFailure;
 
         /// <summary>
         /// Listens to the public GunPowderedApi.Musket.ShotFired like another mod would (D-097), plus one listener that always throws (it must not stop
@@ -223,14 +225,16 @@ namespace GunPowdered.Testing.TestHooks
             {
                 GunPowderedApi.Musket.ShotFired += s => { _apiShots++; _apiLastLeft = s.CartridgesLeft; };
                 GunPowderedApi.Musket.ShotFired += s => { throw new System.InvalidOperationException("test listener that fails on purpose"); };
+                _apiExpectedFailure = KydlCore.Common.ModLog.ExpectWarning("a listener failed");
                 _apiListening = true;
             }
+            KydlCore.Common.ModLog.Verbose("GunPowdered.apiShotListen: listening, the failing listener's warning is expected");
             return "listening";
         }
 
         /// <summary>The shots the API listener saw since apiShotListen: "N shot(s), last left L".</summary>
         [TestHook("GunPowdered.apiShots")]
-        static string ApiShots() => _apiShots + " shot(s), last left " + _apiLastLeft;
+        static string ApiShots() => _apiShots + " shot(s), last left " + _apiLastLeft + ", " + (_apiExpectedFailure == null ? 0 : _apiExpectedFailure.Count) + " expected listener warning(s)";
 
         /// <summary>Sets the held musket's load through the public API and reads it back: "set S, read R" (-1 = not a musket).</summary>
         [TestHook("GunPowdered.apiSetLoaded")]
