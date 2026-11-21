@@ -1,0 +1,92 @@
+{
+  "name": "dynamite-place-wall",
+  "description": "D-148 (user 2026-11-21 12:25: placed from the outer side of a half-mined copper deposit, the stick ended on its inner wall): with a stone wall 0.9 m in front, the stick is set down in FRONT of it on the ground the player stands on (never in or behind it); without the wall it goes the usual 1.2 m out, on the ground.",
+  "timeout": 60,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Dynamite",
+      "count": 3,
+      "equip": true
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamitePlaceAt",
+      "args": {
+        "metres": 1.2
+      },
+      "contains": "placed at",
+      "label": "nothing in the way: set down"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.stickFromPlayer",
+      "regex": "ahead 1\\.[0-2]\\d m, up -?0\\.[0-2]\\d m, wall none",
+      "label": "the usual 1.2 m out, on the ground (within 0.3 m of the feet height)"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.wallAhead",
+      "args": {
+        "prefab": "stone_wall_2x1",
+        "metres": 0.9
+      },
+      "contains": "wall at",
+      "label": "a stone wall 0.9 m in front"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamitePlaceAt",
+      "args": {
+        "metres": 1.2
+      },
+      "contains": "placed at",
+      "label": "the attack sets a stick down"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.stickFromPlayer",
+      "regex": "ahead 0\\.[3-6]\\d m, up -?0\\.[0-2]\\d m, wall 0\\.9\\d m ahead",
+      "label": "D-148: in front of the wall (0.3-0.7 m out, not at or past 0.9 m), on the ground"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.wallAheadRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

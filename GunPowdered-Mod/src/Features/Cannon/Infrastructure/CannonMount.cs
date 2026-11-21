@@ -330,6 +330,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             CannonBallFlight flight = shot.GetComponent<CannonBallFlight>();
             if (flight != null) flight.Arm(false, ball);
             bool flies = flight != null && flight.Launch(p, transform, velocity, targetFlat);
+            GunPowdered.Integrations.Valheim.GunNoise.Alert(_muzzle.position, NoiseRules.CannonShotRadius, p, "hand cannon shot");      // D-149: mobs hear it
             if (p != null && ModSettings.CannonRecoil.Value > 0f) p.ApplyPushback(-new Vector3(velocity.x, 0f, velocity.z).normalized, ModSettings.CannonRecoil.Value);
             ModLog.Verbose("CannonMount: fired, ball flies " + flies + ", velocity " + velocity.ToString("0.0") + ", aimed " + Fmt(targetFlat) + " m");
             if (CannonAim.Current == this) CannonAim.End("fired");

@@ -87,6 +87,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         static bool ConfigureKind(ChargeKind kind, GameObject itemPrefab)
         {
             kind.Item = itemPrefab;
+            MakeQuietFuseSound();
             ItemDrop.ItemData.SharedData shared = itemPrefab.GetComponent<ItemDrop>().m_itemData.m_shared;
             shared.m_damages = new HitData.DamageTypes();   // held, it is not a club: the attack button sets it down
             shared.m_attack.m_attackStamina = 0f;
@@ -187,6 +188,21 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             { var returnedAt180 = db.TryGetTerrainOp(hash, out TerrainOp found) && found == op; if (RuleLog.Due("ChargeKind.ListOne:180", 2d)) ModLog.Every("ChargeKind.ListOne:180", 2d, $"ChargeKind.ListOne: returns {RuleLog.Shown(returnedAt180)} (line 180)"); return returnedAt180; }
         }
 
+        /// <summary>D-149: the burning fuse's crackle - the game's sfx_FireAddFuel at <see cref="FuseVolume"/> of its volume (user: "too loud"), its own network prefab.</summary>
+        internal const string QuietFuseSound = "sfx_gp_fuse_quiet";
+        const float FuseVolume = 0.35f;
+
+        static void MakeQuietFuseSound()
+        {
+            if (PrefabManager.Instance.GetPrefab(QuietFuseSound) != null) { ModLog.Verbose("DynamiteSetup.MakeQuietFuseSound: already made - returns"); return; }
+            GameObject clone = PrefabManager.Instance.CreateClonedPrefab(QuietFuseSound, "sfx_FireAddFuel");
+            if (clone == null) { ModLog.Warn("DynamiteSetup: no vanilla sfx_FireAddFuel - the fuse burns silently"); return; }
+            int scaled = 0;
+            foreach (ZSFX z in clone.GetComponentsInChildren<ZSFX>(true)) { z.m_minVol *= FuseVolume; z.m_maxVol *= FuseVolume; scaled++; }
+            PrefabManager.Instance.AddPrefab(new CustomPrefab(clone, true));
+            ModLog.Verbose("DynamiteSetup.MakeQuietFuseSound: " + QuietFuseSound + " at " + FuseVolume + " x the volume (" + scaled + " sound(s)) - returns");
+        }
+
         /// <summary>True when the player holds dynamite.</summary>
         internal static ItemDrop.ItemData Held(Player player) => HeldKind(player, out _);
 
@@ -211,20 +227,49 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             if (held == null) { if (RuleLog.Due("ChargeKind.Place:204", 2d)) ModLog.Every("ChargeKind.Place:204", 2d, "ChargeKind.Place: returns \"no dynamite in hand\" (line 204)"); return "no dynamite in hand"; }
             if (kind.Charge == null) { var returnedAt205 = "no charge prefab for " + kind.Name; if (RuleLog.Due("ChargeKind.Place:205", 2d)) ModLog.Every("ChargeKind.Place:205", 2d, $"ChargeKind.Place: returns {RuleLog.Shown(returnedAt205)} (line 205)"); return returnedAt205; }
             if (Time.time - _lastPlaced < 0.5f) { if (RuleLog.Due("ChargeKind.Place:206", 2d)) ModLog.Every("ChargeKind.Place:206", 2d, "ChargeKind.Place: returns \"too soon\" (line 206)"); return "too soon"; }
-            Vector3 probe = player.transform.position + player.transform.forward * metres + Vector3.up * 2f;
-            RaycastHit hit;
-            int mask = LayerMask.GetMask("Default", "static_solid", "terrain", "piece", "Default_small");
-            if (!Physics.Raycast(probe, Vector3.down, out hit, 6f, mask))
+            if (!FindSpot(player, metres, out Vector3 spot))
             {
                 player.Message(MessageHud.MessageType.Center, DynamiteRules.NoGround);
                 { var returnedAt213 = DynamiteRules.NoGround; if (RuleLog.Due("ChargeKind.Place:213", 2d)) ModLog.Every("ChargeKind.Place:213", 2d, $"ChargeKind.Place: returns {RuleLog.Shown(returnedAt213)} (line 213)"); return returnedAt213; }
             }
-            Object.Instantiate(kind.Charge, hit.point, Quaternion.Euler(0f, player.transform.eulerAngles.y, 0f));
+            player.StartEmote("kneel");                                // D-148: the character bends down to set it on the ground (the game's own kneel, one shot)
+            Object.Instantiate(kind.Charge, spot, Quaternion.Euler(0f, player.transform.eulerAngles.y, 0f));
             if (held.m_stack <= 1) player.UnequipItem(held, false);     // the last one: unequip first like the game's Attack.ConsumeItem, or its model stays in the hand (Agent-10, lab a10packvis1)
             player.GetInventory().RemoveItem(held, 1);
             _lastPlaced = Time.time;
-            ModLog.Info("DynamiteSetup: " + player.GetPlayerName() + " set " + kind.Name + " down at " + hit.point.ToString("0.00"));
-            return "placed at " + hit.point.ToString("0.00");
+            ModLog.Info("DynamiteSetup: " + player.GetPlayerName() + " set " + kind.Name + " down at " + spot.ToString("0.00"));
+            return "placed at " + spot.ToString("0.00");
+        }
+
+        static readonly int PlaceMask = LayerMask.GetMask("Default", "static_solid", "terrain", "piece", "Default_small", "vehicle");
+
+        /// <summary>
+        /// D-148 (user 2026-11-21 12:25: placed from the outer side of a half-mined copper deposit, the stick ended on its inner wall): where a stick goes -
+        /// at chest height towards the wanted spot, stopping in front of anything in the way; then straight down onto the first surface, which must be the
+        /// ground the player stands on (a step up or down at most); the stick's own space must be free, else it comes a little nearer. Expected outcome:
+        /// true with a visible spot on top of the surface, false when there is none.
+        /// </summary>
+        static bool FindSpot(Player player, float metres, out Vector3 spot)
+        {
+            if (RuleLog.IsOn()) ModLog.Verbose($"ChargeKind.FindSpot(player={RuleLog.Shown(player)}, metres={metres})");
+            spot = Vector3.zero;
+            Vector3 feet = player.transform.position;
+            Vector3 fwd = Vector3.ProjectOnPlane(player.transform.forward, Vector3.up).normalized;
+            Vector3 chest = feet + Vector3.up * DynamiteRules.ChestHeight;
+            float blockedAt = Physics.SphereCast(chest, 0.1f, fwd, out RaycastHit block, metres + DynamiteRules.BlockMargin, PlaceMask, QueryTriggerInteraction.Ignore) ? block.distance : -1f;
+            float d = DynamiteRules.ClearDistance(metres, blockedAt);
+            for (int tries = 0; tries < 4; tries++, d = Mathf.Max(DynamiteRules.NearestPlace, d - 0.2f))
+            {
+                Vector3 from = chest + fwd * d;
+                if (!Physics.Raycast(from, Vector3.down, out RaycastHit ground, DynamiteRules.ChestHeight + DynamiteRules.SurfaceBelow + 0.5f, PlaceMask, QueryTriggerInteraction.Ignore)) continue;
+                if (!DynamiteRules.SurfaceOk(feet.y, ground.point.y)) continue;
+                if (Physics.CheckSphere(ground.point + Vector3.up * 0.18f, 0.06f, PlaceMask, QueryTriggerInteraction.Ignore)) continue;   // something sticks into the stick's space
+                spot = ground.point;
+                ModLog.Verbose($"ChargeKind.FindSpot: wanted {metres:0.00} m, blocked at {blockedAt:0.00} m ({(blockedAt >= 0f ? block.collider.name : "nothing")}), set {d:0.00} m ahead on {ground.collider.name} at {spot:0.00}, {ground.point.y - feet.y:+0.00;-0.00} m from the feet - returns true");
+                return true;
+            }
+            ModLog.Verbose($"ChargeKind.FindSpot: no free ground within reach (blocked at {blockedAt:0.00} m) - returns false");
+            return false;
         }
 
         /// <summary>The blast of one stick at <paramref name="at"/> (made by the stick's owner). Expected outcome: the number of objects made (blast + crater).</summary>

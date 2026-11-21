@@ -172,6 +172,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             float range = MobileCannonFireRules.Range(speed, pitch, ModSettings.CannonGravity.Value);
             Vector3 velocity = dir * speed;
             CannonEffects.PlayMuzzle(_muzzle.position, velocity);
+            GunPowdered.Integrations.Valheim.GunNoise.Alert(_muzzle.position, NoiseRules.MobileCannonShotRadius, p, "mobile cannon shot");      // D-149
             GameObject shot = Instantiate(prefab, _muzzle.position + dir * 0.1f, Quaternion.LookRotation(velocity));
             CannonBallFlight flight = shot.GetComponent<CannonBallFlight>();
             if (flight != null) flight.Arm(true, ball);

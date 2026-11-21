@@ -105,6 +105,8 @@
   },
   "resetBetweenTests": true,
   "tests": [
+    "dynamite-alerts-mobs",
+    "dynamite-place-wall",
     "items-drawn-once",
     "perf-creatures-idle",
     "startup-clean",

@@ -15,7 +15,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         internal const string LitKey = "gp_dyn_lit", LighterKey = "gp_dyn_lighter";
         const string LightRpc = "GP_DynamiteLight";
         const float SparkEvery = 0.35f;
-        static readonly string[] SparkEffects = { "vfx_torch_hit", "sfx_FireAddFuel" };
+        static readonly string[] SparkEffects = { "vfx_torch_hit", DynamiteSetup.QuietFuseSound };
 
         /// <summary>The charge prefab this one was made from (DynamiteSetup.ChargeKind): the stick or the Deep North Dynamite Pack. Serialized, so clones keep it.</summary>
         public string m_kindId = DynamiteSetup.StickId;
@@ -85,6 +85,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             ZDO zdo = _nview.GetZDO();
             zdo.Set(LitKey, (long)(Now() * 1000d));
             zdo.Set(LighterKey, playerId);
+            GunPowdered.Integrations.Valheim.GunNoise.Alert(transform.position, NoiseRules.FuseRadius, Player.GetPlayer(playerId), "dynamite fuse lit");      // D-149: a little, like a pickaxe hit
         }
 
         void Update()
@@ -132,6 +133,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             Vector3 at = transform.position + Vector3.up * 0.15f;
             Player lighter = Player.GetPlayer(_nview.GetZDO().GetLong(LighterKey, 0L));
             int made = DynamiteSetup.Blast(Kind, at, lighter);
+            GunPowdered.Integrations.Valheim.GunNoise.Alert(at, Kind == DynamiteSetup.PackKind ? NoiseRules.PackBlastRadius : NoiseRules.StickBlastRadius, lighter, Kind.Name + " blast");      // D-149: many mobs come
             Blasts++;
             LastBlast = at;
             ModLog.Info("DynamiteCharge: " + Kind.Name + " blast at " + at.ToString("0.0") + " (radius " + Kind.Radius().ToString("0.#") + " m)" + ", " + made + " object(s) made, lit by " + (lighter != null ? lighter.GetPlayerName() : "nobody known"));
@@ -144,12 +146,20 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             if (RuleLog.Due("DynamiteCharge.Sparks", 2d)) ModLog.Every("DynamiteCharge.Sparks", 2d, $"DynamiteCharge.Sparks()");
             if (ZNetScene.instance == null) { if (RuleLog.Due("DynamiteCharge.Sparks:145", 2d)) ModLog.Every("DynamiteCharge.Sparks:145", 2d, "DynamiteCharge.Sparks: returns (line 145)"); return; }
             Vector3 top = transform.position + Vector3.up * 0.35f;
+            _sparks++;
             foreach (string n in SparkEffects)
             {
                 GameObject fx = ZNetScene.instance.GetPrefab(n);
-                if (fx != null) Instantiate(fx, top, Quaternion.LookRotation(Vector3.up));
+                if (fx == null) continue;
+                bool sound = fx.GetComponentInChildren<ZSFX>(true) != null;
+                if (sound && _sparks % FuseSoundEvery != 0) continue;
+                Instantiate(fx, top, Quaternion.LookRotation(Vector3.up));
             }
         }
+
+        // D-149 (user 2026-11-21: "dynamite burning sound is loud, too loud"): the crackle (DynamiteSetup.QuietFuseSound, quieter) on every third spark
+        int _sparks;
+        const int FuseSoundEvery = 3;
 
         // a Torch type item equipped in either hand (the hand cannon's rule, CannonInventory.HoldsTorch)
         internal static bool TorchInHand(Humanoid user)

@@ -109,6 +109,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             Vector3 dir = Spread(aim, MusketRules.BulletSpreadDegrees);
 
             GameObject bullet = Object.Instantiate(prefab, muzzle, Quaternion.LookRotation(dir));
+            GunPowdered.Integrations.Valheim.GunNoise.Alert(muzzle, NoiseRules.MusketShotRadius, player, "musket shot");      // D-149: mobs hear it
             var flight = bullet.GetComponent<Projectile>();
             var hit = new HitData();
             hit.m_damage.m_pierce = MusketRules.BulletPierce;
