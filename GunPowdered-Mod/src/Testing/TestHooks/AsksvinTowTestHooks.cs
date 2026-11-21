@@ -22,7 +22,7 @@ namespace GunPowdered.Testing.TestHooks
 
         /// <summary>A second camera drawn over the game camera, looking at the Asksvin's saddle (shared name with the musket's free camera, so freeCamOff removes it). Returns its position.</summary>
         [TestHook("GunPowdered.freeCamOnAsksvin")]
-        static string FreeCamOnAsksvin(double azimuth, double elevation, double metres)
+        internal static string FreeCamOnAsksvin(double azimuth, double elevation, double metres)
         {
             Camera main = Camera.main;
             if (_animal == null || main == null) return "no Asksvin or main camera";
@@ -43,35 +43,6 @@ namespace GunPowdered.Testing.TestHooks
             go.transform.position = centre + offset * (float)metres;
             go.transform.LookAt(centre);
             return "free camera at " + go.transform.position.ToString("0.0");
-        }
-
-        /// <summary>
-        /// D-143: the free camera close beside the hitch (the cannon's tow ring, where the harness chain ends), <paramref name="metres"/> m out to the
-        /// Asksvin's side at <paramref name="azimuth"/> degrees, level with the ring: the picture shows whether the cart tip and the harness end meet on a
-        /// slope. Returns "free camera on the hitch at ..." or why not.
-        /// </summary>
-        [TestHook("GunPowdered.freeCamOnHitch")]
-        static string FreeCamOnHitch(double azimuth, double metres)
-        {
-            ModLog.Verbose($"AsksvinTowTestHooks.FreeCamOnHitch(azimuth={azimuth}, metres={metres})");
-            GameObject cannon = MobileCannonTestHooks.Cannon;
-            MobileCannonTow tow = cannon != null ? cannon.GetComponent<MobileCannonTow>() : null;
-            if (_animal == null || tow == null || tow.Ring == null) { ModLog.Verbose("AsksvinTowTestHooks.FreeCamOnHitch: no Asksvin, cannon or ring - returns why"); return "no Asksvin, cannon or ring"; }
-            string placed = FreeCamOnAsksvin(azimuth, 0, metres);
-            GameObject go = GameObject.Find("gp_freecam");
-            if (go == null) { ModLog.Verbose("AsksvinTowTestHooks.FreeCamOnHitch: " + placed); return placed; }
-            Vector3 centre = tow.Ring.position;
-            Vector3 dir = Quaternion.AngleAxis((float)azimuth, Vector3.up) * Vector3.ProjectOnPlane(_animal.transform.forward, Vector3.up).normalized;
-            HitchCamFollow follow = go.GetComponent<HitchCamFollow>();
-            if (follow == null) follow = go.AddComponent<HitchCamFollow>();
-            follow.enabled = true;
-            follow.Ring = tow.Ring;
-            follow.Offset = dir * (float)metres + Vector3.up * 0.3f;          // follows the ring every frame: the hitch moves on before the picture is taken
-            go.transform.position = centre + follow.Offset;
-            go.transform.LookAt(centre);
-            string s = "free camera on the hitch at " + go.transform.position.ToString("0.0") + ", ring " + centre.ToString("0.00");
-            ModLog.Verbose("AsksvinTowTestHooks.FreeCamOnHitch: returns " + s);
-            return s;
         }
 
         /// <summary>Where the saddle really sits on the Asksvin, in the Asksvin's own space (x right, y up, z forward): centre, size and the pitch of its up axis, for every renderer of the saddle. T-009i fit check.</summary>
@@ -204,23 +175,6 @@ namespace GunPowdered.Testing.TestHooks
             string s = "towed " + tow.Towed + ", joint " + tow.Jointed + ", model " + (h != null && h.ModelShown) + ", moved " + moved.ToString("0.0") + " m, max speed "
                 + tow.MaxSpeedSeen.ToString("0.0") + " m/s (asksvin " + tow.AnimalMaxSpeed.ToString("0.0") + "), gap " + (h != null && tow.Ring != null ? Vector3.Distance(tow.Ring.position, h.transform.TransformPoint(tow.HookNow)).ToString("0.00") : "?") + " m, upright " + (cannon.transform.up.y > 0.7f) + ", tilt max roll " + tow.MaxRollSeen.ToString("0") + " pitch " + tow.MaxPitchSeen.ToString("0") + " spin " + tow.MaxSpinSeen.ToString("0.0") + ", holds " + tow.Holds + ", flips " + tow.Flips + ", cannon at " + cannon.transform.position.ToString("0.0") + (_animal != null ? ", asksvin at " + _animal.transform.position.ToString("0.0") : "") + (Player.m_localPlayer != null ? ", player at " + Player.m_localPlayer.transform.position.ToString("0.0") : "");
             ModLog.Info("AsksvinTowTestHooks: " + s + "; " + tow.ClevisReport(_animal != null ? _animal.transform : null));
-            return s;
-        }
-
-        /// <summary>
-        /// D-143: how high the cannon's tow ring (the cart's trail tip) is above the terrain under it, and the hook's drop. Going uphill the hook used to hang
-        /// about 2 m above the ground and lifted the trail tip with it. Returns "ring above ground H m, hook drop D m, low True/False" (low: H &lt;= <paramref name="max"/>).
-        /// </summary>
-        [TestHook("GunPowdered.towRingAboveGround")]
-        static string RingAboveGround(double max)
-        {
-            ModLog.Verbose($"AsksvinTowTestHooks.RingAboveGround(max={max})");
-            GameObject cannon = MobileCannonTestHooks.Cannon;
-            MobileCannonTow tow = cannon != null ? cannon.GetComponent<MobileCannonTow>() : null;
-            if (tow == null || tow.Ring == null || ZoneSystem.instance == null) { ModLog.Verbose("AsksvinTowTestHooks.RingAboveGround: no cannon or ring - returns why"); return "no cannon or ring"; }
-            float above = tow.Ring.position.y - ZoneSystem.instance.GetGroundHeight(tow.Ring.position);
-            string s = $"ring above ground {above:0.00} m, hook drop {AsksvinHarness.HookLocal.y - tow.HookNow.y:0.00} m, low {above <= max}";
-            ModLog.Info("AsksvinTowTestHooks.RingAboveGround: returns " + s);
             return s;
         }
 
