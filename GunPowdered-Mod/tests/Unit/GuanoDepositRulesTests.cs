@@ -23,16 +23,34 @@ namespace GunPowdered.Tests.Unit
             Assert.That(GuanoDepositRules.DepositCount(CaveKind.TrollCaveOrBurialChamber, Fixed(draw)), Is.EqualTo(expected));
         }
 
-        [TestCase(0.00, 1)]
-        [TestCase(0.049, 1)]
-        [TestCase(0.05, 2)]
-        [TestCase(0.099, 2)]
-        [TestCase(0.10, 3)]
-        [TestCase(0.1499999, 3)]
-        [TestCase(0.1500001, 0)]
-        public void MountainCave_DepositCount_IsFifteenPercentSplitEvenly(double draw, int expected)
+        // D-151 (user 2026-11-21 12:25): always 6, then 40 % nothing more, 30 % +1, 15 % +2, 10 % +3, 5 % +4
+        [TestCase(0.00, 6)]
+        [TestCase(0.3999, 6)]
+        [TestCase(0.40, 7)]
+        [TestCase(0.6999, 7)]
+        [TestCase(0.70, 8)]
+        [TestCase(0.8499, 8)]
+        [TestCase(0.85, 9)]
+        [TestCase(0.9499, 9)]
+        [TestCase(0.95, 10)]
+        [TestCase(0.9999999999, 10)]
+        public void MountainCave_DepositCount_IsSixToTen(double draw, int expected)
         {
             Assert.That(GuanoDepositRules.DepositCount(CaveKind.MountainCave, Fixed(draw)), Is.EqualTo(expected));
+        }
+
+        [TestCase(6, 0.40)]
+        [TestCase(7, 0.30)]
+        [TestCase(8, 0.15)]
+        [TestCase(9, 0.10)]
+        [TestCase(10, 0.05)]
+        public void MountainCave_DepositCount_OverManyDraws_HitsEachShare(int count, double share)
+        {
+            var random = new Random(4242);
+            const int Draws = 200000;
+            int hits = 0;
+            for (int i = 0; i < Draws; i++) if (GuanoDepositRules.DepositCount(CaveKind.MountainCave, random.NextDouble) == count) hits++;
+            Assert.That((double)hits / Draws, Is.EqualTo(share).Within(0.005));
         }
 
         [TestCase(0.00, 1)]
@@ -62,7 +80,7 @@ namespace GunPowdered.Tests.Unit
         public void MaxDeposits_AndMaxGatherables_MatchTheDescription()
         {
             Assert.That(GuanoDepositRules.MaxDeposits(CaveKind.TrollCaveOrBurialChamber), Is.EqualTo(2));
-            Assert.That(GuanoDepositRules.MaxDeposits(CaveKind.MountainCave), Is.EqualTo(3));
+            Assert.That(GuanoDepositRules.MaxDeposits(CaveKind.MountainCave), Is.EqualTo(10));
             Assert.That(GuanoDepositRules.MaxDeposits(CaveKind.SwampBatArea), Is.EqualTo(3));
             Assert.That(GuanoDepositRules.MaxGatherables(CaveKind.MountainCave), Is.EqualTo(4));
             Assert.That(GuanoDepositRules.MaxGatherables(CaveKind.TrollCaveOrBurialChamber), Is.EqualTo(2));
@@ -72,7 +90,7 @@ namespace GunPowdered.Tests.Unit
         public void Plan_NoDeposit_IsEmptyAndDrawsOnlyOnce()
         {
             int draws = 0;
-            int[] plan = GuanoDepositRules.Plan(CaveKind.MountainCave, () => { draws++; return 0.9; });
+            int[] plan = GuanoDepositRules.Plan(CaveKind.SwampBatArea, () => { draws++; return 0.9; });
             Assert.That(plan, Is.Empty);
             Assert.That(draws, Is.EqualTo(1));
         }
@@ -103,7 +121,7 @@ namespace GunPowdered.Tests.Unit
         }
 
         [TestCase(CaveKind.TrollCaveOrBurialChamber, 0.15)]
-        [TestCase(CaveKind.MountainCave, 0.15)]
+        [TestCase(CaveKind.MountainCave, 1.0)]       // D-151: every mountain cave
         [TestCase(CaveKind.SwampBatArea, 0.10)]
         public void DepositCount_OverManyDraws_HitsTheStatedShareOfCaves(CaveKind kind, double expectedShare)
         {

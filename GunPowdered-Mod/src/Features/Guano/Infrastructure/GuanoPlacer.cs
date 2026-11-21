@@ -26,9 +26,13 @@ namespace GunPowdered.Features.Guano.Infrastructure
             planned = plan.Length;
             if (plan.Length == 0 || spots.Count == 0) { if (RuleLog.Due("GuanoPlacer.Place:27", 2d)) ModLog.Every("GuanoPlacer.Place:27", 2d, "GuanoPlacer.Place: returns 0 (line 27)"); return 0; }
 
-            // every spot in a random order: a spot without a floor under it (a wall piece, a gap) is skipped and the next one is tried (seen in game: 2 of 3 missed)
+            // every spot, dealt evenly over the cave's floors (D-151: lowest floor first, one per floor per round, random within a floor); a spot without a
+            // floor under it (a wall piece, a gap) is skipped and the next one is tried (seen in game: 2 of 3 missed)
             int placed = 0, noFloor = 0;
-            List<Vector3> order = DepositSpawner.Pick(spots, spots.Count, rng);
+            var heights = new List<double>(spots.Count);
+            foreach (Vector3 p in spots) heights.Add(p.y);
+            var order = new List<Vector3>(spots.Count);
+            foreach (int i in GuanoSpreadRules.FloorOrder(heights, () => rng.NextDouble())) order.Add(spots[i]);
             for (int s = 0; s < order.Count && placed < plan.Length; s++)
             {
                 Vector3 floor;
