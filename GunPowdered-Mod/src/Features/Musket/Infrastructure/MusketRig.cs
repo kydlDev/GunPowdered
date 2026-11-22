@@ -148,12 +148,24 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// <summary>Test switch (hook GunPowdered.musketTestSpeed): a ground speed (m/s) used instead of the player's real one; below 0 = off.</summary>
         internal static float TestSpeed = -1f;
 
-        bool Running()
+        float _runningFor;
+        bool _itemWasHeld;
+
+        // fast right now (one frame) - Running() adds the time it has lasted
+        bool FastNow()
         {
             Vector3 v = _character.GetVelocity();
             float speed = TestSpeed >= 0f && _character == Player.m_localPlayer ? TestSpeed : new Vector3(v.x, 0f, v.z).magnitude;
-            bool running = speed > MusketPoseRules.CarrySpeed;
-            if (RuleLog.Due("MusketRig.Running", 2d)) ModLog.Every("MusketRig.Running", 2d, "MusketRig.Running: returns " + running);
+            bool fast = speed > MusketPoseRules.CarrySpeed;
+            if (RuleLog.Due("MusketRig.FastNow", 2d)) ModLog.Every("MusketRig.FastNow", 2d, "MusketRig.FastNow: returns " + fast);
+            return fast;
+        }
+
+        // running = fast for at least MusketPoseRules.LowerAfterSeconds (lab a17full1: a speed spike at a test's start lowered a fresh musket)
+        bool Running()
+        {
+            bool running = MusketPoseRules.RunsLongEnough(_runningFor);
+            if (RuleLog.Due("MusketRig.Running", 2d)) ModLog.Every("MusketRig.Running", 2d, "MusketRig.Running: returns " + running + " (fast for " + _runningFor.ToString("0.00") + " s)");
             return running;
         }
 
@@ -162,6 +174,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         {
             if (IsOwnRig)
             {
+                _runningFor = FastNow() ? _runningFor + Time.deltaTime : 0f;
                 bool next = MusketPoseRules.NextRaised(_raised, Running(), false);
                 if (next != _raised) { _raised = next; ShareRaised(); }
                 if (RuleLog.Due("MusketRig.UpdateRaised:own", 2d)) ModLog.Every("MusketRig.UpdateRaised:own", 2d, "MusketRig.UpdateRaised: own rig, raised " + _raised);
@@ -232,6 +245,19 @@ namespace GunPowdered.Features.Musket.Infrastructure
             }
             bool holding = _character != null && _vis != null && _vis.m_rightHand != null && FindModel();
             if (holding != _wasHolding) ModLog.Verbose($"MusketRig: {_character?.name} {(holding ? "holds" : "no longer holds")} the musket");
+            // the equipped musket ITEM (not its model: the game rebuilds the model when a torch or shield is equipped next to it)
+            bool itemHeld = IsOwnRig && _character is Player owner && MusketGun.Held(owner) != null;
+            bool takenUp = itemHeld && !_itemWasHeld;
+            _itemWasHeld = itemHeld;
+            if (takenUp && !_raised)
+            {
+                // a musket taken in hand starts raised, also when it was put away while it hung at the side (lab a17full1: the next test found it lowered)
+                _raised = true;
+                _carry = 0f;
+                _runningFor = 0f;
+                ShareRaised();
+                ModLog.Info("MusketRig: " + _character.name + " took the musket in hand - raised");
+            }
             _wasHolding = holding;
             if (!holding || !EnsureHandler())
             {

@@ -82,6 +82,30 @@ namespace GunPowdered.Testing.TestHooks
             return why ?? "lit";
         }
 
+        /// <summary>D-158: the light red sparkle of the stick the test set down: "sparkle shown|hidden, playing P, colour RGBA" or "no stick".</summary>
+        [TestHook("GunPowdered.dynamiteSparkle")]
+        static string Sparkle()
+        {
+            ModLog.Verbose("DynamiteTestHooks.Sparkle()");
+            DynamiteCharge c = _placed.HasValue ? Nearest(_placed.Value) : null;
+            string s = c == null ? "no stick" : c.SparkleReport();
+            ModLog.Info("DynamiteTestHooks.Sparkle: returns " + s);
+            return s;
+        }
+
+        /// <summary>D-158: the emote the local player is in (the game's synced emote): "emote NAME" or "emote none".</summary>
+        [TestHook("GunPowdered.playerEmote")]
+        static string Emote()
+        {
+            ModLog.Verbose("DynamiteTestHooks.Emote()");
+            Player p = Player.m_localPlayer;
+            ZNetView nv = p != null ? p.GetComponent<ZNetView>() : null;
+            string e = nv != null && nv.IsValid() ? nv.GetZDO().GetString(ZDOVars.s_emote) : "";
+            string s = "emote " + (string.IsNullOrEmpty(e) ? "none" : e);
+            ModLog.Info("DynamiteTestHooks.Emote: returns " + s);
+            return s;
+        }
+
         /// <summary>Sticks of dynamite within 20 m of where the test set one down.</summary>
         [TestHook("GunPowdered.dynamiteSticks")]
         static int Sticks()

@@ -11,6 +11,9 @@ namespace GunPowdered.Features.Dynamite.Domain
         /// <summary>Seconds from lighting to the blast.</summary>
         internal const float FuseSeconds = 4f;
 
+        /// <summary>D-158 (user 2026-11-23: "once the character has placed the dynamite, have it get back up and not remain kneeled"): how long the kneel lasts before the character stands up again.</summary>
+        internal const float KneelSeconds = 1.0f;
+
         /// <summary>The share of the building damage a creature takes (user: 20 %).</summary>
         internal const float CreatureShare = 0.2f;
 

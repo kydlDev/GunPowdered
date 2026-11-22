@@ -22,6 +22,30 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 
         ZNetView _nview;
         float _nextSpark, _nextTimer;
+
+        // D-158: the light red sparkle of a placed, unlit stick (DynamiteSetup.AddSparkle) - every client hides it once the fuse burns
+        Transform _sparkle;
+        bool _sparkleChecked;
+
+        void UpdateSparkle()
+        {
+            if (!_sparkleChecked) { _sparkle = transform.Find(DynamiteSetup.SparkleName); _sparkleChecked = true; }
+            if (_sparkle == null) { if (RuleLog.Due("DynamiteCharge.UpdateSparkle:none", 2d)) ModLog.Every("DynamiteCharge.UpdateSparkle:none", 2d, "DynamiteCharge.UpdateSparkle: no sparkle - returns"); return; }
+            bool show = !IsLit;
+            if (_sparkle.gameObject.activeSelf == show) { if (RuleLog.Due("DynamiteCharge.UpdateSparkle:same", 2d)) ModLog.Every("DynamiteCharge.UpdateSparkle:same", 2d, "DynamiteCharge.UpdateSparkle: unchanged - returns"); return; }
+            _sparkle.gameObject.SetActive(show);
+            ModLog.Verbose("DynamiteCharge: sparkle " + (show ? "shown" : "hidden (fuse lit)") + " at " + transform.position.ToString("0.0"));
+        }
+
+        /// <summary>D-158 test hooks: whether the light red sparkle shows now, and its colour.</summary>
+        internal string SparkleReport()
+        {
+            Transform s = transform.Find(DynamiteSetup.SparkleName);
+            ParticleSystem ps = s != null ? s.GetComponent<ParticleSystem>() : null;
+            string r = ps == null ? "sparkle none" : "sparkle " + (s.gameObject.activeInHierarchy ? "shown" : "hidden") + ", playing " + ps.isPlaying + ", colour " + ps.main.startColor.color.ToString("0.00");
+            ModLog.Verbose("DynamiteCharge.SparkleReport: returns " + r);
+            return r;
+        }
         bool _blown;
 
         DynamiteSetup.ChargeKind Kind => DynamiteSetup.KindOfCharge(m_kindId);
@@ -92,6 +116,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         {
             if (_blown || _nview == null || !_nview.IsValid()) { if (RuleLog.Due("DynamiteCharge.Update:92", 2d)) ModLog.Every("DynamiteCharge.Update:92", 2d, "DynamiteCharge.Update: returns (line 92)"); return; }
             Countdown();
+            UpdateSparkle();
             if (!_nview.IsOwner()) { if (RuleLog.Due("DynamiteCharge.Update:94", 2d)) ModLog.Every("DynamiteCharge.Update:94", 2d, "DynamiteCharge.Update: returns (line 94)"); return; }
             double lit = LitAt;
             if (lit < 0d) { if (RuleLog.Due("DynamiteCharge.Update:96", 2d)) ModLog.Every("DynamiteCharge.Update:96", 2d, "DynamiteCharge.Update: returns (line 96)"); return; }

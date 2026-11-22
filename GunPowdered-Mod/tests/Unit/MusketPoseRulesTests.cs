@@ -144,6 +144,15 @@ namespace GunPowdered.Tests.Unit
             Assert.That(MusketPoseRules.ReadyToFire(raised, carry), Is.EqualTo(expected));
         }
 
+        [TestCase(0f, false)]
+        [TestCase(0.05f, false)]
+        [TestCase(0.2f, true)]
+        [TestCase(3f, true)]
+        public void RunsLongEnough_ASpeedSpikeDoesNotLower(float seconds, bool expected)
+        {
+            Assert.That(MusketPoseRules.RunsLongEnough(seconds), Is.EqualTo(expected));
+        }
+
         [TestCase(false, false, false)]
         [TestCase(true, false, true)]
         [TestCase(false, true, true)]

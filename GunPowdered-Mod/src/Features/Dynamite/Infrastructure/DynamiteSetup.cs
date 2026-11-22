@@ -1,3 +1,4 @@
+using System.Linq;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using KydlCore.Common;
@@ -232,13 +233,30 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
                 player.Message(MessageHud.MessageType.Center, DynamiteRules.NoGround);
                 { var returnedAt213 = DynamiteRules.NoGround; if (RuleLog.Due("ChargeKind.Place:213", 2d)) ModLog.Every("ChargeKind.Place:213", 2d, $"ChargeKind.Place: returns {RuleLog.Shown(returnedAt213)} (line 213)"); return returnedAt213; }
             }
-            player.StartEmote("kneel");                                // D-148: the character bends down to set it on the ground (the game's own kneel, one shot)
+            player.StartEmote("kneel");                                // D-148: the character bends down to set it on the ground (the game's own kneel)
+            player.StartCoroutine(StandUp(player));                    // D-158: the game's kneel stays until the player moves; stand up again after it
             Object.Instantiate(kind.Charge, spot, Quaternion.Euler(0f, player.transform.eulerAngles.y, 0f));
             if (held.m_stack <= 1) player.UnequipItem(held, false);     // the last one: unequip first like the game's Attack.ConsumeItem, or its model stays in the hand (Agent-10, lab a10packvis1)
             player.GetInventory().RemoveItem(held, 1);
             _lastPlaced = Time.time;
             ModLog.Info("DynamiteSetup: " + player.GetPlayerName() + " set " + kind.Name + " down at " + spot.ToString("0.00"));
             return "placed at " + spot.ToString("0.00");
+        }
+
+        static readonly System.Action<Player> StopEmote = HarmonyLib.AccessTools.MethodDelegate<System.Action<Player>>(HarmonyLib.AccessTools.Method(typeof(Player), "StopEmote"));
+
+        /// <summary>
+        /// D-158 (user 2026-11-23: "have it get back up and not remain kneeled"): after <see cref="DynamiteRules.KneelSeconds"/> the kneel is stopped, if the
+        /// player is still in it (moving already ended it). The game syncs the emote to every client.
+        /// </summary>
+        static System.Collections.IEnumerator StandUp(Player player)
+        {
+            ModLog.Verbose("DynamiteSetup.StandUp: in " + DynamiteRules.KneelSeconds + " s");
+            yield return new WaitForSeconds(DynamiteRules.KneelSeconds);
+            ZNetView nview = player != null ? player.GetComponent<ZNetView>() : null;
+            if (nview == null || !nview.IsValid() || nview.GetZDO().GetString(ZDOVars.s_emote) != "kneel") { ModLog.Verbose("DynamiteSetup.StandUp: no longer kneeling - nothing to do"); yield break; }
+            StopEmote(player);
+            ModLog.Info("DynamiteSetup: " + player.GetPlayerName() + " stands up after setting the dynamite down");
         }
 
         static readonly int PlaceMask = LayerMask.GetMask("Default", "static_solid", "terrain", "piece", "Default_small", "vehicle");
@@ -322,6 +340,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
                     if (!any) { b = rb; any = true; } else b.Encapsulate(rb);
                 }
             }
+            AddSparkle(stick, b);
             var box = stick.AddComponent<BoxCollider>();      // for the hover and the use key
             box.center = b.center;
             box.size = Vector3.Max(b.size, new Vector3(0.12f, 0.12f, 0.12f));
@@ -330,6 +349,40 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             stick.AddComponent<DynamiteCharge>().m_kindId = kind.ChargeId;
             PrefabManager.Instance.AddPrefab(new CustomPrefab(stick, true));
             { var returnedAt280 = stick; if (RuleLog.IsOn()) ModLog.Verbose($"ChargeKind.MakeCharge: returns {RuleLog.Shown(returnedAt280)} (line 280)"); return returnedAt280; }
+        }
+
+        /// <summary>D-158: the child that holds the placed stick's sparkle (DynamiteCharge hides it once the fuse burns).</summary>
+        internal const string SparkleName = "gp_sparkle";
+
+        /// <summary>D-158: the sparkle's colour, light red (user 2026-11-23: "if you can you could change its color to a light red").</summary>
+        internal static readonly Color SparkleColor = new Color(1f, 0.4f, 0.4f, 1f);
+
+        /// <summary>
+        /// D-158 (user 2026-11-23: "add the sparkling effect, that dropped items have, to the placed dynamite ... so the player can better identify where the
+        /// dynamite has been placed"): the game's dropped-item sparkle is a particle system on every item prefab's root (Wood.prefab, Coins.prefab ...). A copy
+        /// of the Wood one, without anything else of the item, goes on the placed stick, light red. Expected outcome: true when the sparkle was added.
+        /// </summary>
+        static bool AddSparkle(GameObject stick, Bounds bounds)
+        {
+            GameObject wood = PrefabManager.Cache.GetPrefab<GameObject>("Wood");
+            if (wood == null || wood.GetComponent<ParticleSystem>() == null) { ModLog.Warn("DynamiteSetup: no Wood item sparkle found - the placed dynamite shows none"); return false; }
+            // the charge prefab lies under Jotunn's inactive prefab root, so the copy's game scripts (ItemDrop, ZNetView ...) never wake up before they go
+            GameObject sparkle = Object.Instantiate(wood, stick.transform);
+            sparkle.name = SparkleName;
+            foreach (Transform child in sparkle.transform.Cast<Transform>().ToList()) Object.DestroyImmediate(child.gameObject);
+            Component[] parts = sparkle.GetComponents<Component>();
+            // scripts first (they need the rest), then physics, then everything but the transform and the particles
+            foreach (Component c in parts) if (c is MonoBehaviour) Object.DestroyImmediate(c);
+            foreach (Component c in sparkle.GetComponents<Component>()) if (c is Collider || c is Rigidbody) Object.DestroyImmediate(c);
+            foreach (Component c in sparkle.GetComponents<Component>()) if (!(c is Transform) && !(c is ParticleSystem) && !(c is ParticleSystemRenderer)) Object.DestroyImmediate(c);
+            sparkle.transform.localPosition = bounds.center;
+            sparkle.transform.localRotation = Quaternion.identity;
+            sparkle.transform.localScale = Vector3.one;
+            ParticleSystem ps = sparkle.GetComponent<ParticleSystem>();
+            var main = ps.main;
+            main.startColor = SparkleColor;
+            ModLog.Info("DynamiteSetup: light red sparkle added to " + stick.name + " (copied from the Wood item, " + sparkle.GetComponents<Component>().Length + " components)");
+            return true;
         }
 
         static GameObject MakeExplosion(ChargeKind kind)

@@ -87,6 +87,17 @@ namespace GunPowdered.Features.Musket.Domain
             { var returnedAt61 = (float)Math.Sin(Math.PI * u); if (RuleLog.Due("MusketPoseRules.Stroke:61", 2d)) RuleLog.Every("MusketPoseRules.Stroke:61", 2d, $"MusketPoseRules.Stroke: returns {RuleLog.Shown(returnedAt61)} (line 61)"); return returnedAt61; }
         }
 
+        /// <summary>D-155: running must last this long before the musket goes to the side, so a short speed spike (a teleport, a knock back) does not lower it.</summary>
+        internal const float LowerAfterSeconds = 0.2f;
+
+        /// <summary>D-155: whether the player has run long enough to lower the musket (<paramref name="runningSeconds"/>: how long the speed has stayed above <see cref="CarrySpeed"/>).</summary>
+        internal static bool RunsLongEnough(float runningSeconds)
+        {
+            bool ok = runningSeconds >= LowerAfterSeconds;
+            if (RuleLog.Due("MusketPoseRules.RunsLongEnough", 2d)) RuleLog.Every("MusketPoseRules.RunsLongEnough", 2d, $"MusketPoseRules.RunsLongEnough(runningSeconds={runningSeconds}): returns {ok}");
+            return ok;
+        }
+
         /// <summary>D-155: how long the aim click takes to bring the musket from the side up to the shoulder (the raise animation).</summary>
         internal const float RaiseSeconds = 0.4f;
 
