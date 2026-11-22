@@ -58,7 +58,7 @@ namespace GunPowdered.Features.Musket.Domain
             if (RuleLog.Due("MusketPoseRules.Evaluate", 2d)) RuleLog.Every("MusketPoseRules.Evaluate", 2d, $"MusketPoseRules.Evaluate(action={RuleLog.Shown(action)}, seconds={RuleLog.Shown(seconds)}, carry={RuleLog.Shown(carry)}, into={RuleLog.Shown(into)})");
             if (into == null || into.Length < MusketPoses.Count) { if (RuleLog.Due("MusketPoseRules.Evaluate:33", 2d)) RuleLog.Every("MusketPoseRules.Evaluate:33", 2d, "MusketPoseRules.Evaluate: returns false (line 33)"); return false; }
             float t = seconds > 0f ? seconds : 0f;
-            Blend(MusketPoses.Hold, MusketPoses.Carry, Clamp01(carry), into);
+            Blend(MusketPoses.Hold, MusketPoses.Side, Clamp01(carry), into);
             switch (action)
             {
                 case MusketAction.Fire:
@@ -87,12 +87,63 @@ namespace GunPowdered.Features.Musket.Domain
             { var returnedAt61 = (float)Math.Sin(Math.PI * u); if (RuleLog.Due("MusketPoseRules.Stroke:61", 2d)) RuleLog.Every("MusketPoseRules.Stroke:61", 2d, $"MusketPoseRules.Stroke: returns {RuleLog.Shown(returnedAt61)} (line 61)"); return returnedAt61; }
         }
 
-        /// <summary>How far the carry is after one frame: it follows the running speed at one full change per <see cref="BlendSeconds"/>.</summary>
-        internal static float NextCarry(float carry, float speed, float deltaSeconds)
+        /// <summary>D-155: how long the aim click takes to bring the musket from the side up to the shoulder (the raise animation).</summary>
+        internal const float RaiseSeconds = 0.4f;
+
+        /// <summary>D-155: the musket counts as up and ready to fire once the carry is this low.</summary>
+        internal const float ReadyCarry = 0.02f;
+
+        /// <summary>
+        /// D-155: whether the musket is raised (aimed) after this frame. Running lowers it to the side; the aim click raises it again (not while running); it
+        /// stays where it is otherwise ("stays aimed until the player runs again"). Expected outcome: the new raised state.
+        /// </summary>
+        internal static bool NextRaised(bool raised, bool running, bool aimClicked)
         {
-            if (RuleLog.Due("MusketPoseRules.NextCarry", 2d)) RuleLog.Every("MusketPoseRules.NextCarry", 2d, $"MusketPoseRules.NextCarry(carry={RuleLog.Shown(carry)}, speed={RuleLog.Shown(speed)}, deltaSeconds={RuleLog.Shown(deltaSeconds)})");
-            float target = speed > CarrySpeed ? 1f : 0f;
-            float step = deltaSeconds > 0f ? deltaSeconds / BlendSeconds : 0f;
+            bool next = running ? false : (aimClicked || raised);
+            if (next != raised) RuleLog.Verbose("MusketPoseRules.NextRaised: " + (next ? "raised" : "lowered") + " (running " + running + ", aim click " + aimClicked + ")");
+            if (RuleLog.Due("MusketPoseRules.NextRaised", 2d)) RuleLog.Every("MusketPoseRules.NextRaised", 2d, $"MusketPoseRules.NextRaised(raised={raised}, running={running}, aimClicked={aimClicked}): returns {next}");
+            return next;
+        }
+
+        /// <summary>D-155: the musket may fire only when it is raised and the raise animation has finished.</summary>
+        internal static bool ReadyToFire(bool raised, float carry)
+        {
+            bool ready = raised && Clamp01(carry) <= ReadyCarry;
+            if (RuleLog.Due("MusketPoseRules.ReadyToFire", 2d)) RuleLog.Every("MusketPoseRules.ReadyToFire", 2d, $"MusketPoseRules.ReadyToFire(raised={raised}, carry={carry}): returns {ready}");
+            return ready;
+        }
+
+        /// <summary>
+        /// D-155: whether pose muscle <paramref name="index"/> (0 .. <see cref="MusketPoses.Count"/>-1, muscle <see cref="MusketPoses.First"/>+index) belongs to the
+        /// LEFT arm or the left fingers (muscles 37..45 and 55..74). Those stay the game's own while the musket hangs at the side, so the left hand is free.
+        /// </summary>
+        internal static bool IsLeftArm(int index)
+        {
+            bool left = (index >= 0 && index <= 8) || (index >= 18 && index <= 37);
+            if (RuleLog.Due("MusketPoseRules.IsLeftArm", 2d)) RuleLog.Every("MusketPoseRules.IsLeftArm", 2d, $"MusketPoseRules.IsLeftArm(index={index}): returns {left}");
+            return left;
+        }
+
+        /// <summary>
+        /// D-155: how much of the authored left arm is written (1 = all, 0 = the game's animation only): none while the musket hangs at the side, all while it
+        /// is shouldered, and the reload takes the left hand to the ramrod again even at the side. Expected outcome: 0 .. 1.
+        /// </summary>
+        internal static float LeftArmWeight(float carry, float reloadWeight)
+        {
+            float w = 1f - Clamp01(carry) * (1f - Clamp01(reloadWeight));
+            if (RuleLog.Due("MusketPoseRules.LeftArmWeight", 2d)) RuleLog.Every("MusketPoseRules.LeftArmWeight", 2d, $"MusketPoseRules.LeftArmWeight(carry={carry}, reloadWeight={reloadWeight}): returns {w}");
+            return w;
+        }
+
+        /// <summary>
+        /// How far the carry is after one frame (0 = shouldered, 1 = at the side): it goes down to the side in <see cref="BlendSeconds"/> when the musket is
+        /// lowered and up to the shoulder in <see cref="RaiseSeconds"/> (the raise animation, D-155) when it is raised.
+        /// </summary>
+        internal static float NextCarry(float carry, bool raised, float deltaSeconds)
+        {
+            if (RuleLog.Due("MusketPoseRules.NextCarry", 2d)) RuleLog.Every("MusketPoseRules.NextCarry", 2d, $"MusketPoseRules.NextCarry(carry={RuleLog.Shown(carry)}, raised={raised}, deltaSeconds={RuleLog.Shown(deltaSeconds)})");
+            float target = raised ? 0f : 1f;
+            float step = deltaSeconds > 0f ? deltaSeconds / (raised ? RaiseSeconds : BlendSeconds) : 0f;
             float c = Clamp01(carry);
             { var returnedAt71 = c < target ? Math.Min(target, c + step) : Math.Max(target, c - step); if (RuleLog.Due("MusketPoseRules.NextCarry:71", 2d)) RuleLog.Every("MusketPoseRules.NextCarry:71", 2d, $"MusketPoseRules.NextCarry: returns {RuleLog.Shown(returnedAt71)} (line 71)"); return returnedAt71; }
         }

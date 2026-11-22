@@ -26,7 +26,7 @@ namespace GunPowdered.Tests.Unit
             {
                 Assert.That(MusketPoses.Hold, Has.Length.EqualTo(MusketPoses.Count));
                 Assert.That(MusketPoses.Recoil, Has.Length.EqualTo(MusketPoses.Count));
-                Assert.That(MusketPoses.Carry, Has.Length.EqualTo(MusketPoses.Count));
+                Assert.That(MusketPoses.Side, Has.Length.EqualTo(MusketPoses.Count));
                 Assert.That(MusketPoses.ReloadLow, Has.Length.EqualTo(MusketPoses.Count));
                 Assert.That(MusketPoses.ReloadHigh, Has.Length.EqualTo(MusketPoses.Count));
                 Assert.That(MusketPoses.GripHold, Has.Length.EqualTo(6));
@@ -41,7 +41,7 @@ namespace GunPowdered.Tests.Unit
             {
                 Assert.That(Fingerprint(MusketPoses.Hold), Is.EqualTo(-271.02750508859754).Within(Exact), "Hold");
                 Assert.That(Fingerprint(MusketPoses.Recoil), Is.EqualTo(-268.78080524504185).Within(Exact), "Recoil");
-                Assert.That(Fingerprint(MusketPoses.Carry), Is.EqualTo(-328.1456043869257).Within(Exact), "Carry");
+                Assert.That(Fingerprint(MusketPoses.Side), Is.EqualTo(-556.0509133897722).Within(Exact), "Side");
                 Assert.That(Fingerprint(MusketPoses.ReloadLow), Is.EqualTo(-835.75360575318336).Within(Exact), "ReloadLow");
                 Assert.That(Fingerprint(MusketPoses.ReloadHigh), Is.EqualTo(-821.17580637335777).Within(Exact), "ReloadHigh");
             });

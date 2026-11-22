@@ -5,6 +5,42 @@ namespace GunPowdered.Tests.Unit
     /// The Iron Musket's magazine (D-080 / D-081): up to 5 paper cartridges, reload below 5 and never above 5, one cartridge per shot.
     public class MusketRulesTests
     {
+        // ---- D-155 (user 2026-11-22)
+
+        [TestCase(true, false, null)]
+        [TestCase(false, false, MusketRules.ReloadInAir)]
+        [TestCase(true, true, MusketRules.ReloadSwimming)]
+        [TestCase(false, true, MusketRules.ReloadSwimming)]
+        public void WhyNotReloadMoving_RunningFine_JumpingAndSwimmingRefused(bool onGround, bool swimming, string expected)
+        {
+            Assert.That(MusketRules.WhyNotReloadMoving(onGround, swimming), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void AimFirst_NamesTheKey()
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(MusketRules.AimFirst("mouse wheel button"), Is.EqualTo("Raise the Iron Musket first (mouse wheel button)"));
+                Assert.That(MusketRules.AimFirst(""), Is.EqualTo(MusketRules.NotAimed));
+            }
+        }
+
+        [Test]
+        public void BlockStats_AreTheUsersNumbers()
+        {
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(MusketRules.BlockPower, Is.EqualTo(10f), "block armour 10 at skill 0 (the game makes it 15 at skill 100)");
+                Assert.That(MusketRules.BlockPower * 1.5f, Is.EqualTo(15f), "x1.5 at Blocking 100");
+                Assert.That(MusketRules.BlockPowerPerLevel, Is.Zero);
+                Assert.That(MusketRules.ParryBonus, Is.EqualTo(1.5f));
+                Assert.That(MusketRules.ParryAdrenaline, Is.EqualTo(10f));
+                Assert.That(MusketRules.BlockAdrenaline, Is.EqualTo(2f));
+                Assert.That(MusketRules.MovementModifier, Is.Zero, "no movement speed reduction");
+            }
+        }
+
         [Test]
         public void Capacity_IsFive()
         {

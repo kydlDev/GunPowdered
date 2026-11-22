@@ -46,6 +46,8 @@ namespace GunPowdered.Features.Musket.Infrastructure
         {
             if (RuleLog.Due("MusketGun.Held", 2d)) ModLog.Every("MusketGun.Held", 2d, $"MusketGun.Held(player={RuleLog.Shown(player)})");
             ItemDrop.ItemData weapon = player != null ? player.GetCurrentWeapon() : null;
+            // D-155: with a torch next to the lowered musket the current weapon is the torch; the musket is still in the hand (the bow-type left slot)
+            if (!IsMusket(weapon) && player != null && IsMusket(player.LeftItem)) weapon = player.LeftItem;
             { var returnedAt49 = IsMusket(weapon) ? weapon : null; if (RuleLog.Due("MusketGun.Held:49", 2d)) ModLog.Every("MusketGun.Held:49", 2d, $"MusketGun.Held: returns {RuleLog.Shown(returnedAt49)} (line 49)"); return returnedAt49; }
         }
 
@@ -87,6 +89,15 @@ namespace GunPowdered.Features.Musket.Infrastructure
         {
             ItemDrop.ItemData musket = Held(player);
             if (musket == null) { if (RuleLog.Due("MusketGun.FireCore:89", 2d)) ModLog.Every("MusketGun.FireCore:89", 2d, "MusketGun.FireCore: returns \"no musket in hand\" (line 89)"); return "no musket in hand"; }
+            MusketRig aimRig = player.GetComponent<MusketRig>();
+            if (aimRig != null && !aimRig.ReadyToFire)
+            {
+                // D-155: the musket fires only when raised (the aim key) and the raise has finished
+                string notAimed = MusketRules.AimFirst(MusketInput.AimKeyText);
+                player.Message(MessageHud.MessageType.Center, notAimed);
+                ModLog.Verbose("MusketGun: fire refused - the musket is not raised (" + (aimRig.Raised ? "still coming up" : "at the side") + ")");
+                return notAimed;
+            }
             MusketReloader.Stop(player, "a shot");
             if (!MusketRules.ShotIntervalOver(Time.time, _lastShot)) { if (RuleLog.Due("MusketGun.FireCore:91", 2d)) ModLog.Every("MusketGun.FireCore:91", 2d, "MusketGun.FireCore: returns \"too soon\" (line 91)"); return "too soon"; }
             int loaded = Loaded(musket);

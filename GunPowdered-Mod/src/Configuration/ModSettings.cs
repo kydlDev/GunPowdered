@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using BepInEx.Configuration;
 using KydlCore.Common;
 using GunPowdered.Core;
@@ -21,6 +21,8 @@ namespace GunPowdered.Configuration
         public static ConfigEntry<bool> EnableGuano, EnableWater, EnableSaltpeter, EnableSulfur, EnableGunpowder, EnableGrenades, EnableCannon, EnableMusket, EnableExplosiveArrows, EnableDynamite;   // EnableCannon = "Enable Cannons": both cannon types (user 2026-11-19 12:00)
         // [Musket] the reload key (user 2026-11-19, D-100)
         public static ConfigEntry<KeyCode> MusketReloadKey;
+        /// <summary>D-155: [Musket] Aim Key (default the mouse wheel button): raises the musket from the side.</summary>
+        public static ConfigEntry<KeyCode> MusketAimKey;
         // no MenuKey: the mod's menu is a set of tabs in the KY hub (F6, KydlCore), see src/Presentation/Hub/Registration/HubTabs.cs
         // One functionality = one [General] switch "Enable <Category>" (PROJECT_RULES 11), only when the mod has several of them, e.g.:
         //   public static ConfigEntry<bool> ColoursEnable;   // bound in General as "Enable Colours" with the value of the old Colours Enable entry;  on only when On && ColoursEnable.Value
@@ -88,6 +90,8 @@ namespace GunPowdered.Configuration
                 "Dynamite. Off: dynamite cannot be crafted; dynamite you already own stays.");
             MusketReloadKey = c.Bind("Musket", "Reload Key", KeyCode.R,
                 "The key that reloads the Iron Musket in your hands: one Cartridge from your backpack goes in every 1.2 s until it holds 5. Pick any key from the list.");
+            MusketAimKey = c.Bind("Musket", "Aim Key", KeyCode.Mouse2,
+                "The key that raises the Iron Musket to the shoulder after running (running lowers it to your side); it stays raised until you run again, and it only fires when raised. Default: the mouse wheel button. Pick any key from the list.");
             DebugLog = c.Bind("DebugLog", "Enable", false,
                 "Writes detailed lines about everything the mod does to the BepInEx log (for bug reports). Leave off while playing normally.");
 
@@ -97,7 +101,7 @@ namespace GunPowdered.Configuration
             EnableMod.SettingChanged += (s, e) => ModLog.Info("Config: Enable Mod = " + EnableMod.Value + (EnableMod.Value ? ", the mod is on" : ", the mod is inert (no effects)"));
             ModLog.Verbose("Config: bound (Enable Mod " + EnableMod.Value + ", debug log " + DebugLog.Value + ")");
             return EnableMod != null && EnableGuano != null && EnableWater != null && EnableSaltpeter != null && EnableSulfur != null && EnableGunpowder != null && EnableGrenades != null && EnableCannon != null
-                && EnableMusket != null && EnableExplosiveArrows != null && EnableDynamite != null && MusketReloadKey != null && DebugLog != null;
+                && EnableMusket != null && EnableExplosiveArrows != null && EnableDynamite != null && MusketReloadKey != null && MusketAimKey != null && DebugLog != null;
         }
     }
 }

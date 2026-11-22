@@ -65,7 +65,7 @@ namespace GunPowdered.Tests.Unit
         [Test]
         public void Poses_HaveOneValuePerMuscle()
         {
-            foreach (float[] p in new[] { MusketPoses.Hold, MusketPoses.Recoil, MusketPoses.Carry, MusketPoses.ReloadLow, MusketPoses.ReloadHigh })
+            foreach (float[] p in new[] { MusketPoses.Hold, MusketPoses.Recoil, MusketPoses.Side, MusketPoses.ReloadLow, MusketPoses.ReloadHigh })
                 Assert.That(p.Length, Is.EqualTo(MusketPoses.Count));
         }
 
@@ -82,9 +82,9 @@ namespace GunPowdered.Tests.Unit
         }
 
         [Test]
-        public void Hold_Running_IsTheCarryPose()
+        public void Hold_Lowered_IsTheSidePose()
         {
-            Assert.That(Run(MusketAction.Hold, 0f, 1f), Is.EqualTo(MusketPoses.Carry).Within(1e-5f));
+            Assert.That(Run(MusketAction.Hold, 0f, 1f), Is.EqualTo(MusketPoses.Side).Within(1e-5f));
         }
 
         [Test]
@@ -111,14 +111,62 @@ namespace GunPowdered.Tests.Unit
             Assert.That(MusketPoseRules.Stroke(seconds), Is.EqualTo(expected).Within(1e-4f));
         }
 
-        [TestCase(0f, 6f, 0.1f, 0.4f)]
-        [TestCase(1f, 2f, 0.1f, 0.6f)]
-        [TestCase(0.9f, 6f, 1f, 1f)]
-        [TestCase(0.2f, 0f, 1f, 0f)]
-        [TestCase(0.5f, 6f, 0f, 0.5f)]
-        public void NextCarry_FollowsTheRunningSpeed(float carry, float speed, float delta, float expected)
+        // D-155: lowered -> to the side in BlendSeconds (0.25), raised -> up to the shoulder in RaiseSeconds (0.4, the raise animation)
+        [TestCase(0f, false, 0.1f, 0.4f)]
+        [TestCase(1f, true, 0.1f, 0.75f)]
+        [TestCase(0.9f, false, 1f, 1f)]
+        [TestCase(0.2f, true, 1f, 0f)]
+        [TestCase(0.5f, false, 0f, 0.5f)]
+        public void NextCarry_LowersQuickly_RaisesWithTheRaiseAnimation(float carry, bool raised, float delta, float expected)
         {
-            Assert.That(MusketPoseRules.NextCarry(carry, speed, delta), Is.EqualTo(expected).Within(1e-4f));
+            Assert.That(MusketPoseRules.NextCarry(carry, raised, delta), Is.EqualTo(expected).Within(1e-4f));
+        }
+
+        // ---- D-155 raised / lowered: running lowers, the aim click raises (not while running), it stays otherwise
+        [TestCase(true, true, false, false)]
+        [TestCase(true, true, true, false)]
+        [TestCase(false, false, true, true)]
+        [TestCase(false, false, false, false)]
+        [TestCase(true, false, false, true)]
+        [TestCase(false, true, true, false)]
+        public void NextRaised_RunningLowers_AimRaises_ItStaysOtherwise(bool raised, bool running, bool aim, bool expected)
+        {
+            Assert.That(MusketPoseRules.NextRaised(raised, running, aim), Is.EqualTo(expected));
+        }
+
+        [TestCase(true, 0f, true)]
+        [TestCase(true, 0.02f, true)]
+        [TestCase(true, 0.3f, false)]
+        [TestCase(false, 0f, false)]
+        [TestCase(false, 1f, false)]
+        public void ReadyToFire_OnlyRaisedAndUp(bool raised, float carry, bool expected)
+        {
+            Assert.That(MusketPoseRules.ReadyToFire(raised, carry), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void IsLeftArm_LeftShoulderArmHandAndFingers_NotTheRight()
+        {
+            int left = 0;
+            for (int i = 0; i < MusketPoses.Count; i++) if (MusketPoseRules.IsLeftArm(i)) left++;
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(left, Is.EqualTo(29), "9 left arm muscles (37..45) + 20 left finger muscles (55..74)");
+                Assert.That(MusketPoseRules.IsLeftArm(0), Is.True, "37 Left Shoulder Down-Up");
+                Assert.That(MusketPoseRules.IsLeftArm(9), Is.False, "46 Right Shoulder Down-Up");
+                Assert.That(MusketPoseRules.IsLeftArm(18), Is.True, "55 Left Thumb 1 Stretched");
+                Assert.That(MusketPoseRules.IsLeftArm(38), Is.False, "75 Right Thumb 1 Stretched");
+            }
+        }
+
+        [TestCase(0f, 0f, 1f)]
+        [TestCase(1f, 0f, 0f)]
+        [TestCase(1f, 1f, 1f)]
+        [TestCase(0.5f, 0f, 0.5f)]
+        [TestCase(1f, 0.5f, 0.5f)]
+        public void LeftArmWeight_FreeAtTheSide_BackForTheReload(float carry, float reload, float expected)
+        {
+            Assert.That(MusketPoseRules.LeftArmWeight(carry, reload), Is.EqualTo(expected).Within(1e-5f));
         }
         [Test]
         public void ReloadWeight_GoesOverInTheBlendTime_OnlyWhileReloading()

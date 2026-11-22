@@ -54,7 +54,8 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 return "already reloading";
             }
             int loadedNow = MusketGun.Loaded(musket), carriedNow = Carried(player);
-            string why = MusketRules.WhyNotReload(loadedNow, carriedNow);
+            // D-155: reloading while running is fine, not while swimming or in the air
+            string why = MusketRules.WhyNotReloadMoving(player.IsOnGround(), player.IsSwimming()) ?? MusketRules.WhyNotReload(loadedNow, carriedNow);
             ModLog.Decision("musket reload", why == null ? "start" : "refused", "loaded " + loadedNow + "/" + MusketRules.Capacity + ", carries " + carriedNow + " cartridge(s)" + (why != null ? " - " + why : ""));
             if (why != null)
             {
@@ -93,6 +94,14 @@ namespace GunPowdered.Features.Musket.Infrastructure
             {
                 End("the musket was put away");
                 { if (RuleLog.Due("MusketReloader.Update:95", 2d)) ModLog.Every("MusketReloader.Update:95", 2d, "MusketReloader.Update: returns (line 95)"); return; }
+            }
+            string moving = MusketRules.WhyNotReloadMoving(_player.IsOnGround(), _player.IsSwimming());
+            if (moving != null)
+            {
+                // D-155: a jump or a swim stops the reload (running does not); what is in stays in
+                _player.Message(MessageHud.MessageType.Center, moving);
+                End(moving);
+                { if (RuleLog.Due("MusketReloader.Update:moving", 2d)) ModLog.Every("MusketReloader.Update:moving", 2d, "MusketReloader.Update: stopped - " + moving); return; }
             }
             int due = MusketRules.CartridgesDue(_started, Time.time);
             ModLog.Every("musket-reload", 1f, "MusketReloader: " + (Time.time - _started).ToString("0.0") + " s in, " + _done + " of " + due + " due cartridge(s) in, loaded " + MusketGun.Loaded(musket));

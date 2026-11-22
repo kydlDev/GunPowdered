@@ -18,6 +18,34 @@ namespace GunPowdered.Features.Musket.Domain
 
         internal const string Full = "The Iron Musket is fully loaded", NoCartridges = "You need Cartridges", Empty = "The Iron Musket is empty: reload it";
 
+        /// <summary>D-155: the aim key hint, and what a press of fire says while the musket hangs at the side or is still coming up.</summary>
+        internal const string HintAim = "Aim", NotAimed = "Raise the Iron Musket first";
+
+        /// <summary>D-155: why a reload is refused or stopped while moving (running is allowed).</summary>
+        internal const string ReloadSwimming = "You cannot reload while swimming", ReloadInAir = "You cannot reload while jumping";
+
+        /// <summary>
+        /// D-155 (user 2026-11-22): the musket blocks like a light weapon. Block armour 10 at Blocking skill 0 (the game raises it to x1.5 = 15 at skill 100, so
+        /// no step per quality), parry bonus 1.5, parry adrenaline 10, block adrenaline 2. No movement speed reduction while it is held.
+        /// </summary>
+        internal const float BlockPower = 10f, BlockPowerPerLevel = 0f, ParryBonus = 1.5f, ParryAdrenaline = 10f, BlockAdrenaline = 2f, MovementModifier = 0f;
+
+        /// <summary>D-155: why a reload cannot run now because of how the player moves (null = allowed): swimming or in the air (jumping, falling). Running is fine.</summary>
+        internal static string WhyNotReloadMoving(bool onGround, bool swimming)
+        {
+            string why = swimming ? ReloadSwimming : (!onGround ? ReloadInAir : null);
+            if (RuleLog.Due("MusketRules.WhyNotReloadMoving", 2d)) RuleLog.Every("MusketRules.WhyNotReloadMoving", 2d, $"MusketRules.WhyNotReloadMoving(onGround={onGround}, swimming={swimming}): returns {RuleLog.Shown(why)}");
+            return why;
+        }
+
+        /// <summary>D-155: the message when fire is pressed before the musket is raised, naming the aim key.</summary>
+        internal static string AimFirst(string key)
+        {
+            string s = string.IsNullOrEmpty(key) ? NotAimed : NotAimed + " (" + key + ")";
+            if (RuleLog.Due("MusketRules.AimFirst", 2d)) RuleLog.Every("MusketRules.AimFirst", 2d, $"MusketRules.AimFirst(key={key}): returns {s}");
+            return s;
+        }
+
         /// <summary>How many cartridges one reload moves from the backpack into the musket: as many as fit and as many as the player carries. Never below 0.</summary>
         internal static int CartridgesToLoad(int loaded, int carried)
         {

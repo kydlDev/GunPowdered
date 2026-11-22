@@ -86,6 +86,12 @@
     },
     {
       "guid": "com.kydldev.GunPowdered",
+      "section": "Musket",
+      "key": "Aim Key",
+      "value": "Mouse2"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
       "section": "DebugLog",
       "key": "Enable",
       "value": "true"
@@ -124,6 +130,7 @@
     "weapons-items",
     "musket-ammo-items",
     "musket-fire-reload",
+    "musket-aim-carry",
     "musket-reload-key",
     "api-musket",
     "cannons-switch",

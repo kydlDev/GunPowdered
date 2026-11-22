@@ -299,6 +299,127 @@ namespace GunPowdered.Testing.TestHooks
             return rig == null ? "no musket rig" : rig.LastReport;
         }
 
+        // ---- D-155 aim / side carry / off-hand / reload while moving / block stats
+
+        /// <summary>Presses the aim key the way the game does (MusketInput.AimPressed -> MusketRig.Aim): "raising", "running", "already aimed".</summary>
+        [TestHook("GunPowdered.musketAim")]
+        static string Aim()
+        {
+            ModLog.Verbose("MusketTestHooks.Aim()");
+            string s = MusketInput.AimPressed(Player.m_localPlayer);
+            ModLog.Info("MusketTestHooks.Aim: returns " + s);
+            return s;
+        }
+
+        /// <summary>The local player's musket state: "raised R, ready F; REPORT".</summary>
+        [TestHook("GunPowdered.musketRaised")]
+        static string RaisedState()
+        {
+            ModLog.Verbose("MusketTestHooks.RaisedState()");
+            var rig = Player.m_localPlayer != null ? Player.m_localPlayer.GetComponent<MusketRig>() : null;
+            string s = rig == null ? "no musket rig" : "raised " + rig.Raised + ", ready " + rig.ReadyToFire + "; " + rig.LastReport;
+            ModLog.Info("MusketTestHooks.RaisedState: returns " + s);
+            return s;
+        }
+
+        /// <summary>The rig takes this ground speed (m/s) as the local player's (above 5 = running) instead of the real one; below 0 switches it off. Returns "speed S".</summary>
+        [TestHook("GunPowdered.musketTestSpeed")]
+        static string TestSpeed(double speed)
+        {
+            ModLog.Verbose("MusketTestHooks.TestSpeed(speed=" + speed + ")");
+            MusketRig.TestSpeed = (float)speed;
+            string s = "speed " + MusketRig.TestSpeed.ToString("0.0");
+            ModLog.Info("MusketTestHooks.TestSpeed: returns " + s);
+            return s;
+        }
+
+        /// <summary>The local player's hands: "right R, left L, musket held M, other item in the left hand T".</summary>
+        [TestHook("GunPowdered.musketHands")]
+        static string Hands()
+        {
+            ModLog.Verbose("MusketTestHooks.Hands()");
+            Player p = Player.m_localPlayer;
+            if (p == null) { ModLog.Verbose("MusketTestHooks.Hands: no player - returns why"); return "no player"; }
+            VisEquipment vis = p.GetComponent<VisEquipment>();
+            GameObject other = vis != null ? HarmonyLib.Traverse.Create(vis).Field("m_rightItemInstance").GetValue<GameObject>() : null;
+            bool inLeft = other != null && vis.m_leftHand != null && other.transform.IsChildOf(vis.m_leftHand);
+            string s = "right " + (p.RightItem != null ? p.RightItem.m_dropPrefab.name : "nothing") + ", left " + (p.LeftItem != null ? p.LeftItem.m_dropPrefab.name : "nothing")
+                + ", musket held " + (MusketGun.Held(p) != null) + ", other item in the left hand " + inLeft;
+            ModLog.Info("MusketTestHooks.Hands: returns " + s);
+            return s;
+        }
+
+        /// <summary>
+        /// Where the local player's hand items sit: "right MODEL under BONE at (x, y, z) rot (p, y, r); left ..." - the right and left item models
+        /// (VisEquipment), the hand bone they hang under and their local place there (D-155: the torch next to the musket compared with a normal torch).
+        /// </summary>
+        [TestHook("GunPowdered.handModels")]
+        static string HandModels()
+        {
+            ModLog.Verbose("MusketTestHooks.HandModels()");
+            Player p = Player.m_localPlayer;
+            VisEquipment vis = p != null ? p.GetComponent<VisEquipment>() : null;
+            if (vis == null) { ModLog.Verbose("MusketTestHooks.HandModels: no player - returns why"); return "no player"; }
+            var t = HarmonyLib.Traverse.Create(vis);
+            string s = "right " + Place(t.Field("m_rightItemInstance").GetValue<GameObject>(), vis) + "; left " + Place(t.Field("m_leftItemInstance").GetValue<GameObject>(), vis);
+            ModLog.Info("MusketTestHooks.HandModels: returns " + s);
+            return s;
+        }
+
+        static string Place(GameObject go, VisEquipment vis)
+        {
+            if (go == null) { ModLog.Verbose("MusketTestHooks.Place: no model"); return "nothing"; }
+            Transform tr = go.transform;
+            string hand = tr.IsChildOf(vis.m_leftHand) ? "left hand" : tr.IsChildOf(vis.m_rightHand) ? "right hand" : (tr.parent != null ? tr.parent.name : "no parent");
+            string s = go.name.Replace("(Clone)", "") + " in the " + hand + " (" + (tr.parent != null ? tr.parent.name : "-") + ") at " + tr.localPosition.ToString("0.000") + " rot " + tr.localEulerAngles.ToString("0");
+            ModLog.Verbose("MusketTestHooks.Place: returns " + s);
+            return s;
+        }
+
+        /// <summary>
+        /// Lifts the local player <paramref name="metres"/> up (in the air, like a jump; the game sees it at its next physics step, so wait a moment before the
+        /// next step). Returns "lifted to Y".
+        /// </summary>
+        [TestHook("GunPowdered.musketLift")]
+        static string Lift(double metres)
+        {
+            ModLog.Verbose("MusketTestHooks.Lift(metres=" + metres + ")");
+            Player p = Player.m_localPlayer;
+            if (p == null) { ModLog.Verbose("MusketTestHooks.Lift: no player - returns why"); return "no player"; }
+            p.transform.position += Vector3.up * (float)metres;
+            Rigidbody body = p.GetComponent<Rigidbody>();
+            if (body != null) body.position = p.transform.position;
+            Physics.SyncTransforms();
+            string s = "lifted to " + p.transform.position.y.ToString("0.0");
+            ModLog.Info("MusketTestHooks.Lift: returns " + s);
+            return s;
+        }
+
+        /// <summary>Whether the game counts the local player as on the ground right now: "on ground G".</summary>
+        [TestHook("GunPowdered.onGround")]
+        static string OnGround()
+        {
+            ModLog.Verbose("MusketTestHooks.OnGround()");
+            Player p = Player.m_localPlayer;
+            string s = p == null ? "no player" : "on ground " + p.IsOnGround();
+            ModLog.Verbose("MusketTestHooks.OnGround: returns " + s);
+            return s;
+        }
+
+        /// <summary>The Iron Musket item's block and speed values: "block B, per level L, parry P, parry adrenaline A, block adrenaline D, movement M".</summary>
+        [TestHook("GunPowdered.musketStats")]
+        static string Stats()
+        {
+            ModLog.Verbose("MusketTestHooks.Stats()");
+            GameObject item = MusketSetup.Item;
+            ItemDrop drop = item != null ? item.GetComponent<ItemDrop>() : null;
+            if (drop == null) { ModLog.Verbose("MusketTestHooks.Stats: no musket item - returns why"); return "no musket item"; }
+            var sh = drop.m_itemData.m_shared;
+            string s = $"block {sh.m_blockPower:0.##}, per level {sh.m_blockPowerPerLevel:0.##}, parry {sh.m_timedBlockBonus:0.##}, parry adrenaline {sh.m_perfectBlockAdrenaline:0.##}, block adrenaline {sh.m_blockAdrenaline:0.##}, movement {sh.m_movementModifier:0.##}";
+            ModLog.Info("MusketTestHooks.Stats: returns " + s);
+            return s;
+        }
+
         /// <summary>
         /// Another player's musket rig as THIS client renders it (DrakesTestLab virtual player Bjornita, peerMirror): the action it plays and what it
         /// posed last frame - "player P: action A, holding H; REPORT". The other client's actions arrive through the player's ZDO (D-098).

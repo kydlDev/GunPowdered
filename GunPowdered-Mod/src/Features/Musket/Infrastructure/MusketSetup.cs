@@ -70,6 +70,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = "Attack", Hint = MusketRules.HintFire },
+                    MusketInput.AimButton ?? new ButtonConfig { Name = "SecondaryAttack", Hint = MusketRules.HintAim },      // D-155
                     MusketInput.ReloadButton ?? new ButtonConfig { Name = "SecondaryAttack", Hint = MusketRules.HintReload },
                     new ButtonConfig { Name = "Block", Hint = MusketRules.HintBlock }
                 }
@@ -86,6 +87,13 @@ namespace GunPowdered.Features.Musket.Infrastructure
             ItemDrop.ItemData.SharedData shared = drop.m_itemData.m_shared;
             shared.m_attack.m_requiresReload = false;
             shared.m_ammoType = "";
+            // D-155 (user 2026-11-22): block armour 10 (x1.5 with the Blocking skill), parry bonus 1.5, parry adrenaline 10, block adrenaline 2, no movement penalty
+            shared.m_blockPower = MusketRules.BlockPower;
+            shared.m_blockPowerPerLevel = MusketRules.BlockPowerPerLevel;
+            shared.m_timedBlockBonus = MusketRules.ParryBonus;
+            shared.m_perfectBlockAdrenaline = MusketRules.ParryAdrenaline;
+            shared.m_blockAdrenaline = MusketRules.BlockAdrenaline;
+            shared.m_movementModifier = MusketRules.MovementModifier;
             { var returnedAt89 = !shared.m_attack.m_requiresReload; if (RuleLog.IsOn()) ModLog.Verbose($"MusketSetup.MakeGun: returns {RuleLog.Shown(returnedAt89)} (line 89)"); return returnedAt89; }
         }
 

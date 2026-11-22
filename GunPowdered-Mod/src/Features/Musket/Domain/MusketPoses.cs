@@ -21,6 +21,15 @@ namespace GunPowdered.Features.Musket.Domain
         /// <summary>The musket under the right-hand attach point while reloading (the hand holds the barrel, the musket stands upright away from the body).</summary>
         internal static readonly float[] GripReload = { 0.00558f, 0.20128f, -0.58054f, 20.45f, 355.23f, 92.32f };
 
+        /// <summary>
+        /// D-155: where the right palm goes for the side carry, from the right shoulder (upper-arm bone) in the CHARACTER's directions: right, up, forward (m).
+        /// The placement the side pose was authored with (musket-side-author.cs.txt v2 -Down 0.52 -Out 0.10 -Fwd 0.04); MusketRig reaches it with an IK.
+        /// </summary>
+        internal static readonly float[] SidePalm = { 0.10f, -0.52f, 0.04f };
+
+        /// <summary>D-155: the musket under the right-hand attach point while it hangs at the side (palm under the stock, about its middle).</summary>
+        internal static readonly float[] GripSide = { -0.07756f, 0.0574f, -0.17583f, 20.13f, 1.11f, 94.36f };
+
         /// <summary>How far the ramrod's top end stands above the muzzle at the bottom and the top of one stroke (m); the left fist holds that end.</summary>
         internal const float RodLow = 0.05f, RodHigh = 0.4f;
 
@@ -49,15 +58,20 @@ namespace GunPowdered.Features.Musket.Domain
             -0.4000f, 0.0000f, -0.4000f, -0.4000f, -0.4000f, 0.0000f, -0.4000f, -0.4000f,
         };
 
-        /// <summary>The carry pose.</summary>
-        internal static readonly float[] Carry =
+        /// <summary>
+        /// D-155 (user 2026-11-22): the side carry while running - trail arms: the arm hangs almost straight, the musket lies in the palm front to back and
+        /// rests on the fingers curled under it at about its middle, thumb over the top, wrist straight (pictures Photos/GunPowdered/20261122-0317_musket19-side-*,
+        /// script _agent/lab/musket-side-author.cs.txt). Only the RIGHT fingers count in game: MusketRig places the arm with an IK (MusketPoses.SidePalm)
+        /// and the left arm is the game's own while the musket hangs at the side.
+        /// </summary>
+        internal static readonly float[] Side =
         {
-            0.1044f, -1.5870f, -0.2122f, 0.0603f, 1.2127f, -0.0533f, 1.2374f, 0.1348f, 1.6360f, 0.5716f,
-            1.0256f, -0.9917f, -0.9589f, -0.4010f, 0.8055f, 0.4947f, -0.2399f, 0.2097f, 0.6000f, -1.0000f,
-            0.6000f, 0.6000f, -0.2000f, -0.6000f, -0.2000f, -0.2000f, -0.2000f, -0.6000f, -0.2000f, -0.2000f,
-            -0.2000f, -0.6000f, -0.2000f, -0.2000f, -0.2000f, -0.6000f, -0.2000f, -0.2000f, 0.0000f, 0.0000f,
-            0.3000f, 0.3000f, 0.1000f, 0.0000f, -0.8000f, -0.8000f, -0.4000f, 0.0000f, -0.4000f, -0.4000f,
-            -0.4000f, 0.0000f, -0.4000f, -0.4000f, -0.4000f, 0.0000f, -0.4000f, -0.4000f,
+            0.1044f, -1.5870f, -0.0228f, -0.0401f, -0.0155f, 0.4255f, 1.3548f, -0.5014f, 0.0336f, 0.5716f,
+            1.0256f, -0.2970f, -0.3409f, -0.4675f, 0.1336f, 0.6961f, 0.1340f, 0.5919f, 1.5790f, -1.6588f,
+            0.1112f, 0.1172f, 0.1745f, -0.4495f, 0.1031f, -0.3138f, 0.1797f, -0.5199f, -0.0573f, -0.3058f,
+            0.1829f, -0.7100f, -0.0297f, -0.2992f, 0.2324f, -0.2963f, 0.1135f, -0.1405f, 0.2000f, 0.6000f,
+            -0.5000f, -0.5000f, -0.8500f, 0.0000f, -0.8500f, -0.8500f, -0.8500f, 0.0000f, -0.8500f, -0.8500f,
+            -0.8500f, 0.0000f, -0.8500f, -0.8500f, -0.8500f, 0.0000f, -0.8500f, -0.8500f,
         };
 
         /// <summary>The reload-low pose.</summary>
