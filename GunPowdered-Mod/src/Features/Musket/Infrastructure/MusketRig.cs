@@ -110,11 +110,9 @@ namespace GunPowdered.Features.Musket.Infrastructure
         {
             if (_nview == null || !_nview.IsValid() || _nview.IsOwner()) { if (RuleLog.Due("MusketRig.FollowOwner:111", 2d)) ModLog.Every("MusketRig.FollowOwner:111", 2d, "MusketRig.FollowOwner: returns false (line 111)"); return false; }
             ZDO zdo = _nview.GetZDO();
-            int seq = zdo.GetInt(ActionSeqKey, -1);
-            if (seq < 0 || seq == _seenSeq) { if (RuleLog.Due("MusketRig.FollowOwner:114", 2d)) ModLog.Every("MusketRig.FollowOwner:114", 2d, "MusketRig.FollowOwner: returns false (line 114)"); return false; }
-            bool first = _seenSeq < 0;
-            _seenSeq = seq;
-            if (first) { if (RuleLog.Due("MusketRig.FollowOwner:117", 2d)) ModLog.Every("MusketRig.FollowOwner:117", 2d, "MusketRig.FollowOwner: returns false (line 117)"); return false; }                 // joining late: the past action is not replayed
+            int seq = zdo.GetInt(ActionSeqKey, MusketPoseRules.NoActionYet);
+            // joining late: a past action is not replayed; but the shooter's very first action is (it was swallowed before, lab a17bjornita3)
+            if (!MusketPoseRules.IsNewAction(seq, _seenSeq, out _seenSeq)) { if (RuleLog.Due("MusketRig.FollowOwner:114", 2d)) ModLog.Every("MusketRig.FollowOwner:114", 2d, "MusketRig.FollowOwner: returns false (line 114)"); return false; }
             _action = (MusketAction)zdo.GetInt(ActionKey);
             _actionStarted = Time.time;
             ModLog.Verbose($"MusketRig: {_character?.name} plays {_action} from its owner (step {seq})");

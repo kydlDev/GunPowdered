@@ -313,7 +313,7 @@ namespace GunPowdered.Testing.TestHooks
                 var rig = p.GetComponent<MusketRig>();
                 string s = rig == null
                     ? "player " + p.GetPlayerName() + ": no musket rig"
-                    : "player " + p.GetPlayerName() + ": action " + rig.CurrentAction + ", holding " + Shown(p) + "; " + rig.LastReport;
+                    : "player " + p.GetPlayerName() + ": action " + rig.CurrentAction + ", musket model shown " + rig.TryMuzzle(out _) + ", slots " + Shown(p) + ", skipped frames " + rig.SkippedFrames + "; " + rig.LastReport;
                 ModLog.Info("MusketTestHooks.RigOf: returns " + s);
                 return s;
             }
@@ -325,9 +325,20 @@ namespace GunPowdered.Testing.TestHooks
         static string Shown(Player p)
         {
             VisEquipment vis = p.GetComponent<VisEquipment>();
-            string item = vis != null ? HarmonyLib.Traverse.Create(vis).Field("m_rightItem").GetValue<string>() : null;
-            string s = string.IsNullOrEmpty(item) ? "nothing" : item;
+            // VisEquipment.m_rightItem is the item's prefab hash (int) in this game version, not a name (lab a17bjornita1: "Specified cast is not valid")
+            // the musket is a bow-type item: the game puts it in the LEFT hand slot (MusketRig moves the model to the right hand), so both slots are read
+            string s = "right " + ItemIn(vis, "m_rightItem") + ", left " + ItemIn(vis, "m_leftItem");
             ModLog.Verbose("MusketTestHooks.Shown: returns " + s);
+            return s;
+        }
+
+        // the prefab name behind a VisEquipment item slot (the slot keeps the item's prefab hash)
+        static string ItemIn(VisEquipment vis, string field)
+        {
+            int hash = vis != null ? HarmonyLib.Traverse.Create(vis).Field(field).GetValue<int>() : 0;
+            GameObject prefab = hash != 0 && ObjectDB.instance != null ? ObjectDB.instance.GetItemPrefab(hash) : null;
+            string s = hash == 0 ? "nothing" : prefab != null ? prefab.name : "item hash " + hash;
+            ModLog.Verbose("MusketTestHooks.ItemIn(" + field + "): returns " + s);
             return s;
         }
     }

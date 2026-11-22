@@ -12,6 +12,56 @@ namespace GunPowdered.Tests.Unit
             return into;
         }
 
+        // ---- D-098 action counter: which counter changes start an action on another player's rig
+
+        [Test]
+        public void IsNewAction_FirstLookWithoutHistory_RemembersZeroSoTheFirstShotPlays()
+        {
+            bool start = MusketPoseRules.IsNewAction(MusketPoseRules.NoActionYet, -1, out int seen);
+            bool firstShot = MusketPoseRules.IsNewAction(1, seen, out int after);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(start, Is.False);
+                Assert.That(seen, Is.Zero);
+                Assert.That(firstShot, Is.True, "the shooter's very first shot must show (a17bjornita3: it was swallowed)");
+                Assert.That(after, Is.EqualTo(1));
+            }
+        }
+
+        [Test]
+        public void IsNewAction_FirstLookAtAShooterWithHistory_DoesNotReplayTheOldAction()
+        {
+            bool start = MusketPoseRules.IsNewAction(5, -1, out int seen);
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(start, Is.False);
+                Assert.That(seen, Is.EqualTo(5));
+            }
+        }
+
+        [Test]
+        public void IsNewAction_SameCounter_DoesNotRestart()
+        {
+            Assert.That(MusketPoseRules.IsNewAction(3, 3, out int seen), Is.False);
+            Assert.That(seen, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void IsNewAction_NextCounter_Starts()
+        {
+            Assert.That(MusketPoseRules.IsNewAction(4, 3, out int seen), Is.True);
+            Assert.That(seen, Is.EqualTo(4));
+        }
+
+        [Test]
+        public void IsNewAction_CounterGoneAfterAHistory_KeepsWhatWasSeen()
+        {
+            Assert.That(MusketPoseRules.IsNewAction(MusketPoseRules.NoActionYet, 7, out int seen), Is.False);
+            Assert.That(seen, Is.EqualTo(7));
+        }
+
         [Test]
         public void Poses_HaveOneValuePerMuscle()
         {

@@ -13,6 +13,32 @@ namespace GunPowdered.Features.Musket.Domain
         /// <summary>How long the recoil of one shot lasts.</summary>
         internal const float FireSeconds = 0.35f;
 
+        /// <summary>The shooter has not shared any action yet (the action counter is not in the player's ZDO).</summary>
+        internal const int NoActionYet = -1;
+
+        /// <summary>
+        /// D-098: another player's rig follows the action counter the shooter's client writes into the player's ZDO. Decides whether the counter
+        /// <paramref name="seq"/> (<see cref="NoActionYet"/> when absent) starts a new action, given the counter this rig saw last (<paramref name="seen"/>,
+        /// -1 = this rig has not looked yet). The first look at a shooter WITH a history only records it (an old shot is not replayed to someone who comes
+        /// near later); a first look at a shooter WITHOUT one records 0, so the shooter's very first action still plays (it was swallowed before: lab
+        /// a17bjornita3, DrakesTestLab Bjornita never showed the first shot). Expected outcome: true when the action must start; <paramref name="newSeen"/>
+        /// is what the rig remembers.
+        /// </summary>
+        internal static bool IsNewAction(int seq, int seen, out int newSeen)
+        {
+            if (RuleLog.Due("MusketPoseRules.IsNewAction", 2d)) RuleLog.Every("MusketPoseRules.IsNewAction", 2d, $"MusketPoseRules.IsNewAction(seq={seq}, seen={seen})");
+            if (seq < 0)
+            {
+                newSeen = seen < 0 ? 0 : seen;
+                if (RuleLog.Due("MusketPoseRules.IsNewAction:none", 2d)) RuleLog.Every("MusketPoseRules.IsNewAction:none", 2d, "MusketPoseRules.IsNewAction: no action shared yet - returns false");
+                return false;
+            }
+            newSeen = seq;
+            bool start = seen >= 0 && seq != seen;
+            if (RuleLog.Due("MusketPoseRules.IsNewAction:result", 2d)) RuleLog.Every("MusketPoseRules.IsNewAction:result", 2d, "MusketPoseRules.IsNewAction: returns " + start);
+            return start;
+        }
+
         /// <summary>One cartridge per 1.2 s (user 2026-11-19); one ramrod stroke each.</summary>
         internal const float ReloadSecondsPerCartridge = 1.2f;
 
