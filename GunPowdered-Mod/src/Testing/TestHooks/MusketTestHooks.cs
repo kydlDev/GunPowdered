@@ -298,5 +298,37 @@ namespace GunPowdered.Testing.TestHooks
             var rig = p != null ? p.GetComponent<GunPowdered.Features.Musket.Infrastructure.MusketRig>() : null;
             return rig == null ? "no musket rig" : rig.LastReport;
         }
+
+        /// <summary>
+        /// Another player's musket rig as THIS client renders it (DrakesTestLab virtual player Bjornita, peerMirror): the action it plays and what it
+        /// posed last frame - "player P: action A, holding H; REPORT". The other client's actions arrive through the player's ZDO (D-098).
+        /// </summary>
+        [TestHook("GunPowdered.musketRigOf")]
+        static string RigOf(string name)
+        {
+            ModLog.Verbose("MusketTestHooks.RigOf(name=" + name + ")");
+            foreach (Player p in Player.GetAllPlayers())
+            {
+                if (p == null || p == Player.m_localPlayer || p.GetPlayerName().IndexOf(name ?? "", System.StringComparison.OrdinalIgnoreCase) < 0) continue;
+                var rig = p.GetComponent<MusketRig>();
+                string s = rig == null
+                    ? "player " + p.GetPlayerName() + ": no musket rig"
+                    : "player " + p.GetPlayerName() + ": action " + rig.CurrentAction + ", holding " + Shown(p) + "; " + rig.LastReport;
+                ModLog.Info("MusketTestHooks.RigOf: returns " + s);
+                return s;
+            }
+            ModLog.Verbose("MusketTestHooks.RigOf: no other player named " + name + " - returns why");
+            return "no player " + name;
+        }
+
+        // what the player's character shows in the right hand (a remote player's inventory is not synced, its VisEquipment is)
+        static string Shown(Player p)
+        {
+            VisEquipment vis = p.GetComponent<VisEquipment>();
+            string item = vis != null ? HarmonyLib.Traverse.Create(vis).Field("m_rightItem").GetValue<string>() : null;
+            string s = string.IsNullOrEmpty(item) ? "nothing" : item;
+            ModLog.Verbose("MusketTestHooks.Shown: returns " + s);
+            return s;
+        }
     }
 }

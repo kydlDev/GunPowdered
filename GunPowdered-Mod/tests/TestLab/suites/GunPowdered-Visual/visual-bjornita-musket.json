@@ -1,0 +1,49 @@
+{
+  "name": "visual-bjornita-musket",
+  "description": "D-098 (the musket action reaches other clients through the player's ZDO) seen from a second client: DrakesTestLab's virtual player Bjornita mirrors Bjorn (peerMirror: pose, gear, mod data on the player), Bjorn holds, fires and reloads the Iron Musket. Pictures from Bjorn's own view of Bjornita holding, firing (front and side) and reloading, plus checks that her rig plays the same actions. A pose that only plays on the shooter's own client would not show on her.",
+  "timeout": 120,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "clearInventory" },
+    { "do": "give", "prefab": "GP_Musket", "count": 1, "equip": true },
+    { "do": "give", "prefab": "GP_PaperCartridge", "count": 5 },
+    { "do": "wait", "seconds": 1 },
+    { "do": "peerJoin", "name": "Bjornita", "dx": 1.5, "dz": 4.5, "as": "bjornita" },
+    { "do": "peerMirror", "peer": "Bjornita", "face": "me", "equipment": true },
+    { "do": "wait", "seconds": 2 },
+    { "do": "lookAt", "target": "bjornita", "up": 0.2 },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.musketRigOf", "args": { "name": "Bjornita" }, "contains": "GP_Musket", "label": "her character holds the musket Bjorn holds" },
+    { "do": "hook", "name": "GunPowdered.musketRigOf", "args": { "name": "Bjornita" }, "contains": "action Hold", "label": "her arms hold it" },
+    { "do": "screenshot", "name": "bjornita-musket-hold-front" },
+
+    { "do": "hook", "name": "GunPowdered.apiSetLoaded", "args": { "loaded": 3 }, "expect": "set 3, read 3", "label": "three cartridges in Bjorn's musket" },
+    { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": false }, "contains": "fired", "label": "Bjorn fires" },
+    { "do": "screenshot", "name": "bjornita-musket-fire-front" },
+    { "do": "wait", "seconds": 0.15 },
+    { "do": "hook", "name": "GunPowdered.musketRigOf", "args": { "name": "Bjornita" }, "contains": "action Fire", "label": "her arms play Bjorn's shot (recoil)" },
+    { "do": "screenshot", "name": "bjornita-musket-fire-front-later" },
+    { "do": "wait", "seconds": 1.5 },
+
+    { "do": "peerMirror", "peer": "Bjornita", "face": 90, "equipment": true },
+    { "do": "wait", "seconds": 1 },
+    { "do": "screenshot", "name": "bjornita-musket-hold-side" },
+    { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": false }, "contains": "fired", "label": "Bjorn fires again" },
+    { "do": "screenshot", "name": "bjornita-musket-fire-side" },
+    { "do": "wait", "seconds": 0.15 },
+    { "do": "screenshot", "name": "bjornita-musket-fire-side-later" },
+    { "do": "wait", "seconds": 1.5 },
+
+    { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": true }, "contains": "reloading", "label": "Bjorn starts reloading" },
+    { "do": "wait", "seconds": 0.5 },
+    { "do": "hook", "name": "GunPowdered.musketRigOf", "args": { "name": "Bjornita" }, "contains": "action Reload", "label": "her arms play Bjorn's reload" },
+    { "do": "screenshot", "name": "bjornita-musket-reload-side" },
+    { "do": "wait", "seconds": 1 },
+
+    { "do": "peerMirror", "peer": "Bjornita", "on": false },
+    { "do": "peerLeave", "name": "*" },
+    { "do": "clearInventory" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}
