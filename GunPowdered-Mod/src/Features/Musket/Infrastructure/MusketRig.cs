@@ -20,7 +20,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         const string ModelName = "gp_model", BarrelName = "musket_barrel", RodName = "musket_ramrod";
         // D-098: the shooter's action (hold / fire / reload) reaches the other clients through the player's own ZDO: the action and a counter that
         // grows with every Play, so a second shot of the same kind still restarts the pose there
-        internal const string ActionKey = "gp_musket_action", ActionSeqKey = "gp_musket_seq";
+        internal const string ActionKey = "gp_musket_action", ActionSeqKey = "gp_musket_seq", StrokeKey = "gp_musket_stroke";
 
         readonly float[] _muscles = new float[MusketPoses.Count];
         Character _character;
@@ -85,10 +85,11 @@ namespace GunPowdered.Features.Musket.Infrastructure
         }
 
         /// <summary>Starts an action (a shot's recoil, a reload) for this player; Hold ends it.</summary>
-        internal void Play(MusketAction action)
+        internal void Play(MusketAction action, float strokeSeconds = MusketPoseRules.ReloadSecondsPerCartridge)
         {
-            ModLog.Verbose($"MusketRig: {_character?.name} {_action} -> {action}");
+            ModLog.Verbose($"MusketRig: {_character?.name} {_action} -> {action}" + (action == MusketAction.Reload ? " (" + strokeSeconds.ToString("0.00") + " s per cartridge)" : ""));
             _action = action;
+            _stroke = strokeSeconds;
             _actionStarted = Time.time;
             Share(action);
         }
@@ -101,6 +102,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             ZDO zdo = _nview.GetZDO();
             _seq = zdo.GetInt(ActionSeqKey) + 1;
             zdo.Set(ActionKey, (int)action);
+            zdo.Set(StrokeKey, _stroke);                       // D-157: the reload stroke the Muskets skill gave (other clients play the same length)
             zdo.Set(ActionSeqKey, _seq);
             _seenSeq = _seq;
         }
@@ -114,6 +116,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             // joining late: a past action is not replayed; but the shooter's very first action is (it was swallowed before, lab a17bjornita3)
             if (!MusketPoseRules.IsNewAction(seq, _seenSeq, out _seenSeq)) { if (RuleLog.Due("MusketRig.FollowOwner:114", 2d)) ModLog.Every("MusketRig.FollowOwner:114", 2d, "MusketRig.FollowOwner: returns false (line 114)"); return false; }
             _action = (MusketAction)zdo.GetInt(ActionKey);
+            _stroke = zdo.GetFloat(StrokeKey, MusketPoseRules.ReloadSecondsPerCartridge);
             _actionStarted = Time.time;
             ModLog.Verbose($"MusketRig: {_character?.name} plays {_action} from its owner (step {seq})");
             return true;
@@ -149,6 +152,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         internal static float TestSpeed = -1f;
 
         float _runningFor;
+        float _stroke = MusketPoseRules.ReloadSecondsPerCartridge;
         bool _itemWasHeld;
 
         // fast right now (one frame) - Running() adds the time it has lasted
@@ -291,7 +295,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
 
             float seconds = Time.time - _actionStarted;
             if (_action == MusketAction.Fire && seconds > MusketPoseRules.FireSeconds) _action = MusketAction.Hold;
-            if (!MusketPoseRules.Evaluate(_action, seconds, _carry, _muscles)) { if (RuleLog.Due("MusketRig.LateUpdate:151", 2d)) ModLog.Every("MusketRig.LateUpdate:151", 2d, "MusketRig.LateUpdate: returns (line 151)"); return; }
+            if (!MusketPoseRules.Evaluate(_action, seconds, _carry, _muscles, _stroke)) { if (RuleLog.Due("MusketRig.LateUpdate:151", 2d)) ModLog.Every("MusketRig.LateUpdate:151", 2d, "MusketRig.LateUpdate: returns (line 151)"); return; }
 
             float w = MusketPoseRules.ReloadWeight(_action, seconds);
             float leftWeight = MusketPoseRules.LeftArmWeight(_carry, w);
@@ -410,7 +414,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             _model.localPosition = Vector3.Lerp(p, new Vector3(b[0], b[1], b[2]), w);
             _model.localRotation = Quaternion.Slerp(q, Quaternion.Euler(b[3], b[4], b[5]), w);
             if (_rod == null) { if (RuleLog.Due("MusketRig.PlaceModel:189", 2d)) ModLog.Every("MusketRig.PlaceModel:189", 2d, "MusketRig.PlaceModel: returns (line 189)"); return; }
-            var rammed = new Vector3(_rodHome.x, _rodHome.y - MusketPoses.RodPipeY, _rodHome.z + MusketPoses.MuzzleZ + MusketPoseRules.RodAboveMuzzle(seconds) - MusketPoses.RodTopZ);
+            var rammed = new Vector3(_rodHome.x, _rodHome.y - MusketPoses.RodPipeY, _rodHome.z + MusketPoses.MuzzleZ + MusketPoseRules.RodAboveMuzzle(seconds, _stroke) - MusketPoses.RodTopZ);
             _rod.localPosition = w > 0.5f ? rammed : _rodHome;
         }
 

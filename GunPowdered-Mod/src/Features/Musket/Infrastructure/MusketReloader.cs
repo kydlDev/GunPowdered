@@ -2,6 +2,8 @@ using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Core;
 using GunPowdered.Features.Musket.Domain;
+using GunPowdered.Features.Skilling.Domain;
+using GunPowdered.Features.Skilling.Infrastructure;
 
 namespace GunPowdered.Features.Musket.Infrastructure
 {
@@ -14,6 +16,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
     {
         Player _player;
         float _started;
+        float _stroke = MusketRules.ReloadSecondsPerCartridge;
         int _done;
         bool _active;
 
@@ -67,9 +70,11 @@ namespace GunPowdered.Features.Musket.Infrastructure
             r._started = Time.time;
             r._done = 0;
             r._active = true;
+            // D-157: the Muskets skill sets the time per cartridge (1.8 s at level 0 .. 1.2 s at level 100), fixed for this reload
+            r._stroke = SkillRules.MusketReloadSeconds(GunSkills.Level(player, GunSkills.Muskets));
             MusketRig rig = player.GetComponent<MusketRig>();
-            if (rig != null) rig.Play(MusketAction.Reload);
-            ModLog.Verbose("MusketReloader: " + player.GetPlayerName() + " reloads from " + MusketGun.Loaded(musket) + ", carries " + Carried(player));
+            if (rig != null) rig.Play(MusketAction.Reload, r._stroke);
+            ModLog.Verbose("MusketReloader: " + player.GetPlayerName() + " reloads from " + MusketGun.Loaded(musket) + ", carries " + Carried(player) + ", " + r._stroke.ToString("0.00") + " s per cartridge (Muskets skill)");
             return "reloading";
         }
 
@@ -103,7 +108,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 End(moving);
                 { if (RuleLog.Due("MusketReloader.Update:moving", 2d)) ModLog.Every("MusketReloader.Update:moving", 2d, "MusketReloader.Update: stopped - " + moving); return; }
             }
-            int due = MusketRules.CartridgesDue(_started, Time.time);
+            int due = MusketRules.CartridgesDue(_started, Time.time, _stroke);
             ModLog.Every("musket-reload", 1f, "MusketReloader: " + (Time.time - _started).ToString("0.0") + " s in, " + _done + " of " + due + " due cartridge(s) in, loaded " + MusketGun.Loaded(musket));
             while (_done < due)
             {
@@ -112,6 +117,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 _player.GetInventory().RemoveItem(CartridgeName(), 1);
                 MusketGun.SetLoaded(musket, loaded + 1);
                 _done++;
+                GunSkills.Raise(_player, GunSkills.Muskets, SkillRules.GainCartridge);     // D-157: each cartridge rammed home trains Muskets a little
                 ModLog.Verbose("MusketReloader: cartridge " + _done + " in, loaded " + (loaded + 1) + ", " + (carried - 1) + " left in the backpack");
             }
             string why = MusketRules.WhyNotReload(MusketGun.Loaded(musket), Carried(_player));

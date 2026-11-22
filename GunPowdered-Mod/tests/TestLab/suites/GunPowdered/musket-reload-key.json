@@ -1,83 +1,93 @@
 {
-  "name": "musket-reload-key",
-  "description": "User 2026-11-20 09:08: pressing R in game did not reload and wrote no log. This presses the REAL key (pressKey, read by the game like a player's key) instead of calling the reload code: R with cartridges in the backpack starts the reload and loads them.",
-  "timeout": 60,
-  "steps": [
-    {
-      "do": "hook",
-      "name": "GunPowdered.arena",
-      "contains": "arena at",
-      "label": "start on the arena spot"
-    },
-    {
-      "do": "give",
-      "prefab": "GP_Musket",
-      "count": 1,
-      "equip": true
-    },
-    {
-      "do": "give",
-      "prefab": "GP_PaperCartridge",
-      "count": 2
-    },
-    {
-      "do": "wait",
-      "seconds": 1
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.musketLoaded",
-      "expect": 0,
-      "label": "a new musket is empty"
-    },
-    {
-      "do": "pressKey",
-      "key": "R",
-      "frames": 3,
-      "label": "the player presses R"
-    },
-    {
-      "do": "wait",
-      "seconds": 0.5
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.musketLastBegin",
-      "expect": "reloading",
-      "label": "R started the reload"
-    },
-    {
-      "do": "wait",
-      "until": {
-        "check": "hook",
-        "name": "GunPowdered.musketLoaded",
-        "expect": 2
-      },
-      "timeout": 6
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.musketLoaded",
-      "expect": 2,
-      "label": "both cartridges went in"
-    },
-    {
-      "do": "clearInventory"
-    },
-    {
-      "do": "cleanArena"
-    }
-  ],
-  "asserts": [
-    {
-      "check": "noErrors",
-      "source": "GunPowdered"
-    },
-    {
-      "check": "logContains",
-      "text": "MusketInput: reload key R down",
-      "label": "the key press is logged (rule 8)",
-      "source": "GunPowdered"
-    }
-  ]
+    "name":  "musket-reload-key",
+    "description":  "User 2026-11-20 09:08: pressing R in game did not reload and wrote no log. This presses the REAL key (pressKey, read by the game like a player\u0027s key) instead of calling the reload code: R with cartridges in the backpack starts the reload and loads them.",
+    "timeout":  60,
+    "steps":  [
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.arena",
+                      "contains":  "arena at",
+                      "label":  "start on the arena spot"
+                  },
+                  {
+                      "do":  "give",
+                      "prefab":  "GP_Musket",
+                      "count":  1,
+                      "equip":  true
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.setSkill",
+                      "args":  {
+                                   "name":  "Muskets",
+                                   "level":  100
+                               },
+                      "contains":  "Muskets set to 100",
+                      "label":  "Muskets skill 100: 1.2 s per cartridge (D-157; the reload times below were written for it)"
+                  },
+                  {
+                      "do":  "give",
+                      "prefab":  "GP_PaperCartridge",
+                      "count":  2
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  1
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.musketLoaded",
+                      "expect":  0,
+                      "label":  "a new musket is empty"
+                  },
+                  {
+                      "do":  "pressKey",
+                      "key":  "R",
+                      "frames":  3,
+                      "label":  "the player presses R"
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  0.5
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.musketLastBegin",
+                      "expect":  "reloading",
+                      "label":  "R started the reload"
+                  },
+                  {
+                      "do":  "wait",
+                      "until":  {
+                                    "check":  "hook",
+                                    "name":  "GunPowdered.musketLoaded",
+                                    "expect":  2
+                                },
+                      "timeout":  6
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.musketLoaded",
+                      "expect":  2,
+                      "label":  "both cartridges went in"
+                  },
+                  {
+                      "do":  "clearInventory"
+                  },
+                  {
+                      "do":  "cleanArena"
+                  }
+              ],
+    "asserts":  [
+                    {
+                        "check":  "noErrors",
+                        "source":  "GunPowdered"
+                    },
+                    {
+                        "check":  "logContains",
+                        "text":  "MusketInput: reload key R down",
+                        "label":  "the key press is logged (rule 8)",
+                        "source":  "GunPowdered"
+                    }
+                ]
 }

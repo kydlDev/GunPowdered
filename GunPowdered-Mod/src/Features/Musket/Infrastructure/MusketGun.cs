@@ -126,7 +126,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             hit.m_damage.m_pierce = MusketRules.BulletPierce;
             hit.m_damage.m_fire = GunPowdered.Core.BurnRules.Total(MusketRules.BulletFirePerSecond);
             hit.m_pushForce = musket.m_shared.m_attackForce;
-            hit.m_skill = musket.m_shared.m_skillType;
+            hit.m_skill = GunPowdered.Features.Skilling.Infrastructure.GunSkills.Muskets;      // D-157: a hit trains Muskets (the game raises it on a creature hit)
             hit.m_blockable = true;
             hit.m_dodgeable = true;
             if (flight != null) flight.Setup(player, dir * MusketRules.BulletSpeed, -1f, hit, musket, null);

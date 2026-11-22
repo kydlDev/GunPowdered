@@ -53,7 +53,7 @@ namespace GunPowdered.Features.Musket.Domain
         /// time since the action began (ignored for Hold); <paramref name="carry"/> is how far the player is in the running carry (0 .. 1).
         /// Expected outcome: true when every value was written (false for a too short array).
         /// </summary>
-        internal static bool Evaluate(MusketAction action, float seconds, float carry, float[] into)
+        internal static bool Evaluate(MusketAction action, float seconds, float carry, float[] into, float strokeSeconds = ReloadSecondsPerCartridge)
         {
             if (RuleLog.Due("MusketPoseRules.Evaluate", 2d)) RuleLog.Every("MusketPoseRules.Evaluate", 2d, $"MusketPoseRules.Evaluate(action={RuleLog.Shown(action)}, seconds={RuleLog.Shown(seconds)}, carry={RuleLog.Shown(carry)}, into={RuleLog.Shown(into)})");
             if (into == null || into.Length < MusketPoses.Count) { if (RuleLog.Due("MusketPoseRules.Evaluate:33", 2d)) RuleLog.Every("MusketPoseRules.Evaluate:33", 2d, "MusketPoseRules.Evaluate: returns false (line 33)"); return false; }
@@ -67,7 +67,7 @@ namespace GunPowdered.Features.Musket.Domain
                     break;
                 case MusketAction.Reload:
                     float w = Clamp01(t / BlendSeconds);
-                    float s = Stroke(t);
+                    float s = Stroke(t, strokeSeconds);
                     for (int i = 0; i < MusketPoses.Count; i++)
                     {
                         float reload = MusketPoses.ReloadLow[i] + (MusketPoses.ReloadHigh[i] - MusketPoses.ReloadLow[i]) * s;
@@ -79,11 +79,12 @@ namespace GunPowdered.Features.Musket.Domain
         }
 
         /// <summary>Where the left hand is in the ramrod stroke of one cartridge: 0 (low) at the start and end of the 1.2 s, 1 (at the muzzle) in the middle.</summary>
-        internal static float Stroke(float seconds)
+        internal static float Stroke(float seconds, float strokeSeconds = ReloadSecondsPerCartridge)
         {
             if (RuleLog.Due("MusketPoseRules.Stroke", 2d)) RuleLog.Every("MusketPoseRules.Stroke", 2d, $"MusketPoseRules.Stroke(seconds={RuleLog.Shown(seconds)})");
             if (seconds <= 0f) { if (RuleLog.Due("MusketPoseRules.Stroke:59", 2d)) RuleLog.Every("MusketPoseRules.Stroke:59", 2d, "MusketPoseRules.Stroke: returns 0f (line 59)"); return 0f; }
-            float u = seconds % ReloadSecondsPerCartridge / ReloadSecondsPerCartridge;
+            float len = strokeSeconds > 0.05f ? strokeSeconds : ReloadSecondsPerCartridge;      // D-157: the stroke lasts what the Muskets skill gave the reload
+            float u = seconds % len / len;
             { var returnedAt61 = (float)Math.Sin(Math.PI * u); if (RuleLog.Due("MusketPoseRules.Stroke:61", 2d)) RuleLog.Every("MusketPoseRules.Stroke:61", 2d, $"MusketPoseRules.Stroke: returns {RuleLog.Shown(returnedAt61)} (line 61)"); return returnedAt61; }
         }
 
@@ -174,7 +175,7 @@ namespace GunPowdered.Features.Musket.Domain
         internal static float ReloadWeight(MusketAction action, float seconds) => action == MusketAction.Reload ? Clamp01(seconds / BlendSeconds) : 0f;
 
         /// <summary>How far the ramrod's top end stands above the muzzle at this moment of a reload (m): from <see cref="MusketPoses.RodHigh"/> down to <see cref="MusketPoses.RodLow"/> and back, once per cartridge.</summary>
-        internal static float RodAboveMuzzle(float seconds) => MusketPoses.RodLow + (MusketPoses.RodHigh - MusketPoses.RodLow) * Stroke(seconds);
+        internal static float RodAboveMuzzle(float seconds, float strokeSeconds = ReloadSecondsPerCartridge) => MusketPoses.RodLow + (MusketPoses.RodHigh - MusketPoses.RodLow) * Stroke(seconds, strokeSeconds);
 
         /// <summary>
         /// How steady the spine is held (0 = the animation as it is, 1 = only its slow average, D-099): full while aiming, none while running or

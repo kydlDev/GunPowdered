@@ -3,7 +3,8 @@
   "actions": [
     { "do": "clearInventory" },
     { "do": "give", "prefab": "GP_Musket", "count": 1, "equip": true },
-    { "do": "wait", "seconds": 1 }
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.setSkill", "args": { "name": "Muskets", "level": 100 }, "contains": "Muskets set to 100", "label": "Muskets skill 100: 1.2 s per cartridge (D-157; the reload times below were written for it)" }
   ],
   "asserts": []
 }

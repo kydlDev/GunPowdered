@@ -57,6 +57,7 @@ namespace GunPowdered.Bootstrap
             Add(new ExplosiveArrowsFeature());
             Add(new DynamiteFeature());
             Add(new MobileCannonFeature());
+            Add(new GunPowdered.Features.Skilling.Infrastructure.SkillingFeature());
             bool started = Refresh();
             ModLog.Verbose("ModInstaller: installed " + Features.Count + " feature(s), hub page " + page + ", started " + started);
             return page && started;

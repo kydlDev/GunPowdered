@@ -133,11 +133,11 @@ namespace GunPowdered.Features.Musket.Domain
         }
 
         /// <summary>How many cartridges a reload that began at <paramref name="started"/> should have moved in by <paramref name="now"/>: one at the end of each 1.2 s stroke.</summary>
-        internal static int CartridgesDue(float started, float now)
+        internal static int CartridgesDue(float started, float now, float strokeSeconds = ReloadSecondsPerCartridge)
         {
             if (RuleLog.Due("MusketRules.CartridgesDue", 2d)) RuleLog.Every("MusketRules.CartridgesDue", 2d, $"MusketRules.CartridgesDue(started={RuleLog.Shown(started)}, now={RuleLog.Shown(now)})");
             if (now <= started) { if (RuleLog.Due("MusketRules.CartridgesDue:100", 2d)) RuleLog.Every("MusketRules.CartridgesDue:100", 2d, "MusketRules.CartridgesDue: returns 0 (line 100)"); return 0; }
-            { var returnedAt101 = (int)Math.Floor((now - started) / ReloadSecondsPerCartridge + 1e-4); if (RuleLog.Due("MusketRules.CartridgesDue:101", 2d)) RuleLog.Every("MusketRules.CartridgesDue:101", 2d, $"MusketRules.CartridgesDue: returns {RuleLog.Shown(returnedAt101)} (line 101)"); return returnedAt101; }
+            { var returnedAt101 = (int)Math.Floor((now - started) / (strokeSeconds > 0.05f ? strokeSeconds : ReloadSecondsPerCartridge) + 1e-4); if (RuleLog.Due("MusketRules.CartridgesDue:101", 2d)) RuleLog.Every("MusketRules.CartridgesDue:101", 2d, $"MusketRules.CartridgesDue: returns {RuleLog.Shown(returnedAt101)} (line 101)"); return returnedAt101; }
         }
 
         /// <summary>Reads a stored load ("0".."5"); anything unreadable counts as empty, anything outside 0..Capacity as the nearest valid load.</summary>

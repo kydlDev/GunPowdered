@@ -51,6 +51,7 @@ namespace GunPowdered.Bootstrap
             Loc.Register(Ui.UiText.En);       // Ui. = GunPowdered.Ui (the Unity project's views and texts, linked into the mod)
 
             Bundle = LoadBundle();
+            GunPowdered.Features.Skilling.Infrastructure.GunSkills.Register();       // D-157: Explosives, Muskets, Cannons (icons from the bundle)
             // Harmony patches live in src/Integrations/Harmony (MIGRATION_DECISIONS A5); each one asks the FeatureRegistry whether its feature runs
             new Harmony(ModGuid).PatchAll(Assembly.GetExecutingAssembly());
             _installer = new ModInstaller(Config);

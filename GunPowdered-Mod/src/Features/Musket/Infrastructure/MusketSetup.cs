@@ -94,6 +94,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             shared.m_perfectBlockAdrenaline = MusketRules.ParryAdrenaline;
             shared.m_blockAdrenaline = MusketRules.BlockAdrenaline;
             shared.m_movementModifier = MusketRules.MovementModifier;
+            shared.m_skillType = GunPowdered.Features.Skilling.Infrastructure.GunSkills.Muskets;     // D-157: the musket's own skill, not Crossbows
             { var returnedAt89 = !shared.m_attack.m_requiresReload; if (RuleLog.IsOn()) ModLog.Verbose($"MusketSetup.MakeGun: returns {RuleLog.Shown(returnedAt89)} (line 89)"); return returnedAt89; }
         }
 

@@ -6,6 +6,7 @@
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
     { "do": "clearInventory" },
     { "do": "give", "prefab": "GP_Musket", "count": 1, "equip": true },
+    { "do": "hook", "name": "GunPowdered.setSkill", "args": { "name": "Muskets", "level": 100 }, "contains": "Muskets set to 100", "label": "Muskets skill 100: 1.2 s per cartridge (D-157; the reload times below were written for it)" },
     { "do": "give", "prefab": "GP_PaperCartridge", "count": 5 },
     { "do": "wait", "seconds": 1 },
     { "do": "peerJoin", "name": "Bjornita", "dx": 3.5, "dz": 4, "as": "bjornita" },
