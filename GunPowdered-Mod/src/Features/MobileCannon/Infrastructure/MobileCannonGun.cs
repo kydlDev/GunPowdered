@@ -98,7 +98,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         IEnumerator LoadAtMuzzle(Player p)
         {
             _loading = true;
-            float seconds = ModSettings.MobileCannonLoadSeconds.Value, end = Time.time + seconds, nextAnim = Time.time;
+            float seconds = GunPowdered.Features.Skilling.Domain.SkillRules.CannonLoadSeconds(ModSettings.MobileCannonLoadSeconds.Value, GunPowdered.Features.Skilling.Infrastructure.GunSkills.Level(p, GunPowdered.Features.Skilling.Infrastructure.GunSkills.Cannons)), end = Time.time + seconds, nextAnim = Time.time;
             ModLog.Verbose("MobileCannonGun: loading for " + seconds.ToString("0.0") + " s");
             while (Time.time < end)
             {

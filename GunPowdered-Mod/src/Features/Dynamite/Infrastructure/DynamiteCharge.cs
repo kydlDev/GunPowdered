@@ -1,6 +1,8 @@
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Features.Dynamite.Domain;
+using GunPowdered.Features.Skilling.Domain;
+using GunPowdered.Features.Skilling.Infrastructure;
 using GunPowdered.Core;
 
 namespace GunPowdered.Features.Dynamite.Infrastructure
@@ -12,7 +14,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
     /// </summary>
     internal sealed class DynamiteCharge : MonoBehaviour, Hoverable, Interactable
     {
-        internal const string LitKey = "gp_dyn_lit", LighterKey = "gp_dyn_lighter";
+        internal const string LitKey = "gp_dyn_lit", LighterKey = "gp_dyn_lighter", FuseKey = "gp_dyn_fuse";
         const string LightRpc = "GP_DynamiteLight";
         const float SparkEvery = 0.35f;
         static readonly string[] SparkEffects = { "vfx_torch_hit", DynamiteSetup.QuietFuseSound };
@@ -58,13 +60,16 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteCharge.Awake()");
             _nview = GetComponent<ZNetView>();
-            if (_nview != null && _nview.GetZDO() != null) _nview.Register<long>(LightRpc, RPC_Light);
+            if (_nview != null && _nview.GetZDO() != null) _nview.Register<long, float>(LightRpc, RPC_Light);
         }
 
         /// <summary>When the stick was lit (game seconds), or -1 when it is not burning.</summary>
         internal double LitAt => _nview != null && _nview.IsValid() ? _nview.GetZDO().GetLong(LitKey, -1L) / 1000d : -1d;
 
         internal bool IsLit => LitAt >= 0d;
+
+        /// <summary>D-157: this stick's fuse (s), set by the lighter's Explosives skill; the old 4 s for a stick lit before the skill existed.</summary>
+        internal float Fuse => _nview != null && _nview.IsValid() ? _nview.GetZDO().GetFloat(FuseKey, DynamiteRules.FuseSeconds) : DynamiteRules.FuseSeconds;
 
         public string GetHoverName() => Kind.Name;
 
@@ -73,7 +78,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         public string GetHoverText()
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteCharge.GetHoverText()");
-            if (IsLit) { var returnedAt52 = Kind.Name + "\n" + DynamiteRules.Burning + " (" + DynamiteRules.FuseLeft(LitAt, Now()).ToString("0.0") + " s)"; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteCharge.GetHoverText: returns {RuleLog.Shown(returnedAt52)} (line 52)"); return returnedAt52; }
+            if (IsLit) { var returnedAt52 = Kind.Name + "\n" + DynamiteRules.Burning + " (" + DynamiteRules.FuseLeft(LitAt, Now(), Fuse).ToString("0.0") + " s)"; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteCharge.GetHoverText: returns {RuleLog.Shown(returnedAt52)} (line 52)"); return returnedAt52; }
             { var returnedAt53 = Localization.instance.Localize(Kind.Name + "\n[<color=yellow><b>$KEY_Use</b></color>] Light the fuse (hold a Torch)"); if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteCharge.GetHoverText: returns {RuleLog.Shown(returnedAt53)} (line 53)"); return returnedAt53; }
         }
 
@@ -96,19 +101,23 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
                 { var returnedAt72 = why; if (RuleLog.Due("DynamiteCharge.Light:72", 2d)) ModLog.Every("DynamiteCharge.Light:72", 2d, $"DynamiteCharge.Light: returns {RuleLog.Shown(returnedAt72)} (line 72)"); return returnedAt72; }
             }
             Player p = user as Player;
-            _nview.InvokeRPC(LightRpc, p != null ? p.GetPlayerID() : 0L);
+            // D-157: the lighter's Explosives skill sets the fuse (5 s at level 0 .. 3 s at level 100); skills live on the lighter's client, so it is sent along
+            float fuse = SkillRules.DynamiteFuseSeconds(GunSkills.Level(user, GunSkills.Explosives));
+            _nview.InvokeRPC(LightRpc, p != null ? p.GetPlayerID() : 0L, fuse);
+            GunSkills.Raise(user, GunSkills.Explosives, SkillRules.GainLight);
             user.Message(MessageHud.MessageType.Center, DynamiteRules.Burning);
-            ModLog.Info("DynamiteCharge: " + Kind.Name + " lit at " + transform.position.ToString("0.0"));
+            ModLog.Info("DynamiteCharge: " + Kind.Name + " lit at " + transform.position.ToString("0.0") + ", fuse " + fuse.ToString("0.00") + " s (Explosives skill)");
             return null;
         }
 
-        void RPC_Light(long sender, long playerId)
+        void RPC_Light(long sender, long playerId, float fuse)
         {
-            if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteCharge.RPC_Light(sender={RuleLog.Shown(sender)}, playerId={RuleLog.Shown(playerId)})");
+            if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteCharge.RPC_Light(sender={RuleLog.Shown(sender)}, playerId={RuleLog.Shown(playerId)}, fuse={fuse})");
             if (!_nview.IsOwner() || IsLit) { if (RuleLog.IsOn()) ModLog.Verbose("DynamiteCharge.RPC_Light: returns (line 84)"); return; }
             ZDO zdo = _nview.GetZDO();
             zdo.Set(LitKey, (long)(Now() * 1000d));
             zdo.Set(LighterKey, playerId);
+            zdo.Set(FuseKey, fuse > 0.5f ? fuse : DynamiteRules.FuseSeconds);
             GunPowdered.Integrations.Valheim.GunNoise.Alert(transform.position, NoiseRules.FuseRadius, Player.GetPlayer(playerId), "dynamite fuse lit");      // D-149: a little, like a pickaxe hit
         }
 
@@ -121,13 +130,13 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             double lit = LitAt;
             if (lit < 0d) { if (RuleLog.Due("DynamiteCharge.Update:96", 2d)) ModLog.Every("DynamiteCharge.Update:96", 2d, "DynamiteCharge.Update: returns (line 96)"); return; }
             double now = Now();
-            ModLog.Every("dynamite-fuse", 1f, "DynamiteCharge: fuse at " + transform.position.ToString("0.0") + ", " + DynamiteRules.FuseLeft(lit, now).ToString("0.0") + " s left");
+            ModLog.Every("dynamite-fuse", 1f, "DynamiteCharge: fuse at " + transform.position.ToString("0.0") + ", " + DynamiteRules.FuseLeft(lit, now, Fuse).ToString("0.0") + " s left");
             if (Time.time >= _nextSpark)
             {
                 _nextSpark = Time.time + SparkEvery;
                 Sparks();
             }
-            if (DynamiteRules.Blows(lit, now)) Blow();
+            if (DynamiteRules.Blows(lit, now, Fuse)) Blow();
         }
 
         /// <summary>The text the local player last saw on screen for a burning pack (test hooks), and how often it was shown.</summary>
@@ -147,7 +156,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             _nextTimer = Time.time + 0.1f;
             float d = Vector3.Distance(me.transform.position, transform.position);
             if (!DynamiteRules.ShowsTimer(d, kind.Radius())) { if (RuleLog.Due("DynamiteCharge.Countdown:123", 2d)) ModLog.Every("DynamiteCharge.Countdown:123", 2d, "DynamiteCharge.Countdown: returns (line 123)"); return; }
-            LastTimerText = DynamiteRules.TimerText(kind.Name, DynamiteRules.FuseLeft(lit, Now()));
+            LastTimerText = DynamiteRules.TimerText(kind.Name, DynamiteRules.FuseLeft(lit, Now(), Fuse));
             TimerShows++;
             MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, LastTimerText);
         }

@@ -1,0 +1,30 @@
+{
+  "name": "grenade-fuse-skill",
+  "description": "D-157 (user 2026-11-23: grenade = 'Add a fuse after landing'): a Spiked Grenade lands and lies with its fuse burning, then bursts - 3 s after landing at Explosives level 0, 1 s at level 100 (the thrower's level). The throw trains the skill.",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "grenadeArena" },
+    { "do": "hook", "name": "GunPowdered.setSkill", "args": { "name": "Explosives", "level": 0 }, "contains": "Explosives set to 0", "label": "Explosives skill 0" },
+    { "do": "give", "prefab": "GP_SpikedGrenade", "count": 5, "equip": true },
+    { "do": "face", "dz": 10, "pitch": 30 },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.throwGrenade", "expect": true, "label": "throw (level 0)" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.grenadeFuse", "contains": "landed now 1" }, "timeout": 6 },
+    { "do": "hook", "name": "GunPowdered.grenadeFuse", "contains": "fuse 3.00 s", "label": "it landed with a 3 s fuse" },
+    { "do": "hook", "name": "GunPowdered.grenadeBlastSeen", "expect": false, "label": "no burst on impact" },
+    { "do": "wait", "seconds": 2 },
+    { "do": "hook", "name": "GunPowdered.grenadeBlastSeen", "expect": false, "label": "still burning 2 s after landing" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.grenadeBlastSeen", "expect": true }, "timeout": 3 },
+    { "do": "hook", "name": "GunPowdered.skillOf", "args": { "name": "Explosives" }, "notContains": "Explosives 0.0:", "label": "the throw trained the skill" },
+    { "do": "wait", "seconds": 1 },
+
+    { "do": "hook", "name": "GunPowdered.setSkill", "args": { "name": "Explosives", "level": 100 }, "contains": "Explosives set to 100", "label": "Explosives skill 100" },
+    { "do": "hook", "name": "GunPowdered.throwGrenade", "expect": true, "label": "throw (level 100)" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.grenadeFuse", "contains": "landed now 1" }, "timeout": 6 },
+    { "do": "hook", "name": "GunPowdered.grenadeFuse", "contains": "fuse 1.00 s", "label": "it landed with a 1 s fuse" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.grenadeBlastSeen", "expect": true }, "timeout": 2 },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

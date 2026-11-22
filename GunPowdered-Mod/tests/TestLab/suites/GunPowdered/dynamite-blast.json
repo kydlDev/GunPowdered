@@ -1,228 +1,238 @@
 {
-  "name": "dynamite-blast",
-  "description": "Dynamite (D-100): the attack button sets a stick down; it needs a Torch to light; lit, it burns 4 s and blows: a wood wall next to it is wrecked, a Troll next to it loses only a fifth of the building damage (30 of 150 blunt, its armour aside), and a round hole about 1.5 m deep is dug where it stood; the test puts the ground back.",
-  "timeout": 90,
-  "steps": [
-    {
-      "do": "hook",
-      "name": "GunPowdered.arena",
-      "contains": "arena at",
-      "label": "start on the arena spot"
-    },
-    {
-      "do": "clearInventory"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteInfo",
-      "contains": "stick True, radius 4, damage 100 tier 2, props True chars False, creatures 20 chars True props False, crater 2.5 x 1.5",
-      "label": "blast 4 m, 100 to buildings up to iron, 20 (a fifth) + burning to creatures (D-107)"
-    },
-    {
-      "do": "give",
-      "prefab": "GP_Dynamite",
-      "count": 2,
-      "equip": true
-    },
-    {
-      "do": "wait",
-      "seconds": 1
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamitePlaceAt",
-      "args": {
-        "metres": 8
-      },
-      "contains": "placed at",
-      "label": "the attack sets a stick down"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.invCount",
-      "args": {
-        "prefab": "GP_Dynamite"
-      },
-      "expect": 1,
-      "label": "it came out of the backpack"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.rightHand",
-      "expect": "GP_Dynamite, model True",
-      "label": "one stick left: still in the hand"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteSticks",
-      "expect": 1,
-      "label": "one stick stands there"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteGroundMark",
-      "contains": "marked",
-      "label": "remember the ground height"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteLight",
-      "expect": "Hold a Torch to light the fuse",
-      "label": "no torch, no fuse"
-    },
-    {
-      "do": "give",
-      "prefab": "Torch",
-      "count": 1,
-      "equip": true
-    },
-    {
-      "do": "wait",
-      "seconds": 0.5
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.placePieceNearDynamite",
-      "args": {
-        "prefab": "woodwall",
-        "metres": 2
-      },
-      "contains": "placed woodwall",
-      "label": "a wood wall 2 m from the stick"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteLight",
-      "expect": "lit",
-      "label": "the torch lights the fuse"
-    },
-    {
-      "do": "wait",
-      "seconds": 2
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteSticks",
-      "expect": 1,
-      "label": "still burning after 2 s"
-    },
-    {
-      "do": "spawn",
-      "prefab": "Troll",
-      "dz": 9
-    },
-    {
-      "do": "wait",
-      "seconds": 0.5
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.creatureBackstabUsed",
-      "args": {
-        "prefab": "Troll"
-      },
-      "expect": "backstab used on Troll",
-      "label": "the Troll's backstab is used up, so the blast's own fifth is measured (before: 20 x 4 backstab = 80 passed the same check, D-125)"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.creatureDamageWatch",
-      "args": {
-        "prefab": "Troll"
-      },
-      "expect": "watching Troll",
-      "label": "T-009l diagnostic: log every hit the Troll takes"
-    },
-    {
-      "do": "wait",
-      "seconds": 3
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteBlastsSinceLight",
-      "expect": 1,
-      "label": "it blew"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.creatureDamageHits",
-      "label": "the blast hits the Troll ONCE (T-009l: the creature part used to re-hit every second, 3 hits)",
-      "expect": "hits 1"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.burningOn",
-      "args": {
-        "prefab": "Troll"
-      },
-      "regex": "burning True, per tick [0-9]",
-      "label": "the Troll burns (D-107: 5 fire/s for 5 s on top of the 20 %)"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteSticks",
-      "expect": 0,
-      "label": "the stick is gone"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamitePieceHurt",
-      "expect": true,
-      "label": "the wall is wrecked"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.creatureLostBetween",
-      "args": {
-        "prefab": "Troll",
-        "min": 10,
-        "max": 35
-      },
-      "expect": true,
-      "label": "the Troll loses only its fifth: 20 blunt (Troll: resistant, 10) + the first fire ticks (5/s)"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteHoleAtLeast",
-      "args": {
-        "metres": 0.8
-      },
-      "expect": true,
-      "label": "a hole is dug where it stood"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteRemovePieces",
-      "contains": "removed",
-      "label": "the wall is taken away"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteTerrainReset",
-      "contains": "reset",
-      "label": "the hole is undone"
-    },
-    {
-      "do": "wait",
-      "seconds": 1
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteGroundBack",
-      "expect": "back",
-      "label": "the ground is back"
-    },
-    {
-      "do": "clearInventory"
-    },
-    {
-      "do": "cleanArena"
-    }
-  ],
-  "asserts": [
-    {
-      "check": "noErrors",
-      "source": "GunPowdered"
-    }
-  ]
+    "name":  "dynamite-blast",
+    "description":  "Dynamite (D-100): the attack button sets a stick down; it needs a Torch to light; lit, it burns 4 s and blows: a wood wall next to it is wrecked, a Troll next to it loses only a fifth of the building damage (30 of 150 blunt, its armour aside), and a round hole about 1.5 m deep is dug where it stood; the test puts the ground back.",
+    "timeout":  90,
+    "steps":  [
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.arena",
+                      "contains":  "arena at",
+                      "label":  "start on the arena spot"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.setSkill",
+                      "args":  {
+                                   "name":  "Explosives",
+                                   "level":  50
+                               },
+                      "contains":  "Explosives set to 50",
+                      "label":  "Explosives skill 50: the 4 s fuse these timings were written for (D-157)"
+                  },
+                  {
+                      "do":  "clearInventory"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteInfo",
+                      "contains":  "stick True, radius 4, damage 100 tier 2, props True chars False, creatures 20 chars True props False, crater 2.5 x 1.5",
+                      "label":  "blast 4 m, 100 to buildings up to iron, 20 (a fifth) + burning to creatures (D-107)"
+                  },
+                  {
+                      "do":  "give",
+                      "prefab":  "GP_Dynamite",
+                      "count":  2,
+                      "equip":  true
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  1
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamitePlaceAt",
+                      "args":  {
+                                   "metres":  8
+                               },
+                      "contains":  "placed at",
+                      "label":  "the attack sets a stick down"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.invCount",
+                      "args":  {
+                                   "prefab":  "GP_Dynamite"
+                               },
+                      "expect":  1,
+                      "label":  "it came out of the backpack"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.rightHand",
+                      "expect":  "GP_Dynamite, model True",
+                      "label":  "one stick left: still in the hand"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteSticks",
+                      "expect":  1,
+                      "label":  "one stick stands there"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteGroundMark",
+                      "contains":  "marked",
+                      "label":  "remember the ground height"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteLight",
+                      "expect":  "Hold a Torch to light the fuse",
+                      "label":  "no torch, no fuse"
+                  },
+                  {
+                      "do":  "give",
+                      "prefab":  "Torch",
+                      "count":  1,
+                      "equip":  true
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  0.5
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.placePieceNearDynamite",
+                      "args":  {
+                                   "prefab":  "woodwall",
+                                   "metres":  2
+                               },
+                      "contains":  "placed woodwall",
+                      "label":  "a wood wall 2 m from the stick"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteLight",
+                      "expect":  "lit",
+                      "label":  "the torch lights the fuse"
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  2
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteSticks",
+                      "expect":  1,
+                      "label":  "still burning after 2 s"
+                  },
+                  {
+                      "do":  "spawn",
+                      "prefab":  "Troll",
+                      "dz":  9
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  0.5
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.creatureBackstabUsed",
+                      "args":  {
+                                   "prefab":  "Troll"
+                               },
+                      "expect":  "backstab used on Troll",
+                      "label":  "the Troll\u0027s backstab is used up, so the blast\u0027s own fifth is measured (before: 20 x 4 backstab = 80 passed the same check, D-125)"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.creatureDamageWatch",
+                      "args":  {
+                                   "prefab":  "Troll"
+                               },
+                      "expect":  "watching Troll",
+                      "label":  "T-009l diagnostic: log every hit the Troll takes"
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  3
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteBlastsSinceLight",
+                      "expect":  1,
+                      "label":  "it blew"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.creatureDamageHits",
+                      "label":  "the blast hits the Troll ONCE (T-009l: the creature part used to re-hit every second, 3 hits)",
+                      "expect":  "hits 1"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.burningOn",
+                      "args":  {
+                                   "prefab":  "Troll"
+                               },
+                      "regex":  "burning True, per tick [0-9]",
+                      "label":  "the Troll burns (D-107: 5 fire/s for 5 s on top of the 20 %)"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteSticks",
+                      "expect":  0,
+                      "label":  "the stick is gone"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamitePieceHurt",
+                      "expect":  true,
+                      "label":  "the wall is wrecked"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.creatureLostBetween",
+                      "args":  {
+                                   "prefab":  "Troll",
+                                   "min":  10,
+                                   "max":  35
+                               },
+                      "expect":  true,
+                      "label":  "the Troll loses only its fifth: 20 blunt (Troll: resistant, 10) + the first fire ticks (5/s)"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteHoleAtLeast",
+                      "args":  {
+                                   "metres":  0.8
+                               },
+                      "expect":  true,
+                      "label":  "a hole is dug where it stood"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteRemovePieces",
+                      "contains":  "removed",
+                      "label":  "the wall is taken away"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteTerrainReset",
+                      "contains":  "reset",
+                      "label":  "the hole is undone"
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  1
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteGroundBack",
+                      "expect":  "back",
+                      "label":  "the ground is back"
+                  },
+                  {
+                      "do":  "clearInventory"
+                  },
+                  {
+                      "do":  "cleanArena"
+                  }
+              ],
+    "asserts":  [
+                    {
+                        "check":  "noErrors",
+                        "source":  "GunPowdered"
+                    }
+                ]
 }

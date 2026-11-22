@@ -224,6 +224,17 @@ namespace GunPowdered.Testing.TestHooks
             return "removed " + n;
         }
 
+        /// <summary>D-157: the landed-grenade fuse: "fuse F s, bursts B, landed now L" (F = the last fuse this client set up from the thrower's Explosives level).</summary>
+        [TestHook("GunPowdered.grenadeFuse")]
+        static string Fuse()
+        {
+            ModLog.Verbose("GrenadeTestHooks.Fuse()");
+            int landed = Object.FindObjectsByType<GrenadeFuse>(FindObjectsSortMode.None).Length;
+            string s = "fuse " + GrenadeFuse.LastFuse.ToString("0.00", CultureInfo.InvariantCulture) + " s, bursts " + GrenadeFuse.Bursts + ", landed now " + landed;
+            ModLog.Info("GrenadeTestHooks.Fuse: returns " + s);
+            return s;
+        }
+
         // the blast is the grenade's own explosion prefab: its first new instance after the throw is where the grenade burst
         static IEnumerator WatchBlast()
         {

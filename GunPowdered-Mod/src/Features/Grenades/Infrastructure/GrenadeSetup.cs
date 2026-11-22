@@ -21,7 +21,54 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         static readonly string[] ProjectileBases = { "oozebomb_projectile", "bilebomb_projectile" };
         static readonly string[] ExplosionBases = { "bombdynamite_explosion", "bilebomb_explosion", "oozebomb_explosion" };
 
-        static GameObject _projectile, _explosion, _item;
+        static GameObject _projectile, _explosion, _item, _landed;
+
+        /// <summary>D-157: the landed grenade whose fuse burns before the blast.</summary>
+        internal const string LandedId = "GP_SpikedGrenade_landed";
+        internal static GameObject Landed => _landed;
+
+        /// <summary>
+        /// D-157 (user 2026-11-23: "Add a fuse after landing"): the object a grenade's flight leaves where it ends - the grenade model on a small physics body
+        /// (it drops to the ground when it hit a creature) with the fuse (GrenadeFuse). Synced position, not saved with the world. Expected outcome: the prefab.
+        /// </summary>
+        static GameObject MakeLanded(GameObject item)
+        {
+            GameObject landed = PrefabManager.Instance.CreateEmptyPrefab(LandedId, true);
+            if (landed == null) { ModLog.Warn("GrenadeSetup: the landed grenade could not be made - it bursts on impact as before"); return null; }
+            ZNetView nv = landed.GetComponent<ZNetView>();
+            if (nv != null) nv.m_persistent = false;
+            foreach (Collider c in landed.GetComponentsInChildren<Collider>(true)) UnityEngine.Object.DestroyImmediate(c);
+            foreach (Renderer r in landed.GetComponentsInChildren<Renderer>(true)) UnityEngine.Object.DestroyImmediate(r);
+            foreach (MeshFilter f in landed.GetComponentsInChildren<MeshFilter>(true)) UnityEngine.Object.DestroyImmediate(f);
+            Transform model = item != null ? item.transform.Find("gp_model") : null;
+            if (model != null)
+            {
+                GameObject look = UnityEngine.Object.Instantiate(model.gameObject, landed.transform);
+                look.name = "gp_model";
+                look.transform.localPosition = Vector3.up * PotCentreHeight;
+                look.transform.localRotation = Quaternion.identity;
+                foreach (Collider c in look.GetComponentsInChildren<Collider>(true)) UnityEngine.Object.DestroyImmediate(c);
+                foreach (Renderer r in look.GetComponentsInChildren<Renderer>(true)) r.enabled = true;
+            }
+            var ball = landed.AddComponent<SphereCollider>();
+            ball.radius = 0.12f;
+            ball.center = Vector3.up * 0.12f;
+            var body = landed.AddComponent<Rigidbody>();
+            body.mass = 2f;
+            body.drag = 1f;
+            body.angularDrag = 5f;
+            body.interpolation = RigidbodyInterpolation.Interpolate;
+            body.constraints = RigidbodyConstraints.FreezeRotation;      // it drops and lies where it landed, it does not roll off down a slope
+            var sync = landed.AddComponent<ZSyncTransform>();
+            sync.m_syncPosition = true;
+            sync.m_syncRotation = true;
+            int layer = LayerMask.NameToLayer("item");
+            if (layer >= 0) foreach (Transform t in landed.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = layer;
+            landed.AddComponent<GrenadeFuse>();
+            PrefabManager.Instance.AddPrefab(new CustomPrefab(landed, true));
+            ModLog.Info("GrenadeSetup: landed grenade " + LandedId + " made (model " + (model != null) + ")");
+            return landed;
+        }
         // the values last put on the prefabs and the ones now asked for (filled in place: no allocation in the per-frame check)
         static readonly float[] Applied = new float[9], Wanted = new float[9];
         static bool _everApplied;
@@ -45,6 +92,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             _projectile = CloneFirst(ProjectileId, ProjectileBases);
             if (_explosion != null) StripTerrainWork(_explosion);
             bool hand = AttachHandModel(itemPrefab);
+            if (_landed == null) _landed = MakeLanded(itemPrefab);
             bool applied = Apply();
             ModLog.Verbose("GrenadeSetup: configured - item " + (_item != null) + ", projectile " + (_projectile != null) + ", explosion " + (_explosion != null) + ", values applied " + applied + ", hand model " + hand);
             return _item != null && _projectile != null && _explosion != null && applied;
@@ -105,7 +153,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             flight.m_bounce = false;
             flight.m_ttl = ModSettings.GrenadeFuseSeconds.Value;
             flight.m_spawnOnTtl = true;              // a grenade that hits nothing still bursts at the end of its fuse
-            flight.m_spawnOnHit = _explosion;
+            flight.m_spawnOnHit = _landed != null ? _landed : _explosion;      // D-157: it lands and its fuse burns (GrenadeFuse), then bursts
             flight.m_spawnOffset = Vector3.zero;     // the Ooze Bomb bursts 1 m back along its flight (0, 0, -1): 0.76 m short of the drawn ring (run gren1)
             flight.m_statusEffect = "";
 

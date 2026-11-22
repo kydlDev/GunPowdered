@@ -234,7 +234,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         IEnumerator LoadAtMuzzle(Player p)
         {
             _loading = true;
-            float seconds = ModSettings.CannonLoadSeconds.Value, end = Time.time + seconds, nextAnim = Time.time + AnimEvery;
+            float seconds = GunPowdered.Features.Skilling.Domain.SkillRules.CannonLoadSeconds(ModSettings.CannonLoadSeconds.Value, GunPowdered.Features.Skilling.Infrastructure.GunSkills.Level(p, GunPowdered.Features.Skilling.Infrastructure.GunSkills.Cannons)), end = Time.time + seconds, nextAnim = Time.time + AnimEvery;
             bool shown = ShowBallInHand(p, seconds, CannonAmmoRules.Choose(CannonAmmoRules.HandCannonMinTier, CannonInventory.BallsCarried(p.GetInventory())));
             ModLog.Verbose("CannonMount: loading for " + Fmt(seconds) + " s, ball in hand " + shown);
             while (Time.time < end)

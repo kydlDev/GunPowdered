@@ -1,3 +1,5 @@
+using GunPowdered.Features.Skilling.Domain;
+using GunPowdered.Features.Skilling.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -79,6 +81,10 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         {
             if (_nview == null || !_nview.IsValid()) { if (RuleLog.Due("CannonBallFlight.Launch:80", 2d)) ModLog.Every("CannonBallFlight.Launch:80", 2d, "CannonBallFlight.Launch: returns false (line 80)"); return false; }
             _shooter = shooter;
+            // D-157: the shooter's Cannons skill makes the cannon's blunt part harder (x1.0 at level 0 .. x1.5 at level 100); this runs on the shooter's client
+            _blunt = SkillRules.CannonBluntFactor(GunSkills.Level(shooter, GunSkills.Cannons));
+            GunSkills.Raise(shooter, GunSkills.Cannons, SkillRules.GainCannonShot);
+            LastShotDamage = Damage().ToString();
             _ignore = ignoreRoot;
             _pos = _origin = transform.position;
             _vel = velocity;
@@ -283,6 +289,9 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         /// <summary>The last shot's damage before the momentum (cannon part + ball part, D-145; test hooks).</summary>
         internal static string LastShotDamage { get; private set; } = "";
 
+        // D-157: the factor on the cannon's blunt part from the shooter's Cannons skill (1 until launched)
+        float _blunt = 1f;
+
         /// <summary>
         /// What fired this ball (D-145): the cannon's part of the damage (the Mobile Cannon's heavier one, D-107, or the Hand Cannon's) and the ball
         /// whose part adds to it; the same ball lies where the flight stops. Call before <see cref="Launch"/>.
@@ -301,8 +310,8 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         ShotDamage Damage()
         {
             var cannon = _mobile
-                ? new ShotDamage(0f, ModSettings.MobileCannonBlunt.Value, ModSettings.MobileCannonPickaxe.Value, ModSettings.MobileCannonFire.Value, 0)
-                : new ShotDamage(0f, ModSettings.CannonBlunt.Value, ModSettings.CannonPickaxe.Value, ModSettings.CannonFire.Value, 0);
+                ? new ShotDamage(0f, ModSettings.MobileCannonBlunt.Value * _blunt, ModSettings.MobileCannonPickaxe.Value, ModSettings.MobileCannonFire.Value, 0)
+                : new ShotDamage(0f, ModSettings.CannonBlunt.Value * _blunt, ModSettings.CannonPickaxe.Value, ModSettings.CannonFire.Value, 0);
             { var returnedAt306 = ShotDamage.Sum(cannon, BallDamage(_ball)); if (RuleLog.Due("CannonBallFlight.Damage:306", 2d)) ModLog.Every("CannonBallFlight.Damage:306", 2d, $"CannonBallFlight.Damage: returns {RuleLog.Shown(returnedAt306)} (line 306)"); return returnedAt306; }
         }
 

@@ -1,0 +1,38 @@
+{
+  "name": "cannon-skill",
+  "description": "D-157 (user 2026-11-23: Cannons skill 'Load 4->2.5 s, blunt x1.0->x1.5'): the Mobile Cannon loads in 4 s at Cannons level 0 (not loaded after 3 s) and its shot's cannon blunt is 120; at level 100 it loads in 2.5 s and the blunt is 180. A shot trains the skill.",
+  "timeout": 90,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "mobileCannonPlaced" },
+    { "do": "hook", "name": "GunPowdered.setSkill", "args": { "name": "Cannons", "level": 0 }, "contains": "Cannons set to 0", "label": "Cannons skill 0" },
+    { "do": "give", "prefab": "GP_Gunpowder", "count": 6 },
+    { "do": "give", "prefab": "GP_FlametalCannonBall", "count": 2 },
+    { "do": "hook", "name": "GunPowdered.mobileCannonCrank", "args": { "notches": 15 }, "contains": "turned 15", "label": "elevation 15 degrees" },
+    { "do": "hook", "name": "GunPowdered.mobileCannonLoad", "expect": "loading", "label": "load (level 0)" },
+    { "do": "wait", "seconds": 3 },
+    { "do": "hook", "name": "GunPowdered.mobileCannonGunState", "contains": "loaded False", "label": "not loaded after 3 s (4 s at level 0)" },
+    { "do": "wait", "seconds": 1.6 },
+    { "do": "hook", "name": "GunPowdered.mobileCannonGunState", "contains": "loaded True", "label": "loaded after 4.6 s" },
+    { "do": "give", "prefab": "Torch", "count": 1, "equip": true },
+    { "do": "wait", "seconds": 0.5 },
+    { "do": "hook", "name": "GunPowdered.mobileCannonLight", "expect": "lit", "label": "fire (level 0)" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.mobileCannonGunState", "contains": "loaded False, lit False" }, "timeout": 8 },
+    { "do": "hook", "name": "GunPowdered.cannonShotDamage", "contains": "blunt 120,", "label": "the cannon's blunt part is 120 at level 0" },
+    { "do": "hook", "name": "GunPowdered.skillOf", "args": { "name": "Cannons" }, "notContains": "Cannons 0.0:", "label": "the shot trained the skill" },
+    { "do": "wait", "seconds": 2 },
+
+    { "do": "hook", "name": "GunPowdered.setSkill", "args": { "name": "Cannons", "level": 100 }, "contains": "Cannons set to 100", "label": "Cannons skill 100" },
+    { "do": "hook", "name": "GunPowdered.mobileCannonLoad", "expect": "loading", "label": "load (level 100)" },
+    { "do": "wait", "seconds": 2.9 },
+    { "do": "hook", "name": "GunPowdered.mobileCannonGunState", "contains": "loaded True", "label": "loaded after 2.9 s (2.5 s at level 100)" },
+    { "do": "hook", "name": "GunPowdered.mobileCannonLight", "expect": "lit", "label": "fire (level 100)" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.mobileCannonGunState", "contains": "loaded False, lit False" }, "timeout": 8 },
+    { "do": "hook", "name": "GunPowdered.cannonShotDamage", "contains": "blunt 180,", "label": "the cannon's blunt part is 180 (x1.5) at level 100" },
+    { "do": "wait", "seconds": 2 },
+    { "do": "hook", "name": "GunPowdered.mobileCannonRemove", "contains": "removed" },
+    { "do": "clearInventory" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

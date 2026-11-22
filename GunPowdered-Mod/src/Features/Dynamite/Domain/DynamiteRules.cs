@@ -8,7 +8,7 @@ namespace GunPowdered.Features.Dynamite.Domain
     /// </summary>
     internal static class DynamiteRules
     {
-        /// <summary>Seconds from lighting to the blast.</summary>
+        /// <summary>Seconds from lighting to the blast before the Explosives skill (D-157: the fuse now runs 5 s at level 0 to 3 s at level 100, SkillRules; this is level 50).</summary>
         internal const float FuseSeconds = 4f;
 
         /// <summary>D-158 (user 2026-11-23: "once the character has placed the dynamite, have it get back up and not remain kneeled"): how long the kneel lasts before the character stands up again.</summary>
@@ -79,19 +79,19 @@ namespace GunPowdered.Features.Dynamite.Domain
         }
 
         /// <summary>Seconds of fuse left for a stick lit at <paramref name="litAt"/> (s) at <paramref name="now"/>; the full fuse for an unlit one (litAt below 0).</summary>
-        internal static float FuseLeft(double litAt, double now)
+        internal static float FuseLeft(double litAt, double now, float fuseSeconds = FuseSeconds)
         {
             if (RuleLog.Due("DynamiteRules.FuseLeft", 2d)) RuleLog.Every("DynamiteRules.FuseLeft", 2d, $"DynamiteRules.FuseLeft(litAt={RuleLog.Shown(litAt)}, now={RuleLog.Shown(now)})");
-            if (litAt < 0d) { var returnedAt51 = FuseSeconds; if (RuleLog.Due("DynamiteRules.FuseLeft:51", 2d)) RuleLog.Every("DynamiteRules.FuseLeft:51", 2d, $"DynamiteRules.FuseLeft: returns {RuleLog.Shown(returnedAt51)} (line 51)"); return returnedAt51; }
-            double left = FuseSeconds - (now - litAt);
+            if (litAt < 0d) { var returnedAt51 = fuseSeconds; if (RuleLog.Due("DynamiteRules.FuseLeft:51", 2d)) RuleLog.Every("DynamiteRules.FuseLeft:51", 2d, $"DynamiteRules.FuseLeft: returns {RuleLog.Shown(returnedAt51)} (line 51)"); return returnedAt51; }
+            double left = fuseSeconds - (now - litAt);
             { var returnedAt53 = left > 0d ? (float)left : 0f; if (RuleLog.Due("DynamiteRules.FuseLeft:53", 2d)) RuleLog.Every("DynamiteRules.FuseLeft:53", 2d, $"DynamiteRules.FuseLeft: returns {RuleLog.Shown(returnedAt53)} (line 53)"); return returnedAt53; }
         }
 
         /// <summary>Whether a stick lit at <paramref name="litAt"/> blows at <paramref name="now"/> (never for an unlit one).</summary>
-        internal static bool Blows(double litAt, double now)
+        internal static bool Blows(double litAt, double now, float fuseSeconds = FuseSeconds)
         {
             if (RuleLog.Due("DynamiteRules.Blows", 2d)) RuleLog.Every("DynamiteRules.Blows", 2d, $"DynamiteRules.Blows(litAt={RuleLog.Shown(litAt)}, now={RuleLog.Shown(now)})");
-            { var returnedAt60 = litAt >= 0d && now - litAt >= FuseSeconds; if (RuleLog.Due("DynamiteRules.Blows:60", 2d)) RuleLog.Every("DynamiteRules.Blows:60", 2d, $"DynamiteRules.Blows: returns {RuleLog.Shown(returnedAt60)} (line 60)"); return returnedAt60; }
+            { var returnedAt60 = litAt >= 0d && now - litAt >= fuseSeconds; if (RuleLog.Due("DynamiteRules.Blows:60", 2d)) RuleLog.Every("DynamiteRules.Blows:60", 2d, $"DynamiteRules.Blows: returns {RuleLog.Shown(returnedAt60)} (line 60)"); return returnedAt60; }
         }
 
         /// <summary>Why a stick cannot be lit (null = it can): it burns already, or the player holds no Torch.</summary>

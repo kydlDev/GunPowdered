@@ -1,172 +1,182 @@
 {
-  "name": "dynamite-alerts-mobs",
-  "description": "D-149 (user 2026-11-21 12:25; all three mobs Greydwarfs - one faction, so they do not fight each other first): lighting the fuse alerts mobs a little (like a pickaxe hit, 15 m), the blast alerts many (60 m) and they go towards it; a mob 90 m away does not react. The player is in ghost mode, so the mobs react to the noise, not to seeing the player.",
-  "timeout": 90,
-  "steps": [
-    {
-      "do": "hook",
-      "name": "GunPowdered.arena",
-      "contains": "arena at",
-      "label": "start on the arena spot"
-    },
-    {
-      "do": "clearInventory"
-    },
-    {
-      "do": "console",
-      "command": "ghost"
-    },
-    {
-      "do": "give",
-      "prefab": "GP_Dynamite",
-      "count": 1,
-      "equip": true
-    },
-    {
-      "do": "wait",
-      "seconds": 1
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamitePlaceAt",
-      "args": {
-        "metres": 6
-      },
-      "contains": "placed at",
-      "label": "a stick 6 m out"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteGroundMark",
-      "contains": "marked",
-      "label": "remember the ground height"
-    },
-    {
-      "do": "spawn",
-      "prefab": "Greydwarf",
-      "dz": 16,
-      "as": "near"
-    },
-    {
-      "do": "spawn",
-      "prefab": "Greydwarf_Elite",
-      "dz": 45,
-      "as": "far"
-    },
-    {
-      "do": "spawn",
-      "prefab": "Greydwarf_Shaman",
-      "dz": 96,
-      "as": "veryfar"
-    },
-    {
-      "do": "wait",
-      "seconds": 2
-    },
-    {
-      "do": "give",
-      "prefab": "Torch",
-      "count": 1,
-      "equip": true
-    },
-    {
-      "do": "wait",
-      "seconds": 0.5
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteLight",
-      "expect": "lit",
-      "label": "light the fuse"
-    },
-    {
-      "do": "wait",
-      "seconds": 0.5
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.noiseLast",
-      "regex": "dynamite fuse lit at .*radius 15 m, alerted [1-9]",
-      "label": "the lit fuse alerts the Greydwarf 10 m from it (like a pickaxe hit)"
-    },
-    {
-      "do": "wait",
-      "seconds": 4.5
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.noiseLast",
-      "regex": "Dynamite blast at .*radius 60 m, alerted [1-9]",
-      "label": "the blast alerts mobs within 60 m"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.noiseMarkBlast",
-      "contains": "noise at"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.noiseCreature",
-      "args": {
-        "prefab": "Greydwarf_Elite"
-      },
-      "regex": "target Human, last known [0-1]\\.\\d m from the blast",
-      "label": "the Greydwarf Brute 39 m from the blast hunts the player and knows where the blast was (the game clears its alerted flag again while it cannot see the player)"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.noiseCreature",
-      "args": {
-        "prefab": "Greydwarf_Shaman"
-      },
-      "contains": "alerted False",
-      "label": "the Greydwarf Shaman 90 m away did not hear it"
-    },
-    {
-      "do": "wait",
-      "seconds": 6
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.noiseCreature",
-      "args": {
-        "prefab": "Greydwarf_Elite"
-      },
-      "regex": "now ([0-9]|[12][0-9]|3[0-3])\\.\\d m from the blast",
-      "label": "the Brute walks towards the blast (was 39 m away)"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteTerrainReset",
-      "contains": "reset",
-      "label": "the hole is undone"
-    },
-    {
-      "do": "wait",
-      "seconds": 1
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.dynamiteGroundBack",
-      "expect": "back",
-      "label": "the ground is back"
-    },
-    {
-      "do": "console",
-      "command": "ghost"
-    },
-    {
-      "do": "clearInventory"
-    },
-    {
-      "do": "console",
-      "command": "killall"
-    }
-  ],
-  "asserts": [
-    {
-      "check": "noErrors",
-      "source": "GunPowdered"
-    }
-  ]
+    "name":  "dynamite-alerts-mobs",
+    "description":  "D-149 (user 2026-11-21 12:25; all three mobs Greydwarfs - one faction, so they do not fight each other first): lighting the fuse alerts mobs a little (like a pickaxe hit, 15 m), the blast alerts many (60 m) and they go towards it; a mob 90 m away does not react. The player is in ghost mode, so the mobs react to the noise, not to seeing the player.",
+    "timeout":  90,
+    "steps":  [
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.arena",
+                      "contains":  "arena at",
+                      "label":  "start on the arena spot"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.setSkill",
+                      "args":  {
+                                   "name":  "Explosives",
+                                   "level":  50
+                               },
+                      "contains":  "Explosives set to 50",
+                      "label":  "Explosives skill 50: the 4 s fuse these timings were written for (D-157)"
+                  },
+                  {
+                      "do":  "clearInventory"
+                  },
+                  {
+                      "do":  "console",
+                      "command":  "ghost"
+                  },
+                  {
+                      "do":  "give",
+                      "prefab":  "GP_Dynamite",
+                      "count":  1,
+                      "equip":  true
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  1
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamitePlaceAt",
+                      "args":  {
+                                   "metres":  6
+                               },
+                      "contains":  "placed at",
+                      "label":  "a stick 6 m out"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteGroundMark",
+                      "contains":  "marked",
+                      "label":  "remember the ground height"
+                  },
+                  {
+                      "do":  "spawn",
+                      "prefab":  "Greydwarf",
+                      "dz":  16,
+                      "as":  "near"
+                  },
+                  {
+                      "do":  "spawn",
+                      "prefab":  "Greydwarf_Elite",
+                      "dz":  45,
+                      "as":  "far"
+                  },
+                  {
+                      "do":  "spawn",
+                      "prefab":  "Greydwarf_Shaman",
+                      "dz":  96,
+                      "as":  "veryfar"
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  2
+                  },
+                  {
+                      "do":  "give",
+                      "prefab":  "Torch",
+                      "count":  1,
+                      "equip":  true
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  0.5
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteLight",
+                      "expect":  "lit",
+                      "label":  "light the fuse"
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  0.5
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.noiseLast",
+                      "regex":  "dynamite fuse lit at .*radius 15 m, alerted [1-9]",
+                      "label":  "the lit fuse alerts the Greydwarf 10 m from it (like a pickaxe hit)"
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  4.5
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.noiseLast",
+                      "regex":  "Dynamite blast at .*radius 60 m, alerted [1-9]",
+                      "label":  "the blast alerts mobs within 60 m"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.noiseMarkBlast",
+                      "contains":  "noise at"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.noiseCreature",
+                      "args":  {
+                                   "prefab":  "Greydwarf_Elite"
+                               },
+                      "regex":  "target Human, last known [0-1]\\.\\d m from the blast",
+                      "label":  "the Greydwarf Brute 39 m from the blast hunts the player and knows where the blast was (the game clears its alerted flag again while it cannot see the player)"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.noiseCreature",
+                      "args":  {
+                                   "prefab":  "Greydwarf_Shaman"
+                               },
+                      "contains":  "alerted False",
+                      "label":  "the Greydwarf Shaman 90 m away did not hear it"
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  6
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.noiseCreature",
+                      "args":  {
+                                   "prefab":  "Greydwarf_Elite"
+                               },
+                      "regex":  "now ([0-9]|[12][0-9]|3[0-3])\\.\\d m from the blast",
+                      "label":  "the Brute walks towards the blast (was 39 m away)"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteTerrainReset",
+                      "contains":  "reset",
+                      "label":  "the hole is undone"
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  1
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.dynamiteGroundBack",
+                      "expect":  "back",
+                      "label":  "the ground is back"
+                  },
+                  {
+                      "do":  "console",
+                      "command":  "ghost"
+                  },
+                  {
+                      "do":  "clearInventory"
+                  },
+                  {
+                      "do":  "console",
+                      "command":  "killall"
+                  }
+              ],
+    "asserts":  [
+                    {
+                        "check":  "noErrors",
+                        "source":  "GunPowdered"
+                    }
+                ]
 }
