@@ -395,6 +395,30 @@ namespace GunPowdered.Testing.TestHooks
             return s;
         }
 
+        /// <summary>Diagnostic: logs the next N frames of every other player's musket rig (MusketRig.Trace): "tracing N frames".</summary>
+        [TestHook("GunPowdered.musketTrace")]
+        static string Trace(double frames)
+        {
+            ModLog.Verbose("MusketTestHooks.Trace(frames=" + frames + ")");
+            MusketRig.TraceFrames = (int)frames;
+            string s = "tracing " + MusketRig.TraceFrames + " frames";
+            ModLog.Info("MusketTestHooks.Trace: returns " + s);
+            return s;
+        }
+
+        /// <summary>D-155: the item the local player blocks with now: "blocker NAME" (prefab name) or "blocker nothing".</summary>
+        [TestHook("GunPowdered.musketBlocker")]
+        static string Blocker()
+        {
+            ModLog.Verbose("MusketTestHooks.Blocker()");
+            Player p = Player.m_localPlayer;
+            if (p == null) { ModLog.Verbose("MusketTestHooks.Blocker: no player - returns why"); return "no player"; }
+            ItemDrop.ItemData b = GunPowdered.Integrations.HarmonyPatches.MusketOffhandBlockerPatch.Blocker(p);
+            string s = "blocker " + (b != null && b.m_dropPrefab != null ? b.m_dropPrefab.name : "nothing");
+            ModLog.Info("MusketTestHooks.Blocker: returns " + s);
+            return s;
+        }
+
         /// <summary>Whether the game counts the local player as on the ground right now: "on ground G".</summary>
         [TestHook("GunPowdered.onGround")]
         static string OnGround()

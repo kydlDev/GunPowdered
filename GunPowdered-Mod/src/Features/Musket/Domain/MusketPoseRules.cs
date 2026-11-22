@@ -105,6 +105,17 @@ namespace GunPowdered.Features.Musket.Domain
             return next;
         }
 
+        /// <summary>
+        /// The game's own animation keeps the arms (no musket pose) while the character gets up after spawning or joining (the game's "wakeup", about 1 s) or
+        /// plays a cutscene: the musket arms on top of the getting-up body bent the musket through her (Bjornita's first pictures, user 2026-11-22).
+        /// </summary>
+        internal static bool GameOwnsPose(bool wakingUp, bool inCutscene)
+        {
+            bool game = wakingUp || inCutscene;
+            if (RuleLog.Due("MusketPoseRules.GameOwnsPose", 2d)) RuleLog.Every("MusketPoseRules.GameOwnsPose", 2d, $"MusketPoseRules.GameOwnsPose(wakingUp={wakingUp}, inCutscene={inCutscene}): returns {game}");
+            return game;
+        }
+
         /// <summary>D-155: the musket may fire only when it is raised and the raise animation has finished.</summary>
         internal static bool ReadyToFire(bool raised, float carry)
         {

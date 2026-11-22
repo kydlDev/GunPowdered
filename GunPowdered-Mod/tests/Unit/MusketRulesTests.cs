@@ -16,6 +16,18 @@ namespace GunPowdered.Tests.Unit
             Assert.That(MusketRules.WhyNotReloadMoving(onGround, swimming), Is.EqualTo(expected));
         }
 
+        [TestCase("Torch", true)]
+        [TestCase("Shield", true)]
+        [TestCase("OneHandedWeapon", false)]
+        [TestCase("TwoHandedWeapon", false)]
+        [TestCase("Tool", false)]
+        [TestCase("Bow", false)]
+        [TestCase(null, false)]
+        public void FitsBesideLoweredMusket_OnlyTorchesAndShields(string itemType, bool fits)
+        {
+            Assert.That(MusketRules.FitsBesideLoweredMusket(itemType), Is.EqualTo(fits));
+        }
+
         [Test]
         public void AimFirst_NamesTheKey()
         {

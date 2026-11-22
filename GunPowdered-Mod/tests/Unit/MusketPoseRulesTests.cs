@@ -144,6 +144,15 @@ namespace GunPowdered.Tests.Unit
             Assert.That(MusketPoseRules.ReadyToFire(raised, carry), Is.EqualTo(expected));
         }
 
+        [TestCase(false, false, false)]
+        [TestCase(true, false, true)]
+        [TestCase(false, true, true)]
+        [TestCase(true, true, true)]
+        public void GameOwnsPose_WhileGettingUpOrInCutscene(bool wakingUp, bool inCutscene, bool expected)
+        {
+            Assert.That(MusketPoseRules.GameOwnsPose(wakingUp, inCutscene), Is.EqualTo(expected));
+        }
+
         [Test]
         public void IsLeftArm_LeftShoulderArmHandAndFingers_NotTheRight()
         {

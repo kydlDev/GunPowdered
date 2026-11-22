@@ -235,6 +235,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             _wasHolding = holding;
             if (!holding || !EnsureHandler())
             {
+                Trace(holding ? "no pose handler" : "not holding");
                 _wrote = false;
                 _spineSet = false;
                 { if (RuleLog.Due("MusketRig.LateUpdate:138", 2d)) ModLog.Every("MusketRig.LateUpdate:138", 2d, "MusketRig.LateUpdate: returns (line 138)"); return; }
@@ -244,9 +245,21 @@ namespace GunPowdered.Features.Musket.Infrastructure
             UpdateRaised();
             _carry = MusketPoseRules.NextCarry(_carry, _raised, Time.deltaTime);
             MoveOffhandItem();
+            if (MusketPoseRules.GameOwnsPose(_animator.GetBool(WakeupParam), _character.InCutscene()))
+            {
+                // getting up after joining / spawning (about 1 s) or a cutscene: the game's own animation keeps the arms; the musket stays in the hand
+                _wrote = false;
+                _spineSet = false;
+                Trace("game pose (wakeup / cutscene)");
+                { if (RuleLog.Due("MusketRig.LateUpdate:wakeup", 2d)) ModLog.Every("MusketRig.LateUpdate:wakeup", 2d, "MusketRig.LateUpdate: the game's own pose (getting up or cutscene) - returns"); return; }
+            }
             if (!NoSkipGuard && AnimatorDidNotRun())
             {
                 SkippedFrames++;
+                // the pose is skipped, but the model is placed again: something resets it on such frames (lab a17bjc2: 34.7 mm jump on every first skipped frame)
+                float skipSeconds = Time.time - _actionStarted;
+                PlaceModel(MusketPoseRules.ReloadWeight(_action, skipSeconds), skipSeconds);
+                Trace("skip");
                 { if (RuleLog.Due("MusketRig.LateUpdate:143", 2d)) ModLog.Every("MusketRig.LateUpdate:143", 2d, "MusketRig.LateUpdate: returns (line 143)"); return; }
             }
 
@@ -264,12 +277,23 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 _pose.muscles[m] = LeftMask[i] ? _pose.muscles[m] + (_muscles[i] - _pose.muscles[m]) * leftWeight : _muscles[i];
             }
             SteadySpine(MusketPoseRules.SpineSteadiness(_action, _carry));
+            // SetHumanPose also puts bone POSITIONS back to the avatar's: the hips (bodyPosition round-trip error that piled up where the animator did not set
+            // them again, lab a17bjc2: 10-33 mm per write) and the shoulders - the game moves both shoulders sideways every frame for a female character
+            // (CharacterAnimEvent.m_femaleHack); undoing that moved her arms ~35 mm and, on frames her animator skipped, back again: the vibration the user saw on
+            // Bjornita (user 2026-11-22). Those positions stay where the game put them.
+            Transform hipsBone = _animator.GetBoneTransform(HumanBodyBones.Hips), lShoulder = _animator.GetBoneTransform(HumanBodyBones.LeftShoulder), rShoulder = _animator.GetBoneTransform(HumanBodyBones.RightShoulder);
+            Vector3 hipsPos = hipsBone != null ? hipsBone.localPosition : Vector3.zero, lsPos = lShoulder != null ? lShoulder.localPosition : Vector3.zero, rsPos = rShoulder != null ? rShoulder.localPosition : Vector3.zero;
+            Quaternion hipsRot = hipsBone != null ? hipsBone.localRotation : Quaternion.identity;
             _handler.SetHumanPose(ref _pose);
+            if (hipsBone != null) { hipsBone.localPosition = hipsPos; hipsBone.localRotation = hipsRot; }
+            if (lShoulder != null) lShoulder.localPosition = lsPos;
+            if (rShoulder != null) rShoulder.localPosition = rsPos;
             float pitch = AimChest();
             SideArm(_carry * (1f - w));
             PlaceModel(w, seconds);
             RememberWrite();
             Measure();
+            Trace("write");
             LastReport = $"{_action} {seconds:0.00} s, {(_raised ? "raised" : "lowered")}, carry {_carry:0.00}, chest pitch {pitch:0.0}, reload grip {w:0.00}, left arm {leftWeight:0.00}";
             ModLog.Every("musket-rig-" + _character.GetInstanceID(), 2f, "MusketRig: " + _character.name + " " + LastReport);
         }
@@ -380,6 +404,44 @@ namespace GunPowdered.Features.Musket.Infrastructure
             _spineSet = true;
         }
 
+        /// <summary>
+        /// Diagnostic switch (hook GunPowdered.musketTrace): the next N frames of every OTHER player's rig are logged one line each (skip / write, how far the
+        /// right upper arm and the musket model moved since the last frame, model id and parent) - for the Bjornita vibration (user 2026-11-22). 0 = off.
+        /// </summary>
+        internal static int TraceFrames;
+
+        // the game's animator bool while a player gets up after spawning or joining (Player.SetupAwake / UpdateAwake, ~1 s, every client)
+        static readonly int WakeupParam = Animator.StringToHash("wakeup");
+        Quaternion _traceArm, _traceFore, _traceHand; Vector3 _traceModel, _traceHips, _traceRoot, _traceVisual; int _traceId; bool _traceSet; readonly Vector3[] _traceLinks = new Vector3[4];
+
+        void Trace(string what)
+        {
+            if (TraceFrames <= 0 || IsOwnRig) { if (RuleLog.Due("MusketRig.Trace:off", 2d)) ModLog.Every("MusketRig.Trace:off", 2d, "MusketRig.Trace: off or own rig - returns"); return; }
+            TraceFrames--;
+            Transform arm = _animator != null ? _animator.GetBoneTransform(HumanBodyBones.RightUpperArm) : null;
+            Quaternion a = arm != null ? arm.localRotation : Quaternion.identity;
+            Vector3 m = _model != null ? _character.transform.InverseTransformPoint(_model.position) : Vector3.zero;
+            int id = _model != null ? _model.GetInstanceID() : 0;
+            Transform fore = _animator != null ? _animator.GetBoneTransform(HumanBodyBones.RightLowerArm) : null, hand = _animator != null ? _animator.GetBoneTransform(HumanBodyBones.RightHand) : null, hips = _animator != null ? _animator.GetBoneTransform(HumanBodyBones.Hips) : null;
+            Quaternion fq = fore != null ? fore.localRotation : Quaternion.identity, hq = hand != null ? hand.localRotation : Quaternion.identity;
+            Vector3 hp = hips != null ? _character.transform.InverseTransformPoint(hips.position) : Vector3.zero, rp = _character.transform.position, vp = _animator != null ? _character.transform.InverseTransformPoint(_animator.transform.position) : Vector3.zero;
+            string more = _traceSet ? ", fore " + Quaternion.Angle(_traceFore, fq).ToString("0.0") + ", hand " + Quaternion.Angle(_traceHand, hq).ToString("0.0") + " deg, hips " + ((hp - _traceHips).magnitude * 1000f).ToString("0.0") + " mm, root " + ((rp - _traceRoot).magnitude * 1000f).ToString("0.0") + " mm, visual " + ((vp - _traceVisual).magnitude * 1000f).ToString("0.0") + " mm" : "";
+            _traceFore = fq; _traceHand = hq; _traceHips = hp; _traceRoot = rp; _traceVisual = vp;
+            // where each link from the hand to the model is, in the character's space (which one moves on a skipped frame)
+            Transform attachHand = _vis != null ? _vis.m_rightHand : null, attach = _model != null ? _model.parent : null, hipsUp = hips != null ? hips.parent : null;
+            Vector3 hb = hand != null ? _character.transform.InverseTransformPoint(hand.position) : Vector3.zero, ah = attachHand != null ? _character.transform.InverseTransformPoint(attachHand.position) : Vector3.zero;
+            Vector3 at = attach != null ? _character.transform.InverseTransformPoint(attach.position) : Vector3.zero, hu = hipsUp != null ? _character.transform.InverseTransformPoint(hipsUp.position) : Vector3.zero;
+            more += ", links mm: hand " + ((hb - _traceLinks[0]).magnitude * 1000f).ToString("0.0") + ", hand attach " + ((ah - _traceLinks[1]).magnitude * 1000f).ToString("0.0") + " (" + (attachHand != null ? attachHand.parent?.name : "-") + ")"
+                + ", item attach " + ((at - _traceLinks[2]).magnitude * 1000f).ToString("0.0") + " local " + (attach != null ? attach.localPosition.ToString("0.000") : "-") + ", model local " + (_model != null ? _model.localPosition.ToString("0.000") : "-")
+                + ", hips parent " + ((hu - _traceLinks[3]).magnitude * 1000f).ToString("0.0") + " (" + (hipsUp != null ? hipsUp.name : "-") + ")";
+            _traceLinks[0] = hb; _traceLinks[1] = ah; _traceLinks[2] = at; _traceLinks[3] = hu;
+            bool zLowered = _nview != null && _nview.IsValid() && _nview.GetZDO() != null && _nview.GetZDO().GetBool(LoweredKey);
+            string line = "MusketRig.Trace: " + _character.name + " frame " + Time.frameCount + " " + what + more + ", zdo lowered " + zLowered + ", arm turned " + (_traceSet ? Quaternion.Angle(_traceArm, a).ToString("0.0") : "-") + " deg, model moved "
+                + (_traceSet ? ((m - _traceModel).magnitude * 1000f).ToString("0.0") : "-") + " mm, model " + id + (id != _traceId && _traceSet ? " (NEW)" : "") + " under " + (_model != null && _model.parent != null ? _model.parent.name : "-")
+                + ", carry " + _carry.ToString("0.00") + ", " + (_raised ? "raised" : "lowered") + ", action " + _action + ", left " + TraceFrames;
+            _traceArm = a; _traceModel = m; _traceId = id; _traceSet = true;
+            ModLog.Info(line);
+        }
         bool AnimatorDidNotRun()
         {
             if (RuleLog.Due("MusketRig.AnimatorDidNotRun", 2d)) ModLog.Every("MusketRig.AnimatorDidNotRun", 2d, $"MusketRig.AnimatorDidNotRun()");

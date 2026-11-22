@@ -1,0 +1,9 @@
+{
+  "params": [],
+  "actions": [
+    { "do": "clearInventory" },
+    { "do": "give", "prefab": "GP_Musket", "count": 1, "equip": true },
+    { "do": "wait", "seconds": 1 }
+  ],
+  "asserts": []
+}

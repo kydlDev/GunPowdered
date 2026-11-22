@@ -14,3 +14,6 @@
 - Asksvin Harness: put it on a saddled tame Asksvin and hitch the Mobile Cannon. The Asksvin tows it at full speed, ridden or following, and the hitch stays after a relog.
 - Weapons API (musket load, stats, ShotFired event) and one Enable switch per weapon type.
 - All items listed in KY-Items, with a grid view.
+- Iron Musket: running lowers it to your right side; the mouse wheel click (new [Musket] Aim Key) raises it again, and it fires only when raised. Reloading works while running (not while jumping or swimming). A Torch or Shield can be held in the left hand next to the lowered musket; raising it puts them away. Block 10 (15 at Blocking 100), parry bonus 1.5, no movement slowdown.
+- Other players now see your very first musket shot (it was missing before).
+- Emptied deposits refill after 2 in-game days (was 3).

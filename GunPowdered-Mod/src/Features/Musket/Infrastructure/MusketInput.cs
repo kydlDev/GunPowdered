@@ -54,7 +54,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             string blocked = Blocker();
             if (MusketGun.Held(local) == null || blocked != null) { ModLog.Verbose("MusketInput: aim key " + key + " down - no musket in hand or blocked by " + (blocked ?? "nothing")); return null; }
             string result = AimPressed(local);
-            ModLog.Verbose("MusketInput: aim key " + key + " -> " + result);
+            ModLog.Info("MusketInput: aim key " + key + " down -> " + result);
             return result;
         }
 

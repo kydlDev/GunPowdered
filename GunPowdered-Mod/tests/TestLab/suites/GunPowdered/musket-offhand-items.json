@@ -1,0 +1,43 @@
+{
+  "name": "musket-offhand-items",
+  "description": "D-155 (user 2026-11-22: 'only torches and shields should be able to go into the offhand'; 'test the aim button press, do real button'): with the Iron Musket lowered to the side a Shield goes into the left hand next to it and blocks; the REAL aim key (pressKey Mouse2, the default [Musket] Aim Key, read by the game like a player's mouse wheel click) raises the musket and takes the shield off, after which the musket blocks again. A Club is not an offhand item: it puts the musket away the game's own way.",
+  "timeout": 90,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "musketStart", "label": "empty backpack, the Iron Musket equipped" },
+    { "do": "hook", "name": "GunPowdered.musketBlocker", "expect": "blocker GP_Musket", "label": "the raised musket blocks (the user's current blocking)" },
+
+    { "do": "hook", "name": "GunPowdered.musketTestSpeed", "args": { "speed": 7 }, "contains": "speed 7", "label": "the player runs: the musket goes to the side" },
+    { "do": "wait", "seconds": 0.6 },
+    { "do": "hook", "name": "GunPowdered.musketTestSpeed", "args": { "speed": 0 }, "contains": "speed 0", "label": "the player stops (the musket stays at the side)" },
+    { "do": "hook", "name": "GunPowdered.musketRaised", "contains": "raised False", "label": "lowered" },
+    { "do": "give", "prefab": "ShieldWood", "count": 1, "equip": true, "label": "the player equips the shield" },
+    { "do": "wait", "seconds": 0.5 },
+    { "do": "hook", "name": "GunPowdered.musketHands", "contains": "right ShieldWood, left GP_Musket, musket held True", "label": "the shield is held next to the lowered musket" },
+    { "do": "hook", "name": "GunPowdered.musketHands", "contains": "other item in the left hand True", "label": "the shield shows in the left hand" },
+    { "do": "hook", "name": "GunPowdered.musketBlocker", "expect": "blocker ShieldWood", "label": "the shield blocks" },
+    { "do": "hook", "name": "GunPowdered.musketRaised", "contains": "left arm 0.00", "label": "the left arm is the game's (holds the shield, not the musket)" },
+
+    { "do": "pressKey", "key": "Mouse2", "frames": 3, "label": "the player clicks the mouse wheel (the real aim key)" },
+    { "do": "wait", "seconds": 0.6 },
+    { "do": "hook", "name": "GunPowdered.musketRaised", "contains": "raised True, ready True", "label": "the real key raised the musket" },
+    { "do": "hook", "name": "GunPowdered.musketHands", "contains": "right nothing, left GP_Musket", "label": "the shield was taken off, the musket is the only thing equipped" },
+    { "do": "hook", "name": "GunPowdered.musketBlocker", "expect": "blocker GP_Musket", "label": "the musket blocks again" },
+
+    { "do": "hook", "name": "GunPowdered.musketTestSpeed", "args": { "speed": 7 }, "contains": "speed 7", "label": "running again" },
+    { "do": "wait", "seconds": 0.6 },
+    { "do": "hook", "name": "GunPowdered.musketTestSpeed", "args": { "speed": 0 }, "contains": "speed 0", "label": "stopped, musket at the side" },
+    { "do": "give", "prefab": "Club", "count": 1, "equip": true, "label": "the player equips the club" },
+    { "do": "wait", "seconds": 0.5 },
+    { "do": "hook", "name": "GunPowdered.musketHands", "contains": "right Club, left nothing, musket held False", "label": "a club is not an offhand item: it replaced the musket" },
+
+    { "do": "hook", "name": "GunPowdered.musketTestSpeed", "args": { "speed": -1 }, "contains": "speed -1", "label": "the real speed again" },
+    { "do": "clearInventory" },
+    { "do": "console", "command": "killall" }
+  ],
+  "asserts": [
+    { "check": "noErrors", "source": "GunPowdered" },
+    { "check": "logContains", "text": "MusketInput: aim key Mouse2 down -> raising", "label": "the real key press is logged (rule 8)", "source": "GunPowdered" },
+    { "check": "logContains", "text": "next to the lowered musket", "label": "the shield equip is logged", "source": "GunPowdered" }
+  ]
+}

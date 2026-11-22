@@ -10,6 +10,7 @@ Make gunpowder, then build weapons with it.
 - **Water**: fill a Bucket in any water, or collect it in a **Rain Barrel** (fills only while it rains and nothing roofs it).
 - **Leaching Station**: guano + water (+ wood for the hearth) make Saltpeter in one in-game day. It runs by itself while it holds at least 10 guano + 10 water + 4 wood, can be filled at any time, and the Saltpeter piles up until you take it. Five extension pieces, one per biome from the Swamp to the Ashlands, upgrade it: each makes the batch bigger and the run 5 minutes shorter (biggest: 60 guano + 60 water -> 30 Saltpeter in 5 minutes).
 - **Sulfur**: Sulfurous Mud in the swamp, plus Blob and Oozer drops.
+- Emptied guano and mud deposits refill after 2 in-game days.
 - **Powder Mill**: fill it with Saltpeter, Charcoal and Sulfur (3 + 1 + 1 per 5 Gunpowder) and it grinds by itself in 10 minutes; the Gunpowder piles up until you take it. Three extension pieces (Obsidian Grindstone, Dvergr Powder Sieve, Flametal Drying Oven) each make the batch bigger and the run 2.5 minutes shorter.
 - **Extensions** count within 5 m of their station, above and below too. They snap side by side to their own station and can never stand on top of it.
 
@@ -17,6 +18,10 @@ Make gunpowder, then build weapons with it.
 - **Spiked Grenade**: hold the attack button to aim the landing spot (arc and ring shown), release to throw, block to cancel. Damages creatures, buildings, trees and rocks.
 - **Cannon** (with **Cannon Stock** and **Iron Cannon Ball**): build the stock, mount the cannon, load the ball at the muzzle, light the fuse with a Torch and stand clear. It also takes the Flametal Cannon Ball.
 - **Iron Musket**: holds 5 Iron Cartridges, fires at least 0.8 s apart, **R** reloads one cartridge per 1.2 s (key can be changed). Recoil pushes you back. Counter next to the crosshair; key hints in the bottom right.
+  - **Running** lowers it to your right side, held under the stock. It stays there until you click the **mouse wheel** (aim key, can be changed): it comes up to the shoulder and fires again.
+  - You can reload while running, but not while jumping or swimming.
+  - While it hangs at your side the left hand is free for a **Torch** or a **Shield** (the shield blocks). Raising the musket puts them away.
+  - It blocks like a light weapon (block 10, 15 at Blocking 100; parry bonus 1.5) and does not slow you down.
 - **Explosive Arrow**: ammo for any bow; bursts on impact (3 m) and damages buildings too.
 - **Dynamite**: set it down, light it with a Torch (4 s fuse), 4 m blast for buildings, rocks, trees and ore; creatures take a fifth of that; leaves a round crater.
 - **Deep North Dynamite Pack**: four sticks of dynamite and two grenades strapped together; unlocked after Fader is dead. Set it down, light it with a Torch (4 s fuse, countdown shown to everyone within 30 m) and run: the 20 m blast breaks even the frozen gammel trolls of the Deep North and leaves a 5 m crater.
@@ -44,6 +49,7 @@ All pieces and items are listed in the KY-Items viewer (grid or list view).
 | DebugLog | Enable | false | Detailed lines in the BepInEx log for bug reports |
 | General | Enable Grenades / Cannons / Musket / Explosive Arrows / Dynamite | true | Switches one weapon type on / off (both cannons share one) |
 | Musket | Reload Key | R | Key that reloads the musket |
+| Musket | Aim Key | Mouse2 (mouse wheel click) | Raises the lowered musket to the shoulder |
 | General | KY-Items View | Grid | KY-Items viewer: grid or list |
 
 Edits to the file are picked up while the game runs.

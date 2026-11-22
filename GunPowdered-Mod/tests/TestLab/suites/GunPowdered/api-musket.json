@@ -4,9 +4,7 @@
   "timeout": 40,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "clearInventory" },
-    { "do": "give", "prefab": "GP_Musket", "count": 1, "equip": true },
-    { "do": "wait", "seconds": 1 },
+    { "do": "musketStart", "label": "empty backpack, the Iron Musket equipped" },
     { "do": "hook", "name": "GunPowdered.apiShotListen", "expect": "listening", "label": "listen to the shot event" },
     { "do": "hook", "name": "GunPowdered.apiSetLoaded", "args": { "loaded": 9 }, "expect": "set 5, read 5", "label": "the API keeps the load at most 5" },
     { "do": "hook", "name": "GunPowdered.apiSetLoaded", "args": { "loaded": 2 }, "expect": "set 2, read 2", "label": "the API sets the load" },

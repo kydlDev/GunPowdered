@@ -38,6 +38,17 @@ namespace GunPowdered.Features.Musket.Domain
             return why;
         }
 
+        /// <summary>
+        /// D-155 (user 2026-11-22: "only torches and shields should be able to go into the offhand"): which item types (the game's ItemType name) the left hand
+        /// may hold next to the lowered musket. Anything else is equipped the game's own way (a club puts the musket away).
+        /// </summary>
+        internal static bool FitsBesideLoweredMusket(string itemType)
+        {
+            bool fits = itemType == "Torch" || itemType == "Shield";
+            if (RuleLog.Due("MusketRules.FitsBesideLoweredMusket", 2d)) RuleLog.Every("MusketRules.FitsBesideLoweredMusket", 2d, $"MusketRules.FitsBesideLoweredMusket({itemType}): returns {fits}");
+            return fits;
+        }
+
         /// <summary>D-155: the message when fire is pressed before the musket is raised, naming the aim key.</summary>
         internal static string AimFirst(string key)
         {
