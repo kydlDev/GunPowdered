@@ -50,19 +50,31 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 var pos = (Vector3)__args[2];
                 var rot = (Quaternion)__args[3];
 
-                bool geyser = name == Geyser && ModSettings.FeatureOn(ModSettings.EnableSulfur);
-                bool piles = !geyser && !name.StartsWith(SunkenCrypt) && ModSettings.FeatureOn(ModSettings.EnableSulfur);
-                if (!geyser && !piles) { if (RuleLog.Due("LocationSpawnPatch.Postfix:51", 2d)) ModLog.Every("LocationSpawnPatch.Postfix:51", 2d, "LocationSpawnPatch.Postfix: returns (line 51)"); return; }
-
-                List<Vector3> spots = piles ? Spots(loc, pos, rot) : null;
-                if (piles && spots.Count == 0) { if (RuleLog.Due("LocationSpawnPatch.Postfix:54", 2d)) ModLog.Every("LocationSpawnPatch.Postfix:54", 2d, "LocationSpawnPatch.Postfix: returns (line 54)"); return; }                                   // most locations have no Draugr pile: nothing to do
-                if (RuleLog.Due("loc-full", 10d)) ModLog.Every("loc-full", 10d, "LocationSpawnPatch: " + name + " generated at " + pos.ToString("0") + ", " + (spots != null ? spots.Count : 0) + " spot(s)");
-                Plugin.Instance.StartCoroutine(PlaceLater(name, geyser, pos, spots, seed));
+                // D-169: the mud is placed by LocationProxyMudPatch when the location first appears near a player (any spawn mode), not here:
+                // a zone generated at the edge of the loaded area spawns its locations in Ghost mode, and those never got mud (a18mud1).
+                if (RuleLog.Due("loc-full", 10d)) ModLog.Every("loc-full", 10d, "LocationSpawnPatch: " + name + " generated (Full) at " + pos.ToString("0") + ", seed " + seed + ", rotation " + rot.eulerAngles.y.ToString("0") + " - mud follows when it appears near a player");
             }
             catch (Exception e)
             {
                 ModLog.Warn("LocationSpawnPatch: " + e.GetType().Name + ": " + e.Message);
             }
+        }
+
+        /// <summary>
+        /// D-169: places the mod's mud for one location copy (geyser: around it; other locations except sunken crypts: next to their Draugr piles, in water).
+        /// Expected outcome: true when a placement was started.
+        /// </summary>
+        internal static bool Plan(ZoneSystem.ZoneLocation loc, int seed, Vector3 pos, Quaternion rot, string why)
+        {
+            string name = loc != null ? loc.m_prefabName ?? "" : "";
+            bool geyser = name == Geyser && ModSettings.FeatureOn(ModSettings.EnableSulfur);
+            bool piles = !geyser && name.Length > 0 && !name.StartsWith(SunkenCrypt) && ModSettings.FeatureOn(ModSettings.EnableSulfur);
+            if (!geyser && !piles) { if (RuleLog.Due("LocationSpawnPatch.Plan:none", 2d)) ModLog.Every("LocationSpawnPatch.Plan:none", 2d, "LocationSpawnPatch.Plan: returns false (" + name + ": no mud location)"); return false; }
+            List<Vector3> spots = piles ? Spots(loc, pos, rot) : null;
+            if (piles && spots.Count == 0) { if (RuleLog.Due("LocationSpawnPatch.Plan:nopile", 2d)) ModLog.Every("LocationSpawnPatch.Plan:nopile", 2d, "LocationSpawnPatch.Plan: returns false (" + name + ": no Draugr pile)"); return false; }
+            Plugin.Instance.StartCoroutine(PlaceLater(name, geyser, pos, spots, seed));
+            ModLog.Verbose("LocationSpawnPatch.Plan: " + name + " at " + pos.ToString("0") + " (" + why + "), " + (spots != null ? spots.Count : 0) + " pile(s) - returns true");
+            return true;
         }
 
         // The Draugr piles of the location prefab, turned into world positions of this copy.
@@ -98,6 +110,51 @@ namespace GunPowdered.Integrations.HarmonyPatches
             catch (Exception e)
             {
                 ModLog.Warn("LocationSpawnPatch.PlaceLater: " + e.GetType().Name + ": " + e.Message);
+            }
+        }
+    }
+    /// <summary>
+    /// D-169 (lab a18mud1: geysers and swamp graves whose zone was generated at the edge of the loaded area spawned in Ghost mode and never got mud):
+    /// the mud goes in when the location's proxy first shows the location near a player - whatever mode generated its zone - once per location
+    /// (marker gp_mud_done on the proxy's ZDO), by the proxy's owner. A world that had the location before the mod gets its mud on the first visit.
+    /// </summary>
+    [HarmonyPatch(typeof(LocationProxy), "SpawnLocation")]
+    internal static class LocationProxyMudPatch
+    {
+        internal const string DoneKey = "gp_mud_done";
+        static readonly AccessTools.FieldRef<LocationProxy, ZNetView> View = AccessTools.FieldRefAccess<LocationProxy, ZNetView>("m_nview");
+
+        // The proxy's ZDO keeps the location as the stable hash of its prefab name (what ZoneSystem stores in ZDOVars.s_location).
+        static ZoneSystem.ZoneLocation ByHash(int hash)
+        {
+            if (ZoneSystem.instance != null)
+                foreach (ZoneSystem.ZoneLocation l in ZoneSystem.instance.m_locations)
+                    if (l != null && (l.m_prefabName ?? "").GetStableHashCode() == hash)
+                    {
+                        if (RuleLog.Due("LocationProxyMudPatch.ByHash", 2d)) ModLog.Every("LocationProxyMudPatch.ByHash", 2d, "LocationProxyMudPatch.ByHash(" + hash + "): returns " + l.m_prefabName);
+                        return l;
+                    }
+            if (RuleLog.Due("LocationProxyMudPatch.ByHash:none", 2d)) ModLog.Every("LocationProxyMudPatch.ByHash:none", 2d, "LocationProxyMudPatch.ByHash(" + hash + "): returns null (no location with that hash)");
+            return null;
+        }
+
+        static void Postfix(LocationProxy __instance, bool __result)
+        {
+            try
+            {
+                ZNetView nv = __instance != null ? View(__instance) : null;
+                if (!__result || nv == null || !nv.IsValid() || !nv.IsOwner()) { if (RuleLog.Due("LocationProxyMudPatch:skip", 2d)) ModLog.Every("LocationProxyMudPatch:skip", 2d, "LocationProxyMudPatch.Postfix: returns (not shown yet, or not the owner)"); return; }
+                ZDO zdo = nv.GetZDO();
+                if (zdo.GetBool(DoneKey)) { if (RuleLog.Due("LocationProxyMudPatch:done", 2d)) ModLog.Every("LocationProxyMudPatch:done", 2d, "LocationProxyMudPatch.Postfix: returns (mud already handled)"); return; }
+                ZoneSystem.ZoneLocation loc = ByHash(zdo.GetInt(ZDOVars.s_location));
+                if (loc == null || loc.m_prefab == null || !loc.m_prefab.IsLoaded) { if (RuleLog.Due("LocationProxyMudPatch:noloc", 2d)) ModLog.Every("LocationProxyMudPatch:noloc", 2d, "LocationProxyMudPatch.Postfix: returns (location prefab not loaded yet - tried again on the next show)"); return; }
+                zdo.Set(DoneKey, true);
+                bool started = LocationSpawnPatch.Plan(loc, zdo.GetInt(ZDOVars.s_seed), __instance.transform.position, __instance.transform.rotation, "shown near a player");
+                ModLog.Verbose("LocationProxyMudPatch: " + loc.m_prefabName + " at " + __instance.transform.position.ToString("0") + " marked done, placement started " + started);
+            }
+            catch (Exception e)
+            {
+                ModLog.Warn("LocationProxyMudPatch: " + e.GetType().Name + ": " + e.Message);
             }
         }
     }

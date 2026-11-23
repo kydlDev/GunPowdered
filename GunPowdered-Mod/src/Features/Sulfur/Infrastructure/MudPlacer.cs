@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
 using GunPowdered.Features.Sulfur.Domain;
@@ -13,7 +13,7 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
     /// </summary>
     internal static class MudPlacer
     {
-        const float GeyserMin = 3f, GeyserMax = 8f, PileMin = 3f, PileMax = 10f;
+        const float GeyserMin = 3f, GeyserMax = 8f, PileMin = 3f, PileMax = 15f;   // D-168: piles sit ~5 m inside a 15-20 m wide grave; its water often starts at the edge, past 10 m (a18mud1)
         const int Tries = 8;
 
         /// <summary>How many Draugr piles asked for mud since the game started (read by the test hooks).</summary>
