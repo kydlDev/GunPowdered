@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <!-- Benchmarks of the mod's game-free rules (PROJECT_RULES 30, skill microbenchmarking in .claude\skills; read its references folder before writing
        benchmarks). The pure files are linked like in the unit-test project, so the benchmarks measure the very code the mod ships. Run from this
        folder, Release only: dotnet run -c Release, then the BenchmarkDotNet flags filter and job after a double dash. Always a filter (the
@@ -21,6 +21,11 @@
     <Compile Include="..\..\src\Core\BatchAmounts.cs" Link="Mod\Core\BatchAmounts.cs" />
     <Compile Include="..\..\src\Core\BatchStationSpec.cs" Link="Mod\Core\BatchStationSpec.cs" />
     <Compile Include="..\..\src\Core\BatchStationRules.cs" Link="Mod\Core\BatchStationRules.cs" />
+    <Compile Include="..\..\src\Core\PrefabNames.cs" Link="Mod\Core\PrefabNames.cs" />
+    <Compile Include="..\..\src\Core\NoiseRules.cs" Link="Mod\Core\NoiseRules.cs" />
+    <Compile Include="..\..\src\Core\SeededRandom.cs" Link="Mod\Core\SeededRandom.cs" />
+    <Compile Include="..\..\src\Core\StationPlacementRules.cs" Link="Mod\Core\StationPlacementRules.cs" />
+    <Compile Include="..\..\src\Core\BurnRules.cs" Link="Mod\Core\BurnRules.cs" />
   </ItemGroup>
   <ItemGroup>
     <!-- version: dotnet add package BenchmarkDotNet resolves the newest one; do not hand-write an older version -->
