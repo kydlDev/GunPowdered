@@ -17,7 +17,41 @@ namespace GunPowdered.Testing.TestHooks
     {
         /// Every test starts here (MIGRATION_DECISIONS C26, lessons TESTLAB_PLAYBOOK): the player on the open arena spot 70 m from the lab start, facing +z, god mode on.
         [TestHook("GunPowdered.arena")]
-        static string Arena() { return TestArena.MovePlayer(); }
+        static string Arena()
+        {
+            string moved = TestArena.MovePlayer();
+            string cleaned = CleanArena();
+            ModLog.Info("ModTestHooks.Arena: returns " + moved + "; " + cleaned);
+            return moved + "; " + cleaned;
+        }
+
+        /// <summary>
+        /// User 2026-11-23 ("did I not already say that first steps have to be clean arena?"): the first step of every test leaves nothing of an earlier
+        /// test behind - items lying on the ground within 80 m (lab a17full3: a Wood dropped by a broken tree lay next to the Mobile Cannon), ghost mode
+        /// (dynamite-alerts-mobs switches it on and off; a failure in between left it on) and the musket test switches. Expected outcome: "cleaned N item(s), ...".
+        /// </summary>
+        static string CleanArena()
+        {
+            Player p = Player.m_localPlayer;
+            if (p == null) { ModLog.Verbose("ModTestHooks.CleanArena: no player - returns why"); return "no player to clean around"; }
+            int items = 0;
+            foreach (ItemDrop drop in UnityEngine.Object.FindObjectsByType<ItemDrop>(UnityEngine.FindObjectsSortMode.None))
+            {
+                if (drop == null || UnityEngine.Vector3.Distance(drop.transform.position, p.transform.position) > 80f) continue;
+                ZNetView nv = drop.GetComponent<ZNetView>();
+                if (nv == null || !nv.IsValid()) continue;      // a model in a hand or a prefab, not an item on the ground
+                nv.ClaimOwnership();
+                ZNetScene.instance.Destroy(drop.gameObject);
+                items++;
+            }
+            bool ghost = p.InGhostMode();
+            if (ghost) p.SetGhostMode(false);
+            GunPowdered.Features.Musket.Infrastructure.MusketRig.TestSpeed = -1f;
+            GunPowdered.Features.Musket.Infrastructure.MusketRig.TraceFrames = 0;
+            string s = "cleaned " + items + " item(s) on the ground" + (ghost ? ", ghost mode off" : "") + ", musket test switches off";
+            ModLog.Verbose("ModTestHooks.CleanArena: returns " + s);
+            return s;
+        }
 
         /// All Startup_* / World_* checks of InGameTests (the ones Kydl.GameProbe runs): "PASS: ..." or "FAIL: ...".
         [TestHook("GunPowdered.selftest")]
