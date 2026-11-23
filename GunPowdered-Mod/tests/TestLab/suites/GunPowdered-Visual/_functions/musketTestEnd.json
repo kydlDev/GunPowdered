@@ -1,0 +1,9 @@
+{
+  "params": [],
+  "actions": [
+    { "do": "hook", "name": "GunPowdered.freeCamOff", "label": "free camera removed" },
+    { "do": "hook", "name": "GunPowdered.musketTestSpeed", "args": { "speed": -1 }, "contains": "speed -1", "label": "the real speed again" },
+    { "do": "clearInventory" }
+  ],
+  "asserts": []
+}

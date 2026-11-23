@@ -32,9 +32,7 @@
     { "do": "invoke", "method": "Kydl.GameProbe.ProbeApi.Screenshot", "label": "GameProbe shot: musket-raising" },
     { "do": "wait", "seconds": 0.8 },
     { "do": "invoke", "method": "Kydl.GameProbe.ProbeApi.Screenshot", "label": "GameProbe shot: musket-raised" },
-    { "do": "hook", "name": "GunPowdered.freeCamOff", "label": "free camera removed" },
-    { "do": "hook", "name": "GunPowdered.musketTestSpeed", "args": { "speed": -1 }, "contains": "speed -1", "label": "the real speed again" },
-    { "do": "clearInventory" },
+    { "do": "musketTestEnd", "label": "free camera off, the real speed again, empty backpack" },
     { "do": "cleanArena" }
   ],
   "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]

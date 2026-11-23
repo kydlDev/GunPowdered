@@ -1,0 +1,16 @@
+{
+  "name": "visual-dodge-aimed",
+  "description": "Dodge tests (user 2026-11-23): the musket aimed (raised), the player dodges. The game's own roll plays with the musket in the right hand; a dodge is not running, so the musket comes out of the roll still aimed and ready to fire.",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "clearInventory" },
+    { "do": "give", "prefab": "GP_Musket", "count": 1, "equip": true },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.musketRaised", "contains": "raised True, ready True", "label": "aimed and ready" },
+    { "do": "musketDodge", "shot": "visual-dodge-aimed", "after": "raised True, ready True" },
+    { "do": "musketTestEnd", "label": "free camera off, the real speed again, empty backpack" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

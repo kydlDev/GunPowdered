@@ -160,7 +160,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         {
             Vector3 v = _character.GetVelocity();
             float speed = TestSpeed >= 0f && _character == Player.m_localPlayer ? TestSpeed : new Vector3(v.x, 0f, v.z).magnitude;
-            bool fast = speed > MusketPoseRules.CarrySpeed;
+            bool fast = speed > MusketPoseRules.CarrySpeed && !_character.InDodge();      // a dodge roll is fast but is not running: an aimed musket stays aimed
             if (RuleLog.Due("MusketRig.FastNow", 2d)) ModLog.Every("MusketRig.FastNow", 2d, "MusketRig.FastNow: returns " + fast);
             return fast;
         }
@@ -275,9 +275,12 @@ namespace GunPowdered.Features.Musket.Infrastructure
             UpdateRaised();
             _carry = MusketPoseRules.NextCarry(_carry, _raised, Time.deltaTime);
             MoveOffhandItem();
-            if (MusketPoseRules.GameOwnsPose(_animator.GetBool(WakeupParam), _character.InCutscene()))
+            bool dodging = _character.InDodge();
+            if (MusketPoseRules.GameOwnsPose(_animator.GetBool(WakeupParam), _character.InCutscene(), dodging))
             {
-                // getting up after joining / spawning (about 1 s) or a cutscene: the game's own animation keeps the arms; the musket stays in the hand
+                // getting up after joining / spawning (about 1 s), a cutscene or a dodge roll: the game's own animation keeps the arms; the musket stays in
+                // the right hand where it was (its grip is under the hand), so it turns with the hand through the roll
+                if (dodging) LastReport = "game pose (dodge), " + (_raised ? "raised" : "lowered") + ", carry " + _carry.ToString("0.00");
                 _wrote = false;
                 _spineSet = false;
                 Trace("game pose (wakeup / cutscene)");

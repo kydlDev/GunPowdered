@@ -395,6 +395,38 @@ namespace GunPowdered.Testing.TestHooks
             return s;
         }
 
+        /// <summary>Dodge tests (user 2026-11-23): the local player dodges forward through the game's own dodge (Player.Dodge, queued like the dodge key). Returns "dodge queued".</summary>
+        [TestHook("GunPowdered.playerDodge")]
+        static string Dodge()
+        {
+            ModLog.Verbose("MusketTestHooks.Dodge()");
+            Player p = Player.m_localPlayer;
+            if (p == null) { ModLog.Verbose("MusketTestHooks.Dodge: no player - returns why"); return "no player"; }
+            p.AddStamina(100f);
+            HarmonyLib.Traverse.Create(p).Method("Dodge", new[] { typeof(Vector3) }).GetValue(p.transform.forward);
+            ModLog.Info("MusketTestHooks.Dodge: returns dodge queued");
+            return "dodge queued";
+        }
+
+        /// <summary>Dodge tests: "dodging D; musket under P, X m from the right hand, Y m from the left hand; offhand under O" - where the musket model and the other hand item sit right now.</summary>
+        [TestHook("GunPowdered.musketGrip")]
+        static string Grip()
+        {
+            ModLog.Verbose("MusketTestHooks.Grip()");
+            Player p = Player.m_localPlayer;
+            if (p == null) { ModLog.Verbose("MusketTestHooks.Grip: no player - returns why"); return "no player"; }
+            Animator anim = p.GetComponentInChildren<Animator>();
+            Transform right = anim != null ? anim.GetBoneTransform(HumanBodyBones.RightHand) : null, left = anim != null ? anim.GetBoneTransform(HumanBodyBones.LeftHand) : null;
+            VisEquipment vis = p.GetComponent<VisEquipment>();
+            Transform model = null;
+            if (vis != null && vis.m_rightHand != null) foreach (Transform t in vis.m_rightHand.GetComponentsInChildren<Transform>(true)) if (t.name == "gp_model" && t.parent != null && t.parent.name.StartsWith("attach")) { model = t; break; }
+            GameObject other = vis != null ? HarmonyLib.Traverse.Create(vis).Field("m_rightItemInstance").GetValue<GameObject>() : null;
+            string s = "dodging " + p.InDodge() + "; musket " + (model == null ? "not in the right hand" : "under " + model.parent.parent?.name + ", " + (right != null ? Vector3.Distance(model.position, right.position).ToString("0.00") : "?") + " m from the right hand, "
+                + (left != null ? Vector3.Distance(model.position, left.position).ToString("0.00") : "?") + " m from the left hand") + "; offhand " + (other != null && other.transform.parent != null ? "under " + other.transform.parent.name : "none");
+            ModLog.Info("MusketTestHooks.Grip: returns " + s);
+            return s;
+        }
+
         /// <summary>Diagnostic: logs the next N frames of every other player's musket rig (MusketRig.Trace): "tracing N frames".</summary>
         [TestHook("GunPowdered.musketTrace")]
         static string Trace(double frames)

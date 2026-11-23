@@ -121,10 +121,11 @@ namespace GunPowdered.Features.Musket.Domain
         /// The game's own animation keeps the arms (no musket pose) while the character gets up after spawning or joining (the game's "wakeup", about 1 s) or
         /// plays a cutscene: the musket arms on top of the getting-up body bent the musket through her (Bjornita's first pictures, user 2026-11-22).
         /// </summary>
-        internal static bool GameOwnsPose(bool wakingUp, bool inCutscene)
+        internal static bool GameOwnsPose(bool wakingUp, bool inCutscene, bool dodging = false)
         {
-            bool game = wakingUp || inCutscene;
-            if (RuleLog.Due("MusketPoseRules.GameOwnsPose", 2d)) RuleLog.Every("MusketPoseRules.GameOwnsPose", 2d, $"MusketPoseRules.GameOwnsPose(wakingUp={wakingUp}, inCutscene={inCutscene}): returns {game}");
+            // dodging (user 2026-11-23, dodge tests): the game's own roll plays and the musket stays in the right hand, turning with it through the roll
+            bool game = wakingUp || inCutscene || dodging;
+            if (RuleLog.Due("MusketPoseRules.GameOwnsPose", 2d)) RuleLog.Every("MusketPoseRules.GameOwnsPose", 2d, $"MusketPoseRules.GameOwnsPose(wakingUp={wakingUp}, inCutscene={inCutscene}, dodging={dodging}): returns {game}");
             return game;
         }
 

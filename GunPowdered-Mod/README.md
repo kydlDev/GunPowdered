@@ -15,15 +15,15 @@ Make gunpowder, then build weapons with it.
 - **Extensions** count within 5 m of their station, above and below too. They snap side by side to their own station and can never stand on top of it.
 
 **Weapons**
-- **Spiked Grenade**: hold the attack button to aim the landing spot (arc and ring shown), release to throw, block to cancel. Damages creatures, buildings, trees and rocks.
+- **Spiked Grenade**: hold the attack button to aim the landing spot (arc and ring shown), release to throw, block to cancel. It lands, its fuse burns 1-3 s (Explosives skill), then it bursts. Damages creatures, buildings, trees and rocks.
 - **Cannon** (with **Cannon Stock** and **Iron Cannon Ball**): build the stock, mount the cannon, load the ball at the muzzle, light the fuse with a Torch and stand clear. It also takes the Flametal Cannon Ball.
-- **Iron Musket**: holds 5 Iron Cartridges, fires at least 0.8 s apart, **R** reloads one cartridge per 1.2 s (key can be changed). Recoil pushes you back. Counter next to the crosshair; key hints in the bottom right.
+- **Iron Musket**: holds 5 Iron Cartridges, fires at least 0.8 s apart, **R** reloads one cartridge per 1.8 s (1.2 s with the Muskets skill at 100; key can be changed). Recoil pushes you back. Counter next to the crosshair; key hints in the bottom right.
   - **Running** lowers it to your right side, held under the stock. It stays there until you click the **mouse wheel** (aim key, can be changed): it comes up to the shoulder and fires again.
   - You can reload while running, but not while jumping or swimming.
   - While it hangs at your side the left hand is free for a **Torch** or a **Shield** (the shield blocks). Raising the musket puts them away.
   - It blocks like a light weapon (block 10, 15 at Blocking 100; parry bonus 1.5) and does not slow you down.
 - **Explosive Arrow**: ammo for any bow; bursts on impact (3 m) and damages buildings too.
-- **Dynamite**: set it down, light it with a Torch (4 s fuse), 4 m blast for buildings, rocks, trees and ore; creatures take a fifth of that; leaves a round crater.
+- **Dynamite**: set it down (your character kneels and stands up again; the stick sparkles light red until lit), light it with a Torch (5 s fuse, 3 s with the Explosives skill at 100), 4 m blast for buildings, rocks, trees and ore; creatures take a fifth of that; leaves a round crater.
 - **Deep North Dynamite Pack**: four sticks of dynamite and two grenades strapped together; unlocked after Fader is dead. Set it down, light it with a Torch (4 s fuse, countdown shown to everyone within 30 m) and run: the 20 m blast breaks even the frozen gammel trolls of the Deep North and leaves a 5 m crater.
 - **Mobile Cannon** (Ashlands): a field gun on wheels.
   - **Move it by hand**: E on the push handle. It is slow (about 3.5 m/s) and uses stamina.
@@ -33,6 +33,11 @@ Make gunpowder, then build weapons with it.
   - The Asksvin tows the cannon at its full speed, ridden or following you.
   - E on the tow ring again unhitches it.
   - The harness drops when the saddle comes off or the Asksvin dies.
+
+**Skills** (in the game's Skills window; they rise as you use them)
+- **Explosives**: shorter fuses. Dynamite burns 5 s at level 0 down to 3 s at level 100. A Spiked Grenade lands and burns 3 s at level 0 down to 1 s at level 100 before it bursts.
+- **Muskets**: faster reloading, 1.8 s per cartridge at level 0 down to 1.2 s at level 100.
+- **Cannons**: faster loading (4 s at level 0 down to 2.5 s at level 100) and harder shots (the cannon's blunt damage up to x1.5).
 
 All pieces and items are listed in the KY-Items viewer (grid or list view).
 

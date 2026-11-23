@@ -1,0 +1,11 @@
+{
+  "params": [],
+  "actions": [
+    { "do": "give", "prefab": "GP_Musket", "count": 1, "equip": true },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.musketTestSpeed", "args": { "speed": 7 }, "contains": "speed 7", "label": "the player runs (7 m/s): the musket goes to the right side" },
+    { "do": "wait", "seconds": 0.8 },
+    { "do": "hook", "name": "GunPowdered.musketRaised", "contains": "carry 1.00", "label": "the musket hangs at the side" }
+  ],
+  "asserts": []
+}

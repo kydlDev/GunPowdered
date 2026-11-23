@@ -1,0 +1,19 @@
+{
+  "name": "visual-dodge-side-shield",
+  "description": "Dodge tests (user 2026-11-23): musket at the right side while moving, a Shield in the left hand, the player dodges. The musket stays in the right hand, the shield in the left; both come out of the roll where they were.",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "clearInventory" },
+    { "do": "musketAtSide", "label": "the Iron Musket in hand, the player running: it hangs at the right side" },
+    { "do": "give", "prefab": "ShieldWood", "count": 1, "equip": true },
+    { "do": "wait", "seconds": 0.8 },
+    { "do": "hook", "name": "GunPowdered.musketGrip", "contains": "offhand under LeftHand_Attach", "label": "the shield is in the left hand" },
+    { "do": "musketDodge", "shot": "visual-dodge-side-shield", "after": "raised False" },
+    { "do": "hook", "name": "GunPowdered.musketGrip", "contains": "offhand under LeftHand_Attach", "label": "after the roll the shield is still in the left hand" },
+    { "do": "hook", "name": "GunPowdered.musketBlocker", "expect": "blocker ShieldWood", "label": "the shield still blocks" },
+    { "do": "musketTestEnd", "label": "free camera off, the real speed again, empty backpack" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}
