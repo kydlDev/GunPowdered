@@ -3,23 +3,117 @@
   "description": "D-149: a musket shot is heard 40 m around (NoiseRules.MusketShotRadius). A Greydwarf 20 m to the side starts hunting the player, a Greydwarf Brute 60 m to the other side does not hear it. The player is in ghost mode, so the mobs react to the noise, not to seeing the player; both stand off the line of fire.",
   "timeout": 60,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "clearInventory" },
-    { "do": "console", "command": "ghost" },
-    { "do": "give", "prefab": "GP_Musket", "count": 1, "equip": true },
-    { "do": "wait", "seconds": 1 },
-    { "do": "spawn", "prefab": "Greydwarf", "dx": 20, "as": "near" },
-    { "do": "spawn", "prefab": "Greydwarf_Elite", "dx": -60, "as": "far" },
-    { "do": "wait", "seconds": 2 },
-    { "do": "hook", "name": "GunPowdered.apiSetLoaded", "args": { "loaded": 1 }, "expect": "set 1, read 1", "label": "one cartridge in the musket" },
-    { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": false }, "contains": "fired", "label": "fire" },
-    { "do": "wait", "seconds": 0.5 },
-    { "do": "hook", "name": "GunPowdered.noiseLast", "regex": "musket shot at .*radius 40 m, alerted [1-9]", "label": "the shot alerts mobs within 40 m" },
-    { "do": "hook", "name": "GunPowdered.noiseCreature", "args": { "prefab": "Greydwarf" }, "contains": "target Human", "label": "the Greydwarf 20 m away hunts the player" },
-    { "do": "hook", "name": "GunPowdered.noiseCreature", "args": { "prefab": "Greydwarf_Elite" }, "contains": "target none", "label": "the Brute 60 m away did not hear it" },
-    { "do": "console", "command": "ghost" },
-    { "do": "clearInventory" },
-    { "do": "console", "command": "killall" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "console",
+      "command": "testlab.hostile"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.labHostile",
+      "expect": "creatures hostile True",
+      "label": "creatures can be alerted, as in a real game (user 2026-11-23: the lab's CreaturesHostile off had kept every Alert() from sticking; the lab turns it off again between tests)"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "console",
+      "command": "ghost"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Musket",
+      "count": 1,
+      "equip": true
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "spawn",
+      "prefab": "Greydwarf",
+      "dx": 20,
+      "as": "near"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Greydwarf_Elite",
+      "dx": -60,
+      "as": "far"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.apiSetLoaded",
+      "args": {
+        "loaded": 1
+      },
+      "expect": "set 1, read 1",
+      "label": "one cartridge in the musket"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketPress",
+      "args": {
+        "secondary": false
+      },
+      "contains": "fired",
+      "label": "fire"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.noiseLast",
+      "regex": "musket shot at .*radius 40 m, alerted [1-9]",
+      "label": "the shot alerts mobs within 40 m"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.noiseCreature",
+      "args": {
+        "prefab": "Greydwarf"
+      },
+      "contains": "target Human",
+      "label": "the Greydwarf 20 m away hunts the player"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.noiseCreature",
+      "args": {
+        "prefab": "Greydwarf_Elite"
+      },
+      "contains": "target none",
+      "label": "the Brute 60 m away did not hear it"
+    },
+    {
+      "do": "console",
+      "command": "ghost"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

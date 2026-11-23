@@ -10,6 +10,16 @@
       "label": "start on the arena spot"
     },
     {
+      "do": "console",
+      "command": "testlab.hostile"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.labHostile",
+      "expect": "creatures hostile True",
+      "label": "creatures can be alerted, as in a real game (user 2026-11-23: the lab's CreaturesHostile off had kept every Alert() from sticking; the lab turns it off again between tests)"
+    },
+    {
       "do": "hook",
       "name": "GunPowdered.setSkill",
       "args": {
@@ -136,8 +146,8 @@
       "args": {
         "prefab": "Greydwarf_Elite"
       },
-      "regex": "target Human, last known [0-1]\\.\\d m from the blast",
-      "label": "the Greydwarf Brute 39 m from the blast hunts the player and knows where the blast was (the game clears its alerted flag again while it cannot see the player)"
+      "regex": "alerted True \\(can be alerted True\\), target Human, last known [0-1]\\.\\d m from the blast",
+      "label": "the Greydwarf Brute 39 m from the blast is alerted, hunts the player and knows where the blast was"
     },
     {
       "do": "hook",
@@ -169,7 +179,7 @@
       },
       "expect": "closer",
       "do": "hook",
-      "label": "the Brute heads for the blast: at least 5 m closer within 25 s than where it stood when the blast went off (a18g16-1: a fixed 33 m mark failed when it started further out; a18g16b-2: it first walked 4 m away for 6 s - its path round - then came back at walking pace, 1 m short at 12 s)"
+      "label": "the Brute heads for the blast: at least 5 m closer within 25 s than where it stood when the blast went off (a18g16-1: a fixed 33 m mark failed when it started further out; a18g16b-2: 1 m short at 12 s - the lab's CreaturesHostile off had kept it unalerted, so it walked; and a Greydwarf Brute circles its target every 15 s for 5 s at 4 m, which is why it can first step away)"
     },
     {
       "do": "hook",

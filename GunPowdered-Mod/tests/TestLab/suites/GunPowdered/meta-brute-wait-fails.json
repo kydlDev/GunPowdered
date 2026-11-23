@@ -1,59 +1,69 @@
 {
-    "name": "meta-brute-wait-fails",
-    "description": "T-030 negative test (user 2026-11-23: 'could do tests which expect the failure'): the Brute wait of dynamite-alerts-mobs (wait until + GunPowdered.noiseCreatureWithin + expect) must be able to FAIL - a Brute 40 m away is never within 0.5 m of the marked noise spot, so the wait runs out and the check fails with 'not within'. Lab a17ab6 showed a regex in `wait until` is not applied (the 12 s wait ended at once).",
-    "timeout": 40,
-    "expectFailure": "not within",
-    "steps": [
-        {
-            "do": "hook",
-            "name": "GunPowdered.arena",
-            "contains": "arena at",
-            "label": "start on the arena spot"
+  "name": "meta-brute-wait-fails",
+  "description": "T-030 negative test (user 2026-11-23: 'could do tests which expect the failure'): the Brute wait of dynamite-alerts-mobs (wait until + GunPowdered.noiseCreatureWithin + expect) must be able to FAIL - a Brute 40 m away is never within 0.5 m of the marked noise spot, so the wait runs out and the check fails with 'not within'. Lab a17ab6 showed a regex in `wait until` is not applied (the 12 s wait ended at once).",
+  "timeout": 40,
+  "expectFailure": "not within",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "console",
+      "command": "testlab.hostile"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.labHostile",
+      "expect": "creatures hostile True",
+      "label": "creatures can be alerted, as in a real game (user 2026-11-23: the lab's CreaturesHostile off had kept every Alert() from sticking; the lab turns it off again between tests)"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Greydwarf_Elite",
+      "dz": 40,
+      "as": "far"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.noiseMarkBlast",
+      "contains": "noise at",
+      "label": "mark the noise spot (the last blast, or none)"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.noiseCreatureWithin",
+        "args": {
+          "prefab": "Greydwarf_Elite",
+          "metres": 0.5
         },
-        {
-            "do": "spawn",
-            "prefab": "Greydwarf_Elite",
-            "dz": 40,
-            "as": "far"
-        },
-        {
-            "do": "hook",
-            "name": "GunPowdered.noiseMarkBlast",
-            "contains": "noise at",
-            "label": "mark the noise spot (the last blast, or none)"
-        },
-        {
-            "do": "wait",
-            "until": {
-                "check": "hook",
-                "name": "GunPowdered.noiseCreatureWithin",
-                "args": {
-                    "prefab": "Greydwarf_Elite",
-                    "metres": 0.5
-                },
-                "expect": "within"
-            },
-            "timeout": 3
-        },
-        {
-            "do": "hook",
-            "name": "GunPowdered.noiseCreatureWithin",
-            "args": {
-                "prefab": "Greydwarf_Elite",
-                "metres": 0.5
-            },
-            "expect": "within",
-            "label": "the Brute is within 0.5 m of the noise spot (must fail: 'not within')"
-        },
-        {
-            "do": "console",
-            "command": "killall"
-        }
-    ],
-    "asserts": [
-        {
-            "check": "noErrors",
-            "source": "GunPowdered"
-        }
-    ]
+        "expect": "within"
+      },
+      "timeout": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.noiseCreatureWithin",
+      "args": {
+        "prefab": "Greydwarf_Elite",
+        "metres": 0.5
+      },
+      "expect": "within",
+      "label": "the Brute is within 0.5 m of the noise spot (must fail: 'not within')"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

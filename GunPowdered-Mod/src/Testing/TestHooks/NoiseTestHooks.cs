@@ -88,10 +88,31 @@ namespace GunPowdered.Testing.TestHooks
             return s;
         }
 
+        /// <summary>
+        /// User 2026-11-23 ("re-read the logs"): DrakesTestLab keeps creatures from being alerted while its [TestControls] CreaturesHostile is false (its
+        /// prefix on BaseAI.SetAlerted), so in every noise test the Brute's Alert() did nothing and it walked over instead of running - not what a player
+        /// sees. The noise tests switch it on (console testlab.hostile; the lab switches it off again between tests) and check it here. Reads the lab's
+        /// own flag. Expected outcome: "creatures hostile True|False" or "lab flag not found".
+        /// </summary>
+        [TestHook("GunPowdered.labHostile")]
+        static string LabHostile()
+        {
+            ModLog.Verbose("NoiseTestHooks.LabHostile()");
+            System.Type t = HarmonyLib.AccessTools.TypeByName("DrakesTestLab.Bootstrap.CreatureHostilityState");
+            System.Reflection.FieldInfo f = t != null ? HarmonyLib.AccessTools.Field(t, "Enabled") : null;
+            string s = f == null ? "lab flag not found" : "creatures hostile " + !(bool)f.GetValue(null);   // Enabled = aggro suppressed
+            ModLog.Info("NoiseTestHooks.LabHostile: returns " + s);
+            return s;
+        }
+
         static string Describe(MonsterAI m)
         {
             Character t = Target(m);
-            return $"alerted {m.IsAlerted()}, target {(t != null ? t.m_name : "none")}, last known {Vector3.Distance(LastKnown(m), _noiseAt):0.0} m from the blast, now {Vector3.Distance(m.transform.position, _noiseAt):0.0} m from the blast";
+            Character c = m.GetComponent<Character>();
+            Vector3 v = c != null ? c.GetVelocity() : Vector3.zero;
+            // user 2026-11-23 ("re-read the logs"): position, speed and the AI settings that decide walk / run / circling, so a slow Brute can be explained
+            return $"alerted {m.IsAlerted()} (can be alerted {m.m_canBeAlerted}), target {(t != null ? t.m_name : "none")}, last known {Vector3.Distance(LastKnown(m), _noiseAt):0.0} m from the blast, now {Vector3.Distance(m.transform.position, _noiseAt):0.0} m from the blast"
+                + $", at {m.transform.position:0.0}, speed {new Vector3(v.x, 0f, v.z).magnitude:0.0} m/s, circle every {m.m_circleTargetInterval:0} s for {m.m_circleTargetDuration:0} s at {m.m_circleTargetDistance:0} m";
         }
 
         /// <summary>The nearest living <paramref name="prefab"/> to the local player, or null. Reads only.</summary>

@@ -8,8 +8,9 @@ namespace GunPowdered.Integrations.Valheim
 {
     /// <summary>
     /// D-149: the noise of gunpowder. Every hostile creature within the radius (NoiseRules.Reacts) is alerted, gets the player who made the noise as its
-    /// target and the noise's spot as the place it last knew the player at - the game's MonsterAI then walks there and searches (as when it loses sight
-    /// of a target), and attacks the player when it hears or sees them. Only creatures whose AI runs on this client are changed (the AI owner); the
+    /// target and the noise's spot as the place it last knew the player at - the game's MonsterAI then goes there (running, as it is alerted) and searches
+    /// (as when it loses sight of a target), and attacks the player when it hears or sees them. Some creatures (the Greydwarf Brute) circle their target
+    /// now and then on the way. (In DrakesTestLab with [TestControls] CreaturesHostile off, the lab blocks every alert: the noise tests switch it on.) Only creatures whose AI runs on this client are changed (the AI owner); the
     /// player in debug fly mode is not heard by the game, so creatures still go to the spot but do not find them.
     /// </summary>
     internal static class GunNoise
@@ -40,11 +41,26 @@ namespace GunPowdered.Integrations.Valheim
                 BeenAtLast(monster) = false;
                 monster.Alert();
                 alerted++;
+                if (RuleLog.IsOn() && !monster.IsAlerted() && ModLog.IsDue("GunNoise.AlertPatches", 600.0)) ModLog.Verbose("GunNoise: Alert() left it unalerted - Harmony patches on BaseAI.SetAlerted: " + PatchOwners(typeof(BaseAI), "SetAlerted") + "; on BaseAI.Alert: " + PatchOwners(typeof(BaseAI), "Alert"));
+                if (RuleLog.IsOn()) ModLog.Verbose($"GunNoise: alerted {Utils.GetPrefabName(c.gameObject)} {Vector3.Distance(at, c.transform.position):0.0} m from it - alerted now {monster.IsAlerted()} (can be alerted {monster.m_canBeAlerted}), hunts players {monster.HuntPlayer()}");
             }
             LastAlerted = alerted;
             LastNoise = what + " at " + at.ToString("0.0") + ", radius " + radius.ToString("0") + " m";
             ModLog.Info("GunNoise: " + LastNoise + " - " + alerted + " creature(s) alerted" + (culprit != null ? ", hunting " + culprit.m_name : ""));
             return alerted;
+        }
+
+        // Diagnostics (user 2026-11-23: the Brute never stayed alerted): which mods patch a method. Expected outcome: "owner (prefix|postfix), ..." or "none".
+        static string PatchOwners(System.Type type, string method)
+        {
+            System.Reflection.MethodBase m = AccessTools.Method(type, method);
+            Patches info = m != null ? Harmony.GetPatchInfo(m) : null;
+            if (info == null) return "none";
+            var parts = new System.Collections.Generic.List<string>();
+            foreach (Patch p in info.Prefixes) parts.Add(p.owner + " prefix " + p.PatchMethod.DeclaringType?.FullName);
+            foreach (Patch p in info.Postfixes) parts.Add(p.owner + " postfix " + p.PatchMethod.DeclaringType?.FullName);
+            foreach (Patch p in info.Transpilers) parts.Add(p.owner + " transpiler " + p.PatchMethod.DeclaringType?.FullName);
+            return parts.Count == 0 ? "none" : string.Join(", ", parts.ToArray());
         }
     }
 }

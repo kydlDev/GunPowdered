@@ -1,121 +1,131 @@
 {
-    "name":  "mobilecannon-alerts-mobs",
-    "description":  "D-149: a Mobile Cannon shot is heard 70 m around (NoiseRules.MobileCannonShotRadius). A Greydwarf 30 m to the side starts hunting the player, a Greydwarf Brute 100 m to the other side does not hear it. The player is in ghost mode, so the mobs react to the noise, not to seeing the player; both stand off the line of fire.",
-    "timeout":  120,
-    "steps":  [
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.arena",
-                      "contains":  "arena at",
-                      "label":  "start on the arena spot"
-                  },
-                  {
-                      "do":  "console",
-                      "command":  "ghost"
-                  },
-                  {
-                      "do":  "mobileCannonPlaced"
-                  },
-                  {
-                      "do":  "spawn",
-                      "prefab":  "Greydwarf",
-                      "dx":  30,
-                      "as":  "near"
-                  },
-                  {
-                      "do":  "spawn",
-                      "prefab":  "Greydwarf_Elite",
-                      "dx":  -100,
-                      "as":  "far"
-                  },
-                  {
-                      "do":  "give",
-                      "prefab":  "GP_Gunpowder",
-                      "count":  3
-                  },
-                  {
-                      "do":  "give",
-                      "prefab":  "GP_FlametalCannonBall",
-                      "count":  1
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.mobileCannonLoad",
-                      "expect":  "loading",
-                      "label":  "load at the muzzle"
-                  },
-                  {
-                      "do":  "wait",
-                      "seconds":  5
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.mobileCannonGunState",
-                      "contains":  "loaded True",
-                      "label":  "loaded"
-                  },
-                  {
-                      "do":  "mobileCannonLightLevel0",
-                      "label":  "a torch in hand, Cannons skill 0, the fuse lit"
-                  },
-                  {
-                      "do":  "wait",
-                      "until":  {
-                                    "check":  "hook",
-                                    "name":  "GunPowdered.mobileCannonGunState",
-                                    "contains":  "loaded False, lit False"
-                                },
-                      "timeout":  12
-                  },
-                  {
-                      "do":  "wait",
-                      "seconds":  0.5
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.noiseLast",
-                      "regex":  "mobile cannon shot at .*radius 70 m, alerted [1-9]",
-                      "label":  "the shot alerts mobs within 70 m"
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.noiseCreature",
-                      "args":  {
-                                   "prefab":  "Greydwarf"
-                               },
-                      "contains":  "target Human",
-                      "label":  "the Greydwarf 30 m away hunts the player"
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.noiseCreature",
-                      "args":  {
-                                   "prefab":  "Greydwarf_Elite"
-                               },
-                      "contains":  "target none",
-                      "label":  "the Brute 100 m away did not hear it"
-                  },
-                  {
-                      "do":  "console",
-                      "command":  "ghost"
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.mobileCannonRemove",
-                      "contains":  "removed"
-                  },
-                  {
-                      "do":  "clearInventory"
-                  },
-                  {
-                      "do":  "console",
-                      "command":  "killall"
-                  }
-              ],
-    "asserts":  [
-                    {
-                        "check":  "noErrors",
-                        "source":  "GunPowdered"
-                    }
-                ]
+  "name": "mobilecannon-alerts-mobs",
+  "description": "D-149: a Mobile Cannon shot is heard 70 m around (NoiseRules.MobileCannonShotRadius). A Greydwarf 30 m to the side starts hunting the player, a Greydwarf Brute 100 m to the other side does not hear it. The player is in ghost mode, so the mobs react to the noise, not to seeing the player; both stand off the line of fire.",
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "console",
+      "command": "testlab.hostile"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.labHostile",
+      "expect": "creatures hostile True",
+      "label": "creatures can be alerted, as in a real game (user 2026-11-23: the lab's CreaturesHostile off had kept every Alert() from sticking; the lab turns it off again between tests)"
+    },
+    {
+      "do": "console",
+      "command": "ghost"
+    },
+    {
+      "do": "mobileCannonPlaced"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Greydwarf",
+      "dx": 30,
+      "as": "near"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Greydwarf_Elite",
+      "dx": -100,
+      "as": "far"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Gunpowder",
+      "count": 3
+    },
+    {
+      "do": "give",
+      "prefab": "GP_FlametalCannonBall",
+      "count": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonLoad",
+      "expect": "loading",
+      "label": "load at the muzzle"
+    },
+    {
+      "do": "wait",
+      "seconds": 5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonGunState",
+      "contains": "loaded True",
+      "label": "loaded"
+    },
+    {
+      "do": "mobileCannonLightLevel0",
+      "label": "a torch in hand, Cannons skill 0, the fuse lit"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.mobileCannonGunState",
+        "contains": "loaded False, lit False"
+      },
+      "timeout": 12
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.noiseLast",
+      "regex": "mobile cannon shot at .*radius 70 m, alerted [1-9]",
+      "label": "the shot alerts mobs within 70 m"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.noiseCreature",
+      "args": {
+        "prefab": "Greydwarf"
+      },
+      "contains": "target Human",
+      "label": "the Greydwarf 30 m away hunts the player"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.noiseCreature",
+      "args": {
+        "prefab": "Greydwarf_Elite"
+      },
+      "contains": "target none",
+      "label": "the Brute 100 m away did not hear it"
+    },
+    {
+      "do": "console",
+      "command": "ghost"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

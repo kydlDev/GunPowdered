@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "GunPowdered",
   "description": "GunPowdered: loads with its exact KydlCore, registers its KY hub page, every feature switches live, its commands reach the real handlers (MIGRATION_DECISIONS C14-C21)",
   "requireMods": [
@@ -117,8 +117,6 @@
     "mobilecannon-alerts-mobs",
     "dynamite-place-wall",
     "items-drawn-once",
-    "perf-creatures-idle",
-    "perf-gc-ab",
     "startup-clean",
     "hub-page",
     "feature-toggle",
@@ -136,7 +134,6 @@
     "dynamite-fuse-skill",
     "grenade-fuse-skill",
     "cannon-skill",
-    "dynamite-alerts-mobs-kneel",
     "musket-reload-key",
     "api-musket",
     "cannons-switch",
