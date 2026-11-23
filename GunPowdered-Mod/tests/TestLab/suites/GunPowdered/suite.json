@@ -1,10 +1,10 @@
-{
+﻿{
   "name": "GunPowdered",
   "description": "GunPowdered: loads with its exact KydlCore, registers its KY hub page, every feature switches live, its commands reach the real handlers (MIGRATION_DECISIONS C14-C21)",
   "requireMods": [
     {
       "guid": "com.kydldev.GunPowdered",
-      "minVersion": "0.1.0"
+      "minVersion": "1.0.0"
     },
     {
       "guid": "com.kydldev.KydlCore",

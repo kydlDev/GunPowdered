@@ -1,10 +1,10 @@
-{
+﻿{
   "name": "GunPowdered-Visual",
   "description": "Spawns every GunPowdered piece, item and deposit in front of the player and takes screenshots (looks, scale, colliders reachable by interact).",
   "requireMods": [
     {
       "guid": "com.kydldev.GunPowdered",
-      "minVersion": "0.1.0"
+      "minVersion": "1.0.0"
     },
     {
       "guid": "com.kydldev.KydlCore",
