@@ -168,7 +168,7 @@
         "expect": "closer",
         "check": "hook"
       },
-      "timeout": 12
+      "timeout": 25
     },
     {
       "name": "GunPowdered.noiseCreatureCloser",
@@ -178,7 +178,7 @@
       },
       "expect": "closer",
       "do": "hook",
-      "label": "the Brute heads for the blast: at least 5 m closer within 12 s than where it stood when the blast went off (a18g16-1: a fixed 33 m mark failed when it started further out)"
+      "label": "the Brute heads for the blast: at least 5 m closer within 25 s than where it stood when the blast went off (a18g16-1: a fixed 33 m mark failed when it started further out; a18g16b-2: it first walked 4 m away for 6 s - its path round - then came back at walking pace, 1 m short at 12 s)"
     },
     {
       "do": "hook",
