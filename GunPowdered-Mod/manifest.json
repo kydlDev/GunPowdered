@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "GunPowdered",
   "version_number": "1.0.0",
   "website_url": "https://github.com/kydlDev/GunPowdered",
@@ -6,6 +6,6 @@
   "dependencies": [
     "denikson-BepInExPack_Valheim-5.4.2360",
     "ValheimModding-Jotunn-2.30.2",
-    "KydlDev-KydlCore-1.1.1"
+    "KydlDev-KydlCore-1.1.2"
   ]
 }
