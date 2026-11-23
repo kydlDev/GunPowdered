@@ -22,6 +22,7 @@ Make gunpowder, then build weapons with it.
   - You can reload while running, but not while jumping or swimming.
   - While it hangs at your side the left hand is free for a **Torch** or a **Shield** (the shield blocks). Raising the musket puts them away.
   - It blocks like a light weapon (block 10, 15 at Blocking 100; parry bonus 1.5) and does not slow you down.
+  - A dodge roll keeps it in your right hand and does not lower it when aimed.
 - **Explosive Arrow**: ammo for any bow; bursts on impact (3 m) and damages buildings too.
 - **Dynamite**: set it down (your character kneels and stands up again; the stick sparkles light red until lit), light it with a Torch (5 s fuse, 3 s with the Explosives skill at 100), 4 m blast for buildings, rocks, trees and ore; creatures take a fifth of that; leaves a round crater.
 - **Deep North Dynamite Pack**: four sticks of dynamite and two grenades strapped together; unlocked after Fader is dead. Set it down, light it with a Torch (4 s fuse, countdown shown to everyone within 30 m) and run: the 20 m blast breaks even the frozen gammel trolls of the Deep North and leaves a 5 m crater.

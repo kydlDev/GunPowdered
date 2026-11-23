@@ -16,6 +16,7 @@
 - All items listed in KY-Items, with a grid view.
 - Iron Musket: running lowers it to your right side; the mouse wheel click (new [Musket] Aim Key) raises it again, and it fires only when raised. Reloading works while running (not while jumping or swimming). A Torch or Shield can be held in the left hand next to the lowered musket; raising it puts them away. Block 10 (15 at Blocking 100), parry bonus 1.5, no movement slowdown.
 - Other players now see your very first musket shot (it was missing before).
+- Iron Musket: a dodge roll keeps it in the right hand and an aimed musket stays aimed; a musket taken in hand always starts raised; other players no longer see a female character's arms shake while she holds it.
 - Emptied deposits refill after 2 in-game days (was 3).
 - New skills: Explosives (dynamite fuse 5 s -> 3 s, landed grenade fuse 3 s -> 1 s), Muskets (reload 1.8 s -> 1.2 s per cartridge), Cannons (load 4 s -> 2.5 s, blunt damage up to x1.5). The musket now trains Muskets instead of Crossbows.
 - Spiked Grenade: it no longer bursts on impact; it lands and its fuse burns first.
