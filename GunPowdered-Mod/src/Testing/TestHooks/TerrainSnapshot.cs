@@ -16,7 +16,11 @@ namespace GunPowdered.Testing.TestHooks
     {
         const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
         static readonly string[] Fields = { "m_modifiedHeight", "m_levelDelta", "m_smoothDelta", "m_modifiedPaint", "m_paintMask" };
-        static readonly Dictionary<TerrainComp, object[]> Saved = new Dictionary<TerrainComp, object[]>();
+        // keyed by the terrain piece's POSITION, not the object: a relog makes new TerrainComp objects for the same pieces, and a by-object key saw them as
+        // "made by the test" and cleared them - the arena's own levelling went and the ground dropped 9.3 m (lab a18persist2, relog-dynamite-hole)
+        static readonly Dictionary<Vector2Int, object[]> Saved = new Dictionary<Vector2Int, object[]>();
+
+        static Vector2Int Key(TerrainComp tc) => new Vector2Int(Mathf.RoundToInt(tc.transform.position.x), Mathf.RoundToInt(tc.transform.position.z));
 
         /// <summary>Copies the modifications of every terrain piece within <paramref name="radius"/> m of <paramref name="at"/> (flat distance). Returns how many were copied.</summary>
         internal static int Mark(Vector3 at, float radius)
@@ -27,7 +31,7 @@ namespace GunPowdered.Testing.TestHooks
                 if (!Near(tc, at, radius)) continue;
                 var copy = new object[Fields.Length];
                 for (int i = 0; i < Fields.Length; i++) copy[i] = (Field(Fields[i])?.GetValue(tc) as Array)?.Clone();
-                Saved[tc] = copy;
+                Saved[Key(tc)] = copy;
             }
             ModLog.Info($"TerrainSnapshot: marked {Saved.Count} terrain piece(s) within {radius} m of ({at.x:0}, {at.z:0})");
             return Saved.Count;
@@ -50,7 +54,7 @@ namespace GunPowdered.Testing.TestHooks
                 if (!Near(tc, at, radius)) continue;
                 ZNetView view = tc.GetComponent<ZNetView>();
                 if (view != null && view.IsValid() && !view.IsOwner()) view.ClaimOwnership();
-                bool known = Saved.TryGetValue(tc, out object[] saved);
+                bool known = Saved.TryGetValue(Key(tc), out object[] saved);
                 for (int i = 0; i < Fields.Length; i++)
                 {
                     var now = Field(Fields[i])?.GetValue(tc) as Array;
