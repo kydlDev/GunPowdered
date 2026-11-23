@@ -21,9 +21,18 @@ namespace GunPowdered.Testing.TestHooks
         {
             string moved = TestArena.MovePlayer();
             string cleaned = CleanArena();
-            ModLog.Info("ModTestHooks.Arena: returns " + moved + "; " + cleaned);
-            return moved + "; " + cleaned;
+            UnityEngine.Random.InitState(RandomSeed);
+            string s = moved + "; " + cleaned + "; random seed " + RandomSeed;
+            ModLog.Info("ModTestHooks.Arena: returns " + s);
+            return s;
         }
+
+        /// <summary>
+        /// User 2026-11-23 ("is the test done consistently on same seed? if not, then we should"): the world is the same every run (baked template KydlFlat),
+        /// but UnityEngine.Random (creature AI wander / idle timers, drop rolls) was not seeded. Every test re-seeds it in its first step, so a test starts
+        /// from the same random numbers whatever ran before it. Frame timing still varies, so this narrows the spread; it does not make a run exact.
+        /// </summary>
+        internal const int RandomSeed = 20261123;
 
         /// <summary>
         /// User 2026-11-23 ("did I not already say that first steps have to be clean arena?"): the first step of every test leaves nothing of an earlier
