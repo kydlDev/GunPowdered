@@ -1,4 +1,4 @@
-{
+﻿{
     "name": "GunPowdered-Visual",
     "description": "Spawns every GunPowdered piece, item and deposit in front of the player and takes screenshots (looks, scale, colliders reachable by interact).",
     "requireMods": [
@@ -129,6 +129,7 @@
         "spawn-geysers",
         "enter-troll-caves",
         "enter-burial-chambers",
+    "survey-world-spots",
         "enter-mountain-caves",
         "perf-after-caves"
     ]
