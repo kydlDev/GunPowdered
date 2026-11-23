@@ -1,6 +1,7 @@
 # Changelog
 
-## 0.1.0 (in development)
+## 1.0.0 (2026-11-23)
+First release.
 - Gunpowder chain: Bat Guano, Water + Bucket, Rain Barrel, Leaching Station, Saltpeter, Sulfur, Powder Mill, Gunpowder.
 - Leaching Station upgrades: five extension pieces (Second Leaching Barrel, Settling Tank, Black Metal-banded Boiler, Dvergr Drip Pipes, Flametal Heater); each makes the batch bigger and the run 5 minutes shorter. Use fills half a batch at any time (up to what the station holds) and takes all the Saltpeter; the station runs by itself while at least 10 + 10 + 4 is inside and stops below that; finished Saltpeter piles up; the hover text says what is missing.
 - Powder Mill is automatic: fill it with Saltpeter, Charcoal and Sulfur (3 + 1 + 1 per batch of 5 Gunpowder) and it grinds by itself in 10 minutes; Gunpowder piles up until you take it. Gunpowder is no longer crafted.
@@ -21,3 +22,6 @@
 - New skills: Explosives (dynamite fuse 5 s -> 3 s, landed grenade fuse 3 s -> 1 s), Muskets (reload 1.8 s -> 1.2 s per cartridge), Cannons (load 4 s -> 2.5 s, blunt damage up to x1.5). The musket now trains Muskets instead of Crossbows.
 - Spiked Grenade: it no longer bursts on impact; it lands and its fuse burns first.
 - Dynamite: the character stands up again after setting a stick down; a placed, unlit stick sparkles light red so it is easy to find.
+- Hildir's crypt and Hildir's cave now get Bat Guano like a Burial Chamber and a mountain cave.
+- Sulfurous Mud now also appears at geysers and swamp graves whose area the game created while you were still far away (they had none before); a world that had them before the mod gets their mud on the first visit.
+- Mud next to a bone pile is placed wherever there is water within 15 m of it (before, half the piles by water had none); bone piles with no water around keep none.

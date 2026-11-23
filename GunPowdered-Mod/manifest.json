@@ -1,7 +1,7 @@
 {
   "name": "GunPowdered",
-  "version_number": "0.1.0",
-  "website_url": "",
+  "version_number": "1.0.0",
+  "website_url": "https://github.com/kydlDev/GunPowdered",
   "description": "Craft gunpowder: collect bat guano and water, leach saltpeter in a Leaching Vat, find sulfur, then grind it at the Powder Mill. Adds a water bucket and a public API for mods.",
   "dependencies": [
     "denikson-BepInExPack_Valheim-5.4.2360",

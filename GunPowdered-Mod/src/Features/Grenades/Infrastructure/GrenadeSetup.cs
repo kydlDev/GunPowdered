@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using KydlCore.Common;
@@ -55,8 +55,8 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             ball.center = Vector3.up * 0.12f;
             var body = landed.AddComponent<Rigidbody>();
             body.mass = 2f;
-            body.drag = 1f;
-            body.angularDrag = 5f;
+            body.linearDamping = 1f;
+            body.angularDamping = 5f;
             body.interpolation = RigidbodyInterpolation.Interpolate;
             body.constraints = RigidbodyConstraints.FreezeRotation;      // it drops and lies where it landed, it does not roll off down a slope
             var sync = landed.AddComponent<ZSyncTransform>();
