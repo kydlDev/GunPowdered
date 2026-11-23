@@ -3,6 +3,7 @@
   "actions": [
     { "do": "hook", "name": "GunPowdered.cannonAim", "args": { "distance": 30, "side": 0 }, "contains": "aiming True", "label": "aim 30 m straight out" },
     { "do": "wait", "seconds": 0.5 },
+    { "do": "hook", "name": "GunPowdered.setSkill", "args": { "name": "Cannons", "level": 0 }, "contains": "Cannons set to 0", "label": "Cannons skill 0 for this shot: the damage numbers are the level-0 ones (each shot trains the skill, D-157)" },
     { "do": "hook", "name": "GunPowdered.cannonLight", "expect": "lit", "label": "the torch lights the fuse" },
     { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.cannonShotDone", "expect": true }, "timeout": 12 },
     { "do": "wait", "seconds": 0.5 },

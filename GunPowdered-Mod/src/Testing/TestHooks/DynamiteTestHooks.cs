@@ -93,6 +93,17 @@ namespace GunPowdered.Testing.TestHooks
             return s;
         }
 
+        /// <summary>A/B test switch: true = no stand-up after placing (the old kneel), false = the D-158 stand-up. Returns "stand-up off|on".</summary>
+        [TestHook("GunPowdered.dynamiteNoStandUp")]
+        static string NoStandUp(bool off)
+        {
+            ModLog.Verbose("DynamiteTestHooks.NoStandUp(off=" + off + ")");
+            DynamiteSetup.TestNoStandUp = off;
+            string s = "stand-up " + (off ? "off" : "on");
+            ModLog.Info("DynamiteTestHooks.NoStandUp: returns " + s);
+            return s;
+        }
+
         /// <summary>D-158: the emote the local player is in (the game's synced emote): "emote NAME" or "emote none".</summary>
         [TestHook("GunPowdered.playerEmote")]
         static string Emote()

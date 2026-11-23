@@ -1,169 +1,157 @@
 {
-  "name": "mobilecannon-fire",
-  "description": "D-045 / D-104: the Mobile Cannon is loaded at the muzzle (3 gunpowder + 1 Flametal Cannon Ball, D-145), the torch on the touch hole lights the fuse, the ball flies about the range of the crank's elevation, the load is used up.",
-  "timeout": 120,
-  "steps": [
-    {
-      "do": "hook",
-      "name": "GunPowdered.arena",
-      "contains": "arena at",
-      "label": "start on the arena spot"
-    },
-    {
-      "do": "mobileCannonPlaced"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.mobileCannonLoad",
-      "expect": "refused",
-      "label": "no gunpowder, no load"
-    },
-    {
-      "do": "give",
-      "prefab": "GP_Gunpowder",
-      "count": 3
-    },
-    {
-      "do": "give",
-      "prefab": "GP_FlametalCannonBall",
-      "count": 1
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.mobileCannonCrank",
-      "args": {
-        "notches": 15
-      },
-      "contains": "turned 15",
-      "label": "elevation 15 degrees"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.mobileCannonLoad",
-      "expect": "loading",
-      "label": "load at the muzzle"
-    },
-    {
-      "do": "wait",
-      "seconds": 5
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.mobileCannonGunState",
-      "contains": "loaded True",
-      "label": "loaded"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.invCount",
-      "args": {
-        "prefab": "GP_Gunpowder"
-      },
-      "expect": 0,
-      "label": "3 gunpowder used"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.invCount",
-      "args": {
-        "prefab": "GP_FlametalCannonBall"
-      },
-      "expect": 0,
-      "label": "the ball used"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.mobileCannonLight",
-      "expect": "Hold a torch to light the fuse",
-      "label": "no torch, no fuse"
-    },
-    {
-      "do": "give",
-      "prefab": "Torch",
-      "count": 1,
-      "equip": true
-    },
-    {
-      "do": "wait",
-      "seconds": 0.5
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.mobileCannonLight",
-      "expect": "lit",
-      "label": "the torch lights the fuse"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.mobileCannonGunState",
-      "contains": "lit True",
-      "label": "the fuse burns"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.freeCam",
-      "args": {
-        "azimuth": 120,
-        "elevation": 12,
-        "metres": 5
-      },
-      "contains": "free camera at"
-    },
-    {
-      "do": "invoke",
-      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
-      "label": "GameProbe shot: the fuse burning"
-    },
-    {
-      "do": "wait",
-      "seconds": 1.5
-    },
-    {
-      "do": "wait",
-      "seconds": 5
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.mobileCannonGunState",
-      "contains": "loaded False, lit False",
-      "label": "fired: empty again"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.mobileCannonLastShot",
-      "regex": "flew ([3-5][0-9]) m",
-      "label": "the ball flew about the 15-degree range (30-59 m)"
-    },
-    {
-      "do": "invoke",
-      "method": "Kydl.GameProbe.ProbeApi.Screenshot",
-      "label": "GameProbe shot: after the shot"
-    },
-    {
-      "do": "wait",
-      "seconds": 1.5
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.freeCamOff",
-      "contains": "free camera"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.mobileCannonRemove",
-      "contains": "removed"
-    },
-    {
-      "do": "clearInventory"
-    },
-    {
-      "do": "cleanArena"
-    }
-  ],
-  "asserts": [
-    {
-      "check": "noErrors",
-      "source": "GunPowdered"
-    }
-  ]
+    "name":  "mobilecannon-fire",
+    "description":  "D-045 / D-104: the Mobile Cannon is loaded at the muzzle (3 gunpowder + 1 Flametal Cannon Ball, D-145), the torch on the touch hole lights the fuse, the ball flies about the range of the crank\u0027s elevation, the load is used up.",
+    "timeout":  120,
+    "steps":  [
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.arena",
+                      "contains":  "arena at",
+                      "label":  "start on the arena spot"
+                  },
+                  {
+                      "do":  "mobileCannonPlaced"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.mobileCannonLoad",
+                      "expect":  "refused",
+                      "label":  "no gunpowder, no load"
+                  },
+                  {
+                      "do":  "give",
+                      "prefab":  "GP_Gunpowder",
+                      "count":  3
+                  },
+                  {
+                      "do":  "give",
+                      "prefab":  "GP_FlametalCannonBall",
+                      "count":  1
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.mobileCannonCrank",
+                      "args":  {
+                                   "notches":  15
+                               },
+                      "contains":  "turned 15",
+                      "label":  "elevation 15 degrees"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.mobileCannonLoad",
+                      "expect":  "loading",
+                      "label":  "load at the muzzle"
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  5
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.mobileCannonGunState",
+                      "contains":  "loaded True",
+                      "label":  "loaded"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.invCount",
+                      "args":  {
+                                   "prefab":  "GP_Gunpowder"
+                               },
+                      "expect":  0,
+                      "label":  "3 gunpowder used"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.invCount",
+                      "args":  {
+                                   "prefab":  "GP_FlametalCannonBall"
+                               },
+                      "expect":  0,
+                      "label":  "the ball used"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.mobileCannonLight",
+                      "expect":  "Hold a torch to light the fuse",
+                      "label":  "no torch, no fuse"
+                  },
+                  {
+                      "do":  "mobileCannonLightLevel0",
+                      "label":  "a torch in hand, Cannons skill 0, the fuse lit"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.mobileCannonGunState",
+                      "contains":  "lit True",
+                      "label":  "the fuse burns"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.freeCam",
+                      "args":  {
+                                   "azimuth":  120,
+                                   "elevation":  12,
+                                   "metres":  5
+                               },
+                      "contains":  "free camera at"
+                  },
+                  {
+                      "do":  "invoke",
+                      "method":  "Kydl.GameProbe.ProbeApi.Screenshot",
+                      "label":  "GameProbe shot: the fuse burning"
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  1.5
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  5
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.mobileCannonGunState",
+                      "contains":  "loaded False, lit False",
+                      "label":  "fired: empty again"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.mobileCannonLastShot",
+                      "regex":  "flew ([3-5][0-9]) m",
+                      "label":  "the ball flew about the 15-degree range (30-59 m)"
+                  },
+                  {
+                      "do":  "invoke",
+                      "method":  "Kydl.GameProbe.ProbeApi.Screenshot",
+                      "label":  "GameProbe shot: after the shot"
+                  },
+                  {
+                      "do":  "wait",
+                      "seconds":  1.5
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.freeCamOff",
+                      "contains":  "free camera"
+                  },
+                  {
+                      "do":  "hook",
+                      "name":  "GunPowdered.mobileCannonRemove",
+                      "contains":  "removed"
+                  },
+                  {
+                      "do":  "clearInventory"
+                  },
+                  {
+                      "do":  "cleanArena"
+                  }
+              ],
+    "asserts":  [
+                    {
+                        "check":  "noErrors",
+                        "source":  "GunPowdered"
+                    }
+                ]
 }

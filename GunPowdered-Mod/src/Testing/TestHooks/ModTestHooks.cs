@@ -48,6 +48,7 @@ namespace GunPowdered.Testing.TestHooks
             if (ghost) p.SetGhostMode(false);
             GunPowdered.Features.Musket.Infrastructure.MusketRig.TestSpeed = -1f;
             GunPowdered.Features.Musket.Infrastructure.MusketRig.TraceFrames = 0;
+            GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.TestNoStandUp = false;
             string s = "cleaned " + items + " item(s) on the ground" + (ghost ? ", ghost mode off" : "") + ", musket test switches off";
             ModLog.Verbose("ModTestHooks.CleanArena: returns " + s);
             return s;

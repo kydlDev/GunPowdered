@@ -234,7 +234,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
                 { var returnedAt213 = DynamiteRules.NoGround; if (RuleLog.Due("ChargeKind.Place:213", 2d)) ModLog.Every("ChargeKind.Place:213", 2d, $"ChargeKind.Place: returns {RuleLog.Shown(returnedAt213)} (line 213)"); return returnedAt213; }
             }
             player.StartEmote("kneel");                                // D-148: the character bends down to set it on the ground (the game's own kneel)
-            player.StartCoroutine(StandUp(player));                    // D-158: the game's kneel stays until the player moves; stand up again after it
+            if (!TestNoStandUp) player.StartCoroutine(StandUp(player));      // D-158: the game's kneel stays until the player moves; stand up again after it
             Object.Instantiate(kind.Charge, spot, Quaternion.Euler(0f, player.transform.eulerAngles.y, 0f));
             if (held.m_stack <= 1) player.UnequipItem(held, false);     // the last one: unequip first like the game's Attack.ConsumeItem, or its model stays in the hand (Agent-10, lab a10packvis1)
             player.GetInventory().RemoveItem(held, 1);
@@ -242,6 +242,9 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             ModLog.Info("DynamiteSetup: " + player.GetPlayerName() + " set " + kind.Name + " down at " + spot.ToString("0.00"));
             return "placed at " + spot.ToString("0.00");
         }
+
+        /// <summary>Test switch (hook GunPowdered.dynamiteNoStandUp, A/B for dynamite-alerts-mobs): true = the old D-148 kneel that stays until the player moves.</summary>
+        internal static bool TestNoStandUp;
 
         static readonly System.Action<Player> StopEmote = HarmonyLib.AccessTools.MethodDelegate<System.Action<Player>>(HarmonyLib.AccessTools.Method(typeof(Player), "StopEmote"));
 

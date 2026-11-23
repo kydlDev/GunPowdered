@@ -1,0 +1,10 @@
+{
+  "params": [],
+  "actions": [
+    { "do": "give", "prefab": "Torch", "count": 1, "equip": true },
+    { "do": "wait", "seconds": 0.5 },
+    { "do": "hook", "name": "GunPowdered.setSkill", "args": { "name": "Cannons", "level": 0 }, "contains": "Cannons set to 0", "label": "Cannons skill 0 for this shot: the damage numbers are the level-0 ones (each shot trains the skill, D-157)" },
+    { "do": "hook", "name": "GunPowdered.mobileCannonLight", "expect": "lit", "label": "the torch lights the fuse" }
+  ],
+  "asserts": []
+}
