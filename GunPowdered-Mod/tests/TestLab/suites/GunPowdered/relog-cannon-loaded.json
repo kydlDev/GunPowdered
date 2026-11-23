@@ -1,0 +1,51 @@
+{
+  "name": "relog-cannon-loaded",
+  "description": "User 2026-11-23: a loaded Hand Cannon on its stock stays mounted and loaded after a log out / log in (the stock's own saved values).",
+  "timeout": 150,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "cannonStock"
+    },
+    {
+      "do": "cannonLoaded"
+    },
+    {
+      "do": "relog",
+      "timeout": 150
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonAdoptStock",
+      "contains": "adopted",
+      "label": "find the stock again (the old reference is gone after a relog)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonState",
+      "contains": "mounted True, loaded True",
+      "label": "after the relog: still mounted and loaded"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cannonClean"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "name": "relog-cannon-broken-rock",
+  "description": "User 2026-11-23: a rock a Hand Cannon ball broke stays broken after a log out / log in (the save no longer has it).",
+  "timeout": 180,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "cannonStock"
+    },
+    {
+      "do": "cannonLoaded"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonPlaceOnLine",
+      "args": {
+        "prefab": "rock2_heath",
+        "distance": 15
+      },
+      "expect": "placed rock2_heath",
+      "label": "a rock 15 m out"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.rememberSpotOf",
+      "args": {
+        "prefab": "rock2_heath"
+      },
+      "contains": "remembered rock2_heath",
+      "label": "remember where the rock stands"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.savedCountAtSpot",
+      "args": {
+        "prefab": "rock2_heath",
+        "metres": 1
+      },
+      "expect": 1,
+      "label": "the rock is in the save before the shot"
+    },
+    {
+      "do": "cannonFire30"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonShot",
+      "contains": "stopped by rock2_heath",
+      "label": "the rock stopped the ball"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.savedCountAtSpot",
+      "args": {
+        "prefab": "rock2_heath",
+        "metres": 1
+      },
+      "expect": 0,
+      "label": "the rock broke (gone from the save)"
+    },
+    {
+      "do": "relog",
+      "timeout": 150
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.savedCountAtSpot",
+      "args": {
+        "prefab": "rock2_heath",
+        "metres": 1
+      },
+      "expect": 0,
+      "label": "after the relog: the rock is still broken"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cannonClean"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

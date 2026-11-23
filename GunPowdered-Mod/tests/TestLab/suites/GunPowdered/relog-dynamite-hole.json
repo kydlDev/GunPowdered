@@ -1,0 +1,183 @@
+{
+  "name": "relog-dynamite-hole",
+  "description": "User 2026-11-23: the hole a dynamite blast dug and the wall it wrecked are saved: after a log out / log in the hole is still there and the wall is still wrecked (terrain changes and broken pieces are part of the world save).",
+  "timeout": 180,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.setSkill",
+      "args": {
+        "name": "Explosives",
+        "level": 50
+      },
+      "contains": "Explosives set to 50",
+      "label": "the 4 s fuse"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Dynamite",
+      "count": 1,
+      "equip": true
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamitePlaceAt",
+      "args": {
+        "metres": 8
+      },
+      "contains": "placed at",
+      "label": "a stick 8 m out"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteGroundMark",
+      "contains": "marked",
+      "label": "remember the ground height"
+    },
+    {
+      "do": "give",
+      "prefab": "Torch",
+      "count": 1,
+      "equip": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.placePieceNearDynamite",
+      "args": {
+        "prefab": "woodwall",
+        "metres": 2
+      },
+      "contains": "placed woodwall",
+      "label": "a wood wall 2 m from the stick"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.rememberSpotOf",
+      "args": {
+        "prefab": "woodwall"
+      },
+      "contains": "remembered woodwall",
+      "label": "remember where the wall stands"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.savedCountAtSpot",
+      "args": {
+        "prefab": "woodwall",
+        "metres": 1
+      },
+      "expect": 1,
+      "label": "the wall is in the save before the blast"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteLight",
+      "expect": "lit",
+      "label": "light the fuse"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.dynamiteBlastsSinceLight",
+        "expect": 1
+      },
+      "timeout": 8
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteHoleAtLeast",
+      "args": {
+        "metres": 0.8
+      },
+      "expect": true,
+      "label": "a hole is dug"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.savedCountAtSpot",
+      "args": {
+        "prefab": "woodwall",
+        "metres": 1
+      },
+      "expect": 0,
+      "label": "the wall is wrecked (gone from the save)"
+    },
+    {
+      "do": "relog",
+      "timeout": 150
+    },
+    {
+      "do": "wait",
+      "seconds": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteHoleAtLeast",
+      "args": {
+        "metres": 0.8
+      },
+      "expect": true,
+      "label": "after the relog: the hole is still there"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.savedCountAtSpot",
+      "args": {
+        "prefab": "woodwall",
+        "metres": 1
+      },
+      "expect": 0,
+      "label": "after the relog: the wall is still gone"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteTerrainReset",
+      "contains": "reset",
+      "label": "the hole is undone"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteGroundBack",
+      "expect": "back",
+      "label": "the ground is back"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

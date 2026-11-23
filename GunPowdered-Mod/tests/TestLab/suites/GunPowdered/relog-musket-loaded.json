@@ -1,0 +1,91 @@
+{
+  "name": "relog-musket-loaded",
+  "description": "User 2026-11-23: a loaded Iron Musket stays loaded after a log out / log in (the load is the item's own data, saved with the character).",
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Musket",
+      "count": 1,
+      "equip": true
+    },
+    {
+      "do": "give",
+      "prefab": "GP_PaperCartridge",
+      "count": 5
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.setSkill",
+      "args": {
+        "name": "Muskets",
+        "level": 100
+      },
+      "contains": "Muskets set to 100",
+      "label": "Muskets 100: the fastest reload"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketPress",
+      "args": {
+        "secondary": true
+      },
+      "contains": "reloading",
+      "label": "reload"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.musketLoaded",
+        "expect": 5
+      },
+      "timeout": 12
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketLoaded",
+      "expect": 5,
+      "label": "5 cartridges in"
+    },
+    {
+      "do": "relog",
+      "timeout": 150
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketLoaded",
+      "expect": 5,
+      "label": "after the relog: still in the hand with 5 cartridges"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

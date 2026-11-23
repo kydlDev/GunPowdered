@@ -229,6 +229,10 @@
     "bonepiles-dry-no-mud",
     "meta-dry-mud-check-fails",
     "deposits-stay-put",
-    "meta-deposits-compare-fails"
+    "meta-deposits-compare-fails",
+    "relog-musket-loaded",
+    "relog-cannon-loaded",
+    "relog-dynamite-hole",
+    "relog-cannon-broken-rock"
   ]
 }

@@ -56,6 +56,7 @@ namespace GunPowdered.Testing.TestHooks
             int spawners = CleanSpawners(p.transform.position);      // creatures: KydlCore TestWorldCleanup (inside TestArena.MovePlayer) already removes them
             string plain = PlainPlayer(p);
             TowEndTestHooks.ForgetDropSpot();
+            PersistTestHooks.Forget();
             GunPowdered.Features.Musket.Infrastructure.MusketRig.TestSpeed = -1f;
             GunPowdered.Features.Musket.Infrastructure.MusketRig.TraceFrames = 0;
             GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.TestNoStandUp = false;
