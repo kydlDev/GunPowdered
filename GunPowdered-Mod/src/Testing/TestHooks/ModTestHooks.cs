@@ -22,7 +22,7 @@ namespace GunPowdered.Testing.TestHooks
             string moved = TestArena.MovePlayer();
             // a18persist1: KydlCore's cleanup restored an earlier test's crater ("terrain 3 restored") and the next step read the ground 10 m too low
             // while the heightmaps were still rebuilding (a rock went in underground, the ball flew over it). Rebuild them now, before the test goes on.
-            if (System.Text.RegularExpressions.Regex.IsMatch(moved, @"terrain [1-9][0-9]* restored"))
+            if (System.Text.RegularExpressions.Regex.IsMatch(moved, @"terrain [1-9][0-9]* restored", System.Text.RegularExpressions.RegexOptions.None, System.TimeSpan.FromSeconds(1)))
             {
                 Heightmap.ForceGenerateAll();
                 UnityEngine.Physics.SyncTransforms();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using GunPowdered.Core;
 
@@ -41,7 +41,7 @@ namespace GunPowdered.Features.Guano.Domain
             if (heights == null || heights.Count == 0) { if (RuleLog.IsOn()) RuleLog.Verbose("GuanoSpreadRules.Floors: no spots - returns none"); return floors; }
             var byHeight = new List<int>(heights.Count);
             for (int i = 0; i < heights.Count; i++) byHeight.Add(i);
-            byHeight.Sort((a, b) => heights[a] != heights[b] ? heights[a].CompareTo(heights[b]) : a.CompareTo(b));
+            byHeight.Sort((a, b) => { int byY = heights[a].CompareTo(heights[b]); return byY != 0 ? byY : a.CompareTo(b); });   // Sonar S1244: no exact float compare
             double previous = double.NegativeInfinity;
             foreach (int i in byHeight)
             {

@@ -1,4 +1,4 @@
-// kydl:read-only-observer - test-only: reads the saved records (ZDOs) of the mod's deposits and compares them; changes nothing
+﻿// kydl:read-only-observer - test-only: reads the saved records (ZDOs) of the mod's deposits and compares them; changes nothing
 using System.Collections;
 using System.Collections.Generic;
 using HarmonyLib;
@@ -28,7 +28,7 @@ namespace GunPowdered.Testing.TestHooks
             foreach (string p in Prefabs) hashes[p.GetStableHashCode()] = p;
             foreach (object o in all.Values)
                 if (o is ZDO z && hashes.TryGetValue(z.GetPrefab(), out string name)) list.Add((name, z.GetPosition()));
-            list.Sort((a, b) => a.Item2.x != b.Item2.x ? a.Item2.x.CompareTo(b.Item2.x) : a.Item2.z != b.Item2.z ? a.Item2.z.CompareTo(b.Item2.z) : a.Item2.y.CompareTo(b.Item2.y));
+            list.Sort((a, b) => { int c = a.Item2.x.CompareTo(b.Item2.x); if (c == 0) c = a.Item2.z.CompareTo(b.Item2.z); return c != 0 ? c : a.Item2.y.CompareTo(b.Item2.y); });   // Sonar S1244
             ModLog.Verbose("DepositPersistTestHooks.Records: returns " + list.Count + " record(s)");
             return list;
         }
