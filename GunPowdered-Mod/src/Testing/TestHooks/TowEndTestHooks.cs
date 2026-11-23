@@ -40,19 +40,28 @@ namespace GunPowdered.Testing.TestHooks
             return "killed";
         }
 
-        /// <summary>Asksvin Harness items lying within 8 m of where the lab's Asksvin is or was. Returns "harness items on the ground N".</summary>
+        /// <summary>
+        /// Asksvin Harness items lying within 8 m of where the lab's Asksvin was when the harness came off (saddle dropped / killed). Not where it is now:
+        /// a18full2 - the unsaddled Asksvin walked 10 m away in 1.8 s, so the harness at the drop spot counted 0. Returns "harness items on the ground N".
+        /// </summary>
         [TestHook("GunPowdered.harnessItemsNear")]
         static string HarnessItemsNear()
         {
-            Vector3 at = AsksvinTowTestHooks.Animal != null ? AsksvinTowTestHooks.Animal.transform.position : _lastAnimalPos;
-            int n = 0;
+            Vector3 at = _lastAnimalPos != Vector3.zero ? _lastAnimalPos : AsksvinTowTestHooks.Animal != null ? AsksvinTowTestHooks.Animal.transform.position : Vector3.zero;
+            int n = 0, elsewhere = 0;
             foreach (ItemDrop d in Object.FindObjectsByType<ItemDrop>(FindObjectsSortMode.None))
-                if (d != null && Utils.GetPrefabName(d.gameObject) == GunPowderedPrefabs.AsksvinHarness && Vector3.Distance(d.transform.position, at) < 8f) n += d.m_itemData.m_stack;
-            ModLog.Info("TowEndTestHooks: harness items on the ground " + n);
+            {
+                if (d == null || Utils.GetPrefabName(d.gameObject) != GunPowderedPrefabs.AsksvinHarness) continue;
+                if (Vector3.Distance(d.transform.position, at) < 8f) n += d.m_itemData.m_stack; else elsewhere += d.m_itemData.m_stack;
+            }
+            ModLog.Info("TowEndTestHooks: harness items on the ground " + n + " within 8 m of " + at.ToString("0.0") + " (where the harness came off), " + elsewhere + " elsewhere");
             return "harness items on the ground " + n;
         }
 
         static Vector3 _lastAnimalPos;
+
+        /// The arena step forgets the last drop spot, so a later test never measures from an earlier test's Asksvin.
+        internal static void ForgetDropSpot() => _lastAnimalPos = Vector3.zero;
 
         /// <summary>Sets the live tow joint's break force (N), so the next pull breaks it. Returns "break force N" or why not.</summary>
         [TestHook("GunPowdered.mobileCannonBreakForce")]

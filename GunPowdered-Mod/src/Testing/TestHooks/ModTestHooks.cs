@@ -55,6 +55,7 @@ namespace GunPowdered.Testing.TestHooks
             }
             int spawners = CleanSpawners(p.transform.position), creatures = CleanCreatures(p.transform.position);
             string plain = PlainPlayer(p);
+            TowEndTestHooks.ForgetDropSpot();
             GunPowdered.Features.Musket.Infrastructure.MusketRig.TestSpeed = -1f;
             GunPowdered.Features.Musket.Infrastructure.MusketRig.TraceFrames = 0;
             GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.TestNoStandUp = false;
