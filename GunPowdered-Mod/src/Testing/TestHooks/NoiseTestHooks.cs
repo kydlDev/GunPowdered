@@ -29,6 +29,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             ModLog.Verbose("NoiseTestHooks.MarkBlast()");
             _noiseAt = GunPowdered.Features.Dynamite.Infrastructure.DynamiteCharge.LastBlast;
+            _startDistance.Clear();
             string s = "noise at " + _noiseAt.ToString("0.0");
             ModLog.Verbose("NoiseTestHooks.MarkBlast: returns " + s);
             return s;
@@ -62,6 +63,28 @@ namespace GunPowdered.Testing.TestHooks
             if (Vector3.Distance(best.transform.position, _noiseAt) <= metres) { ModLog.Verbose("NoiseTestHooks.Within: returns within"); return "within"; }
             string s = "not within: " + Describe(best);
             if (ModLog.IsDue("NoiseTestHooks.Within", 1.0)) ModLog.Verbose("NoiseTestHooks.Within: returns " + s);
+            return s;
+        }
+
+        static readonly System.Collections.Generic.Dictionary<string, float> _startDistance = new System.Collections.Generic.Dictionary<string, float>();
+
+        /// <summary>
+        /// a18g16-1 (full run): the Brute walked towards the blast (43.7 -> 43.2 m in 0.3 s) but started further out than in earlier runs, so a fixed
+        /// "within 33 m in 12 s" failed. What the test proves is that it HEADS for the blast: the first call after noiseMarkBlast remembers how far the nearest
+        /// <paramref name="prefab"/> is from the blast; later calls return "closer" once it is at least <paramref name="metres"/> nearer, otherwise
+        /// "not closer: start S m, now N m" + what noiseCreature reports.
+        /// </summary>
+        [TestHook("GunPowdered.noiseCreatureCloser")]
+        static string Closer(string prefab, double metres)
+        {
+            ModLog.Verbose("NoiseTestHooks.Closer(prefab=" + prefab + ", metres=" + metres + ")");
+            MonsterAI best = Nearest(prefab);
+            if (best == null) { ModLog.Verbose("NoiseTestHooks.Closer: no " + prefab + " - returns why"); return "not closer: no " + prefab; }
+            float now = Vector3.Distance(best.transform.position, _noiseAt);
+            if (!_startDistance.TryGetValue(prefab, out float start)) { start = now; _startDistance[prefab] = now; ModLog.Info("NoiseTestHooks.Closer: " + prefab + " starts " + now.ToString("0.0") + " m from the blast"); }
+            if (start - now >= metres) { ModLog.Info("NoiseTestHooks.Closer: " + prefab + " " + start.ToString("0.0") + " -> " + now.ToString("0.0") + " m - returns closer"); return "closer"; }
+            string s = "not closer: start " + start.ToString("0.0") + " m, now " + now.ToString("0.0") + " m; " + Describe(best);
+            if (ModLog.IsDue("NoiseTestHooks.Closer", 1.0)) ModLog.Verbose("NoiseTestHooks.Closer: returns " + s);
             return s;
         }
 
