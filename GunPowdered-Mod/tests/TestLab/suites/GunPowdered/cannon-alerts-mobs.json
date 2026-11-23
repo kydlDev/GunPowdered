@@ -1,22 +1,83 @@
 {
   "name": "cannon-alerts-mobs",
-  "description": "D-149: a Hand Cannon shot is heard 60 m around (NoiseRules.CannonShotRadius). A Greydwarf 25 m to the side starts hunting the player, a Greydwarf Brute 85 m to the other side does not hear it. The player is in ghost mode, so the mobs react to the noise, not to seeing the player; both stand off the line of fire.",
+  "description": "D-149: a Hand Cannon shot is heard 60 m around (NoiseRules.CannonShotRadius). A Greydwarf 25 m to the side starts hunting the player, a Greydwarf Brute 85 m to the other side does not hear it. The player is in ghost mode, so the mobs react to the noise, not to seeing the player; both stand off the line of fire. Ghost mode goes on AFTER cannonStock: that function starts with GunPowdered.arena, whose cleanup switches ghost off (a18full1/2: the Greydwarf saw the player, already had a target, the shot alerted 0).",
   "timeout": 90,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "clearInventory" },
-    { "do": "console", "command": "ghost" },
-    { "do": "cannonStock" },
-    { "do": "spawn", "prefab": "Greydwarf", "dx": 25, "as": "near" },
-    { "do": "spawn", "prefab": "Greydwarf_Elite", "dx": -85, "as": "far" },
-    { "do": "cannonLoaded" },
-    { "do": "cannonFire30" },
-    { "do": "hook", "name": "GunPowdered.noiseLast", "regex": "hand cannon shot at .*radius 60 m, alerted [1-9]", "label": "the shot alerts mobs within 60 m" },
-    { "do": "hook", "name": "GunPowdered.noiseCreature", "args": { "prefab": "Greydwarf" }, "contains": "target Human", "label": "the Greydwarf 25 m away hunts the player" },
-    { "do": "hook", "name": "GunPowdered.noiseCreature", "args": { "prefab": "Greydwarf_Elite" }, "contains": "target none", "label": "the Brute 85 m away did not hear it" },
-    { "do": "console", "command": "ghost" },
-    { "do": "clearInventory" },
-    { "do": "cannonClean" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cannonStock"
+    },
+    {
+      "do": "console",
+      "command": "ghost"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Greydwarf",
+      "dx": 25,
+      "as": "near"
+    },
+    {
+      "do": "spawn",
+      "prefab": "Greydwarf_Elite",
+      "dx": -85,
+      "as": "far"
+    },
+    {
+      "do": "cannonLoaded"
+    },
+    {
+      "do": "cannonFire30"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.noiseLast",
+      "regex": "hand cannon shot at .*radius 60 m, alerted [1-9]",
+      "label": "the shot alerts mobs within 60 m"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.noiseCreature",
+      "args": {
+        "prefab": "Greydwarf"
+      },
+      "contains": "target Human",
+      "label": "the Greydwarf 25 m away hunts the player"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.noiseCreature",
+      "args": {
+        "prefab": "Greydwarf_Elite"
+      },
+      "contains": "target none",
+      "label": "the Brute 85 m away did not hear it"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.playerPlain",
+      "expect": "ghost off, fly off",
+      "label": "leave the player plain"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cannonClean"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }
