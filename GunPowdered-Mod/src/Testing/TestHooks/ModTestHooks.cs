@@ -20,6 +20,14 @@ namespace GunPowdered.Testing.TestHooks
         static string Arena()
         {
             string moved = TestArena.MovePlayer();
+            // a18persist1: KydlCore's cleanup restored an earlier test's crater ("terrain 3 restored") and the next step read the ground 10 m too low
+            // while the heightmaps were still rebuilding (a rock went in underground, the ball flew over it). Rebuild them now, before the test goes on.
+            if (System.Text.RegularExpressions.Regex.IsMatch(moved, @"terrain [1-9][0-9]* restored"))
+            {
+                Heightmap.ForceGenerateAll();
+                UnityEngine.Physics.SyncTransforms();
+                ModLog.Info("ModTestHooks.Arena: terrain was restored - heightmaps rebuilt before the test goes on");
+            }
             string cleaned = CleanArena();
             UnityEngine.Random.InitState(RandomSeed);
             string s = moved + "; " + cleaned + "; random seed " + RandomSeed;

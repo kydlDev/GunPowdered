@@ -1,6 +1,6 @@
 {
   "name": "relog-dynamite-hole",
-  "description": "User 2026-11-23: the hole a dynamite blast dug and the wall it wrecked are saved: after a log out / log in the hole is still there and the wall is still wrecked (terrain changes and broken pieces are part of the world save).",
+  "description": "User 2026-11-23: the hole a dynamite blast dug and the damage it did to a wall are saved: after a log out / log in the hole is still there and the wall keeps its damaged health (terrain changes and piece health are part of the world save).",
   "timeout": 180,
   "steps": [
     {
@@ -116,13 +116,12 @@
     },
     {
       "do": "hook",
-      "name": "GunPowdered.savedCountAtSpot",
+      "name": "GunPowdered.rememberSavedHealth",
       "args": {
-        "prefab": "woodwall",
-        "metres": 1
+        "prefab": "woodwall"
       },
-      "expect": 0,
-      "label": "the wall is wrecked (gone from the save)"
+      "regex": "health [0-9.]+ \\(damaged, full [0-9]+\\)",
+      "label": "the blast damaged the wall (its saved health is below full)"
     },
     {
       "do": "relog",
@@ -143,13 +142,12 @@
     },
     {
       "do": "hook",
-      "name": "GunPowdered.savedCountAtSpot",
+      "name": "GunPowdered.savedHealthSame",
       "args": {
-        "prefab": "woodwall",
-        "metres": 1
+        "prefab": "woodwall"
       },
-      "expect": 0,
-      "label": "after the relog: the wall is still gone"
+      "regex": "same health [0-9.]+",
+      "label": "after the relog: the wall is still there with the same damage"
     },
     {
       "do": "hook",

@@ -51,7 +51,45 @@ namespace GunPowdered.Testing.TestHooks
             return n;
         }
 
+        static float _health = float.NaN;
+
+        static ZDO RecordAtSpot(string prefab)
+        {
+            var all = AccessTools.Field(typeof(ZDOMan), "m_objectsByID")?.GetValue(ZDOMan.instance) as IDictionary;
+            int hash = prefab.GetStableHashCode();
+            if (all != null && _spot.HasValue)
+                foreach (object o in all.Values)
+                    if (o is ZDO z && z.GetPrefab() == hash && Vector3.Distance(z.GetPosition(), _spot.Value) <= 1f) { ModLog.Verbose("PersistTestHooks.RecordAtSpot: returns the record of " + prefab); return z; }
+            ModLog.Verbose("PersistTestHooks.RecordAtSpot: returns null (no " + prefab + " record at the spot)");
+            return null;
+        }
+
+        /// <summary>Remembers the saved health of the piece at the remembered spot. Returns "health H" (H below the piece's full health = it was damaged) or "no record".</summary>
+        [TestHook("GunPowdered.rememberSavedHealth")]
+        static string RememberSavedHealth(string prefab)
+        {
+            ZDO z = RecordAtSpot(prefab);
+            if (z == null) { ModLog.Verbose("PersistTestHooks.RememberSavedHealth: returns no record"); return "no record"; }
+            _health = z.GetFloat(ZDOVars.s_health, float.NaN);
+            GameObject p = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
+            WearNTear w = p != null ? p.GetComponent<WearNTear>() : null;
+            string s = "health " + _health.ToString("0.0") + (w != null && !float.IsNaN(_health) && _health < w.m_health ? " (damaged, full " + w.m_health.ToString("0") + ")" : " (not damaged)");
+            ModLog.Info("PersistTestHooks: " + prefab + " " + s);
+            return s;
+        }
+
+        /// <summary>"same health H" when the saved health equals the remembered one (within 0.1); otherwise "bad: ..." with both.</summary>
+        [TestHook("GunPowdered.savedHealthSame")]
+        static string SavedHealthSame(string prefab)
+        {
+            ZDO z = RecordAtSpot(prefab);
+            float now = z != null ? z.GetFloat(ZDOVars.s_health, float.NaN) : float.NaN;
+            string s = float.IsNaN(_health) ? "bad: nothing remembered" : z == null ? "bad: no record any more" : Mathf.Abs(now - _health) <= 0.1f ? "same health " + now.ToString("0.0") : "bad: health " + now.ToString("0.0") + ", was " + _health.ToString("0.0");
+            ModLog.Info("PersistTestHooks: " + prefab + " " + s);
+            return s;
+        }
+
         /// <summary>Forgets the remembered spot (the arena step calls it, so no test reads an earlier test's spot).</summary>
-        internal static void Forget() => _spot = null;
+        internal static void Forget() { _spot = null; _health = float.NaN; }
     }
 }
