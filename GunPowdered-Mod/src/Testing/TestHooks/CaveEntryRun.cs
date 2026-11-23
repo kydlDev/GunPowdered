@@ -16,7 +16,7 @@ namespace GunPowdered.Testing.TestHooks
     internal static class CaveEntryRun
     {
         const float WaitLocation = 20f, WaitFill = 25f, WaitBack = 3f, WaitTeleport = 30f, WaitPlayer = 60f, Cooldown = 2.2f;
-        static int _left, _count, _spawned, _withEntrance, _entered, _plannedAtStart, _placedAtStart, _filledAtStart;
+        static int _left, _count, _spawned, _withEntrance, _entered, _filledBefore, _plannedAtStart, _placedAtStart, _filledAtStart;
         static string _name = "";
 
         internal static int Left => _left;
@@ -25,15 +25,17 @@ namespace GunPowdered.Testing.TestHooks
         internal static void Forget()
         {
             if (_left > 0) { ModLog.Verbose("CaveEntryRun.Forget: a run is still going - kept"); return; }
-            _count = 0; _spawned = 0; _withEntrance = 0; _entered = 0; _name = "";
+            _count = 0; _spawned = 0; _withEntrance = 0; _entered = 0; _filledBefore = 0; _name = "";
             ModLog.Verbose("CaveEntryRun.Forget: last cave run forgotten");
         }
 
         internal static string Result() =>
-            _name + ": caves " + _spawned + ", entrance " + _withEntrance + ", entered " + _entered + " of " + _withEntrance + ", " + CaveEntryPlacer.Stats.Text();
+            _name + ": caves " + _spawned + ", entrance " + _withEntrance + ", entered " + _entered + " of " + _withEntrance + ", filled earlier " + _filledBefore + ", " + CaveEntryPlacer.Stats.Text();
 
-        /// <summary>"ok" when the last run generated every cave, found and used every entrance, filled every cave and placed every planned deposit;
-        /// otherwise "bad: " and the first thing that is wrong. (A plain text the lab compares with expect: a check step ignored regex, run entry1.)</summary>
+        /// <summary>"ok" when the last run generated every cave, found and used every entrance, every cave has its guano (filled now, or already
+        /// marked filled in this world by an earlier test - a18g16-1: deposits-stay-put had filled 3 of the 8 mountain caves, the mod rightly does not
+        /// fill a cave twice) and every planned deposit was placed; otherwise "bad: " and the first thing that is wrong.
+        /// (A plain text the lab compares with expect: a check step ignored regex, run entry1.)</summary>
         internal static string Verdict()
         {
             int planned = CaveEntryPlacer.Stats.Planned - _plannedAtStart, placed = CaveEntryPlacer.Stats.Placed - _placedAtStart, filled = CaveEntryPlacer.Stats.Filled - _filledAtStart;
@@ -42,7 +44,7 @@ namespace GunPowdered.Testing.TestHooks
                 : _spawned < _count ? "location found at " + _spawned + " of " + _count + " known spots"
                 : _withEntrance < _count ? "entrance found in " + _withEntrance + " of " + _count + " caves"
                 : _entered < _count ? "entrance used in " + _entered + " of " + _count + " caves"
-                : filled < _count ? "guano placement ran in " + filled + " of " + _count + " caves"
+                : filled + _filledBefore < _count ? "guano placement ran in " + filled + " of " + _count + " caves (" + _filledBefore + " filled earlier)"
                 : placed < planned ? "placed " + placed + " of " + planned + " planned deposits"
                 : "";
             string verdict = why.Length == 0 ? "ok" : "bad: " + why;
@@ -53,7 +55,7 @@ namespace GunPowdered.Testing.TestHooks
         internal static string Start(string name, int count)
         {
             if (_left > 0) return "FAIL: a cave run is still going (" + _left + " left)";
-            _left = count; _count = count; _spawned = 0; _withEntrance = 0; _entered = 0; _name = name;
+            _left = count; _count = count; _spawned = 0; _withEntrance = 0; _entered = 0; _filledBefore = 0; _name = name;
             _plannedAtStart = CaveEntryPlacer.Stats.Planned; _placedAtStart = CaveEntryPlacer.Stats.Placed; _filledAtStart = CaveEntryPlacer.Stats.Filled;
             Plugin.Instance.StartCoroutine(Run(name, count));
             return "started " + count;
@@ -96,7 +98,7 @@ namespace GunPowdered.Testing.TestHooks
                 if (entrance != null)
                 {
                     _withEntrance++;
-                    yield return UseEntrance(tag, entrance);
+                    yield return UseEntrance(tag, entrance, loc);
                 }
                 TestArena.MovePlayer();
                 yield return new WaitForSeconds(WaitBack);
@@ -106,9 +108,13 @@ namespace GunPowdered.Testing.TestHooks
             _left = 0;
         }
 
-        static IEnumerator UseEntrance(string tag, Teleport entrance)
+        static IEnumerator UseEntrance(string tag, Teleport entrance, Location loc)
         {
             int filledBefore = CaveEntryPlacer.Stats.Filled;
+            ZNetView proxy = loc != null ? loc.GetComponentInParent<ZNetView>() : null;
+            CaveClaim claim = proxy != null ? proxy.GetComponent<CaveClaim>() : null;
+            bool earlier = claim != null && claim.Placed;
+            if (earlier) _filledBefore++;
             yield return TravelTo(tag + " entrance", entrance.transform.position + entrance.transform.forward * 1.5f);
             Player p = Player.m_localPlayer;
             float ready = 0f;
@@ -117,8 +123,9 @@ namespace GunPowdered.Testing.TestHooks
             bool used = p != null && entrance.Interact(p, false, false);
             if (used) _entered++;
             float waited = 0f;
-            while (used && waited < WaitFill && CaveEntryPlacer.Stats.Filled == filledBefore) { waited += 0.25f; yield return new WaitForSeconds(0.25f); }
-            ModLog.Verbose("CaveEntryRun: " + tag + " entrance used " + used + ", filled " + (CaveEntryPlacer.Stats.Filled > filledBefore) + " after " + waited.ToString("0.0") + " s, player at " + (Player.m_localPlayer != null ? Player.m_localPlayer.transform.position.ToString("0") : "-"));
+            float wait = earlier ? WaitBack : WaitFill;   // a cave filled earlier is not filled again: only a short stay inside
+            while (used && waited < wait && (earlier || CaveEntryPlacer.Stats.Filled == filledBefore)) { waited += 0.25f; yield return new WaitForSeconds(0.25f); }
+            ModLog.Verbose("CaveEntryRun: " + tag + " entrance used " + used + ", filled earlier " + earlier + ", filled " + (CaveEntryPlacer.Stats.Filled > filledBefore) + " after " + waited.ToString("0.0") + " s, player at " + (Player.m_localPlayer != null ? Player.m_localPlayer.transform.position.ToString("0") : "-"));
         }
 
         // The game's own teleport: it waits until the target area is loaded and has a floor. Waits for a player to exist first (after a respawn).

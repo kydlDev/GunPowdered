@@ -279,17 +279,18 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             Vector3 chest = feet + Vector3.up * DynamiteRules.ChestHeight;
             float blockedAt = Physics.SphereCast(chest, 0.1f, fwd, out RaycastHit block, metres + DynamiteRules.BlockMargin, PlaceMask, QueryTriggerInteraction.Ignore) ? block.distance : -1f;
             float d = DynamiteRules.ClearDistance(metres, blockedAt);
+            System.Text.StringBuilder why = new System.Text.StringBuilder();
             for (int tries = 0; tries < 4; tries++, d = Mathf.Max(DynamiteRules.NearestPlace, d - 0.2f))
             {
                 Vector3 from = chest + fwd * d;
-                if (!Physics.Raycast(from, Vector3.down, out RaycastHit ground, DynamiteRules.ChestHeight + DynamiteRules.SurfaceBelow + 0.5f, PlaceMask, QueryTriggerInteraction.Ignore)) continue;
-                if (!DynamiteRules.SurfaceOk(feet.y, ground.point.y)) continue;
-                if (Physics.CheckSphere(ground.point + Vector3.up * 0.18f, 0.06f, PlaceMask, QueryTriggerInteraction.Ignore)) continue;   // something sticks into the stick's space
+                if (!Physics.Raycast(from, Vector3.down, out RaycastHit ground, DynamiteRules.ChestHeight + DynamiteRules.SurfaceBelow + 0.5f, PlaceMask, QueryTriggerInteraction.Ignore)) { why.Append($"; {d:0.00} m: no surface below {from:0.00}"); continue; }
+                if (!DynamiteRules.SurfaceOk(feet.y, ground.point.y)) { why.Append($"; {d:0.00} m: {ground.collider.name} at {ground.point.y - feet.y:+0.00;-0.00} m from the feet"); continue; }
+                if (Physics.CheckSphere(ground.point + Vector3.up * 0.18f, 0.06f, PlaceMask, QueryTriggerInteraction.Ignore)) { why.Append($"; {d:0.00} m: space taken at {ground.point:0.00}"); continue; }   // something sticks into the stick's space
                 spot = ground.point;
                 ModLog.Verbose($"ChargeKind.FindSpot: wanted {metres:0.00} m, blocked at {blockedAt:0.00} m ({(blockedAt >= 0f ? block.collider.name : "nothing")}), set {d:0.00} m ahead on {ground.collider.name} at {spot:0.00}, {ground.point.y - feet.y:+0.00;-0.00} m from the feet - returns true");
                 return true;
             }
-            ModLog.Verbose($"ChargeKind.FindSpot: no free ground within reach (blocked at {blockedAt:0.00} m) - returns false");
+            ModLog.Verbose($"ChargeKind.FindSpot: no free ground within reach (blocked at {blockedAt:0.00} m, feet {feet:0.00}, facing {fwd:0.00}{why}) - returns false");
             return false;
         }
 
