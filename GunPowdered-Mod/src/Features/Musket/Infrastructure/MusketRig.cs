@@ -276,7 +276,9 @@ namespace GunPowdered.Features.Musket.Infrastructure
             _carry = MusketPoseRules.NextCarry(_carry, _raised, Time.deltaTime);
             MoveOffhandItem();
             bool dodging = _character.InDodge();
-            if (MusketPoseRules.GameOwnsPose(_animator.GetBool(WakeupParam), _character.InCutscene(), dodging))
+            // getting up: the game's own 1 s wakeup timer (the animator bool "wakeup" stayed on after a kneel emote in lab a17full2 and froze the pose)
+            bool wakingUp = _character is Player sleeper && WakeupTimer(sleeper) >= 0f;
+            if (MusketPoseRules.GameOwnsPose(wakingUp, _character.InCutscene(), dodging))
             {
                 // getting up after joining / spawning (about 1 s), a cutscene or a dodge roll: the game's own animation keeps the arms; the musket stays in
                 // the right hand where it was (its grip is under the hand), so it turns with the hand through the roll
@@ -443,8 +445,8 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// </summary>
         internal static int TraceFrames;
 
-        // the game's animator bool while a player gets up after spawning or joining (Player.SetupAwake / UpdateAwake, ~1 s, every client)
-        static readonly int WakeupParam = Animator.StringToHash("wakeup");
+        // the game's timer while a player gets up after spawning or joining (Player.SetupAwake / UpdateAwake: 0 .. 1 s, -1 otherwise, every client)
+        static readonly HarmonyLib.AccessTools.FieldRef<Player, float> WakeupTimer = HarmonyLib.AccessTools.FieldRefAccess<Player, float>("m_wakeupTimer");
         Quaternion _traceArm, _traceFore, _traceHand; Vector3 _traceModel, _traceHips, _traceRoot, _traceVisual; int _traceId; bool _traceSet; readonly Vector3[] _traceLinks = new Vector3[4];
 
         void Trace(string what)
