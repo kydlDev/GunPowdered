@@ -4,8 +4,27 @@
   "timeout": 30,
   "expectFailure": "every cave entered and every planned guano deposit placed",
   "steps": [
-    { "do": "check", "check": "hook", "name": "GunPowdered.caveRunVerdict", "expect": "ok", "label": "every cave entered and every planned guano deposit placed" },
-    { "do": "cleanArena" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot (user 2026-11-23: the first step cleans the arena)"
+    },
+    {
+      "do": "check",
+      "check": "hook",
+      "name": "GunPowdered.caveRunVerdict",
+      "expect": "ok",
+      "label": "every cave entered and every planned guano deposit placed"
+    },
+    {
+      "do": "cleanArena"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

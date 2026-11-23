@@ -3,30 +3,143 @@
   "description": "Items dropped on the ground and the two deposits, screenshot each group",
   "timeout": 90,
   "steps": [
-    { "do": "spawn", "prefab": "GP_GuanoDeposit", "dx": -2, "dz": 3, "as": "guanoDeposit" },
-    { "do": "spawn", "prefab": "GP_SulfurousMud", "dx": 2, "dz": 3, "as": "mudDeposit" },
-    { "do": "spawn", "prefab": "GP_BatGuano", "dx": -1.5, "dz": 1.5, "as": "i1" },
-    { "do": "spawn", "prefab": "GP_Saltpeter", "dx": -0.5, "dz": 1.5, "as": "i2" },
-    { "do": "spawn", "prefab": "GP_Gunpowder", "dx": 0.5, "dz": 1.5, "as": "i3" },
-    { "do": "spawn", "prefab": "GP_Water", "dx": 1.5, "dz": 1.5, "as": "i4" },
-    { "do": "spawn", "prefab": "GP_Bucket", "dx": -1, "dz": 0.8, "as": "i5" },
-    { "do": "spawn", "prefab": "GP_BucketFull", "dx": 1, "dz": 0.8, "as": "i6" },
-    { "do": "wait", "seconds": 2 },
-    { "do": "lookAt", "target": "guanoDeposit" },
-    { "do": "screenshot", "name": "guano-deposit" },
-    { "do": "lookAt", "target": "mudDeposit" },
-    { "do": "screenshot", "name": "mud-deposit" },
-    { "do": "lookAt", "target": "mudDeposit", "pitch": -40, "left": 2 },
-    { "do": "screenshot", "name": "items-on-ground" },
-    { "do": "give", "prefab": "GP_BatGuano", "count": 50 },
-    { "do": "give", "prefab": "GP_Saltpeter", "count": 5 },
-    { "do": "give", "prefab": "GP_Gunpowder", "count": 5 },
-    { "do": "give", "prefab": "GP_Water", "count": 50 },
-    { "do": "pressKey", "button": "Inventory", "frames": 3 },
-    { "do": "wait", "seconds": 1.5 },
-    { "do": "screenshot", "name": "inventory", "clean": true },
-    { "do": "closeUi" },
-    { "do": "cleanArena" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot (user 2026-11-23: the first step cleans the arena)"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_GuanoDeposit",
+      "dx": -2,
+      "dz": 3,
+      "as": "guanoDeposit"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_SulfurousMud",
+      "dx": 2,
+      "dz": 3,
+      "as": "mudDeposit"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_BatGuano",
+      "dx": -1.5,
+      "dz": 1.5,
+      "as": "i1"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_Saltpeter",
+      "dx": -0.5,
+      "dz": 1.5,
+      "as": "i2"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_Gunpowder",
+      "dx": 0.5,
+      "dz": 1.5,
+      "as": "i3"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_Water",
+      "dx": 1.5,
+      "dz": 1.5,
+      "as": "i4"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_Bucket",
+      "dx": -1,
+      "dz": 0.8,
+      "as": "i5"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_BucketFull",
+      "dx": 1,
+      "dz": 0.8,
+      "as": "i6"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "lookAt",
+      "target": "guanoDeposit"
+    },
+    {
+      "do": "screenshot",
+      "name": "guano-deposit"
+    },
+    {
+      "do": "lookAt",
+      "target": "mudDeposit"
+    },
+    {
+      "do": "screenshot",
+      "name": "mud-deposit"
+    },
+    {
+      "do": "lookAt",
+      "target": "mudDeposit",
+      "pitch": -40,
+      "left": 2
+    },
+    {
+      "do": "screenshot",
+      "name": "items-on-ground"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_BatGuano",
+      "count": 50
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Saltpeter",
+      "count": 5
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Gunpowder",
+      "count": 5
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Water",
+      "count": 50
+    },
+    {
+      "do": "pressKey",
+      "button": "Inventory",
+      "frames": 3
+    },
+    {
+      "do": "wait",
+      "seconds": 1.5
+    },
+    {
+      "do": "screenshot",
+      "name": "inventory",
+      "clean": true
+    },
+    {
+      "do": "closeUi"
+    },
+    {
+      "do": "cleanArena"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

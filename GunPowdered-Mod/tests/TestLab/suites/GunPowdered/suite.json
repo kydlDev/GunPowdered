@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "GunPowdered",
   "description": "GunPowdered: loads with its exact KydlCore, registers its KY hub page, every feature switches live, its commands reach the real handlers (MIGRATION_DECISIONS C14-C21)",
   "requireMods": [
@@ -201,6 +201,7 @@
     "station-placement",
     "meta-oven-fire-check-fails",
     "meta-brute-wait-fails",
+    "arena-cleans-spawners",
     "meta-mobilecannon-iron-check-fails",
     "meta-writhan-sulfur-chance-fails",
     "oven-fire-leaching",

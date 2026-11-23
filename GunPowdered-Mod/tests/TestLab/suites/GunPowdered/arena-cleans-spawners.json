@@ -1,0 +1,62 @@
+{
+    "name": "arena-cleans-spawners",
+    "description": "User 2026-11-23 ('test cleanup does also removes any spawners created by the previous tests'): the first-step hook GunPowdered.arena destroys spawners (CreatureSpawner, SpawnArea such as a bone pile) and creatures left by an earlier test. Two spawners and a Greydwarf are placed, the arena step must report and remove them, and a second arena step finds nothing left.",
+    "timeout": 60,
+    "steps": [
+        {
+            "do": "hook",
+            "name": "GunPowdered.arena",
+            "contains": "arena at",
+            "label": "start on the arena spot"
+        },
+        {
+            "do": "spawn",
+            "prefab": "BonePileSpawner",
+            "dz": 20,
+            "as": "pile"
+        },
+        {
+            "do": "spawn",
+            "prefab": "Spawner_Draugr",
+            "dx": 5,
+            "dz": 25,
+            "as": "draugrSpawner"
+        },
+        {
+            "do": "spawn",
+            "prefab": "Greydwarf",
+            "dz": 30,
+            "as": "leftover"
+        },
+        {
+            "do": "wait",
+            "seconds": 1
+        },
+        {
+            "do": "hook",
+            "name": "GunPowdered.arena",
+            "regex": ".*, 2 spawner\\(s\\), [1-9][0-9]* creature\\(s\\).*",
+            "label": "the arena step removes both spawners and the creature(s) a test left behind"
+        },
+        {
+            "do": "wait",
+            "seconds": 1
+        },
+        {
+            "do": "hook",
+            "name": "GunPowdered.arena",
+            "contains": ", 0 spawner(s), 0 creature(s)",
+            "label": "nothing is left for the next test"
+        },
+        {
+            "do": "console",
+            "command": "killall"
+        }
+    ],
+    "asserts": [
+        {
+            "check": "noErrors",
+            "source": "GunPowdered"
+        }
+    ]
+}

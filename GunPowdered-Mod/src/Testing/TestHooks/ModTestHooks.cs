@@ -53,13 +53,59 @@ namespace GunPowdered.Testing.TestHooks
                 ZNetScene.instance.Destroy(drop.gameObject);
                 items++;
             }
+            int spawners = CleanSpawners(p.transform.position), creatures = CleanCreatures(p.transform.position);
             string plain = PlainPlayer(p);
             GunPowdered.Features.Musket.Infrastructure.MusketRig.TestSpeed = -1f;
             GunPowdered.Features.Musket.Infrastructure.MusketRig.TraceFrames = 0;
             GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.TestNoStandUp = false;
-            string s = "cleaned " + items + " item(s) on the ground" + plain + ", musket test switches off";
+            string s = "cleaned " + items + " item(s) on the ground, " + spawners + " spawner(s), " + creatures + " creature(s)" + plain + ", musket test switches off";
             ModLog.Verbose("ModTestHooks.CleanArena: returns " + s);
             return s;
+        }
+
+        /// <summary>
+        /// User 2026-11-23 ("test cleanup does also removes any spawners created by the previous tests"): every creature spawner (CreatureSpawner) and spawn
+        /// area (SpawnArea, e.g. a bone pile) loaded within <see cref="SpawnerMetres"/> of the player is destroyed with its networked object. The baked world
+        /// has none within 360 m of the lab start (templates README), so anything found here was left by a test (a generated cave / crypt, a spawned pile).
+        /// Expected outcome: the number destroyed.
+        /// </summary>
+        const float SpawnerMetres = 300f, CreatureMetres = 80f;
+        static int CleanSpawners(UnityEngine.Vector3 at)
+        {
+            var seen = new System.Collections.Generic.HashSet<ZNetView>();
+            foreach (var c in UnityEngine.Object.FindObjectsByType<CreatureSpawner>(UnityEngine.FindObjectsSortMode.None)) Mark(c, at, seen);
+            foreach (var a in UnityEngine.Object.FindObjectsByType<SpawnArea>(UnityEngine.FindObjectsSortMode.None)) Mark(a, at, seen);
+            foreach (ZNetView nv in seen)
+            {
+                ModLog.Verbose("ModTestHooks.CleanSpawners: destroys " + nv.name + " at " + nv.transform.position.ToString("0"));
+                nv.ClaimOwnership();
+                ZNetScene.instance.Destroy(nv.gameObject);
+            }
+            return seen.Count;
+        }
+
+        static void Mark(UnityEngine.Component c, UnityEngine.Vector3 at, System.Collections.Generic.HashSet<ZNetView> seen)
+        {
+            if (c == null || UnityEngine.Vector3.Distance(c.transform.position, at) > SpawnerMetres) return;
+            ZNetView nv = c.GetComponentInParent<ZNetView>();
+            if (nv != null && nv.IsValid()) seen.Add(nv);
+        }
+
+        /// Creatures (not players) left within 80 m by an earlier test that stopped before its killall. Expected outcome: the number destroyed.
+        static int CleanCreatures(UnityEngine.Vector3 at)
+        {
+            int n = 0;
+            foreach (Character c in Character.GetAllCharacters().ToArray())
+            {
+                if (c == null || c.IsPlayer() || UnityEngine.Vector3.Distance(c.transform.position, at) > CreatureMetres) continue;
+                ZNetView nv = c.GetComponent<ZNetView>();
+                if (nv == null || !nv.IsValid()) continue;
+                ModLog.Verbose("ModTestHooks.CleanCreatures: destroys " + c.name + " at " + c.transform.position.ToString("0"));
+                nv.ClaimOwnership();
+                ZNetScene.instance.Destroy(c.gameObject);
+                n++;
+            }
+            return n;
         }
 
         /// <summary>

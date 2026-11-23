@@ -3,19 +3,78 @@
   "description": "Leaching Station, Powder Mill and Rain Barrel placed side by side, screenshot of each and of all three",
   "timeout": 90,
   "steps": [
-    { "do": "spawn", "prefab": "GP_LeachingVat", "dx": -5, "dz": 6, "as": "vat" },
-    { "do": "spawn", "prefab": "GP_PowderMill", "dx": 0, "dz": 6, "as": "mill" },
-    { "do": "spawn", "prefab": "GP_RainBarrel", "dx": 5, "dz": 6, "as": "barrel" },
-    { "do": "wait", "seconds": 2 },
-    { "do": "lookAt", "target": "vat" },
-    { "do": "screenshot", "name": "vat" },
-    { "do": "lookAt", "target": "mill" },
-    { "do": "screenshot", "name": "mill" },
-    { "do": "lookAt", "target": "barrel" },
-    { "do": "screenshot", "name": "barrel" },
-    { "do": "lookAt", "target": "mill", "pitch": -5 },
-    { "do": "screenshot", "name": "all-three" },
-    { "do": "cleanArena" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot (user 2026-11-23: the first step cleans the arena)"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_LeachingVat",
+      "dx": -5,
+      "dz": 6,
+      "as": "vat"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_PowderMill",
+      "dx": 0,
+      "dz": 6,
+      "as": "mill"
+    },
+    {
+      "do": "spawn",
+      "prefab": "GP_RainBarrel",
+      "dx": 5,
+      "dz": 6,
+      "as": "barrel"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "lookAt",
+      "target": "vat"
+    },
+    {
+      "do": "screenshot",
+      "name": "vat"
+    },
+    {
+      "do": "lookAt",
+      "target": "mill"
+    },
+    {
+      "do": "screenshot",
+      "name": "mill"
+    },
+    {
+      "do": "lookAt",
+      "target": "barrel"
+    },
+    {
+      "do": "screenshot",
+      "name": "barrel"
+    },
+    {
+      "do": "lookAt",
+      "target": "mill",
+      "pitch": -5
+    },
+    {
+      "do": "screenshot",
+      "name": "all-three"
+    },
+    {
+      "do": "cleanArena"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }
