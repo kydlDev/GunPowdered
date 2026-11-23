@@ -1,4 +1,4 @@
-{
+﻿{
     "name": "survey-world-spots",
     "description": "User 2026-11-23: checks the user's list of cave / chamber / geyser / bone pile spots (X, Z) against the lab world's own placed locations and logs name, ground height and biome per spot (WorldSpots: lines). A survey, not a gate: it only checks the hook ran.",
     "timeout": 60,
@@ -12,8 +12,8 @@
         {
             "do": "hook",
             "name": "GunPowdered.surveySpots",
-            "contains": "42 spots",
-            "label": "survey the 42 spots (results in the log)"
+            "contains": "46 spots",
+            "label": "survey the 46 spots (results in the log)"
         },
         {
             "do": "cleanArena"
