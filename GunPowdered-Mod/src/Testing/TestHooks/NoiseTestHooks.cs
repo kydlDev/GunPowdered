@@ -41,6 +41,39 @@ namespace GunPowdered.Testing.TestHooks
         static string Creature(string prefab)
         {
             ModLog.Verbose("NoiseTestHooks.Creature(prefab=" + prefab + ")");
+            MonsterAI best = Nearest(prefab);
+            if (best == null) { ModLog.Verbose("NoiseTestHooks.Creature: no " + prefab + " - returns why"); return "no " + prefab; }
+            string s = Describe(best);
+            ModLog.Info("NoiseTestHooks.Creature: " + prefab + " returns " + s);
+            return s;
+        }
+
+        /// <summary>
+        /// T-030 (lab a17ab6: a `wait until` with `check: hook` + `regex` ended at once - the regex is not applied there, lessons LESSONS_LEARNED 22): the hook
+        /// computes the verdict so the suite compares a plain text with `expect`. Expected outcome: "within" when the nearest <paramref name="prefab"/> is at most
+        /// <paramref name="metres"/> from the marked blast, otherwise "not within: " + what noiseCreature reports.
+        /// </summary>
+        [TestHook("GunPowdered.noiseCreatureWithin")]
+        static string Within(string prefab, double metres)
+        {
+            ModLog.Verbose("NoiseTestHooks.Within(prefab=" + prefab + ", metres=" + metres + ")");
+            MonsterAI best = Nearest(prefab);
+            if (best == null) { ModLog.Verbose("NoiseTestHooks.Within: no " + prefab + " - returns why"); return "not within: no " + prefab; }
+            if (Vector3.Distance(best.transform.position, _noiseAt) <= metres) { ModLog.Verbose("NoiseTestHooks.Within: returns within"); return "within"; }
+            string s = "not within: " + Describe(best);
+            if (ModLog.IsDue("NoiseTestHooks.Within", 1.0)) ModLog.Verbose("NoiseTestHooks.Within: returns " + s);
+            return s;
+        }
+
+        static string Describe(MonsterAI m)
+        {
+            Character t = Target(m);
+            return $"alerted {m.IsAlerted()}, target {(t != null ? t.m_name : "none")}, last known {Vector3.Distance(LastKnown(m), _noiseAt):0.0} m from the blast, now {Vector3.Distance(m.transform.position, _noiseAt):0.0} m from the blast";
+        }
+
+        /// <summary>The nearest living <paramref name="prefab"/> to the local player, or null. Reads only.</summary>
+        static MonsterAI Nearest(string prefab)
+        {
             Player p = Player.m_localPlayer;
             MonsterAI best = null;
             float bestDist = float.MaxValue;
@@ -52,11 +85,7 @@ namespace GunPowdered.Testing.TestHooks
                 float d = Vector3.Distance(c.transform.position, p.transform.position);
                 if (d < bestDist) { best = m; bestDist = d; }
             }
-            if (best == null) { ModLog.Verbose("NoiseTestHooks.Creature: no " + prefab + " - returns why"); return "no " + prefab; }
-            Character t = Target(best);
-            string s = $"alerted {best.IsAlerted()}, target {(t != null ? t.m_name : "none")}, last known {Vector3.Distance(LastKnown(best), _noiseAt):0.0} m from the blast, now {Vector3.Distance(best.transform.position, _noiseAt):0.0} m from the blast";
-            ModLog.Info("NoiseTestHooks.Creature: " + prefab + " returns " + s);
-            return s;
+            return best;
         }
     }
 }

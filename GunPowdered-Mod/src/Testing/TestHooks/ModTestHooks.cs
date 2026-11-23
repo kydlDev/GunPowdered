@@ -44,13 +44,35 @@ namespace GunPowdered.Testing.TestHooks
                 ZNetScene.instance.Destroy(drop.gameObject);
                 items++;
             }
-            bool ghost = p.InGhostMode();
-            if (ghost) p.SetGhostMode(false);
+            string plain = PlainPlayer(p);
             GunPowdered.Features.Musket.Infrastructure.MusketRig.TestSpeed = -1f;
             GunPowdered.Features.Musket.Infrastructure.MusketRig.TraceFrames = 0;
             GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.TestNoStandUp = false;
-            string s = "cleaned " + items + " item(s) on the ground" + (ghost ? ", ghost mode off" : "") + ", musket test switches off";
+            string s = "cleaned " + items + " item(s) on the ground" + plain + ", musket test switches off";
             ModLog.Verbose("ModTestHooks.CleanArena: returns " + s);
+            return s;
+        }
+
+        /// <summary>
+        /// T-030 (user 2026-11-23 03:20: "remove ghost from player and fly mode before the explosion"): a ghost player is still the Brute's target ("target Human")
+        /// but cannot be seen or reached. Expected outcome: always "ghost off, fly off" (what was switched is logged).
+        /// </summary>
+        [TestHook("GunPowdered.playerPlain")]
+        static string PlayerPlain()
+        {
+            Player p = Player.m_localPlayer;
+            if (p == null) { ModLog.Verbose("ModTestHooks.PlayerPlain: no player - returns why"); return "no player"; }
+            string was = PlainPlayer(p);
+            ModLog.Info("ModTestHooks.PlayerPlain: ghost off, fly off (switched:" + (was.Length > 0 ? was : " nothing") + ")");
+            return "ghost off, fly off";
+        }
+
+        /// Switches ghost mode and debug fly off. Returns ", ghost mode off" / ", fly mode off" for what it switched, "" when nothing was on.
+        static string PlainPlayer(Player p)
+        {
+            string s = "";
+            if (p.InGhostMode()) { p.SetGhostMode(false); s += ", ghost mode off"; }
+            if (p.InDebugFlyMode()) { p.ToggleDebugFly(); s += ", fly mode off"; }
             return s;
         }
 

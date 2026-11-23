@@ -200,6 +200,7 @@
     "meta-station-on-top-check-fails",
     "station-placement",
     "meta-oven-fire-check-fails",
+    "meta-brute-wait-fails",
     "meta-mobilecannon-iron-check-fails",
     "meta-writhan-sulfur-chance-fails",
     "oven-fire-leaching",
