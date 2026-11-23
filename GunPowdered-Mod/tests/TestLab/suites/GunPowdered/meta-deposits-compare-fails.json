@@ -1,6 +1,6 @@
 {
   "name": "meta-deposits-compare-fails",
-  "description": "Negative test for deposits-stay-put: after new mud is placed (geyser #2), the compare must FAIL with a count difference, so it can catch a change.",
+  "description": "Negative test for deposits-stay-put: after a new mud deposit appears (placed on the arena), the compare must FAIL with a count difference, so it can catch a change - in any test order.",
   "timeout": 300,
   "expectFailure": "the records are the same (must fail",
   "steps": [
@@ -12,49 +12,20 @@
     },
     {
       "do": "hook",
-      "name": "GunPowdered.visitSpots",
-      "args": {
-        "kind": "geyser",
-        "count": 1
-      },
-      "contains": "started",
-      "label": "visit geyser #0",
-      "stop": true
-    },
-    {
-      "do": "wait",
-      "until": {
-        "check": "hook",
-        "name": "GunPowdered.visitLeft",
-        "expect": 0
-      },
-      "timeout": 70
-    },
-    {
-      "do": "hook",
       "name": "GunPowdered.depositSnapshot",
-      "regex": "snapshot [1-9][0-9]* mud, [0-9]+ guano",
+      "regex": "snapshot [0-9]+ mud, [0-9]+ guano",
       "label": "remember the records"
     },
     {
-      "do": "hook",
-      "name": "GunPowdered.visitSpots",
-      "args": {
-        "kind": "geyser",
-        "count": 3
-      },
-      "contains": "started",
-      "label": "visit geysers #0-#2: #2 gets new mud",
-      "stop": true
+      "do": "spawn",
+      "prefab": "GP_SulfurousMud",
+      "dz": 5,
+      "as": "newMud",
+      "label": "a new mud deposit on the arena (a change the compare must catch, whatever earlier tests placed - a18g16-1: geysers #0-#2 already had their mud in a full run)"
     },
     {
       "do": "wait",
-      "until": {
-        "check": "hook",
-        "name": "GunPowdered.visitLeft",
-        "expect": 0
-      },
-      "timeout": 150
+      "seconds": 1
     },
     {
       "do": "hook",

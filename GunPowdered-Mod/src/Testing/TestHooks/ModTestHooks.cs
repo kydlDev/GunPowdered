@@ -65,6 +65,7 @@ namespace GunPowdered.Testing.TestHooks
             string plain = PlainPlayer(p);
             TowEndTestHooks.ForgetDropSpot();
             PersistTestHooks.Forget();
+            CaveEntryRun.Forget();
             GunPowdered.Features.Musket.Infrastructure.MusketRig.TestSpeed = -1f;
             GunPowdered.Features.Musket.Infrastructure.MusketRig.TraceFrames = 0;
             GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.TestNoStandUp = false;

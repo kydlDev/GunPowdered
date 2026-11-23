@@ -21,6 +21,14 @@ namespace GunPowdered.Testing.TestHooks
 
         internal static int Left => _left;
 
+        /// <summary>The arena step forgets the last cave run (a18g16-1: meta-cave-verdict-fails read an earlier test's "ok" in a full run). Not while one runs.</summary>
+        internal static void Forget()
+        {
+            if (_left > 0) { ModLog.Verbose("CaveEntryRun.Forget: a run is still going - kept"); return; }
+            _count = 0; _spawned = 0; _withEntrance = 0; _entered = 0; _name = "";
+            ModLog.Verbose("CaveEntryRun.Forget: last cave run forgotten");
+        }
+
         internal static string Result() =>
             _name + ": caves " + _spawned + ", entrance " + _withEntrance + ", entered " + _entered + " of " + _withEntrance + ", " + CaveEntryPlacer.Stats.Text();
 

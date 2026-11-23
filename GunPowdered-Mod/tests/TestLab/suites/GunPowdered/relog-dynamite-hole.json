@@ -151,6 +151,12 @@
     },
     {
       "do": "hook",
+      "name": "GunPowdered.dynamiteRemovePieces",
+      "contains": "removed",
+      "label": "the damaged wall is taken away (after a relog the cleanup may count it as part of the world)"
+    },
+    {
+      "do": "hook",
       "name": "GunPowdered.dynamiteTerrainReset",
       "contains": "reset",
       "label": "the hole is undone"
