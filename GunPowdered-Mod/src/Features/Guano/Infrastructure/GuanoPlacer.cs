@@ -40,7 +40,7 @@ namespace GunPowdered.Features.Guano.Infrastructure
                 if (DepositSpawner.Spawn(GunPowderedPrefabs.GuanoDeposit, floor, plan[placed], seed + placed) != null) placed++;
             }
             KydlCore.Common.ModLog.Verbose("GuanoPlacer: " + kind + " planned " + plan.Length + ", placed " + placed + ", no floor at " + noFloor + " spot(s)");
-            return placed;
+            { var returnedAt43 = placed; if (RuleLog.Due("GuanoPlacer.Place:43", 2d)) ModLog.Every("GuanoPlacer.Place:43", 2d, $"GuanoPlacer.Place: returns {returnedAt43} (line 43)"); return returnedAt43; }
         }
     }
 }

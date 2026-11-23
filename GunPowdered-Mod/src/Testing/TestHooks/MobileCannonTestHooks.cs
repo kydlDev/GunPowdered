@@ -128,7 +128,7 @@ namespace GunPowdered.Testing.TestHooks
         static string Remove()
         {
             if (RuleLog.Due("MobileCannonTestHooks.Remove", 2d)) ModLog.Every("MobileCannonTestHooks.Remove", 2d, $"MobileCannonTestHooks.Remove()");
-            if (_cannon == null) { if (RuleLog.Due("MobileCannonTestHooks.Remove:131", 2d)) ModLog.Every("MobileCannonTestHooks.Remove:131", 2d, $"MobileCannonTestHooks.Remove: returns \"nothing to remove\" because _cannon == null (line 131)"); return "nothing to remove"; }
+            if (_cannon == null) return "nothing to remove";
             ZNetView view = _cannon.GetComponent<ZNetView>();
             if (view != null && view.IsValid()) view.Destroy(); else Object.Destroy(_cannon);
             _cannon = null;
@@ -153,7 +153,7 @@ namespace GunPowdered.Testing.TestHooks
             if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Crank(notches={notches})");
             MobileCannonAim aim = _cannon != null ? _cannon.GetComponent<MobileCannonAim>() : null;
             if (aim == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Crank: returns \"no cannon\" because aim == null (line 155)"); return "no cannon"; }
-            return aim.Turn(notches) ? "turned " + notches : "not sent";
+            { var returnedAt156 = aim.Turn(notches) ? "turned " + notches : "not sent"; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Crank: returns {returnedAt156} (line 156)"); return returnedAt156; }
         }
 
         /// <summary>"pitch P deg, barrel B deg, hover H": the stored elevation, the barrel's real tilt (+ = muzzle up) and whether a crank handle with a hover text exists.</summary>

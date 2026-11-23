@@ -32,7 +32,7 @@ namespace GunPowdered.Features.Guano.Domain
             if (loc.StartsWith("MountainCave", StringComparison.Ordinal)) { var returnedAt32 = CaveKind.MountainCave; if (RuleLog.Due("CaveEntryRules.KindOf:32", 2d)) RuleLog.Every("CaveEntryRules.KindOf:32", 2d, $"CaveEntryRules.KindOf: returns {returnedAt32} because loc.StartsWith(\"MountainCave\", StringComparison.Ordinal) (line 32)"); return returnedAt32; }
             if (gen.StartsWith("DG_ForestCrypt", StringComparison.Ordinal) || gen.StartsWith("DG_HalfBurried_ForestCrypt", StringComparison.Ordinal)) { var returnedAt33 = CaveKind.TrollCaveOrBurialChamber; if (RuleLog.Due("CaveEntryRules.KindOf:33", 2d)) RuleLog.Every("CaveEntryRules.KindOf:33", 2d, $"CaveEntryRules.KindOf: returns {returnedAt33} because gen.StartsWith(\"DG_ForestCrypt\", StringComparison.Ordinal) || gen.StartsWith(\"DG_HalfBurried_ForestCrypt\", StringComparison.Ordinal) (line 33)"); return returnedAt33; }
             if (gen.StartsWith("DG_Cave", StringComparison.Ordinal)) { var returnedAt34 = CaveKind.MountainCave; if (RuleLog.Due("CaveEntryRules.KindOf:34", 2d)) RuleLog.Every("CaveEntryRules.KindOf:34", 2d, $"CaveEntryRules.KindOf: returns {returnedAt34} because gen.StartsWith(\"DG_Cave\", StringComparison.Ordinal) (line 34)"); return returnedAt34; }
-            return null;
+            { if (RuleLog.Due("CaveEntryRules.KindOf:35", 2d)) RuleLog.Every("CaveEntryRules.KindOf:35", 2d, $"CaveEntryRules.KindOf: returns null (line 35)"); return null; }
         }
 
         /// <summary>Place on this entry only when the player goes IN (not out), the location is a guano cave, and nobody placed there before.</summary>

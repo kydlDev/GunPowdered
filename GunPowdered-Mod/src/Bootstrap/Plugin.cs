@@ -88,7 +88,7 @@ namespace GunPowdered.Bootstrap
             var fromFile = AssetBundle.LoadFromFile(path);
             if (fromFile == null) ModLog.Warn("Plugin: bundle file " + path + " could not be loaded");
             else ModLog.Verbose("Plugin: bundle loaded from " + path);
-            return fromFile;
+            { var returnedAt91 = fromFile; if (RuleLog.IsOn()) ModLog.Verbose($"Plugin.LoadBundle: returns {returnedAt91} (line 91)"); return returnedAt91; }
         }
 
         void Update()

@@ -137,7 +137,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         {
             // D-147 / PROJECT_RULES 38: every player runs this every frame - without a musket equipped (the game's own item hashes) it ends at once
             if (LeftHash(_vis) != MusketHash && RightHash(_vis) != MusketHash) { _model = null; if (RuleLog.Due("MusketRig.FindModel:none", 2d)) ModLog.Every("MusketRig.FindModel:none", 2d, "MusketRig.FindModel: no musket equipped - returns false"); return false; }
-            if (_model != null && _model.gameObject.activeInHierarchy && _model.IsChildOf(_vis.m_rightHand)) return true;
+            if (_model != null && _model.gameObject.activeInHierarchy && _model.IsChildOf(_vis.m_rightHand)) { if (RuleLog.Due("MusketRig.FindModel:140", 2d)) ModLog.Every("MusketRig.FindModel:140", 2d, $"MusketRig.FindModel: returns true because _model != null && _model.gameObject.activeInHierarchy && _model.IsChildOf(_vis.m_rightHand) (line 140)"); return true; }
             _model = null;
             Transform found = Search(_vis.m_rightHand) ?? Search(_vis.m_leftHand);
             if (found == null) { if (RuleLog.Due("MusketRig.FindModel:143", 2d)) ModLog.Every("MusketRig.FindModel:143", 2d, $"MusketRig.FindModel: returns false because found == null (line 143)"); return false; }

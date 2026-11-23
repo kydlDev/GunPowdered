@@ -182,7 +182,7 @@ namespace GunPowdered.Testing.TestHooks
             Vector3? l = ThrowArcView.LastLanding;
             GameObject source = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
             if (!l.HasValue) { if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.SpawnAtLanding: returns \"no landing drawn\" because !l.HasValue (line 184)"); return "no landing drawn"; }
-            if (source == null) return "no prefab " + prefab;
+            if (source == null) { var returnedAt185 = "no prefab " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.SpawnAtLanding: returns {returnedAt185} because source == null (line 185)"); return returnedAt185; }
             GameObject go = Object.Instantiate(source, l.Value, Quaternion.identity);
             if (go != null) Placed.Add(go);
             ModLog.Verbose("GrenadeTestHooks: " + prefab + " placed on the landing " + l.Value.ToString("0.00"));

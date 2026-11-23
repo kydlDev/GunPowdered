@@ -3,6 +3,7 @@ using Jotunn.Managers;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Integrations.Items;
+using GunPowdered.Core;
 
 namespace GunPowdered.Features.Skilling.Infrastructure
 {
@@ -47,7 +48,7 @@ namespace GunPowdered.Features.Skilling.Infrastructure
         {
             float level = who != null && _registered ? who.GetSkillLevel(skill) : 0f;
             if (Core.RuleLog.Due("GunSkills.Level", 2d)) ModLog.Every("GunSkills.Level", 2d, "GunSkills.Level: " + (who != null ? who.name : "nobody") + " skill " + (int)skill + " = " + level.ToString("0.0"));
-            return level;
+            { var returnedAt51 = level; if (RuleLog.Due("GunSkills.Level:51", 2d)) ModLog.Every("GunSkills.Level:51", 2d, $"GunSkills.Level: returns {returnedAt51} (line 51)"); return returnedAt51; }
         }
 
         /// <summary>Raises a GunPowdered skill for a player (the game's own RaiseSkill: its gain, its level-up message). Expected outcome: true when raised.</summary>

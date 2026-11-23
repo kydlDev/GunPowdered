@@ -134,7 +134,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>Lights the fuse with the torch in the player's hand. Expected outcome: null when lit, else the reason (also shown to the player).</summary>
         internal string Light(Player p)
         {
-            if (p == null || !IsValid) { if (RuleLog.Due("MobileCannonGun.Light:137", 2d)) ModLog.Every("MobileCannonGun.Light:137", 2d, "MobileCannonGun.Light: returns \"no cannon\" (line 137)"); return "no cannon"; }
+            if (p == null || !IsValid) { if (RuleLog.Due("MobileCannonGun.Light:137", 2d)) ModLog.Every("MobileCannonGun.Light:137", 2d, $"MobileCannonGun.Light: returns \"no cannon\" because p == null || !IsValid (line 137)"); return "no cannon"; }
             string why = MobileCannonFireRules.WhyNotLight(Loaded, _fireQueued, CannonInventory.HoldsTorch(p));
             if (why != null) { Tell(p, why); { var returnedAt139 = why; if (RuleLog.Due("MobileCannonGun.Light:139", 2d)) ModLog.Every("MobileCannonGun.Light:139", 2d, $"MobileCannonGun.Light: returns {returnedAt139} because why != null (line 139)"); return returnedAt139; } }
             Claim();

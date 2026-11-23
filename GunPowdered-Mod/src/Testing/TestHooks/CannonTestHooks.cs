@@ -92,7 +92,7 @@ namespace GunPowdered.Testing.TestHooks
         static string State()
         {
             if (RuleLog.Due("CannonTestHooks.State", 2d)) ModLog.Every("CannonTestHooks.State", 2d, $"CannonTestHooks.State()");
-            if (_stock == null) { if (RuleLog.Due("CannonTestHooks.State:95", 2d)) ModLog.Every("CannonTestHooks.State:95", 2d, $"CannonTestHooks.State: returns \"no stock\" because _stock == null (line 95)"); return "no stock"; }
+            if (_stock == null) return "no stock";
             CannonStatus s = _stock.Status();
             bool barrel = _stock.Barrel != null && _stock.Barrel.gameObject.activeSelf;
             { var returnedAt98 = "mounted " + s.Mounted + ", loaded " + s.Loaded + ", barrel shown " + barrel + ", loading " + _stock.Loading + ", aiming " + (CannonAim.Current == _stock); if (RuleLog.Due("CannonTestHooks.State:98", 2d)) ModLog.Every("CannonTestHooks.State:98", 2d, $"CannonTestHooks.State: returns {returnedAt98} (line 98)"); return returnedAt98; }
@@ -154,7 +154,7 @@ namespace GunPowdered.Testing.TestHooks
         static string LandingRule(double tolerance)
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.LandingRule(tolerance={tolerance})");
-            if (!ShotDone() || CannonBallFlight.LastPassed < 1) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.LandingRule: returns \"no pass-through shot\" because !ShotDone() || CannonBallFlight.LastPassed < 1 (line 157)"); return "no pass-through shot"; }
+            if (!ShotDone() || CannonBallFlight.LastPassed < 1) return "no pass-through shot";
             float want = CannonRules.PassThroughLanding(CannonBallFlight.LastAimed, CannonBallFlight.LastPassAt);
             bool ok = Mathf.Abs(CannonBallFlight.LastDistance - want) <= (float)tolerance;
             { var returnedAt160 = (ok ? "held" : "broken") + ", expected " + F(want) + ", landed " + F(CannonBallFlight.LastDistance); if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.LandingRule: returns {returnedAt160} (line 160)"); return returnedAt160; }
@@ -165,7 +165,7 @@ namespace GunPowdered.Testing.TestHooks
         static string Damages()
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Damages()");
-            if (CannonBallFlight.LastDamages.Count == 0) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Damages: returns \"none\" because CannonBallFlight.LastDamages.Count == 0 (line 168)"); return "none"; }
+            if (CannonBallFlight.LastDamages.Count == 0) return "none";
             var parts = new List<string>();
             foreach (float d in CannonBallFlight.LastDamages) parts.Add(F(d));
             { var returnedAt171 = string.Join(", ", parts.ToArray()); if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Damages: returns {returnedAt171} (line 171)"); return returnedAt171; }
@@ -411,7 +411,7 @@ namespace GunPowdered.Testing.TestHooks
             if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Ground(at={at})");
             RaycastHit h;
             if (Physics.Raycast(at + (Vector3.up * 50f), Vector3.down, out h, 120f, LayerMask.GetMask("Default", "static_solid", "terrain"), QueryTriggerInteraction.Ignore)) { var returnedAt413 = h.point.y; if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Ground: returns {returnedAt413} because Physics.Raycast(at + (Vector3.up * 50f), Vector3.down, out h, 120f, LayerMask.GetMask(\"Default\", \"static_solid\", \"terrain\"), QueryTriggerInteraction.Ignore) (line 413)"); return returnedAt413; }
-            return at.y;
+            { var returnedAt414 = at.y; if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Ground: returns {returnedAt414} (line 414)"); return returnedAt414; }
         }
 
         static string F(float f) => f.ToString("0.0", CultureInfo.InvariantCulture);

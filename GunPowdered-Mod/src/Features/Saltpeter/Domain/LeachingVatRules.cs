@@ -48,7 +48,7 @@ namespace GunPowdered.Features.Saltpeter.Domain
             if (prefab == "GP_BatGuano") { var returnedAt48 = have.Guano < need.Guano ? Feed.Guano : Feed.Refused; if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Accept: returns {returnedAt48} because prefab == \"GP_BatGuano\" (line 48)"); return returnedAt48; }
             if (prefab == "GP_Water") { var returnedAt49 = have.Water < need.Water ? Feed.Water : Feed.Refused; if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Accept: returns {returnedAt49} because prefab == \"GP_Water\" (line 49)"); return returnedAt49; }
             if (prefab == "Wood") { var returnedAt50 = have.Fuel < need.Fuel ? Feed.Wood : Feed.Refused; if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Accept: returns {returnedAt50} because prefab == \"Wood\" (line 50)"); return returnedAt50; }
-            return Feed.Refused;
+            { var returnedAt51 = Feed.Refused; if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Accept: returns {returnedAt51} (line 51)"); return returnedAt51; }
         }
 
         /// <summary>The barrel is ready when it holds a whole batch of guano and of water. Expected outcome: false for any shortfall or a bad setting.</summary>

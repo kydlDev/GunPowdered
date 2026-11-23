@@ -171,8 +171,8 @@ namespace GunPowdered.Testing.TestHooks
         static string ExampleSet(double value)
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.ExampleSet(value={value})");
-            if (ModInstaller.Current == null) { if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.ExampleSet: returns \"Failed: mod not installed\" because ModInstaller.Current == null (line 174)"); return "Failed: mod not installed"; }
-            return ExampleCommands.SetValue(ModInstaller.Current.Deps.Commands, (float)value).ToString();
+            if (ModInstaller.Current == null) return "Failed: mod not installed";
+            { var returnedAt175 = ExampleCommands.SetValue(ModInstaller.Current.Deps.Commands, (float)value).ToString(); if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.ExampleSet: returns {returnedAt175} (line 175)"); return returnedAt175; }
         }
 
         /// Generates a real location (e.g. Crypt2, TrollCave02, MountainCave02, FireHole) several times through the game's own ZoneSystem.SpawnLocation (SpawnMode.Full), so the

@@ -88,7 +88,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         static string FireCore(Player player)
         {
             ItemDrop.ItemData musket = Held(player);
-            if (musket == null) { if (RuleLog.Due("MusketGun.FireCore:89", 2d)) ModLog.Every("MusketGun.FireCore:91", 2d, "MusketGun.FireCore: returns \"no musket in hand\" (line 91)"); return "no musket in hand"; }
+            if (musket == null) { if (RuleLog.Due("MusketGun.FireCore:91", 2d)) ModLog.Every("MusketGun.FireCore:91", 2d, $"MusketGun.FireCore: returns \"no musket in hand\" because musket == null (line 91)"); return "no musket in hand"; }
             MusketRig aimRig = player.GetComponent<MusketRig>();
             if (aimRig != null && !aimRig.ReadyToFire)
             {
@@ -99,7 +99,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 return notAimed;
             }
             MusketReloader.Stop(player, "a shot");
-            if (!MusketRules.ShotIntervalOver(Time.time, _lastShot)) { if (RuleLog.Due("MusketGun.FireCore:91", 2d)) ModLog.Every("MusketGun.FireCore:102", 2d, "MusketGun.FireCore: returns \"too soon\" (line 102)"); return "too soon"; }
+            if (!MusketRules.ShotIntervalOver(Time.time, _lastShot)) { if (RuleLog.Due("MusketGun.FireCore:102", 2d)) ModLog.Every("MusketGun.FireCore:102", 2d, $"MusketGun.FireCore: returns \"too soon\" because !MusketRules.ShotIntervalOver(Time.time, _lastShot) (line 102)"); return "too soon"; }
             int loaded = Loaded(musket);
             string why = MusketRules.WhyNotFire(loaded);
             if (why != null)

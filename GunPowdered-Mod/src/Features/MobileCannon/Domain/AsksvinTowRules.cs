@@ -113,9 +113,9 @@ namespace GunPowdered.Features.MobileCannon.Domain
         {
             if (RuleLog.Due("AsksvinTowRules.OwnerMove", 2d)) RuleLog.Every("AsksvinTowRules.OwnerMove", 2d, $"AsksvinTowRules.OwnerMove(me={RuleLog.Shown(me)}, cannonOwner={RuleLog.Shown(cannonOwner)}, animalOwner={RuleLog.Shown(animalOwner)})");
             if (animalOwner == 0L) return null;
-            if (cannonOwner == me && animalOwner != me) { if (RuleLog.Due("AsksvinTowRules.OwnerMove:94", 2d)) RuleLog.Every("AsksvinTowRules.OwnerMove:116", 2d, "AsksvinTowRules.OwnerMove: returns \"push\" (line 116)"); return "push"; }
-            if (cannonOwner != me && animalOwner == me) { if (RuleLog.Due("AsksvinTowRules.OwnerMove:95", 2d)) RuleLog.Every("AsksvinTowRules.OwnerMove:117", 2d, "AsksvinTowRules.OwnerMove: returns \"pull\" (line 117)"); return "pull"; }
-            return null;
+            if (cannonOwner == me && animalOwner != me) { if (RuleLog.Due("AsksvinTowRules.OwnerMove:116", 2d)) RuleLog.Every("AsksvinTowRules.OwnerMove:116", 2d, $"AsksvinTowRules.OwnerMove: returns \"push\" because cannonOwner == me && animalOwner != me (line 116)"); return "push"; }
+            if (cannonOwner != me && animalOwner == me) { if (RuleLog.Due("AsksvinTowRules.OwnerMove:117", 2d)) RuleLog.Every("AsksvinTowRules.OwnerMove:117", 2d, $"AsksvinTowRules.OwnerMove: returns \"pull\" because cannonOwner != me && animalOwner == me (line 117)"); return "pull"; }
+            { if (RuleLog.Due("AsksvinTowRules.OwnerMove:118", 2d)) RuleLog.Every("AsksvinTowRules.OwnerMove:118", 2d, $"AsksvinTowRules.OwnerMove: returns null (line 118)"); return null; }
         }
     }
 }

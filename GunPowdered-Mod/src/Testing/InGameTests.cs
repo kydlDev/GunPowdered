@@ -19,8 +19,8 @@ namespace GunPowdered.Testing
         static string Startup_ConfigBound()
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.Startup_ConfigBound()");
-            if (ModSettings.EnableMod == null) { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.Startup_ConfigBound: returns \"FAIL: ModSettings.Bind did not run (EnableMod is null)\" because ModSettings.EnableMod == null (line 22)"); return "FAIL: ModSettings.Bind did not run (EnableMod is null)"; }
-            return ModSettings.On ? "PASS: EnableMod on" : "SKIP: EnableMod is off in the config";
+            if (ModSettings.EnableMod == null) return "FAIL: ModSettings.Bind did not run (EnableMod is null)";
+            { var returnedAt23 = ModSettings.On ? "PASS: EnableMod on" : "SKIP: EnableMod is off in the config"; if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.Startup_ConfigBound: returns {returnedAt23} (line 23)"); return returnedAt23; }
         }
 
         /// The installer ran and the feature registry holds the mod's features (each started per its Enable switch).
@@ -140,10 +140,10 @@ namespace GunPowdered.Testing
             if (item == null || flight == null || blast == null) { var returnedAt140 = "FAIL: missing prefab - item " + (item != null) + ", flight " + (flight != null) + ", blast " + (blast != null); if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_GrenadeReady: returns {returnedAt140} because item == null || flight == null || blast == null (line 140)"); return returnedAt140; }
             if (attack.m_attackProjectile != flight) { var returnedAt141 = "FAIL: the grenade throws " + (attack.m_attackProjectile != null ? attack.m_attackProjectile.name : "nothing") + ", not its own flight"; if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_GrenadeReady: returns {returnedAt141} because attack.m_attackProjectile != flight (line 141)"); return returnedAt141; }
             if (attack.m_projectileAccuracy > 0f || attack.m_projectileAccuracyMin > 0f || attack.m_randomVelocity) { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_GrenadeReady: returns \"FAIL: the throw has random spread, it would not follow the arc\" because attack.m_projectileAccuracy > 0f || attack.m_projectileAccuracyMin > 0f || attack.m_randomVelocity (line 142)"); return "FAIL: the throw has random spread, it would not follow the arc"; }
-            if (aoe == null || !aoe.m_hitProps || aoe.m_hitTerrain) return "FAIL: the blast " + (aoe == null ? "has no Aoe" : (!aoe.m_hitProps ? "spares buildings (D-100: it must damage them)" : "changes the terrain"));
+            if (aoe == null || !aoe.m_hitProps || aoe.m_hitTerrain) { var returnedAt143 = "FAIL: the blast " + (aoe == null ? "has no Aoe" : (!aoe.m_hitProps ? "spares buildings (D-100: it must damage them)" : "changes the terrain")); if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_GrenadeReady: returns {returnedAt143} because aoe == null || !aoe.m_hitProps || aoe.m_hitTerrain (line 143)"); return returnedAt143; }
             if (attack.m_recoilPushback <= 0f) { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_GrenadeReady: returns \"FAIL: the throw has no recoil (D-045: every weapon has some)\" because attack.m_recoilPushback <= 0f (line 144)"); return "FAIL: the throw has no recoil (D-045: every weapon has some)"; }
             if (attach == null || attach.Find("gp_model") == null) { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_GrenadeReady: returns \"FAIL: no clay pot in the hand model (attach)\" because attach == null || attach.Find(\"gp_model\") == null (line 145)"); return "FAIL: no clay pot in the hand model (attach)"; }
-            return "PASS: grenade, flight and blast ready (radius " + aoe.m_radius + " m, speed " + attack.m_projectileVel + " m/s, no spread, recoil " + attack.m_recoilPushback + ", buildings spared)";
+            { var returnedAt146 = "PASS: grenade, flight and blast ready (radius " + aoe.m_radius + " m, speed " + attack.m_projectileVel + " m/s, no spread, recoil " + attack.m_recoilPushback + ", buildings spared)"; if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_GrenadeReady: returns {returnedAt146} (line 146)"); return returnedAt146; }
         }
 
         /// The local player exists once a world is loaded (example of a World_ test; replace with the mod's own checks).

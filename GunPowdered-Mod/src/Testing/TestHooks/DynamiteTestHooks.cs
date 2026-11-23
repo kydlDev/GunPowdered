@@ -21,7 +21,7 @@ namespace GunPowdered.Testing.TestHooks
         static string Info()
         {
             if (RuleLog.Due("DynamiteTestHooks.Info", 2d)) ModLog.Every("DynamiteTestHooks.Info", 2d, $"DynamiteTestHooks.Info()");
-            if (DynamiteSetup.Explosion == null) { if (RuleLog.Due("DynamiteTestHooks.Info:24", 2d)) ModLog.Every("DynamiteTestHooks.Info:24", 2d, $"DynamiteTestHooks.Info: returns \"no blast\" because DynamiteSetup.Explosion == null (line 24)"); return "no blast"; }
+            if (DynamiteSetup.Explosion == null) return "no blast";
             Aoe props = DynamiteSetup.Explosion.GetComponent<Aoe>();
             Transform child = DynamiteSetup.Explosion.transform.Find("gp_creature_blast");
             Aoe creatures = child != null ? child.GetComponent<Aoe>() : null;
@@ -62,16 +62,40 @@ namespace GunPowdered.Testing.TestHooks
             return s;
         }
 
-        /// <summary>Sets one stick down <paramref name="metres"/> in front of the local player with the real attack code. Returns "placed at (...)" or why not.</summary>
+        /// <summary>
+        /// A stick ends up <paramref name="metres"/> in front of where the player stands, set down the way a PLAYER can (user 2026-11-24: "tests that test
+        /// things that might not happen"): a player always sets it 1.2 m in front (GunPowdered.Features.Dynamite.Domain.DynamiteRules.PlaceDistance, the attack button), so the player first
+        /// steps forward to 1.2 m short of the spot, presses attack (the game's StartAttack - DynamiteAttackPatch - kneel and all), and, unless
+        /// <paramref name="stay"/>, steps back to where it stood. Returns what the attack's placement returned ("placed at (...)" or why not).
+        /// </summary>
         [TestHook("GunPowdered.dynamitePlaceAt")]
-        static string PlaceAt(double metres)
+        static string PlaceAt(double metres, bool stay = false)
         {
-            if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PlaceAt(metres={metres})");
+            if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PlaceAt(metres={metres}, stay={stay})");
             Player p = Player.m_localPlayer;
-            string r = DynamiteSetup.Place(p, (float)metres);
-            DynamiteCharge c = Nearest(p != null ? p.transform.position + p.transform.forward * (float)metres : Vector3.zero);
+            if (p == null) { ModLog.Verbose("DynamiteTestHooks.PlaceAt: returns \"no player\" because Player.m_localPlayer == null"); return "no player"; }
+            Vector3 start = p.transform.position, fwd = Vector3.ProjectOnPlane(p.transform.forward, Vector3.up).normalized;
+            float walk = Mathf.Max(0f, (float)metres - GunPowdered.Features.Dynamite.Domain.DynamiteRules.PlaceDistance);
+            if (walk > 0.01f) StepTo(p, start + fwd * walk);
+            DynamiteSetup.LastPlace = "";
+            p.StartAttack(null, false);      // the attack button: DynamiteAttackPatch -> DynamiteSetup.Place(player) at 1.2 m
+            string r = DynamiteSetup.LastPlace.Length > 0 ? DynamiteSetup.LastPlace : "the attack did not reach the placement (dynamite not in hand?)";
+            DynamiteCharge c = Nearest(p.transform.position + fwd * GunPowdered.Features.Dynamite.Domain.DynamiteRules.PlaceDistance);
             _placed = c != null ? c.transform.position : (Vector3?)null;
-            { var returnedAt74 = r; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PlaceAt: returns {returnedAt74} (line 74)"); return returnedAt74; }
+            if (!stay && walk > 0.01f) StepTo(p, start);
+            ModLog.Verbose($"DynamiteTestHooks.PlaceAt: walked {walk:0.0} m, {(stay ? "stays there" : "walked back")}, placement: {r} - returns it");
+            return r;
+        }
+
+        // Moves the player over the (loaded, level) arena ground a few metres, as walking there would; keeps the facing.
+        static void StepTo(Player p, Vector3 to)
+        {
+            if (Heightmap.GetHeight(to, out float h)) to.y = h;
+            p.transform.position = to;
+            Rigidbody body = p.GetComponent<Rigidbody>();
+            if (body != null) { body.position = to; body.linearVelocity = Vector3.zero; }
+            Physics.SyncTransforms();
+            ModLog.Verbose("DynamiteTestHooks.StepTo: player now at " + to.ToString("0.00"));
         }
 
         /// <summary>Uses the stick that was set down, as the local player (the real Interact). Returns "lit" or why not.</summary>
@@ -80,10 +104,10 @@ namespace GunPowdered.Testing.TestHooks
         {
             if (RuleLog.Due("DynamiteTestHooks.Light", 2d)) ModLog.Every("DynamiteTestHooks.Light", 2d, $"DynamiteTestHooks.Light()");
             DynamiteCharge c = _placed.HasValue ? Nearest(_placed.Value) : null;
-            if (c == null) { if (RuleLog.Due("DynamiteTestHooks.Light:83", 2d)) ModLog.Every("DynamiteTestHooks.Light:83", 2d, $"DynamiteTestHooks.Light: returns \"no stick\" because c == null (line 83)"); return "no stick"; }
+            if (c == null) { if (RuleLog.Due("DynamiteTestHooks.Light:107", 2d)) ModLog.Every("DynamiteTestHooks.Light:107", 2d, $"DynamiteTestHooks.Light: returns \"no stick\" because c == null (line 107)"); return "no stick"; }
             _blastsAtLight = DynamiteCharge.Blasts;
             string why = c.Light(Player.m_localPlayer);
-            { var returnedAt86 = why ?? "lit"; if (RuleLog.Due("DynamiteTestHooks.Light:86", 2d)) ModLog.Every("DynamiteTestHooks.Light:86", 2d, $"DynamiteTestHooks.Light: returns {returnedAt86} (line 86)"); return returnedAt86; }
+            { var returnedAt110 = why ?? "lit"; if (RuleLog.Due("DynamiteTestHooks.Light:110", 2d)) ModLog.Every("DynamiteTestHooks.Light:110", 2d, $"DynamiteTestHooks.Light: returns {returnedAt110} (line 110)"); return returnedAt110; }
         }
 
         /// <summary>D-158: the light red sparkle of the stick the test set down: "sparkle shown|hidden, playing P, colour RGBA" or "no stick".</summary>
@@ -118,7 +142,7 @@ namespace GunPowdered.Testing.TestHooks
             int n = 0;
             foreach (DynamiteCharge c in Object.FindObjectsByType<DynamiteCharge>(FindObjectsSortMode.None))
                 if (!_placed.HasValue || Vector3.Distance(c.transform.position, _placed.Value) < 20f) n++;
-            { var returnedAt121 = n; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.Sticks: returns {returnedAt121} (line 121)"); return returnedAt121; }
+            { var returnedAt145 = n; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.Sticks: returns {returnedAt145} (line 145)"); return returnedAt145; }
         }
 
         /// <summary>Blasts since the test lit the stick.</summary>
@@ -130,17 +154,17 @@ namespace GunPowdered.Testing.TestHooks
         static string GroundMark()
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.GroundMark()");
-            if (!_placed.HasValue) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.GroundMark: returns \"no stick\" because !_placed.HasValue (line 133)"); return "no stick"; }
+            if (!_placed.HasValue) return "no stick";
             _ground = Ground(_placed.Value);
             TerrainSnapshot.Mark(_placed.Value, TerrainNear);
-            { var returnedAt136 = float.IsNaN(_ground) ? "ground not loaded" : "marked " + _ground.ToString("0.00"); if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.GroundMark: returns {returnedAt136} (line 136)"); return returnedAt136; }
+            { var returnedAt160 = float.IsNaN(_ground) ? "ground not loaded" : "marked " + _ground.ToString("0.00"); if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.GroundMark: returns {returnedAt160} (line 160)"); return returnedAt160; }
         }
 
         /// <summary>True when the ground where the stick stood is at least <paramref name="metres"/> lower than marked (the hole).</summary>
         [TestHook("GunPowdered.dynamiteHoleAtLeast")]
         static bool HoleAtLeast(double metres)
         {
-            if (!_placed.HasValue || float.IsNaN(_ground)) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.HoleAtLeast: returns false because !_placed.HasValue || float.IsNaN(_ground) (line 143)"); return false; }
+            if (!_placed.HasValue || float.IsNaN(_ground)) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.HoleAtLeast: returns false because !_placed.HasValue || float.IsNaN(_ground) (line 167)"); return false; }
             float now = Ground(_placed.Value);
             ModLog.Info("DynamiteTestHooks: ground " + _ground.ToString("0.00") + " -> " + now.ToString("0.00") + " at the stick");
             return !float.IsNaN(now) && _ground - now >= metres;
@@ -154,8 +178,8 @@ namespace GunPowdered.Testing.TestHooks
         static string TerrainReset()
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.TerrainReset()");
-            if (!_placed.HasValue) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.TerrainReset: returns \"no stick\" because !_placed.HasValue (line 157)"); return "no stick"; }
-            return TerrainSnapshot.Restore(_placed.Value, TerrainNear);
+            if (!_placed.HasValue) return "no stick";
+            { var returnedAt182 = TerrainSnapshot.Restore(_placed.Value, TerrainNear); if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.TerrainReset: returns {returnedAt182} (line 182)"); return returnedAt182; }
         }
 
         /// <summary>How far round the stick the terrain is marked and restored (m): the pack's 5 m crater with its smoothing and paint, and a margin.</summary>
@@ -166,9 +190,9 @@ namespace GunPowdered.Testing.TestHooks
         static string GroundBack()
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.GroundBack()");
-            if (!_placed.HasValue || float.IsNaN(_ground)) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.GroundBack: returns \"nothing marked\" because !_placed.HasValue || float.IsNaN(_ground) (line 169)"); return "nothing marked"; }
+            if (!_placed.HasValue || float.IsNaN(_ground)) return "nothing marked";
             float now = Ground(_placed.Value);
-            { var returnedAt171 = Mathf.Abs(now - _ground) <= 0.05f ? "back" : "differs by " + (now - _ground).ToString("0.00") + " m"; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.GroundBack: returns {returnedAt171} (line 171)"); return returnedAt171; }
+            { var returnedAt195 = Mathf.Abs(now - _ground) <= 0.05f ? "back" : "differs by " + (now - _ground).ToString("0.00") + " m"; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.GroundBack: returns {returnedAt195} (line 195)"); return returnedAt195; }
         }
 
         /// <summary>Places a piece <paramref name="metres"/> to the right of the stick. Returns "placed &lt;prefab&gt;".</summary>
@@ -178,13 +202,13 @@ namespace GunPowdered.Testing.TestHooks
             if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PlacePieceNear(prefab={prefab}, metres={metres})");
             Player p = Player.m_localPlayer;
             GameObject source = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
-            if (!_placed.HasValue || p == null || source == null) { var returnedAt181 = "no stick or no prefab " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PlacePieceNear: returns {returnedAt181} because !_placed.HasValue || p == null || source == null (line 181)"); return returnedAt181; }
+            if (!_placed.HasValue || p == null || source == null) { var returnedAt205 = "no stick or no prefab " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PlacePieceNear: returns {returnedAt205} because !_placed.HasValue || p == null || source == null (line 205)"); return returnedAt205; }
             Vector3 at = _placed.Value + p.transform.right * (float)metres;
             float g = Ground(at);
             if (!float.IsNaN(g)) at.y = g;
             GameObject go = Object.Instantiate(source, at, Quaternion.LookRotation(-p.transform.forward));
             if (go != null) Pieces.Add(go);
-            { var returnedAt187 = go != null ? "placed " + prefab : "could not place " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PlacePieceNear: returns {returnedAt187} (line 187)"); return returnedAt187; }
+            { var returnedAt211 = go != null ? "placed " + prefab : "could not place " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PlacePieceNear: returns {returnedAt211} (line 211)"); return returnedAt211; }
         }
 
         /// <summary>True when the piece the test placed was damaged or destroyed by the blast.</summary>
@@ -194,11 +218,11 @@ namespace GunPowdered.Testing.TestHooks
             if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PieceHurt()");
             foreach (GameObject go in Pieces)
             {
-                if (go == null) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PieceHurt: returns true because go == null (line 197)"); return true; }                  // destroyed
+                if (go == null) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PieceHurt: returns true because go == null (line 221)"); return true; }                  // destroyed
                 WearNTear w = go.GetComponent<WearNTear>();
-                if (w != null && w.GetHealthPercentage() < 0.999f) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PieceHurt: returns true because w != null && w.GetHealthPercentage() < 0.999f (line 199)"); return true; }
+                if (w != null && w.GetHealthPercentage() < 0.999f) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PieceHurt: returns true because w != null && w.GetHealthPercentage() < 0.999f (line 223)"); return true; }
             }
-            { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PieceHurt: returns false (line 201)"); return false; }
+            { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.PieceHurt: returns false (line 225)"); return false; }
         }
 
         /// <summary>Removes what placePieceNearDynamite placed. Returns "removed N".</summary>
@@ -209,14 +233,14 @@ namespace GunPowdered.Testing.TestHooks
             int n = 0;
             foreach (GameObject go in Pieces)
             {
-                if (go == null) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.RemovePieces: skips to the next item (continue) because go == null (line 212)"); continue; }
+                if (go == null) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.RemovePieces: skips to the next item (continue) because go == null (line 236)"); continue; }
                 ZNetView nv = go.GetComponent<ZNetView>();
                 if (nv != null && nv.IsValid()) { nv.ClaimOwnership(); ZNetScene.instance.Destroy(go); }
                 else Object.Destroy(go);
                 n++;
             }
             Pieces.Clear();
-            { var returnedAt219 = "removed " + n; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.RemovePieces: returns {returnedAt219} (line 219)"); return returnedAt219; }
+            { var returnedAt243 = "removed " + n; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.RemovePieces: returns {returnedAt243} (line 243)"); return returnedAt243; }
         }
 
         /// <summary>
@@ -231,7 +255,7 @@ namespace GunPowdered.Testing.TestHooks
             float bestDist = 40f;
             foreach (Character c in Character.GetAllCharacters())
             {
-                if (c == null || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.CreatureLostBetween: skips to the next item (continue) because c == null || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab (line 234)"); continue; }
+                if (c == null || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.CreatureLostBetween: skips to the next item (continue) because c == null || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab (line 258)"); continue; }
                 float d = p != null ? Vector3.Distance(p.transform.position, c.transform.position) : 0f;
                 if (d < bestDist) { best = c; bestDist = d; }
             }
@@ -250,12 +274,12 @@ namespace GunPowdered.Testing.TestHooks
             int n = 0;
             foreach (DynamiteCharge c in Object.FindObjectsByType<DynamiteCharge>(FindObjectsSortMode.None))
             {
-                if (p != null && Vector3.Distance(c.transform.position, p.transform.position) > 30f) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.RemoveSticks: skips to the next item (continue) because p != null && Vector3.Distance(c.transform.position, p.transform.position) > 30f (line 253)"); continue; }
+                if (p != null && Vector3.Distance(c.transform.position, p.transform.position) > 30f) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.RemoveSticks: skips to the next item (continue) because p != null && Vector3.Distance(c.transform.position, p.transform.position) > 30f (line 277)"); continue; }
                 ZNetView v = c.GetComponent<ZNetView>();
                 if (v != null && v.IsValid()) { v.ClaimOwnership(); ZNetScene.instance.Destroy(c.gameObject); } else Object.Destroy(c.gameObject);
                 n++;
             }
-            { var returnedAt258 = "removed " + n; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.RemoveSticks: returns {returnedAt258} (line 258)"); return returnedAt258; }
+            { var returnedAt282 = "removed " + n; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.RemoveSticks: returns {returnedAt282} (line 282)"); return returnedAt282; }
         }
 
         /// <summary>What the local player holds in the right hand: the item's prefab name and whether its model is shown, or "none" (also no model).</summary>
@@ -264,12 +288,12 @@ namespace GunPowdered.Testing.TestHooks
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.RightHand()");
             Player p = Player.m_localPlayer;
-            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.RightHand: returns \"no player\" because p == null (line 267)"); return "no player"; }
+            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.RightHand: returns \"no player\" because p == null (line 291)"); return "no player"; }
             ItemDrop.ItemData item = HarmonyLib.AccessTools.Field(typeof(Humanoid), "m_rightItem").GetValue(p) as ItemDrop.ItemData;      // private in the game
             VisEquipment vis = p.GetComponent<VisEquipment>();
             GameObject inst = vis != null ? HarmonyLib.AccessTools.Field(typeof(VisEquipment), "m_rightItemInstance")?.GetValue(vis) as GameObject : null;
             string s = item == null ? "none" : (item.m_dropPrefab != null ? item.m_dropPrefab.name : item.m_shared.m_name);
-            { var returnedAt272 = s + ", model " + (inst != null); if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.RightHand: returns {returnedAt272} (line 272)"); return returnedAt272; }
+            { var returnedAt296 = s + ", model " + (inst != null); if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.RightHand: returns {returnedAt296} (line 296)"); return returnedAt296; }
         }
 
         static DynamiteCharge Nearest(Vector3 at)
@@ -282,14 +306,14 @@ namespace GunPowdered.Testing.TestHooks
                 float d = Vector3.Distance(c.transform.position, at);
                 if (d < bestDist) { best = c; bestDist = d; }
             }
-            { var returnedAt285 = best; if (RuleLog.Due("DynamiteTestHooks.Nearest:285", 2d)) ModLog.Every("DynamiteTestHooks.Nearest:285", 2d, $"DynamiteTestHooks.Nearest: returns {returnedAt285} (line 285)"); return returnedAt285; }
+            { var returnedAt309 = best; if (RuleLog.Due("DynamiteTestHooks.Nearest:309", 2d)) ModLog.Every("DynamiteTestHooks.Nearest:309", 2d, $"DynamiteTestHooks.Nearest: returns {returnedAt309} (line 309)"); return returnedAt309; }
         }
 
         static float Ground(Vector3 at)
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.Ground(at={at})");
             float h;
-            { var returnedAt292 = ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(at, out h) ? h : float.NaN; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.Ground: returns {returnedAt292} (line 292)"); return returnedAt292; }
+            { var returnedAt316 = ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(at, out h) ? h : float.NaN; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.Ground: returns {returnedAt316} (line 316)"); return returnedAt316; }
         }
     }
 }

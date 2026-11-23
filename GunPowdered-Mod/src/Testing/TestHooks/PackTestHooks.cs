@@ -46,7 +46,7 @@ namespace GunPowdered.Testing.TestHooks
             DynamiteCharge c = NearestCharge();
             GameObject pf = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
             if (p == null || c == null) { if (RuleLog.IsOn()) ModLog.Verbose($"Target.SpawnBeyond: returns \"no player or no charge\" because p == null || c == null (line 48)"); return "no player or no charge"; }
-            if (pf == null) return "no prefab " + prefab;
+            if (pf == null) { var returnedAt49 = "no prefab " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"Target.SpawnBeyond: returns {returnedAt49} because pf == null (line 49)"); return returnedAt49; }
             Vector3 dir = Vector3.ProjectOnPlane(c.transform.position - p.transform.position, Vector3.up).normalized;
             Vector3 at = c.transform.position + dir * (float)metres;
             float h;

@@ -70,7 +70,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             Player p = Player.m_localPlayer;
             if (p == null || p.IsDead() || Vector3.Distance(p.transform.position, mount.transform.position) > LeaveRange) { End("the player left the stock"); { if (RuleLog.Due("CannonAim.Tick:71", 2d)) ModLog.Every("CannonAim.Tick:71", 2d, $"CannonAim.Tick: returns because p == null || p.IsDead() || Vector3.Distance(p.transform.position, mount.transform.position) > LeaveRange (line 71)"); return; } }
             if (Time.frameCount > _startFrame && (ZInput.GetButtonDown("Use") || ZInput.GetButtonDown("JoyUse"))) { End("the player stopped aiming"); { if (RuleLog.Due("CannonAim.Tick:72", 2d)) ModLog.Every("CannonAim.Tick:72", 2d, $"CannonAim.Tick: returns because Time.frameCount > _startFrame && (ZInput.GetButtonDown(\"Use\") || ZInput.GetButtonDown(\"JoyUse\")) (line 72)"); return; } }
-            if (!mount.Status().Loaded) { End("the cannon is not loaded"); return; }
+            if (!mount.Status().Loaded) { End("the cannon is not loaded"); { if (RuleLog.Due("CannonAim.Tick:73", 2d)) ModLog.Every("CannonAim.Tick:73", 2d, $"CannonAim.Tick: returns because !mount.Status().Loaded (line 73)"); return; } }
             if (!_locked)
             {
                 Vector3 spot = Spot(mount, p);

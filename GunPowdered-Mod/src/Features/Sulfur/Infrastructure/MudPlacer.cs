@@ -48,7 +48,7 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
                     if (!DepositSpawner.Floor(spot, out floor))
                     {
                         KydlCore.Common.ModLog.Verbose("MudPlacer: no floor within 3 m above / 6 m below " + spot.ToString("0.0") + " (centre " + centre.ToString("0.0") + ")");
-                        continue;
+                        { if (RuleLog.Due("MudPlacer.Place:51", 2d)) ModLog.Every("MudPlacer.Place:51", 2d, $"MudPlacer.Place: skips to the next item (continue) (line 51)"); continue; }
                     }
                     if (needWater && !UnderWater(floor)) { if (RuleLog.Due("MudPlacer.Place:53", 2d)) ModLog.Every("MudPlacer.Place:53", 2d, $"MudPlacer.Place: skips to the next item (continue) because needWater && !UnderWater(floor) (line 53)"); continue; }
                     int amount = SulfurRules.Amount(SulfurSource.SulfurousMud, () => rng.NextDouble());
@@ -90,7 +90,7 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
                 if (DepositSpawner.Spawn(GunPowderedPrefabs.SulfurousMud, floor, amount, seed + n) != null) { placed++; used.Add(floor); }
             }
             KydlCore.Common.ModLog.Verbose("MudPlacer: pile at " + centre.ToString("0.0") + ": " + scanned + " ring points scanned, " + (wet.Count + used.Count) + " under water left/used - PlaceInWater returns " + placed + " (of " + count + ")");
-            return placed;
+            { var returnedAt93 = placed; if (RuleLog.Due("MudPlacer.PlaceInWater:93", 2d)) ModLog.Every("MudPlacer.PlaceInWater:93", 2d, $"MudPlacer.PlaceInWater: returns {returnedAt93} (line 93)"); return returnedAt93; }
         }
 
         static bool UnderWaterQuiet(Vector3 floor)
@@ -109,7 +109,7 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
             float surface = Mathf.Max(Floating.GetLiquidLevel(floor, 1f, LiquidType.Water), sea);
             bool under = surface > floor.y + 0.1f;
             KydlCore.Common.ModLog.Verbose("MudPlacer: floor " + floor.ToString("0.0") + ", water surface " + surface.ToString("0.0") + " -> under water " + under);
-            return under;
+            { var returnedAt112 = under; if (RuleLog.Due("MudPlacer.UnderWater:112", 2d)) ModLog.Every("MudPlacer.UnderWater:112", 2d, $"MudPlacer.UnderWater: returns {returnedAt112} (line 112)"); return returnedAt112; }
         }
     }
 }

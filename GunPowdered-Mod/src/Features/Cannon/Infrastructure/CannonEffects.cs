@@ -58,7 +58,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
                 if (prefab == null)
                 {
                     if (Refused.Add(n)) ModLog.Warn("CannonEffects: effect " + n + " not found, left out");
-                    continue;
+                    { if (RuleLog.Due("CannonEffects.Play:61", 2d)) ModLog.Every("CannonEffects.Play:61", 2d, $"CannonEffects.Play: skips to the next item (continue) (line 61)"); continue; }
                 }
                 Object.Instantiate(prefab, at, rotation);
                 made++;

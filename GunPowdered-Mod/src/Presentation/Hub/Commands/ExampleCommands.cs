@@ -1,6 +1,7 @@
 using KydlCore.Common;
 using KydlCore.Core;
 using GunPowdered.Features.Example.Application;
+using GunPowdered.Core;
 
 namespace GunPowdered.Presentation.Hub.Commands
 {
@@ -13,7 +14,7 @@ namespace GunPowdered.Presentation.Hub.Commands
             var r = commands.Dispatch(new SetExampleValueCommand(requested));
             if (r.Status == ResponseStatus.Failed) ModLog.Warn("ExampleCommands: SetValue " + requested + " - " + r);
             else ModLog.Verbose("ExampleCommands: SetValue " + requested + " - " + r);
-            return r;
+            { var returnedAt17 = r; if (RuleLog.Due("ExampleCommands.SetValue:17", 2d)) ModLog.Every("ExampleCommands.SetValue:17", 2d, $"ExampleCommands.SetValue: returns {returnedAt17} (line 17)"); return returnedAt17; }
         }
     }
 }

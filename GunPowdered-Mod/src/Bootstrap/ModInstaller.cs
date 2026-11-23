@@ -69,7 +69,7 @@ namespace GunPowdered.Bootstrap
             OperationResponse<int> r = Features.Refresh();
             if (r.Status == ResponseStatus.Failed) ModLog.Warn("ModInstaller: " + r.Reason);
             else ModLog.Verbose("ModInstaller: refresh - " + r);
-            return r.IsSuccess;
+            { var returnedAt72 = r.IsSuccess; if (RuleLog.Due("ModInstaller.Refresh:72", 2d)) ModLog.Every("ModInstaller.Refresh:72", 2d, $"ModInstaller.Refresh: returns {returnedAt72} (line 72)"); return returnedAt72; }
         }
 
         /// Mod unload. Expected outcome: true when every feature stopped and the hub page is gone.

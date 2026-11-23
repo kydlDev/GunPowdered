@@ -218,20 +218,33 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             { if (RuleLog.Due("ChargeKind.HeldKind:218", 2d)) ModLog.Every("ChargeKind.HeldKind:218", 2d, $"ChargeKind.HeldKind: returns null (line 218)"); return null; }
         }
 
+        /// <summary>What the last <see cref="Place"/> returned (read by the TestLab hook that presses the attack button like a player).</summary>
+        internal static string LastPlace = "";
+
         /// <summary>
-        /// The attack button with dynamite in hand: one stick is set down <paramref name="metres"/> in front of the player (the usual 1.2 m; tests use
-        /// more), on the ground or whatever stands there. Expected outcome: "placed at (x, y, z)", or why not.
+        /// The attack button with dynamite in hand: one stick is set down <see cref="DynamiteRules.PlaceDistance"/> (1.2 m) in front of the player - the
+        /// only distance a player can use (user 2026-11-24: tests no longer set it farther away), on the ground or whatever stands there.
+        /// Expected outcome: "placed at (x, y, z)", or why not (also kept in <see cref="LastPlace"/>).
         /// </summary>
-        internal static string Place(Player player, float metres = DynamiteRules.PlaceDistance)
+        internal static string Place(Player player)
         {
+            string r = PlaceStick(player);
+            LastPlace = r;
+            ModLog.Verbose("ChargeKind.Place: returns " + r);
+            return r;
+        }
+
+        static string PlaceStick(Player player)
+        {
+            const float metres = DynamiteRules.PlaceDistance;
             ItemDrop.ItemData held = HeldKind(player, out ChargeKind kind);
-            if (held == null) { if (RuleLog.Due("ChargeKind.Place:204", 2d)) ModLog.Every("ChargeKind.Place:228", 2d, "ChargeKind.Place: returns \"no dynamite in hand\" (line 228)"); return "no dynamite in hand"; }
-            if (kind.Charge == null) return "no charge prefab for " + kind.Name;
-            if (Time.time - _lastPlaced < 0.5f) { if (RuleLog.Due("ChargeKind.Place:206", 2d)) ModLog.Every("ChargeKind.Place:230", 2d, "ChargeKind.Place: returns \"too soon\" (line 230)"); return "too soon"; }
+            if (held == null) { if (RuleLog.Due("ChargeKind.PlaceStick:241", 2d)) ModLog.Every("ChargeKind.PlaceStick:241", 2d, $"ChargeKind.PlaceStick: returns \"no dynamite in hand\" because held == null (line 241)"); return "no dynamite in hand"; }
+            if (kind.Charge == null) { var returnedAt242 = "no charge prefab for " + kind.Name; if (RuleLog.Due("ChargeKind.PlaceStick:242", 2d)) ModLog.Every("ChargeKind.PlaceStick:242", 2d, $"ChargeKind.PlaceStick: returns {returnedAt242} because kind.Charge == null (line 242)"); return returnedAt242; }
+            if (Time.time - _lastPlaced < 0.5f) { if (RuleLog.Due("ChargeKind.PlaceStick:243", 2d)) ModLog.Every("ChargeKind.PlaceStick:243", 2d, $"ChargeKind.PlaceStick: returns \"too soon\" because Time.time - _lastPlaced < 0.5f (line 243)"); return "too soon"; }
             if (!FindSpot(player, metres, out Vector3 spot))
             {
                 player.Message(MessageHud.MessageType.Center, DynamiteRules.NoGround);
-                { var returnedAt234 = DynamiteRules.NoGround; if (RuleLog.Due("ChargeKind.Place:234", 2d)) ModLog.Every("ChargeKind.Place:234", 2d, $"ChargeKind.Place: returns {returnedAt234} (line 234)"); return returnedAt234; }
+                { var returnedAt247 = DynamiteRules.NoGround; if (RuleLog.Due("ChargeKind.PlaceStick:247", 2d)) ModLog.Every("ChargeKind.PlaceStick:247", 2d, $"ChargeKind.PlaceStick: returns {returnedAt247} (line 247)"); return returnedAt247; }
             }
             player.StartEmote("kneel");                                // D-148: the character bends down to set it on the ground (the game's own kneel)
             player.StartCoroutine(StandUp(player));      // D-158: the game's kneel stays until the player moves; stand up again after it
@@ -280,9 +293,9 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             for (int tries = 0; tries < 4; tries++, d = Mathf.Max(DynamiteRules.NearestPlace, d - 0.2f))
             {
                 Vector3 from = chest + fwd * d;
-                if (!Physics.Raycast(from, Vector3.down, out RaycastHit ground, DynamiteRules.ChestHeight + DynamiteRules.SurfaceBelow + 0.5f, PlaceMask, QueryTriggerInteraction.Ignore)) { why.Append($"; {d:0.00} m: no surface below {from:0.00}{DeepBelow(from)}"); { if (RuleLog.Due("ChargeKind.FindSpot:283", 2d)) ModLog.Every("ChargeKind.FindSpot:283", 2d, $"ChargeKind.FindSpot: skips to the next item (continue) because !Physics.Raycast(from, Vector3.down, out RaycastHit ground, DynamiteRules.ChestHeight + DynamiteRules.SurfaceBelow + 0.5f, PlaceMask, QueryTriggerInteraction.Ignore) (line 283)"); continue; } }
-                if (!DynamiteRules.SurfaceOk(feet.y, ground.point.y)) { why.Append($"; {d:0.00} m: {ground.collider.name} at {ground.point.y - feet.y:+0.00;-0.00} m from the feet"); { if (RuleLog.Due("ChargeKind.FindSpot:284", 2d)) ModLog.Every("ChargeKind.FindSpot:284", 2d, $"ChargeKind.FindSpot: skips to the next item (continue) because !DynamiteRules.SurfaceOk(feet.y, ground.point.y) (line 284)"); continue; } }
-                if (Physics.CheckSphere(ground.point + Vector3.up * 0.18f, 0.06f, PlaceMask, QueryTriggerInteraction.Ignore)) { why.Append($"; {d:0.00} m: space taken at {ground.point:0.00}"); { if (RuleLog.Due("ChargeKind.FindSpot:285", 2d)) ModLog.Every("ChargeKind.FindSpot:285", 2d, $"ChargeKind.FindSpot: skips to the next item (continue) because Physics.CheckSphere(ground.point + Vector3.up * 0.18f, 0.06f, PlaceMask, QueryTriggerInteraction.Ignore) (line 285)"); continue; } }   // something sticks into the stick's space
+                if (!Physics.Raycast(from, Vector3.down, out RaycastHit ground, DynamiteRules.ChestHeight + DynamiteRules.SurfaceBelow + 0.5f, PlaceMask, QueryTriggerInteraction.Ignore)) { why.Append($"; {d:0.00} m: no surface below {from:0.00}{DeepBelow(from)}"); { if (RuleLog.Due("ChargeKind.FindSpot:296", 2d)) ModLog.Every("ChargeKind.FindSpot:296", 2d, $"ChargeKind.FindSpot: skips to the next item (continue) because !Physics.Raycast(from, Vector3.down, out RaycastHit ground, DynamiteRules.ChestHeight + DynamiteRules.SurfaceBelow + 0.5f, PlaceMask, QueryTriggerInteraction.Ignore) (line 296)"); continue; } }
+                if (!DynamiteRules.SurfaceOk(feet.y, ground.point.y)) { why.Append($"; {d:0.00} m: {ground.collider.name} at {ground.point.y - feet.y:+0.00;-0.00} m from the feet"); { if (RuleLog.Due("ChargeKind.FindSpot:297", 2d)) ModLog.Every("ChargeKind.FindSpot:297", 2d, $"ChargeKind.FindSpot: skips to the next item (continue) because !DynamiteRules.SurfaceOk(feet.y, ground.point.y) (line 297)"); continue; } }
+                if (Physics.CheckSphere(ground.point + Vector3.up * 0.18f, 0.06f, PlaceMask, QueryTriggerInteraction.Ignore)) { why.Append($"; {d:0.00} m: space taken at {ground.point:0.00}"); { if (RuleLog.Due("ChargeKind.FindSpot:298", 2d)) ModLog.Every("ChargeKind.FindSpot:298", 2d, $"ChargeKind.FindSpot: skips to the next item (continue) because Physics.CheckSphere(ground.point + Vector3.up * 0.18f, 0.06f, PlaceMask, QueryTriggerInteraction.Ignore) (line 298)"); continue; } }   // something sticks into the stick's space
                 spot = ground.point;
                 ModLog.Verbose($"ChargeKind.FindSpot: wanted {metres:0.00} m, blocked at {blockedAt:0.00} m ({(blockedAt >= 0f ? block.collider.name : "nothing")}), set {d:0.00} m ahead on {ground.collider.name} at {spot:0.00}, {ground.point.y - feet.y:+0.00;-0.00} m from the feet - returns true");
                 return true;
@@ -302,7 +315,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             string terrain = Heightmap.GetHeight(from, out h) ? $"heightmap ground y {h:0.00}" : "no heightmap here";
             Heightmap hm = Heightmap.FindHeightmap(from);
             Collider col = hm != null ? hm.GetComponent<Collider>() : null;
-            { var returnedAt305 = $" ({hit}, {terrain}, heightmap collider {(col == null ? "none" : col.enabled ? "on" : "off")})"; if (RuleLog.Due("ChargeKind.DeepBelow:305", 2d)) ModLog.Every("ChargeKind.DeepBelow:305", 2d, $"ChargeKind.DeepBelow: returns {returnedAt305} (line 305)"); return returnedAt305; }
+            { var returnedAt318 = $" ({hit}, {terrain}, heightmap collider {(col == null ? "none" : col.enabled ? "on" : "off")})"; if (RuleLog.Due("ChargeKind.DeepBelow:318", 2d)) ModLog.Every("ChargeKind.DeepBelow:318", 2d, $"ChargeKind.DeepBelow: returns {returnedAt318} (line 318)"); return returnedAt318; }
         }
 
         /// <summary>The blast of one stick at <paramref name="at"/> (made by the stick's owner). Expected outcome: the number of objects made (blast + crater).</summary>
@@ -323,7 +336,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
                 Object.Instantiate(kind.Crater, at - Vector3.up * 0.15f, Quaternion.identity);
                 made++;
             }
-            { var returnedAt326 = made; if (RuleLog.Due("ChargeKind.Blast:326", 2d)) ModLog.Every("ChargeKind.Blast:326", 2d, $"ChargeKind.Blast: returns {returnedAt326} (line 326)"); return returnedAt326; }
+            { var returnedAt339 = made; if (RuleLog.Due("ChargeKind.Blast:339", 2d)) ModLog.Every("ChargeKind.Blast:339", 2d, $"ChargeKind.Blast: returns {returnedAt339} (line 339)"); return returnedAt339; }
         }
 
     }

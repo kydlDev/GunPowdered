@@ -99,8 +99,8 @@ namespace GunPowdered.Testing.TestHooks
         static Renderer Glass(GameObject oven)
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"ExtensionFireTestHooks.Glass(oven={oven})");
-            if (oven != null) foreach (Renderer r in oven.GetComponentsInChildren<Renderer>(true)) if (r.name.EndsWith("_glass")) { var returnedAt102 = r; if (RuleLog.IsOn()) ModLog.Verbose($"ExtensionFireTestHooks.Glass: returns {returnedAt102} because oven != null) foreach (Renderer r in oven.GetComponentsInChildren<Renderer>(true)) if (r.name.EndsWith(\"_glass\") (line 102)"); return returnedAt102; }
-            return null;
+            if (oven != null) foreach (Renderer r in oven.GetComponentsInChildren<Renderer>(true)) if (r.name.EndsWith("_glass")) return r;
+            { if (RuleLog.IsOn()) ModLog.Verbose($"ExtensionFireTestHooks.Glass: returns null (line 103)"); return null; }
         }
 
         // the panes face the side of the oven they sit on (both ovens: the glass is at local +z, a14fire2 logged +0.33 m for the Drying Oven)

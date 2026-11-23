@@ -106,8 +106,8 @@ namespace GunPowdered.Integrations.Items
         internal static string IconName(string id)
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"BundleVisuals.IconName(id={RuleLog.Shown(id)})");
-            if (id == GunPowderedPrefabs.LeachingVat) { if (RuleLog.IsOn()) ModLog.Verbose("BundleVisuals.IconName: returns \"LeachingStation\" (line 109)"); return "LeachingStation"; }
-            return id.StartsWith("GP_") ? id.Substring(3) : id;
+            if (id == GunPowderedPrefabs.LeachingVat) return "LeachingStation";
+            { var returnedAt110 = id.StartsWith("GP_") ? id.Substring(3) : id; if (RuleLog.Due("BundleVisuals.IconName:110", 2d)) ModLog.Every("BundleVisuals.IconName:110", 2d, $"BundleVisuals.IconName: returns {returnedAt110} (line 110)"); return returnedAt110; }
         }
 
         static void SetLayer(GameObject go, int layer)

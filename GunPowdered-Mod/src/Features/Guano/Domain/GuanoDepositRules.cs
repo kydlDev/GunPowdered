@@ -40,7 +40,7 @@ namespace GunPowdered.Features.Guano.Domain
             }
             // a kind whose chances add up to 1 (mountain caves, D-151) always gets a count: a roll past the rounded sum takes the last one, never 0
             if (upTo >= 0.999999d) { var last = chances.Length - 1; if (RuleLog.Due("GuanoDepositRules.DepositCount:sum1", 2d)) RuleLog.Every("GuanoDepositRules.DepositCount:sum1", 2d, $"GuanoDepositRules.DepositCount: returns {last} (the chances add up to 1)"); return last; }
-            return 0;
+            { if (RuleLog.Due("GuanoDepositRules.DepositCount:43", 2d)) RuleLog.Every("GuanoDepositRules.DepositCount:43", 2d, $"GuanoDepositRules.DepositCount: returns 0 (line 43)"); return 0; }
         }
 
         /// <summary>Expected outcome: a whole number from 1 to <see cref="MaxGatherables"/> of the kind.</summary>

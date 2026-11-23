@@ -133,13 +133,13 @@ namespace GunPowdered.Features.Musket.Infrastructure
         static string Blocker()
         {
             if (RuleLog.Due("MusketInput.Blocker", 2d)) ModLog.Every("MusketInput.Blocker", 2d, $"MusketInput.Blocker()");
-            if (Chat.instance != null && Chat.instance.HasFocus()) { if (RuleLog.Due("MusketInput.Blocker:86", 2d)) ModLog.Every("MusketInput.Blocker:136", 2d, "MusketInput.Blocker: returns \"chat\" (line 136)"); return "chat"; }
-            if (Console.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:87", 2d)) ModLog.Every("MusketInput.Blocker:137", 2d, "MusketInput.Blocker: returns \"console\" (line 137)"); return "console"; }
-            if (Menu.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:88", 2d)) ModLog.Every("MusketInput.Blocker:138", 2d, "MusketInput.Blocker: returns \"menu\" (line 138)"); return "menu"; }
-            if (InventoryGui.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:89", 2d)) ModLog.Every("MusketInput.Blocker:139", 2d, "MusketInput.Blocker: returns \"inventory\" (line 139)"); return "inventory"; }
-            if (TextInput.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:90", 2d)) ModLog.Every("MusketInput.Blocker:140", 2d, "MusketInput.Blocker: returns \"text input\" (line 140)"); return "text input"; }
-            if (Minimap.IsOpen()) { if (RuleLog.Due("MusketInput.Blocker:91", 2d)) ModLog.Every("MusketInput.Blocker:141", 2d, "MusketInput.Blocker: returns \"map\" (line 141)"); return "map"; }
-            return null;
+            if (Chat.instance != null && Chat.instance.HasFocus()) return "chat";
+            if (Console.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:137", 2d)) ModLog.Every("MusketInput.Blocker:137", 2d, $"MusketInput.Blocker: returns \"console\" because Console.IsVisible() (line 137)"); return "console"; }
+            if (Menu.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:138", 2d)) ModLog.Every("MusketInput.Blocker:138", 2d, $"MusketInput.Blocker: returns \"menu\" because Menu.IsVisible() (line 138)"); return "menu"; }
+            if (InventoryGui.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:139", 2d)) ModLog.Every("MusketInput.Blocker:139", 2d, $"MusketInput.Blocker: returns \"inventory\" because InventoryGui.IsVisible() (line 139)"); return "inventory"; }
+            if (TextInput.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:140", 2d)) ModLog.Every("MusketInput.Blocker:140", 2d, $"MusketInput.Blocker: returns \"text input\" because TextInput.IsVisible() (line 140)"); return "text input"; }
+            if (Minimap.IsOpen()) { if (RuleLog.Due("MusketInput.Blocker:141", 2d)) ModLog.Every("MusketInput.Blocker:141", 2d, $"MusketInput.Blocker: returns \"map\" because Minimap.IsOpen() (line 141)"); return "map"; }
+            { if (RuleLog.Due("MusketInput.Blocker:142", 2d)) ModLog.Every("MusketInput.Blocker:142", 2d, $"MusketInput.Blocker: returns null (line 142)"); return null; }
         }
     }
 }

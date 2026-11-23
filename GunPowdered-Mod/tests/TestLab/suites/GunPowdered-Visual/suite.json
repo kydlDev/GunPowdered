@@ -123,9 +123,13 @@
     "visual-pack-hand",
     "visual-musket-hand",
     "visual-musket-poses",
+    "musket-shake",
+    "musket-animator-dump",
     "visual-items-deposits",
     "enter-troll-caves",
     "enter-burial-chambers",
-    "enter-mountain-caves"
+    "survey-world-spots",
+    "enter-mountain-caves",
+    "perf-after-caves"
   ]
 }

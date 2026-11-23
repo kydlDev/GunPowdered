@@ -60,7 +60,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
                 else Drop(prefab, 1, p.transform.position + (p.transform.forward * 0.6f) + Vector3.up);
             }
             if (added < amount) ModLog.Verbose("CannonInventory: " + (amount - added) + " " + prefab + " did not fit, dropped");
-            return added;
+            { var returnedAt63 = added; if (RuleLog.Due("CannonInventory.Give:63", 2d)) ModLog.Every("CannonInventory.Give:63", 2d, $"CannonInventory.Give: returns {returnedAt63} (line 63)"); return returnedAt63; }
         }
 
         /// <summary>Drops amount items of the prefab into the world at the position. Expected outcome: the number dropped.</summary>

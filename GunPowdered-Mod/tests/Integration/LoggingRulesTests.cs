@@ -27,6 +27,8 @@ public class LoggingRulesTests
 {
     static readonly Regex Signature = new Regex(@"^\s*(?:\[[^\]]*\]\s*)*(?:(?:public|internal|private|protected|static|override|virtual|sealed|unsafe|new|extern)\s+)*([\w<>\[\],\.\?]+(?:\s*<[^>]*>)?)\s+(\w+)\s*(<[^>]*>)?\s*\(.*\)\s*(?:where\s+[^{]*)?$");
     static readonly Regex Exit = new Regex(@"(?<![\w.])(?:yield\s+break;|continue;|break;|throw(?:\s+[^;]*)?;|return(?:\s+[^;]*)?;)");
+    // only a plain log statement right above an exit logs it - not another exit's `if (...) { log; return; }`
+    static readonly Regex PlainLog = new Regex(@"^(?:if \((?:RuleLog|ModLog|CoreLog)\.\w+(?:\((?:""[^""]*"",\s*[\d.]+d?)?\))?\)\s*)?(?:ModLog|RuleLog|CoreLog)\.\w+\(.*\);\s*$");
     static readonly Regex Condition = new Regex(@"\bif\s*\(");
     // the guards in front of log lines ("if (RuleLog.IsOn())", "if (RuleLog.Due(...))") are not conditions of the exit
     static readonly Regex LogGuard = new Regex(@"if \((?:RuleLog|ModLog|CoreLog)\.\w+\((?:""[^""]*"",\s*[\d.]+d?)?\)\)");
@@ -127,7 +129,7 @@ public class LoggingRulesTests
     [Test]
     public void EveryExit_IsLogged()
     {
-        var silent = Exits().Where(x => !Logs(x.code) && !(Logs(x.prev) && !x.prev.StartsWith("}"))).Select(x => x.where + ": " + x.code.Trim()).ToList();
+        var silent = Exits().Where(x => !Logs(x.code) && !PlainLog.IsMatch(x.prev)).Select(x => x.where + ": " + x.code.Trim()).ToList();
         Assert.That(silent, Is.Empty, "exits (return / continue / break / yield break / throw) without a log line on them or right above in the same block - no method may stop or skip silently");
     }
 

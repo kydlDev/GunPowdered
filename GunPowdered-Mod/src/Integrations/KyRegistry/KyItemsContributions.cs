@@ -106,7 +106,7 @@ namespace GunPowdered.Integrations.KyRegistry
                 Tags = IsMaterial(s) ? new[] { "GunPowdered", s.Kind.ToString(), s.Kind == ItemKind.Deposit ? "deposit" : "ingredient" } : new[] { "GunPowdered", s.Kind.ToString() }
             });
             if (!r.Accepted) ModLog.Warn("KyItemsContributions: KY-Items refused " + id + ": " + r.Reason);
-            return r.Accepted;
+            { var returnedAt109 = r.Accepted; if (RuleLog.Due("KyItemsContributions.TryContribute:109", 2d)) ModLog.Every("KyItemsContributions.TryContribute:109", 2d, $"KyItemsContributions.TryContribute: returns {returnedAt109} (line 109)"); return returnedAt109; }
         }
 
         static KyRecipe RecipeOf(ItemSpec s)

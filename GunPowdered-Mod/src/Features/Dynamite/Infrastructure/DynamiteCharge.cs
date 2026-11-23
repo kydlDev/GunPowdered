@@ -93,7 +93,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         /// <summary>Lights the fuse for this user. Expected outcome: null when it now burns, otherwise why not (also told on screen).</summary>
         internal string Light(Humanoid user)
         {
-            if (_nview == null || !_nview.IsValid() || user == null) { if (RuleLog.Due("DynamiteCharge.Light:67", 2d)) ModLog.Every("DynamiteCharge.Light:96", 2d, "DynamiteCharge.Light: returns \"no stick\" (line 96)"); return "no stick"; }
+            if (_nview == null || !_nview.IsValid() || user == null) { if (RuleLog.Due("DynamiteCharge.Light:96", 2d)) ModLog.Every("DynamiteCharge.Light:96", 2d, $"DynamiteCharge.Light: returns \"no stick\" because _nview == null || !_nview.IsValid() || user == null (line 96)"); return "no stick"; }
             string why = DynamiteRules.WhyNotLight(IsLit, TorchInHand(user));
             if (why != null)
             {

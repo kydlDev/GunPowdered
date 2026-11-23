@@ -175,7 +175,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         internal string SkinReport()
         {
             if (RuleLog.Due("AsksvinHarness.SkinReport", 2d)) ModLog.Every("AsksvinHarness.SkinReport", 2d, $"AsksvinHarness.SkinReport()");
-            if (_saddle == null || _saddleBone < 0) { if (RuleLog.Due("AsksvinHarness.SkinReport:169", 2d)) ModLog.Every("AsksvinHarness.SkinReport:178", 2d, "AsksvinHarness.SkinReport: returns \"harness skin: no saddle bone\" (line 178)"); return "harness skin: no saddle bone"; }
+            if (_saddle == null || _saddleBone < 0) return "harness skin: no saddle bone";
             Matrix4x4 pose = _saddle.bones[_saddleBone].localToWorldMatrix * _saddle.sharedMesh.bindposes[_saddleBone] * _saddle.transform.worldToLocalMatrix;
             Vector3 hook = transform.TransformPoint(HookLocal);
             Vector3 front = transform.TransformPoint(new Vector3(0f, 1.0f, _front));
