@@ -17,7 +17,16 @@ namespace GunPowdered.Features.Guano.Domain
             string loc = locationName ?? string.Empty;
             string gen = generatorName ?? string.Empty;
             // Stryker restore String
-            if (Contains(loc, "Sunken") || Contains(gen, "Sunken") || Contains(loc, "Hildir") || Contains(gen, "Hildir")) { if (RuleLog.Due("CaveEntryRules.KindOf:20", 2d)) RuleLog.Every("CaveEntryRules.KindOf:20", 2d, "CaveEntryRules.KindOf: returns null (line 20)"); return null; }
+            if (Contains(loc, "Sunken") || Contains(gen, "Sunken")) { if (RuleLog.Due("CaveEntryRules.KindOf:20", 2d)) RuleLog.Every("CaveEntryRules.KindOf:20", 2d, "CaveEntryRules.KindOf: returns null (line 20)"); return null; }
+            // D-166 (user 2026-11-23): Hildir's crypt (a special Burial Chamber) and Hildir's cave (a special mountain cave with bats) get guano like their kind;
+            // Hildir's other locations (camp, fortress) are no caves.
+            if (Contains(loc, "Hildir") || Contains(gen, "Hildir"))
+            {
+                CaveKind? hildir = Contains(loc, "crypt") || Contains(gen, "Crypt") ? CaveKind.TrollCaveOrBurialChamber
+                    : Contains(loc, "cave") || Contains(gen, "Cave") ? CaveKind.MountainCave : (CaveKind?)null;
+                if (RuleLog.Due("CaveEntryRules.KindOf:hildir", 2d)) RuleLog.Every("CaveEntryRules.KindOf:hildir", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(hildir)} (Hildir)");
+                return hildir;
+            }
             if (loc.StartsWith("TrollCave", StringComparison.Ordinal)) { var returnedAt21 = CaveKind.TrollCaveOrBurialChamber; if (RuleLog.Due("CaveEntryRules.KindOf:21", 2d)) RuleLog.Every("CaveEntryRules.KindOf:21", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(returnedAt21)} (line 21)"); return returnedAt21; }
             if (loc.StartsWith("Crypt", StringComparison.Ordinal)) { var returnedAt22 = CaveKind.TrollCaveOrBurialChamber; if (RuleLog.Due("CaveEntryRules.KindOf:22", 2d)) RuleLog.Every("CaveEntryRules.KindOf:22", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(returnedAt22)} (line 22)"); return returnedAt22; }
             if (loc.StartsWith("MountainCave", StringComparison.Ordinal)) { var returnedAt23 = CaveKind.MountainCave; if (RuleLog.Due("CaveEntryRules.KindOf:23", 2d)) RuleLog.Every("CaveEntryRules.KindOf:23", 2d, $"CaveEntryRules.KindOf: returns {RuleLog.Shown(returnedAt23)} (line 23)"); return returnedAt23; }

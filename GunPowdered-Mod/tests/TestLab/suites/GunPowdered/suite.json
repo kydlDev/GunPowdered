@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "GunPowdered",
   "description": "GunPowdered: loads with its exact KydlCore, registers its KY hub page, every feature switches live, its commands reach the real handlers (MIGRATION_DECISIONS C14-C21)",
   "requireMods": [
@@ -221,9 +221,12 @@
     "sulfur-drop-oozer-blobs",
     "sulfur-drop-writhan",
     "deposit-refill",
-    "mud-draugr-lake",
     "arena-cleanup",
     "arena-cleanup-terrain",
-    "arena-cleanup-modifier"
+    "arena-cleanup-modifier",
+    "geysers-get-mud",
+    "bonepiles-wet-get-mud",
+    "bonepiles-dry-no-mud",
+    "meta-dry-mud-check-fails"
   ]
 }

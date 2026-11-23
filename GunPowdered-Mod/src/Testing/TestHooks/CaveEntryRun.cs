@@ -1,4 +1,4 @@
-// kydl:read-only-observer - test-only: the local player is moved to cave entrances and uses them like a player would
+﻿// kydl:read-only-observer - test-only: the local player is moved to cave entrances and uses them like a player would
 using System.Collections;
 using KydlCore.Common;
 using UnityEngine;
@@ -8,17 +8,16 @@ using GunPowdered.Features.Guano.Infrastructure;
 namespace GunPowdered.Testing.TestHooks
 {
     /// <summary>
-    /// TestLab helper for D-033: generates real caves with the game's own TestSpawnLocation (Full mode, as the console does), walks the player to each
+    /// TestLab helper for D-033: visits the REAL caves of the lab world (SpotsFor, user 2026-11-23: no generated caves in tests), walks the player to each
     /// cave's ground entrance and uses it through Teleport.Interact - the same path a player takes - so CaveEntryPatch places the guano on arrival.
     /// The player is moved with the game's own long-distance teleport, which waits until the area has loaded (setting the position directly into an
     /// unloaded area made the player fall through and be respawned: run entry2, 2026-11-18). Every step is logged.
     /// </summary>
     internal static class CaveEntryRun
     {
-        const float Spacing = 128f, WaitSpawn = 3f, WaitFill = 25f, WaitBack = 3f, WaitTeleport = 30f, WaitPlayer = 60f, Cooldown = 2.2f;
+        const float WaitLocation = 20f, WaitFill = 25f, WaitBack = 3f, WaitTeleport = 30f, WaitPlayer = 60f, Cooldown = 2.2f;
         static int _left, _count, _spawned, _withEntrance, _entered, _plannedAtStart, _placedAtStart, _filledAtStart;
         static string _name = "";
-        static int _runIndex;          // every run uses its own rows: caves of an earlier run stay in the world and overlapped the next run's (entry4)
 
         internal static int Left => _left;
 
@@ -32,7 +31,7 @@ namespace GunPowdered.Testing.TestHooks
             int planned = CaveEntryPlacer.Stats.Planned - _plannedAtStart, placed = CaveEntryPlacer.Stats.Placed - _placedAtStart, filled = CaveEntryPlacer.Stats.Filled - _filledAtStart;
             string why = _count == 0 ? "no cave run yet"
                 : _left > 0 ? "still running, " + _left + " left"
-                : _spawned < _count ? "only " + _spawned + " of " + _count + " caves generated"
+                : _spawned < _count ? "location found at " + _spawned + " of " + _count + " known spots"
                 : _withEntrance < _count ? "entrance found in " + _withEntrance + " of " + _count + " caves"
                 : _entered < _count ? "entrance used in " + _entered + " of " + _count + " caves"
                 : filled < _count ? "guano placement ran in " + filled + " of " + _count + " caves"
@@ -46,31 +45,46 @@ namespace GunPowdered.Testing.TestHooks
         internal static string Start(string name, int count)
         {
             if (_left > 0) return "FAIL: a cave run is still going (" + _left + " left)";
-            _runIndex++;
             _left = count; _count = count; _spawned = 0; _withEntrance = 0; _entered = 0; _name = name;
             _plannedAtStart = CaveEntryPlacer.Stats.Planned; _placedAtStart = CaveEntryPlacer.Stats.Placed; _filledAtStart = CaveEntryPlacer.Stats.Filled;
             Plugin.Instance.StartCoroutine(Run(name, count));
             return "started " + count;
         }
 
+        /// <summary>
+        /// The real caves of the lab world (seed TestWorld, user 2026-11-23, checked by survey-world-spots a18spots2; Claude\shared\TestLab\templates\README.md
+        /// "Known spots"): the run visits these instead of generating caves next to the arena spot, whose place moved with the lab start (a17/a18:
+        /// a generated crypt on a hill had no entrance, 7 of 8). Same caves every run. Position = the location's own position (x, ground y, z).
+        /// </summary>
+        internal static Vector3[] SpotsFor(string name) =>
+            name.StartsWith("TrollCave") ? new[] { new Vector3(-2169, 37, -2883), new Vector3(-1913, 46, -3142), new Vector3(-2172, 54, -3261), new Vector3(-1657, 37, -3330),
+                                                   new Vector3(-1157, 35, -4860), new Vector3(133, 41, -3646), new Vector3(1032, 33, -1145), new Vector3(-261, 55, -827) }
+            : name.StartsWith("Crypt") ? new[] { new Vector3(-575, 31, 323), new Vector3(-770, 33, 117), new Vector3(-1090, 48, 327), new Vector3(2299, 54, 5374),   // #3 Hildir_crypt
+                                               new Vector3(-1015, 50, 67), new Vector3(-1082, 44, -71), new Vector3(-1223, 50, 118), new Vector3(-1410, 58, 201) }
+            : name.StartsWith("MountainCave") ? new[] { new Vector3(-1216, 132, 960), new Vector3(-1408, 315, 960), new Vector3(-1344, 270, 832),   // #2 Hildir_cave
+                                                      new Vector3(-1344, 236, 768), new Vector3(-1408, 130, 1216), new Vector3(-1600, 226, 768), new Vector3(-1728, 132, 896), new Vector3(-1472, 146, 384) }
+            : new Vector3[0];
+
         static IEnumerator Run(string name, int count)
         {
-            var zs = ZoneSystem.instance;
-            Vector3 start = Player.m_localPlayer != null ? Player.m_localPlayer.transform.position : Vector3.zero;
+            Vector3[] spots = SpotsFor(name);
             for (int i = 0; i < count; i++)
             {
                 string tag = name + " #" + i;
-                var around = start + new Vector3(-2f * Spacing + (i % 5) * Spacing, 0f, 2f * Spacing + (i / 5) * Spacing + (_runIndex - 1) * 3f * Spacing);
-                yield return TravelTo(tag + " spot", around + Vector3.up * 3f);
-                float ground;
-                bool haveGround = zs.GetGroundHeight(around, out ground);
-                var pos = new Vector3(around.x, ground, around.z);
-                ModLog.Verbose("CaveEntryRun: " + tag + " ground " + ground.ToString("0.0") + " m (found " + haveGround + ")");
-                bool made = haveGround && zs.TestSpawnLocation(name, pos, true);
-                if (made) _spawned++;
-                yield return new WaitForSeconds(WaitSpawn);
-                Teleport entrance = made ? Entrance(pos) : null;
-                ModLog.Verbose("CaveEntryRun: " + tag + " at " + pos.ToString("0") + " spawned " + made + ", entrance " + (entrance != null ? entrance.transform.position.ToString("0") : "none"));
+                bool known = i < spots.Length;
+                Vector3 pos = known ? spots[i] : Vector3.zero;
+                if (known) yield return TravelTo(tag + " spot", pos + Vector3.up * 3f);
+                Teleport entrance = null;
+                float waited = 0f;
+                while (known && entrance == null && waited < WaitLocation)
+                {
+                    entrance = Entrance(pos);
+                    if (entrance == null) { waited += 0.5f; yield return new WaitForSeconds(0.5f); }
+                }
+                Location loc = known ? Location.GetLocation(pos, false) : null;
+                if (loc != null) _spawned++;
+                ModLog.Verbose("CaveEntryRun: " + tag + " at " + pos.ToString("0") + (known ? "" : " (no known spot)") + ": location " + (loc != null ? loc.name : "none")
+                    + ", entrance " + (entrance != null ? entrance.transform.position.ToString("0") : "none") + " after " + waited.ToString("0.0") + " s");
                 if (entrance != null)
                 {
                     _withEntrance++;
@@ -100,7 +114,7 @@ namespace GunPowdered.Testing.TestHooks
         }
 
         // The game's own teleport: it waits until the target area is loaded and has a floor. Waits for a player to exist first (after a respawn).
-        static IEnumerator TravelTo(string what, Vector3 to)
+        internal static IEnumerator TravelTo(string what, Vector3 to)
         {
             float waited = 0f;
             while (Player.m_localPlayer == null && waited < WaitPlayer) { waited += 0.5f; yield return new WaitForSeconds(0.5f); }

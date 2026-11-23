@@ -1,0 +1,57 @@
+{
+  "name": "geysers-get-mud",
+  "description": "D-030 on the real world (user 2026-11-23: tests only on the given spots): the 8 geysers (FireHole) of the lab world, seed TestWorld, each get Sulfurous Mud around them when the game first generates their zone (the player walks there). Also: guano is a vegetation entry of the Bat Swamp alt biome.",
+  "timeout": 360,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.batSwampEntries",
+      "expect": 1,
+      "label": "guano is a vegetation entry of the Bat Swamp alt biome"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.visitSpots",
+      "args": {
+        "kind": "geyser",
+        "count": 8
+      },
+      "contains": "started",
+      "label": "visit 8 real geyser spot(s)",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.visitLeft",
+        "expect": 0
+      },
+      "timeout": 300
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.visitVerdict",
+      "args": {
+        "rule": "mudEach"
+      },
+      "expect": "ok",
+      "label": "every geyser has mud within 25 m"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

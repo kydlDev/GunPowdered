@@ -11,13 +11,15 @@ namespace GunPowdered.Tests.Unit
         [TestCase("MountainCave02", "DG_Cave", CaveKind.MountainCave)]
         [TestCase("SomeRuin", "DG_HalfBurried_ForestCrypt", CaveKind.TrollCaveOrBurialChamber)]
         [TestCase("SomeCave", "DG_Cave(Clone)", CaveKind.MountainCave)]
+        [TestCase("Hildir_crypt", "DG_Hildir_ForestCrypt", CaveKind.TrollCaveOrBurialChamber)]   // D-166
+        [TestCase("Hildir_cave", "DG_Hildir_Cave", CaveKind.MountainCave)]                        // D-166
         public void KindOf_KnownCaves(string location, string generator, CaveKind expected)
         {
             Assert.That(CaveEntryRules.KindOf(location, generator), Is.EqualTo(expected));
         }
 
         [TestCase("SunkenCrypt4", "DG_SunkenCrypt")]
-        [TestCase("Hildir_crypt", "DG_Hildir_ForestCrypt")]
+        [TestCase("Hildir_camp", "")]   // D-166: not a cave
         [TestCase("FireHole", "")]
         [TestCase(null, null)]
         public void KindOf_NoGuano(string location, string generator)

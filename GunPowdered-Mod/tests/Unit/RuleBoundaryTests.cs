@@ -142,9 +142,23 @@ namespace GunPowdered.Tests.Unit
         // ---- Cave kinds -------------------------------------------------------------------------------------------------------------
         [TestCase("SunkenCrypt4", "DG_ForestCrypt")]
         [TestCase("Crypt2", "DG_SunkenCrypt")]
-        [TestCase("Hildir_crypt", "DG_ForestCrypt")]
-        [TestCase("MountainCave02", "DG_Hildir_Cave")]
-        public void Cave_AnySunkenOrHildirName_GetsNoGuano(string location, string generator)
+        public void Cave_AnySunkenName_GetsNoGuano(string location, string generator)
+        {
+            Assert.That(CaveEntryRules.KindOf(location, generator), Is.Null);
+        }
+
+        // D-166 (user 2026-11-23): Hildir's crypt and cave get guano like their kind, whichever name carries the Hildir part
+        [TestCase("Hildir_crypt", "DG_ForestCrypt", CaveKind.TrollCaveOrBurialChamber)]
+        [TestCase("MountainCave02", "DG_Hildir_Cave", CaveKind.MountainCave)]
+        [TestCase("Hildir_cave", "", CaveKind.MountainCave)]
+        public void Cave_HildirCryptOrCave_GetsGuanoLikeItsKind(string location, string generator, CaveKind expected)
+        {
+            Assert.That(CaveEntryRules.KindOf(location, generator), Is.EqualTo(expected));
+        }
+
+        [TestCase("Hildir_camp", "")]
+        [TestCase("Hildir_plainsfortress", "")]
+        public void Cave_HildirNonCave_GetsNoGuano(string location, string generator)
         {
             Assert.That(CaveEntryRules.KindOf(location, generator), Is.Null);
         }

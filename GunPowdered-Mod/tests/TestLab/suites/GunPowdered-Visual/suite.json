@@ -1,136 +1,135 @@
-﻿{
-    "name": "GunPowdered-Visual",
-    "description": "Spawns every GunPowdered piece, item and deposit in front of the player and takes screenshots (looks, scale, colliders reachable by interact).",
-    "requireMods": [
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "minVersion": "0.1.0"
-        },
-        {
-            "guid": "com.kydldev.KydlCore",
-            "minVersion": "1.1.1"
-        }
-    ],
-    "configOverrides": [
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "General",
-            "key": "Enable Mod",
-            "value": "true"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "General",
-            "key": "Enable Guano",
-            "value": "true"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "General",
-            "key": "Enable Water",
-            "value": "true"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "General",
-            "key": "Enable Saltpeter",
-            "value": "true"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "General",
-            "key": "Enable Sulfur",
-            "value": "true"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "General",
-            "key": "Enable Gunpowder",
-            "value": "true"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "General",
-            "key": "Enable Grenades",
-            "value": "true"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "General",
-            "key": "Enable Cannons",
-            "value": "true"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "General",
-            "key": "Enable Musket",
-            "value": "true"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "General",
-            "key": "Enable Explosive Arrows",
-            "value": "true"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "General",
-            "key": "Enable Dynamite",
-            "value": "true"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "Musket",
-            "key": "Reload Key",
-            "value": "R"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "Musket",
-            "key": "Aim Key",
-            "value": "Mouse2"
-        },
-        {
-            "guid": "com.kydldev.GunPowdered",
-            "section": "DebugLog",
-            "key": "Enable",
-            "value": "true"
-        }
-    ],
-    "setup": {
-        "timeOfDay": 0.5,
-        "freezeTime": 1,
-        "god": 1,
-        "hideUnlockPopups": 1
+{
+  "name": "GunPowdered-Visual",
+  "description": "Spawns every GunPowdered piece, item and deposit in front of the player and takes screenshots (looks, scale, colliders reachable by interact).",
+  "requireMods": [
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "minVersion": "0.1.0"
     },
-    "resetBetweenTests": true,
-    "tests": [
-        "meta-cave-verdict-fails",
-        "visual-pieces",
-        "visual-cannon",
+    {
+      "guid": "com.kydldev.KydlCore",
+      "minVersion": "1.1.1"
+    }
+  ],
+  "configOverrides": [
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "General",
+      "key": "Enable Mod",
+      "value": "true"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "General",
+      "key": "Enable Guano",
+      "value": "true"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "General",
+      "key": "Enable Water",
+      "value": "true"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "General",
+      "key": "Enable Saltpeter",
+      "value": "true"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "General",
+      "key": "Enable Sulfur",
+      "value": "true"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "General",
+      "key": "Enable Gunpowder",
+      "value": "true"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "General",
+      "key": "Enable Grenades",
+      "value": "true"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "General",
+      "key": "Enable Cannons",
+      "value": "true"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "General",
+      "key": "Enable Musket",
+      "value": "true"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "General",
+      "key": "Enable Explosive Arrows",
+      "value": "true"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "General",
+      "key": "Enable Dynamite",
+      "value": "true"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "Musket",
+      "key": "Reload Key",
+      "value": "R"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "Musket",
+      "key": "Aim Key",
+      "value": "Mouse2"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "DebugLog",
+      "key": "Enable",
+      "value": "true"
+    }
+  ],
+  "setup": {
+    "timeOfDay": 0.5,
+    "freezeTime": 1,
+    "god": 1,
+    "hideUnlockPopups": 1
+  },
+  "resetBetweenTests": true,
+  "tests": [
+    "meta-cave-verdict-fails",
+    "visual-pieces",
+    "visual-cannon",
     "visual-flametal-ball",
-        "visual-harness-fit",
-        "visual-dynamite-hand",
-        "visual-dynamite-kneel",
-        "visual-bjornita-musket",
-        "visual-bjornita-carry",
-        "visual-dodge-side",
-        "visual-dodge-side-torch",
-        "visual-dodge-side-shield",
-        "visual-dodge-aimed",
-        "visual-musket-side",
-        "visual-offhand-compare",
-        "visual-pack-hand",
-        "visual-musket-hand",
-        "visual-musket-poses",
-        "musket-shake",
-        "musket-animator-dump",
-        "visual-items-deposits",
-        "spawn-geysers",
-        "enter-troll-caves",
-        "enter-burial-chambers",
+    "visual-harness-fit",
+    "visual-dynamite-hand",
+    "visual-dynamite-kneel",
+    "visual-bjornita-musket",
+    "visual-bjornita-carry",
+    "visual-dodge-side",
+    "visual-dodge-side-torch",
+    "visual-dodge-side-shield",
+    "visual-dodge-aimed",
+    "visual-musket-side",
+    "visual-offhand-compare",
+    "visual-pack-hand",
+    "visual-musket-hand",
+    "visual-musket-poses",
+    "musket-shake",
+    "musket-animator-dump",
+    "visual-items-deposits",
+    "enter-troll-caves",
+    "enter-burial-chambers",
     "survey-world-spots",
-        "enter-mountain-caves",
-        "perf-after-caves"
-    ]
+    "enter-mountain-caves",
+    "perf-after-caves"
+  ]
 }

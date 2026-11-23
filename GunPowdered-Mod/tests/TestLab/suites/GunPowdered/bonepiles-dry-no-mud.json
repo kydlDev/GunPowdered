@@ -1,0 +1,51 @@
+{
+  "name": "bonepiles-dry-no-mud",
+  "description": "D-015 on the real world (user 2026-11-23: 'test should not spawn sulfurous mud here ... high on a mountain and there is no water'): the 3 mountain ruins (StoneTowerRuins05) with bone piles get NO mud.",
+  "timeout": 210,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.visitSpots",
+      "args": {
+        "kind": "pileDry",
+        "count": 3
+      },
+      "contains": "started",
+      "label": "visit 3 real pileDry spot(s)",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.visitLeft",
+        "expect": 0
+      },
+      "timeout": 150
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.visitVerdict",
+      "args": {
+        "rule": "noMud"
+      },
+      "expect": "ok",
+      "label": "no mud at any dry bone pile"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}
