@@ -1,4 +1,4 @@
-﻿using KydlCore.Common;
+using KydlCore.Common;
 using GunPowdered.Bootstrap;
 using GunPowdered.Features.Example.Infrastructure;
 using GunPowdered.Presentation.Hub.Commands;
@@ -19,7 +19,9 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.arena")]
         static string Arena()
         {
+            string template = TerrainTemplateKeys.Sync();      // D-172: after a relog KydlCore's terrain template ids name other areas - re-key it first
             string moved = TestArena.MovePlayer();
+            template += "; " + TerrainTemplateKeys.Sync();      // remember (by position) the copies KydlCore has just taken
             // a18persist1: KydlCore's cleanup restored an earlier test's crater ("terrain 3 restored") and the next step read the ground 10 m too low
             // while the heightmaps were still rebuilding (a rock went in underground, the ball flew over it). Rebuild them now, before the test goes on.
             if (System.Text.RegularExpressions.Regex.IsMatch(moved, @"terrain [1-9][0-9]* restored", System.Text.RegularExpressions.RegexOptions.None, System.TimeSpan.FromSeconds(1)))
@@ -30,10 +32,34 @@ namespace GunPowdered.Testing.TestHooks
             }
             string cleaned = CleanArena();
             UnityEngine.Random.InitState(RandomSeed);
-            string s = moved + "; " + cleaned + "; random seed " + RandomSeed;
+            string ground = GroundCheck(out bool flat);
+            string s = (flat ? moved : "GROUND NOT FLAT (" + ground + ") - " + moved.Replace("arena at", "spot")) + "; " + cleaned + "; random seed " + RandomSeed + "; " + ground + "; " + template;
             ModLog.Info("ModTestHooks.Arena: returns " + s);
             return s;
         }
+
+        const float GroundTolerance = 0.3f;
+
+        /// <summary>
+        /// a18g16b / a18g16d-2 / a18kneel2-3: after the relog tests the arena ground was no longer level - visual-dynamite-kneel stood 1.6 m low and found no
+        /// ground 6 m ahead (or a step up). The arena step now checks the ground where the player stands and 6 m ahead (where the tests put things), both from
+        /// the heightmap and with a ray (a missing ground collider shows as "no hit"), so a test that leaves the arena broken is caught by the NEXT test's
+        /// first step instead of a later, unrelated one. Expected outcome: "ground y A here, B 6 m ahead (ray A', B')" and flat = all within 0.3 m.
+        /// </summary>
+        static string GroundCheck(out bool flat)
+        {
+            Player p = Player.m_localPlayer;
+            flat = true;
+            if (p == null) return "ground not checked (no player)";
+            UnityEngine.Vector3 here = p.transform.position, ahead = here + UnityEngine.Vector3.forward * 6f;
+            float h0 = Heightmap.GetHeight(here, out float a) ? a : float.NaN, h6 = Heightmap.GetHeight(ahead, out float b) ? b : float.NaN;
+            float r0 = Ray(here), r6 = Ray(ahead);
+            flat = !float.IsNaN(r0) && !float.IsNaN(r6) && UnityEngine.Mathf.Abs(h0 - h6) <= GroundTolerance && UnityEngine.Mathf.Abs(r0 - h0) <= GroundTolerance && UnityEngine.Mathf.Abs(r6 - h6) <= GroundTolerance;
+            return $"ground y {h0:0.00} here, {h6:0.00} 6 m ahead (ray {(float.IsNaN(r0) ? "no hit" : r0.ToString("0.00"))}, {(float.IsNaN(r6) ? "no hit" : r6.ToString("0.00"))})";
+        }
+
+        static float Ray(UnityEngine.Vector3 at) =>
+            UnityEngine.Physics.Raycast(at + UnityEngine.Vector3.up * 5f, UnityEngine.Vector3.down, out UnityEngine.RaycastHit hit, 20f, UnityEngine.LayerMask.GetMask("terrain"), UnityEngine.QueryTriggerInteraction.Ignore) ? hit.point.y : float.NaN;
 
         /// <summary>
         /// User 2026-11-23 ("is the test done consistently on same seed? if not, then we should"): the world is the same every run (baked template KydlFlat),

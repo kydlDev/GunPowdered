@@ -280,7 +280,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             for (int tries = 0; tries < 4; tries++, d = Mathf.Max(DynamiteRules.NearestPlace, d - 0.2f))
             {
                 Vector3 from = chest + fwd * d;
-                if (!Physics.Raycast(from, Vector3.down, out RaycastHit ground, DynamiteRules.ChestHeight + DynamiteRules.SurfaceBelow + 0.5f, PlaceMask, QueryTriggerInteraction.Ignore)) { why.Append($"; {d:0.00} m: no surface below {from:0.00}"); continue; }
+                if (!Physics.Raycast(from, Vector3.down, out RaycastHit ground, DynamiteRules.ChestHeight + DynamiteRules.SurfaceBelow + 0.5f, PlaceMask, QueryTriggerInteraction.Ignore)) { why.Append($"; {d:0.00} m: no surface below {from:0.00}{DeepBelow(from)}"); continue; }
                 if (!DynamiteRules.SurfaceOk(feet.y, ground.point.y)) { why.Append($"; {d:0.00} m: {ground.collider.name} at {ground.point.y - feet.y:+0.00;-0.00} m from the feet"); continue; }
                 if (Physics.CheckSphere(ground.point + Vector3.up * 0.18f, 0.06f, PlaceMask, QueryTriggerInteraction.Ignore)) { why.Append($"; {d:0.00} m: space taken at {ground.point:0.00}"); continue; }   // something sticks into the stick's space
                 spot = ground.point;
@@ -289,6 +289,19 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             }
             ModLog.Verbose($"ChargeKind.FindSpot: no free ground within reach (blocked at {blockedAt:0.00} m, feet {feet:0.00}, facing {fwd:0.00}{why}) - returns false");
             return false;
+        }
+
+        // Diagnostics for a failed spot (a18g16b / a18g16d-2 visual-dynamite-kneel: "no surface below" on flat arena ground): what a long ray finds and
+        // the terrain height the heightmap reports there, so a missing ground collider and a real pit can be told apart. Only built when placing failed.
+        static string DeepBelow(Vector3 from)
+        {
+            string hit = Physics.Raycast(from, Vector3.down, out RaycastHit far, 60f, PlaceMask, QueryTriggerInteraction.Ignore)
+                ? $"first surface {far.collider.name} at y {far.point.y:0.00}" : "nothing within 60 m";
+            float h = 0f;
+            string terrain = Heightmap.GetHeight(from, out h) ? $"heightmap ground y {h:0.00}" : "no heightmap here";
+            Heightmap hm = Heightmap.FindHeightmap(from);
+            Collider col = hm != null ? hm.GetComponent<Collider>() : null;
+            return $" ({hit}, {terrain}, heightmap collider {(col == null ? "none" : col.enabled ? "on" : "off")})";
         }
 
         /// <summary>The blast of one stick at <paramref name="at"/> (made by the stick's owner). Expected outcome: the number of objects made (blast + crater).</summary>
