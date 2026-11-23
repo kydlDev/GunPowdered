@@ -37,6 +37,7 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
         static int Place(Vector3 centre, int seed, int count, float minR, float maxR, bool needWater)
         {
             var rng = new SeededRandom(seed ^ 0x3C6EF372);
+            if (needWater) { int wetPlaced = PlaceInWater(centre, seed, count, minR, maxR, rng); if (RuleLog.Due("MudPlacer.Place:water", 2d)) ModLog.Every("MudPlacer.Place:water", 2d, "MudPlacer.Place: returns " + wetPlaced + " (in water)"); return wetPlaced; }
             int placed = 0;
             for (int n = 0; n < count; n++)
             {
@@ -56,6 +57,48 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
                 }
             }
             { var returnedAt58 = placed; if (RuleLog.Due("MudPlacer.Place:58", 2d)) ModLog.Every("MudPlacer.Place:58", 2d, $"MudPlacer.Place: returns {RuleLog.Shown(returnedAt58)} (line 58)"); return returnedAt58; }
+        }
+
+        /// <summary>
+        /// D-168 (lab a18spots3: 8 random tries per deposit hit dry ground 183 of 201 times - swamp ground lies just above the water, so half the piles by
+        /// water got no mud): scans the whole ring (every 1.5 m out, every 15 degrees), keeps every floor under water, and places the deposits on wet spots
+        /// picked from those, at least 2 m apart. A pile with no water within the ring gets none (dry piles stay dry). Expected outcome: deposits placed.
+        /// </summary>
+        static int PlaceInWater(Vector3 centre, int seed, int count, float minR, float maxR, SeededRandom rng)
+        {
+            var wet = new System.Collections.Generic.List<Vector3>();
+            int scanned = 0;
+            for (float r = minR; r <= maxR + 0.01f; r += 1.5f)
+                for (int a = 0; a < 24; a++)
+                {
+                    float rad = a * 15f * Mathf.Deg2Rad;
+                    Vector3 floor;
+                    scanned++;
+                    if (DepositSpawner.Floor(centre + new Vector3(Mathf.Cos(rad) * r, 0f, Mathf.Sin(rad) * r), out floor) && UnderWaterQuiet(floor)) wet.Add(floor);
+                }
+            int placed = 0;
+            var used = new System.Collections.Generic.List<Vector3>();
+            for (int n = 0; n < count && wet.Count > 0; n++)
+            {
+                int pick = (int)(rng.NextDouble() * wet.Count) % wet.Count;
+                Vector3 floor = wet[pick];
+                wet.RemoveAt(pick);
+                bool tooClose = false;
+                foreach (Vector3 u in used) if (Vector3.Distance(u, floor) < 2f) { tooClose = true; break; }
+                if (tooClose) { n--; continue; }
+                int amount = SulfurRules.Amount(SulfurSource.SulfurousMud, () => rng.NextDouble());
+                if (DepositSpawner.Spawn(GunPowderedPrefabs.SulfurousMud, floor, amount, seed + n) != null) { placed++; used.Add(floor); }
+            }
+            KydlCore.Common.ModLog.Verbose("MudPlacer: pile at " + centre.ToString("0.0") + ": " + scanned + " ring points scanned, " + (wet.Count + used.Count) + " under water left/used - PlaceInWater returns " + placed + " (of " + count + ")");
+            return placed;
+        }
+
+        static bool UnderWaterQuiet(Vector3 floor)
+        {
+            float sea = ZoneSystem.instance != null ? ZoneSystem.instance.m_waterLevel : float.MinValue;
+            bool under = Mathf.Max(Floating.GetLiquidLevel(floor, 1f, LiquidType.Water), sea) > floor.y + 0.1f;
+            if (RuleLog.Due("MudPlacer.UnderWaterQuiet", 2d)) ModLog.Every("MudPlacer.UnderWaterQuiet", 2d, "MudPlacer.UnderWaterQuiet(floor=" + floor.ToString("0.0") + "): returns " + under + " (one ring point; the scan total is logged per pile)");
+            return under;
         }
 
         // the local water volume's level, or the world's sea level (lakes, rivers, the sea lie at it): at the test world's lake shore the volume lookup

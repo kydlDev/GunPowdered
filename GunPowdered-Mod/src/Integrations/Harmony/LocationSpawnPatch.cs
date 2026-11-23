@@ -38,6 +38,10 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             try
             {
+                // T-033 diagnosis (a18spots3: two real geysers got no mud and no placement log): every geyser / grave spawn, with its mode (Full is the
+                // first generation, the only one that places mud), so a missing placement can be traced.
+                if (__args != null && __args.Length > 2 && __args[0] is ZoneSystem.ZoneLocation zl0 && __args[2] is Vector3 p0 && (zl0.m_prefabName == Geyser || (zl0.m_prefabName ?? "").StartsWith("Grave")))
+                    ModLog.Verbose("LocationSpawnPatch: " + zl0.m_prefabName + " spawn at " + p0.ToString("0") + ", mode " + (__state >= 0 ? ((ZoneSystem.SpawnMode)__state).ToString() : "?"));
                 if (__state != (int)ZoneSystem.SpawnMode.Full || __args == null || __args.Length < 5) { if (RuleLog.Due("LocationSpawnPatch.Postfix:41", 2d)) ModLog.Every("LocationSpawnPatch.Postfix:41", 2d, "LocationSpawnPatch.Postfix: returns (line 41)"); return; }
                 var loc = __args[0] as ZoneSystem.ZoneLocation;
                 if (loc == null || !(__args[1] is int) || !(__args[2] is Vector3) || !(__args[3] is Quaternion)) { if (RuleLog.Due("LocationSpawnPatch.Postfix:43", 2d)) ModLog.Every("LocationSpawnPatch.Postfix:43", 2d, "LocationSpawnPatch.Postfix: returns (line 43)"); return; }

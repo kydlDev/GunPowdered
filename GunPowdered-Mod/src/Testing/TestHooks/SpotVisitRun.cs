@@ -74,6 +74,9 @@ namespace GunPowdered.Testing.TestHooks
             {
                 Vector3 pos = spots[i];
                 string tag = _kind + " #" + i;
+                object generated = ZoneSystem.instance != null ? HarmonyLib.AccessTools.Field(typeof(ZoneSystem), "m_generatedZones")?.GetValue(ZoneSystem.instance) : null;
+                bool before = generated != null && (bool)generated.GetType().GetMethod("Contains").Invoke(generated, new object[] { ZoneSystem.GetZone(pos) });
+                ModLog.Info("SpotVisitRun: " + tag + " zone generated before the visit: " + before + (before ? " (generated while the player was elsewhere - its mud was placed then)" : ""));
                 yield return CaveEntryRun.TravelTo(tag, pos + Vector3.up * 3f);
                 Location loc = null;
                 float waited = 0f;
