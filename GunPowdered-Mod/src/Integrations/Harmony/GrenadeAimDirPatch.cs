@@ -19,15 +19,23 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             try
             {
-                if (__instance != Player.m_localPlayer) { if (RuleLog.Due("GrenadeAimDirPatch.Postfix:22", 2d)) ModLog.Every("GrenadeAimDirPatch.Postfix:22", 2d, "GrenadeAimDirPatch.Postfix: returns (line 22)"); return; }
+                if (__instance != Player.m_localPlayer) { if (RuleLog.Due("GrenadeAimDirPatch.Postfix:22", 2d)) ModLog.Every("GrenadeAimDirPatch.Postfix:22", 2d, $"GrenadeAimDirPatch.Postfix: returns because __instance != Player.m_localPlayer (line 22)"); return; }
                 ItemDrop.ItemData weapon = Player.m_localPlayer.GetCurrentWeapon();
-                if (!GrenadeSetup.IsGrenade(weapon)) { if (RuleLog.Due("GrenadeAimDirPatch.Postfix:24", 2d)) ModLog.Every("GrenadeAimDirPatch.Postfix:24", 2d, "GrenadeAimDirPatch.Postfix: returns (line 24)"); return; }
+                if (!GrenadeSetup.IsGrenade(weapon)) { if (RuleLog.Due("GrenadeAimDirPatch.Postfix:24", 2d)) ModLog.Every("GrenadeAimDirPatch.Postfix:24", 2d, $"GrenadeAimDirPatch.Postfix: returns because !GrenadeSetup.IsGrenade(weapon) (line 24)"); return; }
                 Vector3 aim;
                 if (GrenadeAim.AimFor(fromPoint, weapon.m_shared.m_attack.m_launchAngle, out aim)) __result = aim;
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("GrenadeAimDirPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().FullName + " aiming the grenade: " + e.Message + " - the grenade goes along the look direction" + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("GrenadeAimDirPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + " aiming the grenade: " + e.Message + " - the grenade goes along the look direction" + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn("GrenadeAimDirPatch: " + e.GetType().FullName + " aiming the grenade: " + e.Message + " - the grenade goes along the look direction");
+                ModLog.Warn("GrenadeAimDirPatch: " + e.GetType().FullName + " aiming the grenade: " + e.Message + " - the grenade goes along the look direction" + "\n" + e.StackTrace);
             }
         }
     }

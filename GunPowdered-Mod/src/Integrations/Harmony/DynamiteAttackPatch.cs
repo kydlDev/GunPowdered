@@ -19,14 +19,24 @@ namespace GunPowdered.Integrations.HarmonyPatches
             try
             {
                 Player player = __instance as Player;
-                if (player == null || player != Player.m_localPlayer || DynamiteSetup.Held(player) == null) { if (RuleLog.Due("DynamiteAttackPatch.Prefix:22", 2d)) ModLog.Every("DynamiteAttackPatch.Prefix:22", 2d, "DynamiteAttackPatch.Prefix: returns true (line 22)"); return true; }
+                if (player == null || player != Player.m_localPlayer || DynamiteSetup.Held(player) == null) { if (RuleLog.Due("DynamiteAttackPatch.Prefix:22", 2d)) ModLog.Every("DynamiteAttackPatch.Prefix:22", 2d, $"DynamiteAttackPatch.Prefix: returns true because player == null || player != Player.m_localPlayer || DynamiteSetup.Held(player) == null (line 22)"); return true; }
                 if (!secondaryAttack) DynamiteSetup.Place(player);
                 __result = false;
-                { if (RuleLog.Due("DynamiteAttackPatch.Prefix:25", 2d)) ModLog.Every("DynamiteAttackPatch.Prefix:25", 2d, "DynamiteAttackPatch.Prefix: returns false (line 25)"); return false; }
+                { if (RuleLog.Due("DynamiteAttackPatch.Prefix:25", 2d)) ModLog.Every("DynamiteAttackPatch.Prefix:25", 2d, $"DynamiteAttackPatch.Prefix: returns false (line 25)"); return false; }
+            }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("DynamiteAttackPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().FullName + ": " + e.Message + " - the attack goes on as usual" + "\n" + e.StackTrace);
+                return true;
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("DynamiteAttackPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + ": " + e.Message + " - the attack goes on as usual" + "\n" + e.StackTrace);
+                return true;
             }
             catch (Exception e)
             {
-                ModLog.Warn("DynamiteAttackPatch: " + e.GetType().FullName + ": " + e.Message + " - the attack goes on as usual");
+                ModLog.Warn("DynamiteAttackPatch: " + e.GetType().FullName + ": " + e.Message + " - the attack goes on as usual" + "\n" + e.StackTrace);
                 return true;
             }
         }

@@ -27,8 +27,9 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         /// <summary>The flying prefab of a ball (D-145: each ball flies with its own look, "&lt;ball&gt;_projectile"), null when it was not made.</summary>
         internal static GameObject ProjectileFor(string ball)
         {
+            if (RuleLog.Due("CannonSetup.ProjectileFor", 2d)) ModLog.Every("CannonSetup.ProjectileFor", 2d, $"CannonSetup.ProjectileFor(ball={ball})");
             GameObject p = null;
-            { var returnedAt31 = ball != null && Projectiles.TryGetValue(ball, out p) ? p : null; if (RuleLog.Due("CannonSetup.ProjectileFor:31", 2d)) ModLog.Every("CannonSetup.ProjectileFor:31", 2d, $"CannonSetup.ProjectileFor: returns {RuleLog.Shown(returnedAt31)} (line 31)"); return returnedAt31; }
+            { var returnedAt32 = ball != null && Projectiles.TryGetValue(ball, out p) ? p : null; if (RuleLog.Due("CannonSetup.ProjectileFor:32", 2d)) ModLog.Every("CannonSetup.ProjectileFor:32", 2d, $"CannonSetup.ProjectileFor: returns {returnedAt32} (line 32)"); return returnedAt32; }
         }
 
         /// <summary>
@@ -85,7 +86,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
                 attach.gameObject.layer = item.layer;
                 CopyGrip(attach);
             }
-            if (attach.Find("gp_model") != null) { if (RuleLog.IsOn()) ModLog.Verbose("CannonSetup.AttachHandModel: returns true (line 88)"); return true; }
+            if (attach.Find("gp_model") != null) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonSetup.AttachHandModel: returns true because attach.Find(\"gp_model\") != null (line 89)"); return true; }
             GameObject copy = Object.Instantiate(model.gameObject, attach);
             copy.name = "gp_model";
             // the ball sits where the vanilla Ooze Bomb's ball sits in the hand (centred on the hand joint it was hidden inside the fist, run cannonV5);
@@ -95,7 +96,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             copy.transform.localScale = Vector3.one;
             foreach (Collider c in copy.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c);
             foreach (Renderer r in copy.GetComponentsInChildren<Renderer>(true)) r.enabled = true;
-            { if (RuleLog.IsOn()) ModLog.Verbose("CannonSetup.AttachHandModel: returns true (line 98)"); return true; }
+            { if (RuleLog.IsOn()) ModLog.Verbose($"CannonSetup.AttachHandModel: returns true (line 99)"); return true; }
         }
 
         // our "attach" takes the Ooze Bomb attach's own place under its item, so the ball centre measured in that space means the same in ours
@@ -104,7 +105,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             if (RuleLog.IsOn()) ModLog.Verbose($"CannonSetup.CopyGrip(attach={RuleLog.Shown(attach)})");
             GameObject bomb = PrefabManager.Instance.GetPrefab("BombOoze");
             Transform grip = bomb != null ? bomb.transform.Find("attach") : null;
-            if (grip == null) { if (RuleLog.IsOn()) ModLog.Verbose("CannonSetup.CopyGrip: returns (line 107)"); return; }
+            if (grip == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonSetup.CopyGrip: returns because grip == null (line 108)"); return; }
             attach.localPosition = grip.localPosition;
             attach.localRotation = grip.localRotation;
             attach.localScale = grip.localScale;
@@ -135,7 +136,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             {
                 if (PrefabManager.Instance.GetPrefab(b) == null) { ModLog.Warn("CannonSetup: vanilla base " + b + " not found, trying the next one"); continue; }
                 GameObject clone = PrefabManager.Instance.CreateClonedPrefab(projectileId, b);
-                if (clone == null) continue;
+                if (clone == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonSetup.MakeProjectile: skips to the next item (continue) because clone == null (line 139)"); continue; }
                 foreach (global::Projectile p in clone.GetComponentsInChildren<global::Projectile>(true)) Object.DestroyImmediate(p);
                 foreach (Light l in clone.GetComponentsInChildren<Light>(true)) l.enabled = false;
                 foreach (AudioSource a in clone.GetComponentsInChildren<AudioSource>(true)) a.enabled = false;

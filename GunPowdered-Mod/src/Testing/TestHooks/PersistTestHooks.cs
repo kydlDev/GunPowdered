@@ -3,6 +3,7 @@ using System.Collections;
 using HarmonyLib;
 using KydlCore.Common;
 using UnityEngine;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -26,7 +27,7 @@ namespace GunPowdered.Testing.TestHooks
             if (p != null)
                 foreach (ZNetView nv in Object.FindObjectsByType<ZNetView>(FindObjectsSortMode.None))
                 {
-                    if (nv == null || !nv.IsValid() || Utils.GetPrefabName(nv.gameObject) != prefab) continue;
+                    if (nv == null || !nv.IsValid() || Utils.GetPrefabName(nv.gameObject) != prefab) { if (RuleLog.IsOn()) ModLog.Verbose($"PersistTestHooks.RememberSpotOf: skips to the next item (continue) because nv == null || !nv.IsValid() || Utils.GetPrefabName(nv.gameObject) != prefab (line 30)"); continue; }
                     float d = Vector3.Distance(nv.transform.position, p.transform.position);
                     if (d < bestD) { bestD = d; best = nv; }
                 }

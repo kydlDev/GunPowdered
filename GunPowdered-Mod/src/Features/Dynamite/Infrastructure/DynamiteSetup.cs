@@ -60,8 +60,8 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         internal static ChargeKind KindOfCharge(string chargeId)
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"ChargeKind.KindOfCharge(chargeId={RuleLog.Shown(chargeId)})");
-            foreach (ChargeKind k in Kinds) if (k.ChargeId == chargeId) { var returnedAt62 = k; if (RuleLog.IsOn()) ModLog.Verbose($"ChargeKind.KindOfCharge: returns {RuleLog.Shown(returnedAt62)} (line 62)"); return returnedAt62; }
-            { var returnedAt63 = StickKind; if (RuleLog.IsOn()) ModLog.Verbose($"ChargeKind.KindOfCharge: returns {RuleLog.Shown(returnedAt63)} (line 63)"); return returnedAt63; }
+            foreach (ChargeKind k in Kinds) if (k.ChargeId == chargeId) return k;
+            { var returnedAt64 = StickKind; if (RuleLog.IsOn()) ModLog.Verbose($"ChargeKind.KindOfCharge: returns {returnedAt64} (line 64)"); return returnedAt64; }
         }
         /// <summary>
         /// The hand model under the item's "attach" (= RightHand_Attach when held). The vanilla Club's handle runs along attach +Z through the origin (radius 0.017),
@@ -116,7 +116,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         static bool ApplyKind(ChargeKind kind)
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"ChargeKind.ApplyKind(kind={RuleLog.Shown(kind)})");
-            if (kind.Explosion == null || kind.Crater == null) { if (RuleLog.IsOn()) ModLog.Verbose("ChargeKind.ApplyKind: returns false (line 110)"); return false; }
+            if (kind.Explosion == null || kind.Crater == null) return false;
             float r = kind.Radius(), blunt = kind.Blunt(), chop = kind.Chop(), pick = kind.Pickaxe();
             float c = DynamiteRules.CreatureDamage(blunt);
             Aoe props = kind.Explosion.GetComponent<Aoe>();
@@ -133,7 +133,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 
             Transform child = kind.Explosion.transform.Find(CreatureChild);
             Aoe creatures = child != null ? child.GetComponent<Aoe>() : null;
-            if (creatures == null) { if (RuleLog.IsOn()) ModLog.Verbose("ChargeKind.ApplyKind: returns false (line 127)"); return false; }
+            if (creatures == null) { if (RuleLog.Due("ChargeKind.ApplyKind:136", 2d)) ModLog.Every("ChargeKind.ApplyKind:136", 2d, $"ChargeKind.ApplyKind: returns false because creatures == null (line 136)"); return false; }
             creatures.m_useAttackSettings = false;
             creatures.m_radius = r;
             creatures.m_damage = new HitData.DamageTypes { m_blunt = c, m_chop = DynamiteRules.CreatureDamage(chop), m_pickaxe = DynamiteRules.CreatureDamage(pick), m_fire = GunPowdered.Core.BurnRules.Total(kind.CreatureFirePerSecond()) };     // D-107: burns on top of the 20 %
@@ -149,7 +149,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             creatures.m_blockable = false;
 
             TerrainOp dig = kind.Crater.GetComponent<TerrainOp>();
-            if (dig == null) { if (RuleLog.IsOn()) ModLog.Verbose("ChargeKind.ApplyKind: returns false (line 143)"); return false; }
+            if (dig == null) { if (RuleLog.Due("ChargeKind.ApplyKind:152", 2d)) ModLog.Every("ChargeKind.ApplyKind:152", 2d, $"ChargeKind.ApplyKind: returns false because dig == null (line 152)"); return false; }
             TerrainOp.Settings s = dig.m_settings;
             s.m_level = false;
             s.m_raise = true;
@@ -162,7 +162,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             s.m_paintType = TerrainModifier.PaintType.Dirt;    // the burnt, bare ground around the hole
             s.m_paintRadius = kind.CraterRadius() * 1.5f;
             dig.m_settings = s;                  // the same object (Settings is a class); kept explicit
-            { var returnedAt156 = Mathf.Approximately(props.m_radius, r) && Mathf.Approximately(creatures.m_damage.m_blunt, c); if (RuleLog.IsOn()) ModLog.Verbose($"ChargeKind.ApplyKind: returns {RuleLog.Shown(returnedAt156)} (line 156)"); return returnedAt156; }
+            { var returnedAt165 = Mathf.Approximately(props.m_radius, r) && Mathf.Approximately(creatures.m_damage.m_blunt, c); if (RuleLog.Due("ChargeKind.ApplyKind:165", 2d)) ModLog.Every("ChargeKind.ApplyKind:165", 2d, $"ChargeKind.ApplyKind: returns {returnedAt165} (line 165)"); return returnedAt165; }
         }
 
         /// <summary>
@@ -172,21 +172,21 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         internal static bool ListCrater(ObjectDB db)
         {
             if (RuleLog.Due("ChargeKind.ListCrater", 2d)) ModLog.Every("ChargeKind.ListCrater", 2d, $"ChargeKind.ListCrater(db={RuleLog.Shown(db)})");
-            if (db == null || StickKind.Crater == null) { if (RuleLog.Due("ChargeKind.ListCrater:166", 2d)) ModLog.Every("ChargeKind.ListCrater:166", 2d, "ChargeKind.ListCrater: returns false (line 166)"); return false; }
+            if (db == null || StickKind.Crater == null) return false;
             bool all = true;
             foreach (ChargeKind k in Kinds) if (k.Crater != null) all &= ListOne(db, k.Crater);
-            { var returnedAt169 = all; if (RuleLog.Due("ChargeKind.ListCrater:169", 2d)) ModLog.Every("ChargeKind.ListCrater:169", 2d, $"ChargeKind.ListCrater: returns {RuleLog.Shown(returnedAt169)} (line 169)"); return returnedAt169; }
+            { var returnedAt178 = all; if (RuleLog.Due("ChargeKind.ListCrater:178", 2d)) ModLog.Every("ChargeKind.ListCrater:178", 2d, $"ChargeKind.ListCrater: returns {returnedAt178} (line 178)"); return returnedAt178; }
         }
 
         static bool ListOne(ObjectDB db, GameObject crater)
         {
             if (RuleLog.Due("ChargeKind.ListOne", 2d)) ModLog.Every("ChargeKind.ListOne", 2d, $"ChargeKind.ListOne(db={RuleLog.Shown(db)}, crater={RuleLog.Shown(crater)})");
             TerrainOp op = crater.GetComponent<TerrainOp>();
-            if (op == null) { if (RuleLog.Due("ChargeKind.ListOne:176", 2d)) ModLog.Every("ChargeKind.ListOne:176", 2d, "ChargeKind.ListOne: returns false (line 176)"); return false; }
+            if (op == null) { if (RuleLog.Due("ChargeKind.ListOne:185", 2d)) ModLog.Every("ChargeKind.ListOne:185", 2d, $"ChargeKind.ListOne: returns false because op == null (line 185)"); return false; }
             if (!db.m_terrainOps.Contains(op)) db.m_terrainOps.Add(op);
             int hash = Utils.GetPrefabName(crater.name).GetStableHashCode();
             db.m_terrainOpsByHash[hash] = op;
-            { var returnedAt180 = db.TryGetTerrainOp(hash, out TerrainOp found) && found == op; if (RuleLog.Due("ChargeKind.ListOne:180", 2d)) ModLog.Every("ChargeKind.ListOne:180", 2d, $"ChargeKind.ListOne: returns {RuleLog.Shown(returnedAt180)} (line 180)"); return returnedAt180; }
+            { var returnedAt189 = db.TryGetTerrainOp(hash, out TerrainOp found) && found == op; if (RuleLog.Due("ChargeKind.ListOne:189", 2d)) ModLog.Every("ChargeKind.ListOne:189", 2d, $"ChargeKind.ListOne: returns {returnedAt189} (line 189)"); return returnedAt189; }
         }
 
         /// <summary>D-149: the burning fuse's crackle - the game's sfx_FireAddFuel at <see cref="FuseVolume"/> of its volume (user: "too loud"), its own network prefab.</summary>
@@ -213,9 +213,9 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             if (RuleLog.Due("ChargeKind.HeldKind", 2d)) ModLog.Every("ChargeKind.HeldKind", 2d, $"ChargeKind.HeldKind(player={RuleLog.Shown(player)})");
             kind = null;
             ItemDrop.ItemData item = player != null ? player.GetCurrentWeapon() : null;
-            if (item == null || item.m_dropPrefab == null) { if (RuleLog.Due("ChargeKind.HeldKind:192", 2d)) ModLog.Every("ChargeKind.HeldKind:192", 2d, "ChargeKind.HeldKind: returns null (line 192)"); return null; }
-            foreach (ChargeKind k in Kinds) if (item.m_dropPrefab.name == k.ItemId) { kind = k; { var returnedAt193 = item; if (RuleLog.Due("ChargeKind.HeldKind:193", 2d)) ModLog.Every("ChargeKind.HeldKind:193", 2d, $"ChargeKind.HeldKind: returns {RuleLog.Shown(returnedAt193)} (line 193)"); return returnedAt193; } }
-            { if (RuleLog.Due("ChargeKind.HeldKind:194", 2d)) ModLog.Every("ChargeKind.HeldKind:194", 2d, "ChargeKind.HeldKind: returns null (line 194)"); return null; }
+            if (item == null || item.m_dropPrefab == null) { if (RuleLog.Due("ChargeKind.HeldKind:216", 2d)) ModLog.Every("ChargeKind.HeldKind:216", 2d, $"ChargeKind.HeldKind: returns null because item == null || item.m_dropPrefab == null (line 216)"); return null; }
+            foreach (ChargeKind k in Kinds) if (item.m_dropPrefab.name == k.ItemId) { kind = k; { var returnedAt217 = item; if (RuleLog.Due("ChargeKind.HeldKind:217", 2d)) ModLog.Every("ChargeKind.HeldKind:217", 2d, $"ChargeKind.HeldKind: returns {returnedAt217} because item.m_dropPrefab.name == k.ItemId (line 217)"); return returnedAt217; } }
+            { if (RuleLog.Due("ChargeKind.HeldKind:218", 2d)) ModLog.Every("ChargeKind.HeldKind:218", 2d, $"ChargeKind.HeldKind: returns null (line 218)"); return null; }
         }
 
         /// <summary>
@@ -225,13 +225,13 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         internal static string Place(Player player, float metres = DynamiteRules.PlaceDistance)
         {
             ItemDrop.ItemData held = HeldKind(player, out ChargeKind kind);
-            if (held == null) { if (RuleLog.Due("ChargeKind.Place:204", 2d)) ModLog.Every("ChargeKind.Place:204", 2d, "ChargeKind.Place: returns \"no dynamite in hand\" (line 204)"); return "no dynamite in hand"; }
-            if (kind.Charge == null) { var returnedAt205 = "no charge prefab for " + kind.Name; if (RuleLog.Due("ChargeKind.Place:205", 2d)) ModLog.Every("ChargeKind.Place:205", 2d, $"ChargeKind.Place: returns {RuleLog.Shown(returnedAt205)} (line 205)"); return returnedAt205; }
-            if (Time.time - _lastPlaced < 0.5f) { if (RuleLog.Due("ChargeKind.Place:206", 2d)) ModLog.Every("ChargeKind.Place:206", 2d, "ChargeKind.Place: returns \"too soon\" (line 206)"); return "too soon"; }
+            if (held == null) { if (RuleLog.Due("ChargeKind.Place:204", 2d)) ModLog.Every("ChargeKind.Place:228", 2d, "ChargeKind.Place: returns \"no dynamite in hand\" (line 228)"); return "no dynamite in hand"; }
+            if (kind.Charge == null) return "no charge prefab for " + kind.Name;
+            if (Time.time - _lastPlaced < 0.5f) { if (RuleLog.Due("ChargeKind.Place:206", 2d)) ModLog.Every("ChargeKind.Place:230", 2d, "ChargeKind.Place: returns \"too soon\" (line 230)"); return "too soon"; }
             if (!FindSpot(player, metres, out Vector3 spot))
             {
                 player.Message(MessageHud.MessageType.Center, DynamiteRules.NoGround);
-                { var returnedAt213 = DynamiteRules.NoGround; if (RuleLog.Due("ChargeKind.Place:213", 2d)) ModLog.Every("ChargeKind.Place:213", 2d, $"ChargeKind.Place: returns {RuleLog.Shown(returnedAt213)} (line 213)"); return returnedAt213; }
+                { var returnedAt234 = DynamiteRules.NoGround; if (RuleLog.Due("ChargeKind.Place:234", 2d)) ModLog.Every("ChargeKind.Place:234", 2d, $"ChargeKind.Place: returns {returnedAt234} (line 234)"); return returnedAt234; }
             }
             player.StartEmote("kneel");                                // D-148: the character bends down to set it on the ground (the game's own kneel)
             player.StartCoroutine(StandUp(player));      // D-158: the game's kneel stays until the player moves; stand up again after it
@@ -280,9 +280,9 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             for (int tries = 0; tries < 4; tries++, d = Mathf.Max(DynamiteRules.NearestPlace, d - 0.2f))
             {
                 Vector3 from = chest + fwd * d;
-                if (!Physics.Raycast(from, Vector3.down, out RaycastHit ground, DynamiteRules.ChestHeight + DynamiteRules.SurfaceBelow + 0.5f, PlaceMask, QueryTriggerInteraction.Ignore)) { why.Append($"; {d:0.00} m: no surface below {from:0.00}{DeepBelow(from)}"); continue; }
-                if (!DynamiteRules.SurfaceOk(feet.y, ground.point.y)) { why.Append($"; {d:0.00} m: {ground.collider.name} at {ground.point.y - feet.y:+0.00;-0.00} m from the feet"); continue; }
-                if (Physics.CheckSphere(ground.point + Vector3.up * 0.18f, 0.06f, PlaceMask, QueryTriggerInteraction.Ignore)) { why.Append($"; {d:0.00} m: space taken at {ground.point:0.00}"); continue; }   // something sticks into the stick's space
+                if (!Physics.Raycast(from, Vector3.down, out RaycastHit ground, DynamiteRules.ChestHeight + DynamiteRules.SurfaceBelow + 0.5f, PlaceMask, QueryTriggerInteraction.Ignore)) { why.Append($"; {d:0.00} m: no surface below {from:0.00}{DeepBelow(from)}"); { if (RuleLog.Due("ChargeKind.FindSpot:283", 2d)) ModLog.Every("ChargeKind.FindSpot:283", 2d, $"ChargeKind.FindSpot: skips to the next item (continue) because !Physics.Raycast(from, Vector3.down, out RaycastHit ground, DynamiteRules.ChestHeight + DynamiteRules.SurfaceBelow + 0.5f, PlaceMask, QueryTriggerInteraction.Ignore) (line 283)"); continue; } }
+                if (!DynamiteRules.SurfaceOk(feet.y, ground.point.y)) { why.Append($"; {d:0.00} m: {ground.collider.name} at {ground.point.y - feet.y:+0.00;-0.00} m from the feet"); { if (RuleLog.Due("ChargeKind.FindSpot:284", 2d)) ModLog.Every("ChargeKind.FindSpot:284", 2d, $"ChargeKind.FindSpot: skips to the next item (continue) because !DynamiteRules.SurfaceOk(feet.y, ground.point.y) (line 284)"); continue; } }
+                if (Physics.CheckSphere(ground.point + Vector3.up * 0.18f, 0.06f, PlaceMask, QueryTriggerInteraction.Ignore)) { why.Append($"; {d:0.00} m: space taken at {ground.point:0.00}"); { if (RuleLog.Due("ChargeKind.FindSpot:285", 2d)) ModLog.Every("ChargeKind.FindSpot:285", 2d, $"ChargeKind.FindSpot: skips to the next item (continue) because Physics.CheckSphere(ground.point + Vector3.up * 0.18f, 0.06f, PlaceMask, QueryTriggerInteraction.Ignore) (line 285)"); continue; } }   // something sticks into the stick's space
                 spot = ground.point;
                 ModLog.Verbose($"ChargeKind.FindSpot: wanted {metres:0.00} m, blocked at {blockedAt:0.00} m ({(blockedAt >= 0f ? block.collider.name : "nothing")}), set {d:0.00} m ahead on {ground.collider.name} at {spot:0.00}, {ground.point.y - feet.y:+0.00;-0.00} m from the feet - returns true");
                 return true;
@@ -295,13 +295,14 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         // the terrain height the heightmap reports there, so a missing ground collider and a real pit can be told apart. Only built when placing failed.
         static string DeepBelow(Vector3 from)
         {
+            if (RuleLog.Due("ChargeKind.DeepBelow", 2d)) ModLog.Every("ChargeKind.DeepBelow", 2d, $"ChargeKind.DeepBelow(from={from})");
             string hit = Physics.Raycast(from, Vector3.down, out RaycastHit far, 60f, PlaceMask, QueryTriggerInteraction.Ignore)
                 ? $"first surface {far.collider.name} at y {far.point.y:0.00}" : "nothing within 60 m";
             float h = 0f;
             string terrain = Heightmap.GetHeight(from, out h) ? $"heightmap ground y {h:0.00}" : "no heightmap here";
             Heightmap hm = Heightmap.FindHeightmap(from);
             Collider col = hm != null ? hm.GetComponent<Collider>() : null;
-            return $" ({hit}, {terrain}, heightmap collider {(col == null ? "none" : col.enabled ? "on" : "off")})";
+            { var returnedAt305 = $" ({hit}, {terrain}, heightmap collider {(col == null ? "none" : col.enabled ? "on" : "off")})"; if (RuleLog.Due("ChargeKind.DeepBelow:305", 2d)) ModLog.Every("ChargeKind.DeepBelow:305", 2d, $"ChargeKind.DeepBelow: returns {returnedAt305} (line 305)"); return returnedAt305; }
         }
 
         /// <summary>The blast of one stick at <paramref name="at"/> (made by the stick's owner). Expected outcome: the number of objects made (blast + crater).</summary>
@@ -322,7 +323,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
                 Object.Instantiate(kind.Crater, at - Vector3.up * 0.15f, Quaternion.identity);
                 made++;
             }
-            { var returnedAt241 = made; if (RuleLog.Due("ChargeKind.Blast:241", 2d)) ModLog.Every("ChargeKind.Blast:241", 2d, $"ChargeKind.Blast: returns {RuleLog.Shown(returnedAt241)} (line 241)"); return returnedAt241; }
+            { var returnedAt326 = made; if (RuleLog.Due("ChargeKind.Blast:326", 2d)) ModLog.Every("ChargeKind.Blast:326", 2d, $"ChargeKind.Blast: returns {returnedAt326} (line 326)"); return returnedAt326; }
         }
 
     }

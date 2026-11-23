@@ -90,7 +90,7 @@ namespace GunPowdered.Testing.TestHooks
             RaycastHit[] hits = Physics.RaycastAll(eye, (rope - eye).normalized, 10f, mask);
             System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
             RaycastHit first = default(RaycastHit);
-            foreach (RaycastHit h in hits) if (p == null || h.collider.attachedRigidbody == null || h.collider.attachedRigidbody.gameObject != p.gameObject) { first = h; break; }
+            foreach (RaycastHit h in hits) if (p == null || h.collider.attachedRigidbody == null || h.collider.attachedRigidbody.gameObject != p.gameObject) { first = h; { if (RuleLog.IsOn()) ModLog.Verbose($"AsksvinBackTestHooks.RopeFirstHit: leaves the loop / case (break) because p == null || h.collider.attachedRigidbody == null || h.collider.attachedRigidbody.gameObject != p.gameObject (line 93)"); break; } }
             string s = first.collider != null ? "first hit " + first.collider.name + ", rope " + (first.collider.GetComponent<AsksvinLeadRope>() != null) : "first hit nothing, rope False";
             ModLog.Info("AsksvinBackTestHooks.RopeFirstHit: returns " + s);
             return s;
@@ -133,7 +133,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             if (RuleLog.Due("AsksvinBackTestHooks.Flat", 2d)) ModLog.Every("AsksvinBackTestHooks.Flat", 2d, "AsksvinBackTestHooks.Flat()");
             v.y = 0f;
-            return v.sqrMagnitude > 1e-6f ? v.normalized : Vector3.forward;
+            { var returnedAt136 = v.sqrMagnitude > 1e-6f ? v.normalized : Vector3.forward; if (RuleLog.Due("AsksvinBackTestHooks.Flat:136", 2d)) ModLog.Every("AsksvinBackTestHooks.Flat:136", 2d, $"AsksvinBackTestHooks.Flat: returns {returnedAt136} (line 136)"); return returnedAt136; }
         }
     }
 

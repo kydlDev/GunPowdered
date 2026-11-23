@@ -56,7 +56,7 @@ namespace GunPowdered.Features.Musket.Domain
         internal static bool Evaluate(MusketAction action, float seconds, float carry, float[] into, float strokeSeconds = ReloadSecondsPerCartridge)
         {
             if (RuleLog.Due("MusketPoseRules.Evaluate", 2d)) RuleLog.Every("MusketPoseRules.Evaluate", 2d, $"MusketPoseRules.Evaluate(action={RuleLog.Shown(action)}, seconds={RuleLog.Shown(seconds)}, carry={RuleLog.Shown(carry)}, into={RuleLog.Shown(into)})");
-            if (into == null || into.Length < MusketPoses.Count) { if (RuleLog.Due("MusketPoseRules.Evaluate:33", 2d)) RuleLog.Every("MusketPoseRules.Evaluate:33", 2d, "MusketPoseRules.Evaluate: returns false (line 33)"); return false; }
+            if (into == null || into.Length < MusketPoses.Count) return false;
             float t = seconds > 0f ? seconds : 0f;
             Blend(MusketPoses.Hold, MusketPoses.Side, Clamp01(carry), into);
             switch (action)
@@ -64,7 +64,7 @@ namespace GunPowdered.Features.Musket.Domain
                 case MusketAction.Fire:
                     float k = 1f - Clamp01(t / FireSeconds);
                     BlendOnto(MusketPoses.Recoil, k * k, into);
-                    break;
+                    { if (RuleLog.Due("MusketPoseRules.Evaluate:67", 2d)) RuleLog.Every("MusketPoseRules.Evaluate:67", 2d, $"MusketPoseRules.Evaluate: leaves the loop / case (break) (line 67)"); break; }
                 case MusketAction.Reload:
                     float w = Clamp01(t / BlendSeconds);
                     float s = Stroke(t, strokeSeconds);
@@ -73,19 +73,19 @@ namespace GunPowdered.Features.Musket.Domain
                         float reload = MusketPoses.ReloadLow[i] + (MusketPoses.ReloadHigh[i] - MusketPoses.ReloadLow[i]) * s;
                         into[i] += (reload - into[i]) * w;
                     }
-                    break;
+                    { if (RuleLog.Due("MusketPoseRules.Evaluate:76", 2d)) RuleLog.Every("MusketPoseRules.Evaluate:76", 2d, $"MusketPoseRules.Evaluate: leaves the loop / case (break) (line 76)"); break; }
             }
-            { var returnedAt52 = into.Length >= MusketPoses.Count; if (RuleLog.Due("MusketPoseRules.Evaluate:52", 2d)) RuleLog.Every("MusketPoseRules.Evaluate:52", 2d, $"MusketPoseRules.Evaluate: returns {RuleLog.Shown(returnedAt52)} (line 52)"); return returnedAt52; }
+            { var returnedAt78 = into.Length >= MusketPoses.Count; if (RuleLog.Due("MusketPoseRules.Evaluate:78", 2d)) RuleLog.Every("MusketPoseRules.Evaluate:78", 2d, $"MusketPoseRules.Evaluate: returns {returnedAt78} (line 78)"); return returnedAt78; }
         }
 
         /// <summary>Where the left hand is in the ramrod stroke of one cartridge: 0 (low) at the start and end of the 1.2 s, 1 (at the muzzle) in the middle.</summary>
         internal static float Stroke(float seconds, float strokeSeconds = ReloadSecondsPerCartridge)
         {
             if (RuleLog.Due("MusketPoseRules.Stroke", 2d)) RuleLog.Every("MusketPoseRules.Stroke", 2d, $"MusketPoseRules.Stroke(seconds={RuleLog.Shown(seconds)})");
-            if (seconds <= 0f) { if (RuleLog.Due("MusketPoseRules.Stroke:59", 2d)) RuleLog.Every("MusketPoseRules.Stroke:59", 2d, "MusketPoseRules.Stroke: returns 0f (line 59)"); return 0f; }
+            if (seconds <= 0f) return 0f;
             float len = strokeSeconds > 0.05f ? strokeSeconds : ReloadSecondsPerCartridge;      // D-157: the stroke lasts what the Muskets skill gave the reload
             float u = seconds % len / len;
-            { var returnedAt61 = (float)Math.Sin(Math.PI * u); if (RuleLog.Due("MusketPoseRules.Stroke:61", 2d)) RuleLog.Every("MusketPoseRules.Stroke:61", 2d, $"MusketPoseRules.Stroke: returns {RuleLog.Shown(returnedAt61)} (line 61)"); return returnedAt61; }
+            { var returnedAt88 = (float)Math.Sin(Math.PI * u); if (RuleLog.Due("MusketPoseRules.Stroke:88", 2d)) RuleLog.Every("MusketPoseRules.Stroke:88", 2d, $"MusketPoseRules.Stroke: returns {returnedAt88} (line 88)"); return returnedAt88; }
         }
 
         /// <summary>D-155: running must last this long before the musket goes to the side, so a short speed spike (a teleport, a knock back) does not lower it.</summary>
@@ -169,7 +169,7 @@ namespace GunPowdered.Features.Musket.Domain
             float target = raised ? 0f : 1f;
             float step = deltaSeconds > 0f ? deltaSeconds / (raised ? RaiseSeconds : BlendSeconds) : 0f;
             float c = Clamp01(carry);
-            { var returnedAt71 = c < target ? Math.Min(target, c + step) : Math.Max(target, c - step); if (RuleLog.Due("MusketPoseRules.NextCarry:71", 2d)) RuleLog.Every("MusketPoseRules.NextCarry:71", 2d, $"MusketPoseRules.NextCarry: returns {RuleLog.Shown(returnedAt71)} (line 71)"); return returnedAt71; }
+            { var returnedAt172 = c < target ? Math.Min(target, c + step) : Math.Max(target, c - step); if (RuleLog.Due("MusketPoseRules.NextCarry:172", 2d)) RuleLog.Every("MusketPoseRules.NextCarry:172", 2d, $"MusketPoseRules.NextCarry: returns {returnedAt172} (line 172)"); return returnedAt172; }
         }
 
         /// <summary>How far the musket has moved from the aiming grip to the reload grip (0 .. 1): it goes over in <see cref="BlendSeconds"/> when a reload begins.</summary>
@@ -185,17 +185,17 @@ namespace GunPowdered.Features.Musket.Domain
         internal static float SpineSteadiness(MusketAction action, float carry)
         {
             if (RuleLog.Due("MusketPoseRules.SpineSteadiness", 2d)) RuleLog.Every("MusketPoseRules.SpineSteadiness", 2d, $"MusketPoseRules.SpineSteadiness(action={RuleLog.Shown(action)}, carry={RuleLog.Shown(carry)})");
-            if (action == MusketAction.Reload) { if (RuleLog.Due("MusketPoseRules.SpineSteadiness:87", 2d)) RuleLog.Every("MusketPoseRules.SpineSteadiness:87", 2d, "MusketPoseRules.SpineSteadiness: returns 0f (line 87)"); return 0f; }
-            { var returnedAt88 = 1f - Clamp01(carry); if (RuleLog.Due("MusketPoseRules.SpineSteadiness:88", 2d)) RuleLog.Every("MusketPoseRules.SpineSteadiness:88", 2d, $"MusketPoseRules.SpineSteadiness: returns {RuleLog.Shown(returnedAt88)} (line 88)"); return returnedAt88; }
+            if (action == MusketAction.Reload) return 0f;
+            { var returnedAt189 = 1f - Clamp01(carry); if (RuleLog.Due("MusketPoseRules.SpineSteadiness:189", 2d)) RuleLog.Every("MusketPoseRules.SpineSteadiness:189", 2d, $"MusketPoseRules.SpineSteadiness: returns {returnedAt189} (line 189)"); return returnedAt189; }
         }
 
         /// <summary>The share of the way a slow follower moves towards its target in <paramref name="dt"/> seconds with time constant <paramref name="seconds"/> (0 .. 1).</summary>
         internal static float FollowFactor(float dt, float seconds)
         {
             if (RuleLog.Due("MusketPoseRules.FollowFactor", 2d)) RuleLog.Every("MusketPoseRules.FollowFactor", 2d, $"MusketPoseRules.FollowFactor(dt={RuleLog.Shown(dt)}, seconds={RuleLog.Shown(seconds)})");
-            if (dt <= 0f) { if (RuleLog.Due("MusketPoseRules.FollowFactor:95", 2d)) RuleLog.Every("MusketPoseRules.FollowFactor:95", 2d, "MusketPoseRules.FollowFactor: returns 0f (line 95)"); return 0f; }
-            if (seconds <= 0f) { if (RuleLog.Due("MusketPoseRules.FollowFactor:96", 2d)) RuleLog.Every("MusketPoseRules.FollowFactor:96", 2d, "MusketPoseRules.FollowFactor: returns 1f (line 96)"); return 1f; }
-            { var returnedAt97 = Clamp01(1f - (float)Math.Exp(-dt / seconds)); if (RuleLog.Due("MusketPoseRules.FollowFactor:97", 2d)) RuleLog.Every("MusketPoseRules.FollowFactor:97", 2d, $"MusketPoseRules.FollowFactor: returns {RuleLog.Shown(returnedAt97)} (line 97)"); return returnedAt97; }
+            if (dt <= 0f) return 0f;
+            if (seconds <= 0f) { if (RuleLog.Due("MusketPoseRules.FollowFactor:197", 2d)) RuleLog.Every("MusketPoseRules.FollowFactor:197", 2d, $"MusketPoseRules.FollowFactor: returns 1f because seconds <= 0f (line 197)"); return 1f; }
+            { var returnedAt198 = Clamp01(1f - (float)Math.Exp(-dt / seconds)); if (RuleLog.Due("MusketPoseRules.FollowFactor:198", 2d)) RuleLog.Every("MusketPoseRules.FollowFactor:198", 2d, $"MusketPoseRules.FollowFactor: returns {returnedAt198} (line 198)"); return returnedAt198; }
         }
 
         internal static float Clamp01(float v) => v < 0f ? 0f : v > 1f ? 1f : v;

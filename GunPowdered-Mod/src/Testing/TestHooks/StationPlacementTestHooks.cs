@@ -5,6 +5,7 @@ using HarmonyLib;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Integrations.Valheim;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -28,10 +29,10 @@ namespace GunPowdered.Testing.TestHooks
             Player p = Player.m_localPlayer;
             PieceTable table = p != null ? BuildPieces(p) : null;
             GameObject source = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
-            if (table == null || source == null) return "no hammer in hand or no prefab " + prefab;
+            if (table == null || source == null) { var returnedAt32 = "no hammer in hand or no prefab " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"StationPlacementTestHooks.BuildSelect: returns {returnedAt32} because table == null || source == null (line 32)"); return returnedAt32; }
             NoCost(p) = true;
             AccessTools.Method(typeof(Player), "UpdateAvailablePiecesList").Invoke(p, null);
-            if (!table.GetPieceIndex(source.GetComponent<Piece>(), out Vector2Int index, out Piece.PieceCategory category)) return prefab + " is not in the build menu";
+            if (!table.GetPieceIndex(source.GetComponent<Piece>(), out Vector2Int index, out Piece.PieceCategory category)) { var returnedAt35 = prefab + " is not in the build menu"; if (RuleLog.IsOn()) ModLog.Verbose($"StationPlacementTestHooks.BuildSelect: returns {returnedAt35} because !table.GetPieceIndex(source.GetComponent<Piece>(), out Vector2Int index, out Piece.PieceCategory category) (line 35)"); return returnedAt35; }
             table.SetCategory(category);
             table.SetSelected(index);
             AccessTools.Method(typeof(Player), "SetupPlacementGhost").Invoke(p, null);
@@ -50,15 +51,15 @@ namespace GunPowdered.Testing.TestHooks
         {
             Player p = Player.m_localPlayer;
             GameObject ghost = p != null ? Ghost(p) : null;
-            if (ghost == null || target == null) return "no ghost or no station";
+            if (ghost == null || target == null) { if (RuleLog.IsOn()) ModLog.Verbose($"StationPlacementTestHooks.GhostAt: returns \"no ghost or no station\" because ghost == null || target == null (line 54)"); return "no ghost or no station"; }
             ghost.SetActive(true);
             Bounds st = StationSnapPoints.Footprint(target), gh = StationSnapPoints.Footprint(ghost);
             Vector3 local;
             switch (where)
             {
-                case "side": local = new Vector3(st.max.x - gh.min.x + 0.3f, 0f, st.center.z - gh.center.z); break;
-                case "top": local = new Vector3(st.center.x, st.max.y, st.center.z); break;
-                default: local = new Vector3(st.center.x, 0f, st.center.z); break;
+                case "side": local = new Vector3(st.max.x - gh.min.x + 0.3f, 0f, st.center.z - gh.center.z); { if (RuleLog.IsOn()) ModLog.Verbose($"StationPlacementTestHooks.GhostAt: leaves the loop / case (break) (line 60)"); break; }
+                case "top": local = new Vector3(st.center.x, st.max.y, st.center.z); { if (RuleLog.IsOn()) ModLog.Verbose($"StationPlacementTestHooks.GhostAt: leaves the loop / case (break) (line 61)"); break; }
+                default: local = new Vector3(st.center.x, 0f, st.center.z); { if (RuleLog.IsOn()) ModLog.Verbose($"StationPlacementTestHooks.GhostAt: leaves the loop / case (break) (line 62)"); break; }
             }
             ghost.transform.rotation = target.transform.rotation;
             ghost.transform.position = target.transform.TransformPoint(local);
@@ -87,7 +88,7 @@ namespace GunPowdered.Testing.TestHooks
         static string MovePiece(GameObject target, double dx, double dy, double dz)
         {
             ZNetView nview = target != null ? target.GetComponent<ZNetView>() : null;
-            if (nview == null || !nview.IsValid()) return "no piece";
+            if (nview == null || !nview.IsValid()) { if (RuleLog.IsOn()) ModLog.Verbose($"StationPlacementTestHooks.MovePiece: returns \"no piece\" because nview == null || !nview.IsValid() (line 91)"); return "no piece"; }
             nview.ClaimOwnership();
             Vector3 to = target.transform.position + new Vector3((float)dx, (float)dy, (float)dz);
             target.transform.position = to;
@@ -100,9 +101,10 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.buildDone")]
         static string BuildDone()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"StationPlacementTestHooks.BuildDone()");
             Player p = Player.m_localPlayer;
             if (p != null) { NoCost(p) = false; AccessTools.Method(typeof(Player), "UpdateAvailablePiecesList").Invoke(p, null); }
-            return "done";
+            { if (RuleLog.IsOn()) ModLog.Verbose($"StationPlacementTestHooks.BuildDone: returns \"done\" (line 107)"); return "done"; }
         }
     }
 }

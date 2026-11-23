@@ -16,9 +16,17 @@ namespace GunPowdered.Integrations.HarmonyPatches
             {
                 GrenadeAim.FilterLook(__instance, ref mouseLook);
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("GrenadeLookPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().FullName + " filtering the mouse look: " + e.Message + " - the camera turns as usual" + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("GrenadeLookPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + " filtering the mouse look: " + e.Message + " - the camera turns as usual" + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn("GrenadeLookPatch: " + e.GetType().FullName + " filtering the mouse look: " + e.Message + " - the camera turns as usual");
+                ModLog.Warn("GrenadeLookPatch: " + e.GetType().FullName + " filtering the mouse look: " + e.Message + " - the camera turns as usual" + "\n" + e.StackTrace);
             }
         }
     }

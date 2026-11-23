@@ -55,7 +55,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (piece.GetComponent<MobileCannonTow>() == null) piece.AddComponent<MobileCannonTow>();
             ModLog.Verbose("MobileCannonSetup: cart colliders on " + colliders + ", cart looks hidden " + hidden + ", pull point "
                 + (pull ? vagon.m_attachPoint.localPosition.ToString("0.00") : "missing") + ", wheels " + (vagon.m_wheels != null ? vagon.m_wheels.Length : 0));
-            { var returnedAt58 = pull && colliders > 0; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonSetup.Configure: returns {RuleLog.Shown(returnedAt58)} (line 58)"); return returnedAt58; }
+            { var returnedAt58 = pull && colliders > 0; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonSetup.Configure: returns {returnedAt58} (line 58)"); return returnedAt58; }
         }
 
         /// <summary>BundleVisuals switched every solid collider off; the cart needs its body boxes and its wheel colliders back. The model's own colliders stay off.</summary>
@@ -65,16 +65,16 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             int n = 0;
             foreach (Collider c in piece.GetComponentsInChildren<Collider>(true))
             {
-                if (c.transform.IsChildOf(model) || c.isTrigger) continue;
+                if (c.transform.IsChildOf(model) || c.isTrigger) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonSetup.RestoreCartColliders: skips to the next item (continue) because c.transform.IsChildOf(model) || c.isTrigger (line 68)"); continue; }
                 if (c.transform == piece.transform && c is BoxCollider)
                 {
                     Object.DestroyImmediate(c);           // the bundle prefab's own box: the cart's body boxes do that job
-                    continue;
+                    { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonSetup.RestoreCartColliders: skips to the next item (continue) (line 72)"); continue; }
                 }
                 c.enabled = true;
                 n++;
             }
-            { var returnedAt77 = n; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonSetup.RestoreCartColliders: returns {RuleLog.Shown(returnedAt77)} (line 77)"); return returnedAt77; }
+            { var returnedAt77 = n; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonSetup.RestoreCartColliders: returns {returnedAt77} (line 77)"); return returnedAt77; }
         }
 
         /// <summary>Switches off every renderer of the cart itself (body, wheels, worn / broken states); the cannon model is the only look.</summary>
@@ -84,11 +84,11 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             int n = 0;
             foreach (Renderer r in piece.GetComponentsInChildren<Renderer>(true))
             {
-                if (r.transform.IsChildOf(model) || r is LineRenderer) continue;
+                if (r.transform.IsChildOf(model) || r is LineRenderer) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonSetup.HideCartLooks: skips to the next item (continue) because r.transform.IsChildOf(model) || r is LineRenderer (line 87)"); continue; }
                 r.enabled = false;
                 n++;
             }
-            { var returnedAt91 = n; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonSetup.HideCartLooks: returns {RuleLog.Shown(returnedAt91)} (line 91)"); return returnedAt91; }
+            { var returnedAt91 = n; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonSetup.HideCartLooks: returns {returnedAt91} (line 91)"); return returnedAt91; }
         }
 
         /// <summary>The cart's boxes-and-barrels load and its storage chest are not part of a cannon.</summary>
@@ -111,7 +111,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonSetup.AddTrailFoot(piece={RuleLog.Shown(piece)})");
             foreach (Collider c in piece.GetComponentsInChildren<Collider>(true))
                 if (c.name.StartsWith("handle")) c.enabled = false;
-            if (piece.transform.Find("gp_trail_foot") != null) { if (RuleLog.IsOn()) ModLog.Verbose("MobileCannonSetup.AddTrailFoot: returns (line 114)"); return; }
+            if (piece.transform.Find("gp_trail_foot") != null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonSetup.AddTrailFoot: returns because piece.transform.Find(\"gp_trail_foot\") != null (line 114)"); return; }
             var foot = new GameObject("gp_trail_foot");
             foot.layer = piece.layer;
             foot.transform.SetParent(piece.transform, false);

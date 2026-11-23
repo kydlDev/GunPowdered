@@ -47,9 +47,17 @@ namespace GunPowdered.Features.Gunpowder.Infrastructure
                 if (_runners != null) _runners.Rotate(0f, step, 0f, Space.Self);
                 ModLog.Every("powder-mill-" + gameObject.GetInstanceID(), 30d, "powder mill turning at " + GunpowderRules.TurnDegreesPerSecond + " deg/s, arm " + (_arm != null) + ", stones " + (_runners != null));
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn($"PowderMillSpin.Update: {e.GetType().FullName}: {e.Message} - the arm does not turn this frame" + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn($"PowderMillSpin.Update: {e.GetType().FullName}: {e.Message} - the arm does not turn this frame" + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn($"PowderMillSpin.Update: {e.GetType().FullName}: {e.Message} - the arm does not turn this frame");
+                ModLog.Warn($"PowderMillSpin.Update: {e.GetType().FullName}: {e.Message} - the arm does not turn this frame" + "\n" + e.StackTrace);
             }
         }
     }

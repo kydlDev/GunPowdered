@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using KydlCore.Common;
 using UnityEngine;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -28,7 +29,7 @@ namespace GunPowdered.Testing.TestHooks
             Saved.Clear();
             foreach (TerrainComp tc in UnityEngine.Object.FindObjectsByType<TerrainComp>(FindObjectsSortMode.None))
             {
-                if (!Near(tc, at, radius)) continue;
+                if (!Near(tc, at, radius)) { if (RuleLog.IsOn()) ModLog.Verbose($"TerrainSnapshot.Mark: skips to the next item (continue) because !Near(tc, at, radius) (line 32)"); continue; }
                 var copy = new object[Fields.Length];
                 for (int i = 0; i < Fields.Length; i++) copy[i] = (Field(Fields[i])?.GetValue(tc) as Array)?.Clone();
                 Saved[Key(tc)] = copy;
@@ -51,14 +52,14 @@ namespace GunPowdered.Testing.TestHooks
             int restored = 0, cleared = 0;
             foreach (TerrainComp tc in UnityEngine.Object.FindObjectsByType<TerrainComp>(FindObjectsSortMode.None))
             {
-                if (!Near(tc, at, radius)) continue;
+                if (!Near(tc, at, radius)) { if (RuleLog.IsOn()) ModLog.Verbose($"TerrainSnapshot.Restore: skips to the next item (continue) because !Near(tc, at, radius) (line 55)"); continue; }
                 ZNetView view = tc.GetComponent<ZNetView>();
                 if (view != null && view.IsValid() && !view.IsOwner()) view.ClaimOwnership();
                 bool known = Saved.TryGetValue(Key(tc), out object[] saved);
                 for (int i = 0; i < Fields.Length; i++)
                 {
                     var now = Field(Fields[i])?.GetValue(tc) as Array;
-                    if (now == null) continue;
+                    if (now == null) { if (RuleLog.IsOn()) ModLog.Verbose($"TerrainSnapshot.Restore: skips to the next item (continue) because now == null (line 62)"); continue; }
                     if (known && saved[i] is Array before && before.Length == now.Length) Array.Copy(before, now, now.Length);
                     else Array.Clear(now, 0, now.Length);
                 }
@@ -73,8 +74,9 @@ namespace GunPowdered.Testing.TestHooks
 
         static bool Near(TerrainComp tc, Vector3 at, float radius)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"TerrainSnapshot.Near(tc={tc}, at={at}, radius={radius})");
             Vector3 p = tc.transform.position;
-            return Vector2.Distance(new Vector2(p.x, p.z), new Vector2(at.x, at.z)) <= radius;
+            { var returnedAt79 = Vector2.Distance(new Vector2(p.x, p.z), new Vector2(at.x, at.z)) <= radius; if (RuleLog.IsOn()) ModLog.Verbose($"TerrainSnapshot.Near: returns {returnedAt79} (line 79)"); return returnedAt79; }
         }
 
         static FieldInfo Field(string name) => typeof(TerrainComp).GetField(name, Flags);

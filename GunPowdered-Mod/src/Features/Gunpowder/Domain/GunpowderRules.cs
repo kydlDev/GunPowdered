@@ -15,8 +15,8 @@ namespace GunPowdered.Features.Gunpowder.Domain
         internal static int Batches(int saltpeter, int charcoal, int sulfur, int saltpeterPer, int charcoalPer, int sulfurPer)
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"GunpowderRules.Batches(saltpeter={RuleLog.Shown(saltpeter)}, charcoal={RuleLog.Shown(charcoal)}, sulfur={RuleLog.Shown(sulfur)}, saltpeterPer={RuleLog.Shown(saltpeterPer)}, charcoalPer={RuleLog.Shown(charcoalPer)}, sulfurPer={RuleLog.Shown(sulfurPer)})");
-            if (saltpeterPer < 1 || charcoalPer < 1 || sulfurPer < 1) { if (RuleLog.IsOn()) RuleLog.Verbose("GunpowderRules.Batches: returns 0 (line 18)"); return 0; }
-            { var returnedAt19 = Math.Max(0, Math.Min(saltpeter / saltpeterPer, Math.Min(charcoal / charcoalPer, sulfur / sulfurPer))); if (RuleLog.IsOn()) RuleLog.Verbose($"GunpowderRules.Batches: returns {RuleLog.Shown(returnedAt19)} (line 19)"); return returnedAt19; }   // a negative amount (bad input) gives 0
+            if (saltpeterPer < 1 || charcoalPer < 1 || sulfurPer < 1) return 0;
+            { var returnedAt19 = Math.Max(0, Math.Min(saltpeter / saltpeterPer, Math.Min(charcoal / charcoalPer, sulfur / sulfurPer))); if (RuleLog.IsOn()) RuleLog.Verbose($"GunpowderRules.Batches: returns {returnedAt19} (line 19)"); return returnedAt19; }   // a negative amount (bad input) gives 0
         }
 
         /// <summary>Degrees per second the sweep arm turns while the mill grinds (D-026, D-137).</summary>

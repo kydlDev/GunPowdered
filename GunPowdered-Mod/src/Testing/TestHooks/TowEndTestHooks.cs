@@ -18,7 +18,7 @@ namespace GunPowdered.Testing.TestHooks
         static string DropSaddle()
         {
             Tameable t = AsksvinTowTestHooks.Animal != null ? AsksvinTowTestHooks.Animal.GetComponent<Tameable>() : null;
-            if (t == null || Player.m_localPlayer == null) return "no asksvin";
+            if (t == null || Player.m_localPlayer == null) { if (RuleLog.IsOn()) ModLog.Verbose($"TowEndTestHooks.DropSaddle: returns \"no asksvin\" because t == null || Player.m_localPlayer == null (line 21)"); return "no asksvin"; }
             _lastAnimalPos = t.transform.position;
             var m = HarmonyLib.AccessTools.Method(typeof(Tameable), "DropSaddle");
             object r = m.GetParameters().Length == 1 ? m.Invoke(t, new object[] { Player.m_localPlayer.transform.position }) : m.Invoke(t, new object[0]);
@@ -31,7 +31,7 @@ namespace GunPowdered.Testing.TestHooks
         static string Kill()
         {
             Character c = AsksvinTowTestHooks.Animal != null ? AsksvinTowTestHooks.Animal.GetComponent<Character>() : null;
-            if (c == null) return "no asksvin";
+            if (c == null) { if (RuleLog.IsOn()) ModLog.Verbose($"TowEndTestHooks.Kill: returns \"no asksvin\" because c == null (line 34)"); return "no asksvin"; }
             _lastAnimalPos = c.transform.position;
             var hit = new HitData { m_point = c.transform.position, m_dir = Vector3.down };
             hit.m_damage.m_blunt = c.GetHealth() * 10f + 10000f;
@@ -51,7 +51,7 @@ namespace GunPowdered.Testing.TestHooks
             int n = 0, elsewhere = 0;
             foreach (ItemDrop d in Object.FindObjectsByType<ItemDrop>(FindObjectsSortMode.None))
             {
-                if (d == null || Utils.GetPrefabName(d.gameObject) != GunPowderedPrefabs.AsksvinHarness) continue;
+                if (d == null || Utils.GetPrefabName(d.gameObject) != GunPowderedPrefabs.AsksvinHarness) { if (RuleLog.IsOn()) ModLog.Verbose($"TowEndTestHooks.HarnessItemsNear: skips to the next item (continue) because d == null || Utils.GetPrefabName(d.gameObject) != GunPowderedPrefabs.AsksvinHarness (line 54)"); continue; }
                 if (Vector3.Distance(d.transform.position, at) < 8f) n += d.m_itemData.m_stack; else elsewhere += d.m_itemData.m_stack;
             }
             ModLog.Info("TowEndTestHooks: harness items on the ground " + n + " within 8 m of " + at.ToString("0.0") + " (where the harness came off), " + elsewhere + " elsewhere");
@@ -67,12 +67,13 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.mobileCannonBreakForce")]
         static string BreakForce(double newtons)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"TowEndTestHooks.BreakForce(newtons={newtons})");
             GameObject cannon = MobileCannonTestHooks.Cannon;
             ConfigurableJoint j = cannon != null ? cannon.GetComponent<ConfigurableJoint>() : null;
-            if (j == null) return "no tow joint";
+            if (j == null) { if (RuleLog.IsOn()) ModLog.Verbose($"TowEndTestHooks.BreakForce: returns \"no tow joint\" because j == null (line 73)"); return "no tow joint"; }
             j.breakForce = (float)newtons;
             if (AsksvinTowTestHooks.Animal != null) _lastAnimalPos = AsksvinTowTestHooks.Animal.transform.position;
-            return "break force " + newtons.ToString("0");
+            { var returnedAt76 = "break force " + newtons.ToString("0"); if (RuleLog.IsOn()) ModLog.Verbose($"TowEndTestHooks.BreakForce: returns {returnedAt76} (line 76)"); return returnedAt76; }
         }
 
     }

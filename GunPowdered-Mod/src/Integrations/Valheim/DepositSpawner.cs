@@ -30,9 +30,19 @@ namespace GunPowdered.Integrations.Valheim
                 ModLog.Decision("deposit placed", prefabName + " x" + amount, "at " + position.ToString("0"));
                 return go;
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("DepositSpawner.Spawn: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+                return null;
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("DepositSpawner.Spawn: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+                return null;
+            }
             catch (Exception e)
             {
-                ModLog.Warn("DepositSpawner.Spawn: " + e.GetType().Name + ": " + e.Message);
+                ModLog.Warn("DepositSpawner.Spawn: " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
                 return null;
             }
         }
@@ -43,7 +53,7 @@ namespace GunPowdered.Integrations.Valheim
             RaycastHit hit;
             bool found = Physics.Raycast(around + Vector3.up * 3f, Vector3.down, out hit, 9f, FloorMask, QueryTriggerInteraction.Ignore);
             floor = found ? hit.point : around;
-            if (found) { if (RuleLog.Due("DepositSpawner.Floor:46", 2d)) ModLog.Every("DepositSpawner.Floor:46", 2d, "DepositSpawner.Floor: returns true (line 46)"); return true; }
+            if (found) { if (RuleLog.Due("DepositSpawner.Floor:56", 2d)) ModLog.Every("DepositSpawner.Floor:56", 2d, $"DepositSpawner.Floor: returns true because found (line 56)"); return true; }
             // no collider hit: right after a location's terrain changes are applied the ground collider is rebuilt and a ray finds nothing (lake ruin,
             // run extra2b), so the terrain height itself is used when it lies in the same window
             float ground = float.NaN;
@@ -52,7 +62,7 @@ namespace GunPowdered.Integrations.Valheim
             if (inWindow) floor = new Vector3(around.x, ground, around.z);
             KydlCore.Common.ModLog.Verbose("DepositSpawner: no collider under " + around.ToString("0.0") + ", terrain height "
                 + (loaded ? ground.ToString("0.0") : "not loaded") + (inWindow ? " used" : " not used"));
-            { var returnedAt55 = inWindow; if (RuleLog.Due("DepositSpawner.Floor:55", 2d)) ModLog.Every("DepositSpawner.Floor:55", 2d, $"DepositSpawner.Floor: returns {RuleLog.Shown(returnedAt55)} (line 55)"); return returnedAt55; }
+            { var returnedAt65 = inWindow; if (RuleLog.Due("DepositSpawner.Floor:65", 2d)) ModLog.Every("DepositSpawner.Floor:65", 2d, $"DepositSpawner.Floor: returns {returnedAt65} (line 65)"); return returnedAt65; }
         }
 
         /// <summary>A random point on the ring [minR, maxR] around the centre, from a seeded source of numbers.</summary>
@@ -61,7 +71,7 @@ namespace GunPowdered.Integrations.Valheim
             if (RuleLog.Due("DepositSpawner.OnRing", 2d)) ModLog.Every("DepositSpawner.OnRing", 2d, $"DepositSpawner.OnRing(centre={RuleLog.Shown(centre)}, minR={RuleLog.Shown(minR)}, maxR={RuleLog.Shown(maxR)}, rng={RuleLog.Shown(rng)})");
             float angle = (float)(rng.NextDouble() * Math.PI * 2d);
             float r = minR + (float)rng.NextDouble() * (maxR - minR);
-            { var returnedAt64 = centre + new Vector3(Mathf.Cos(angle) * r, 0f, Mathf.Sin(angle) * r); if (RuleLog.Due("DepositSpawner.OnRing:64", 2d)) ModLog.Every("DepositSpawner.OnRing:64", 2d, $"DepositSpawner.OnRing: returns {RuleLog.Shown(returnedAt64)} (line 64)"); return returnedAt64; }
+            { var returnedAt74 = centre + new Vector3(Mathf.Cos(angle) * r, 0f, Mathf.Sin(angle) * r); if (RuleLog.Due("DepositSpawner.OnRing:74", 2d)) ModLog.Every("DepositSpawner.OnRing:74", 2d, $"DepositSpawner.OnRing: returns {returnedAt74} (line 74)"); return returnedAt74; }
         }
 
         /// <summary>Picks the given number of distinct entries (or all when there are fewer) from a list, using the seeded source.</summary>
@@ -76,7 +86,7 @@ namespace GunPowdered.Integrations.Valheim
                 picked.Add(pool[i]);
                 pool.RemoveAt(i);
             }
-            { var returnedAt79 = picked; if (RuleLog.Due("DepositSpawner.Pick:79", 2d)) ModLog.Every("DepositSpawner.Pick:79", 2d, $"DepositSpawner.Pick: returns {RuleLog.Shown(returnedAt79)} (line 79)"); return returnedAt79; }
+            { var returnedAt89 = picked; if (RuleLog.IsOn()) ModLog.Verbose($"DepositSpawner.Pick: returns {returnedAt89} (line 89)"); return returnedAt89; }
         }
     }
 }

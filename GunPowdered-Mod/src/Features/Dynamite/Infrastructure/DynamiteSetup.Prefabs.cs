@@ -17,7 +17,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             if (RuleLog.IsOn()) ModLog.Verbose($"ChargeKind.MakeCharge(kind={RuleLog.Shown(kind)}, item={RuleLog.Shown(item)})");
             Transform model = item.transform.Find("gp_model");
             GameObject stick = PrefabManager.Instance.CreateEmptyPrefab(kind.ChargeId, true);
-            if (stick == null) { if (RuleLog.IsOn()) ModLog.Verbose("ChargeKind.MakeCharge: returns null (line 249)"); return null; }
+            if (stick == null) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteSetup.MakeCharge: returns null because stick == null (line 20)"); return null; }
             ZNetView nv = stick.GetComponent<ZNetView>();
             if (nv != null) nv.m_persistent = true;
             foreach (Collider c in stick.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(c);
@@ -49,7 +49,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             if (layer >= 0) foreach (Transform t in stick.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = layer;
             stick.AddComponent<DynamiteCharge>().m_kindId = kind.ChargeId;
             PrefabManager.Instance.AddPrefab(new CustomPrefab(stick, true));
-            { var returnedAt280 = stick; if (RuleLog.IsOn()) ModLog.Verbose($"ChargeKind.MakeCharge: returns {RuleLog.Shown(returnedAt280)} (line 280)"); return returnedAt280; }
+            { var returnedAt52 = stick; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteSetup.MakeCharge: returns {returnedAt52} (line 52)"); return returnedAt52; }
         }
 
         /// <summary>D-158: the child that holds the placed stick's sparkle (DynamiteCharge hides it once the fuse burns).</summary>
@@ -90,7 +90,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         {
             if (PrefabManager.Instance.GetPrefab(ExplosionBase) == null) { ModLog.Error("DynamiteSetup: no vanilla " + ExplosionBase + " - the " + kind.Name + " has no blast"); return null; }
             GameObject clone = PrefabManager.Instance.CreateClonedPrefab(kind.ExplosionId, ExplosionBase);
-            if (clone == null) { if (RuleLog.IsOn()) ModLog.Verbose("ChargeKind.MakeExplosion: returns null (line 287)"); return null; }
+            if (clone == null) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteSetup.MakeExplosion: returns null because clone == null (line 93)"); return null; }
             foreach (TerrainOp op in clone.GetComponentsInChildren<TerrainOp>(true)) Object.DestroyImmediate(op);
             var child = new GameObject(CreatureChild);
             child.transform.SetParent(clone.transform, false);
@@ -99,7 +99,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             if (!Mathf.Approximately(kind.ExplosionScale, 1f))        // the pack's bang looks bigger; the Aoe reach is its radius, not the scale
                 foreach (Transform t in clone.transform) if (t.name != CreatureChild) t.localScale *= kind.ExplosionScale;
             PrefabManager.Instance.AddPrefab(new CustomPrefab(clone, true));
-            { var returnedAt296 = clone; if (RuleLog.IsOn()) ModLog.Verbose($"ChargeKind.MakeExplosion: returns {RuleLog.Shown(returnedAt296)} (line 296)"); return returnedAt296; }
+            { var returnedAt102 = clone; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteSetup.MakeExplosion: returns {returnedAt102} (line 102)"); return returnedAt102; }
         }
 
         static GameObject MakeCrater(string id)
@@ -107,7 +107,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             if (PrefabManager.Instance.GetPrefab(CraterBase) == null) { ModLog.Error("DynamiteSetup: no vanilla " + CraterBase + " - " + id + " digs no hole"); return null; }
             GameObject clone = PrefabManager.Instance.CreateClonedPrefab(id, CraterBase);
             if (clone != null) PrefabManager.Instance.AddPrefab(new CustomPrefab(clone, true));
-            { var returnedAt304 = clone; if (RuleLog.IsOn()) ModLog.Verbose($"ChargeKind.MakeCrater: returns {RuleLog.Shown(returnedAt304)} (line 304)"); return returnedAt304; }
+            { var returnedAt110 = clone; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteSetup.MakeCrater: returns {returnedAt110} (line 110)"); return returnedAt110; }
         }
 
         static bool AttachHandModel(GameObject item, bool stickGrip)
@@ -119,7 +119,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
                 ModLog.Warn("DynamiteSetup: no hand model - attach " + (attach != null) + ", bundle model " + (model != null));
                 return false;
             }
-            if (attach.Find("gp_model") != null) { if (RuleLog.IsOn()) ModLog.Verbose("ChargeKind.AttachHandModel: returns true (line 316)"); return true; }
+            if (attach.Find("gp_model") != null) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteSetup.AttachHandModel: returns true because attach.Find(\"gp_model\") != null (line 122)"); return true; }
             foreach (Renderer old in attach.GetComponentsInChildren<Renderer>(true)) old.enabled = false;
             GameObject copy = Object.Instantiate(model.gameObject, attach);
             copy.name = "gp_model";
@@ -137,7 +137,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             }
             ModLog.Info("DynamiteSetup: hand model on the attach point, local position " + copy.transform.localPosition.ToString("0.000") + " rot " + HandGripEuler.ToString("0") + " (expected: centre near (0, 0, 0.02), long axis along +Z"
                 + "), bounds centre in attach space " + (any ? attach.InverseTransformPoint(b.center).ToString("0.000") : "none") + ", size " + (any ? b.size.ToString("0.000") : "none"));
-            { if (RuleLog.IsOn()) ModLog.Verbose("ChargeKind.AttachHandModel: returns true (line 334)"); return true; }
+            { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteSetup.AttachHandModel: returns true (line 140)"); return true; }
         }
     }
 }

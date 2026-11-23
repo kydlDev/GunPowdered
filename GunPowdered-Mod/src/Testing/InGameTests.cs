@@ -18,7 +18,8 @@ namespace GunPowdered.Testing
         /// The player config is bound and the mod is switched on.
         static string Startup_ConfigBound()
         {
-            if (ModSettings.EnableMod == null) return "FAIL: ModSettings.Bind did not run (EnableMod is null)";
+            if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.Startup_ConfigBound()");
+            if (ModSettings.EnableMod == null) { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.Startup_ConfigBound: returns \"FAIL: ModSettings.Bind did not run (EnableMod is null)\" because ModSettings.EnableMod == null (line 22)"); return "FAIL: ModSettings.Bind did not run (EnableMod is null)"; }
             return ModSettings.On ? "PASS: EnableMod on" : "SKIP: EnableMod is off in the config";
         }
 
@@ -26,7 +27,7 @@ namespace GunPowdered.Testing
         static string Startup_FeaturesInstalled()
         {
             var inst = ModInstaller.Current;
-            if (inst == null) return "FAIL: ModInstaller.Install did not run";
+            if (inst == null) { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.Startup_FeaturesInstalled: returns \"FAIL: ModInstaller.Install did not run\" because inst == null (line 30)"); return "FAIL: ModInstaller.Install did not run"; }
             int running = 0;
             foreach (var f in inst.Features.All) if (inst.Features.IsRunning(f.Id)) running++;
             ModLog.Verbose("InGameTests: Startup_FeaturesInstalled " + inst.Features.Count + " feature(s), " + running + " running");
@@ -45,7 +46,7 @@ namespace GunPowdered.Testing
         static string Startup_BundleLoaded()
         {
             var b = Plugin.Bundle;
-            if (b == null) return "FAIL: Plugin.Bundle is null, the mod runs on placeholder looks";
+            if (b == null) { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.Startup_BundleLoaded: returns \"FAIL: Plugin.Bundle is null, the mod runs on placeholder looks\" because b == null (line 49)"); return "FAIL: Plugin.Bundle is null, the mod runs on placeholder looks"; }
             int n = b.GetAllAssetNames().Length;
             ModLog.Verbose("InGameTests: Startup_BundleLoaded " + n + " assets");
             return n >= 22 ? "PASS: bundle has " + n + " assets" : "FAIL: bundle has " + n + " assets, expected at least 22 (11 prefabs + 11 icons)";
@@ -59,11 +60,11 @@ namespace GunPowdered.Testing
             foreach (var s in ItemCatalog.All)
             {
                 var go = Jotunn.Managers.PrefabManager.Instance.GetPrefab(s.Id);
-                if (go == null) { bad.Append(s.Id).Append(" missing; "); continue; }
+                if (go == null) { bad.Append(s.Id).Append(" missing; "); { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_BundleModels: skips to the next item (continue) because go == null (line 63)"); continue; } }
                 var model = WorldModel(go.transform);
-                if (model == null) { bad.Append(s.Id).Append(" no gp_model; "); continue; }
+                if (model == null) { bad.Append(s.Id).Append(" no gp_model; "); { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_BundleModels: skips to the next item (continue) because model == null (line 65)"); continue; } }
                 var rends = model.GetComponentsInChildren<UnityEngine.Renderer>(true);
-                if (rends.Length == 0) { bad.Append(s.Id).Append(" no renderer; "); continue; }
+                if (rends.Length == 0) { bad.Append(s.Id).Append(" no renderer; "); { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_BundleModels: skips to the next item (continue) because rends.Length == 0 (line 67)"); continue; } }
                 foreach (var r in rends)
                     foreach (var m in r.sharedMaterials)
                         if (m == null || m.shader == null || m.shader.name.Contains("InternalErrorShader")) bad.Append(s.Id).Append("/").Append(r.name).Append(" bad shader; ");
@@ -83,10 +84,10 @@ namespace GunPowdered.Testing
         static UnityEngine.Transform WorldModel(UnityEngine.Transform root)
         {
             var direct = root.Find("gp_model");
-            if (direct != null) return direct;
+            if (direct != null) { var returnedAt87 = direct; if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.WorldModel: returns {returnedAt87} because direct != null (line 87)"); return returnedAt87; }
             foreach (UnityEngine.Transform child in root)
             {
-                if (child.name == "attach") continue;
+                if (child.name == "attach") { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.WorldModel: skips to the next item (continue) because child.name == \"attach\" (line 90)"); continue; }
                 var nested = child.Find("gp_model");
                 if (nested != null)
                 {
@@ -94,7 +95,7 @@ namespace GunPowdered.Testing
                     return nested;
                 }
             }
-            return null;
+            { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.WorldModel: returns null (line 98)"); return null; }
         }
 
         /// The public API (GunPowderedApi) names prefabs that exist in the game: what another mod gets from it can be spawned and used.
@@ -119,7 +120,7 @@ namespace GunPowdered.Testing
             bool station = go.GetComponent<CraftingStation>() != null;
             ModLog.Verbose($"InGameTests: World_PowderMillAutomatic mill {mill}, arm {spin}, crafting station {station}");
             if (!mill || !spin) return $"FAIL: the Powder Mill lacks its automatic parts (mill {mill}, arm {spin})";
-            return station ? "FAIL: the Powder Mill still has a crafting station" : "PASS: the Powder Mill grinds by itself (no crafting station)";
+            { var returnedAt123 = station ? "FAIL: the Powder Mill still has a crafting station" : "PASS: the Powder Mill grinds by itself (no crafting station)"; if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_PowderMillAutomatic: returns {returnedAt123} (line 123)"); return returnedAt123; }
         }
 
         /// The Spiked Grenade (D-047) is wired as approved: its own flight and blast prefabs are registered, the throw has no random spread, the blast
@@ -136,12 +137,12 @@ namespace GunPowdered.Testing
             ModLog.Verbose("InGameTests: World_GrenadeReady item " + (item != null) + ", flight " + (flight != null) + ", blast " + (blast != null)
                 + (attack != null ? ", accuracy " + attack.m_projectileAccuracy + "/" + attack.m_projectileAccuracyMin + ", projectile " + (attack.m_attackProjectile != null ? attack.m_attackProjectile.name : "none") : "")
                 + (aoe != null ? ", blast hits props " + aoe.m_hitProps + ", radius " + aoe.m_radius : ""));
-            if (item == null || flight == null || blast == null) return "FAIL: missing prefab - item " + (item != null) + ", flight " + (flight != null) + ", blast " + (blast != null);
-            if (attack.m_attackProjectile != flight) return "FAIL: the grenade throws " + (attack.m_attackProjectile != null ? attack.m_attackProjectile.name : "nothing") + ", not its own flight";
-            if (attack.m_projectileAccuracy > 0f || attack.m_projectileAccuracyMin > 0f || attack.m_randomVelocity) return "FAIL: the throw has random spread, it would not follow the arc";
+            if (item == null || flight == null || blast == null) { var returnedAt140 = "FAIL: missing prefab - item " + (item != null) + ", flight " + (flight != null) + ", blast " + (blast != null); if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_GrenadeReady: returns {returnedAt140} because item == null || flight == null || blast == null (line 140)"); return returnedAt140; }
+            if (attack.m_attackProjectile != flight) { var returnedAt141 = "FAIL: the grenade throws " + (attack.m_attackProjectile != null ? attack.m_attackProjectile.name : "nothing") + ", not its own flight"; if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_GrenadeReady: returns {returnedAt141} because attack.m_attackProjectile != flight (line 141)"); return returnedAt141; }
+            if (attack.m_projectileAccuracy > 0f || attack.m_projectileAccuracyMin > 0f || attack.m_randomVelocity) { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_GrenadeReady: returns \"FAIL: the throw has random spread, it would not follow the arc\" because attack.m_projectileAccuracy > 0f || attack.m_projectileAccuracyMin > 0f || attack.m_randomVelocity (line 142)"); return "FAIL: the throw has random spread, it would not follow the arc"; }
             if (aoe == null || !aoe.m_hitProps || aoe.m_hitTerrain) return "FAIL: the blast " + (aoe == null ? "has no Aoe" : (!aoe.m_hitProps ? "spares buildings (D-100: it must damage them)" : "changes the terrain"));
-            if (attack.m_recoilPushback <= 0f) return "FAIL: the throw has no recoil (D-045: every weapon has some)";
-            if (attach == null || attach.Find("gp_model") == null) return "FAIL: no clay pot in the hand model (attach)";
+            if (attack.m_recoilPushback <= 0f) { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_GrenadeReady: returns \"FAIL: the throw has no recoil (D-045: every weapon has some)\" because attack.m_recoilPushback <= 0f (line 144)"); return "FAIL: the throw has no recoil (D-045: every weapon has some)"; }
+            if (attach == null || attach.Find("gp_model") == null) { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_GrenadeReady: returns \"FAIL: no clay pot in the hand model (attach)\" because attach == null || attach.Find(\"gp_model\") == null (line 145)"); return "FAIL: no clay pot in the hand model (attach)"; }
             return "PASS: grenade, flight and blast ready (radius " + aoe.m_radius + " m, speed " + attack.m_projectileVel + " m/s, no spread, recoil " + attack.m_recoilPushback + ", buildings spared)";
         }
 

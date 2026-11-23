@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using KydlCore.Common;
 using UnityEngine;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -23,11 +24,11 @@ namespace GunPowdered.Testing.TestHooks
         /// <summary>Called by the arena step before KydlCore's cleanup. Expected outcome: "terrain template: ..." (what was remembered or put back).</summary>
         internal static string Sync()
         {
-            if (ZNet.instance == null) return "terrain template: no world";
+            if (ZNet.instance == null) { if (RuleLog.IsOn()) ModLog.Verbose($"TerrainTemplateKeys.Sync: returns \"terrain template: no world\" because ZNet.instance == null (line 27)"); return "terrain template: no world"; }
             bool relogged = _world != null && !ReferenceEquals(_world, ZNet.instance);
             _world = ZNet.instance;      // also before KydlCore's first copy exists, so a relog in the very first test is seen
             if (!(System.AppDomain.CurrentDomain.GetData(TestTerrainRestore.SnapshotKey) is Dictionary<ZDOID, byte[]> copy))
-                return "terrain template: none yet";
+                { if (RuleLog.IsOn()) ModLog.Verbose($"TerrainTemplateKeys.Sync: returns \"terrain template: none yet\" (line 31)"); return "terrain template: none yet"; }
             var current = new Dictionary<Vector2Int, ZDOID>();
             foreach (TerrainComp tc in Object.FindObjectsByType<TerrainComp>(FindObjectsSortMode.None))
             {

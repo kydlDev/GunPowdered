@@ -1,6 +1,7 @@
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Features.ExplosiveArrows.Infrastructure;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -18,8 +19,9 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.explosiveArrowInfo")]
         static string Info()
         {
+            if (RuleLog.Due("ExplosiveArrowTestHooks.Info", 2d)) ModLog.Every("ExplosiveArrowTestHooks.Info", 2d, $"ExplosiveArrowTestHooks.Info()");
             GameObject item = ExplosiveArrowSetup.Item;
-            if (item == null) return "no arrow";
+            if (item == null) { if (RuleLog.Due("ExplosiveArrowTestHooks.Info:24", 2d)) ModLog.Every("ExplosiveArrowTestHooks.Info:24", 2d, $"ExplosiveArrowTestHooks.Info: returns \"no arrow\" because item == null (line 24)"); return "no arrow"; }
             ItemDrop.ItemData.SharedData s = item.GetComponent<ItemDrop>().m_itemData.m_shared;
             Aoe blast = ExplosiveArrowSetup.Explosion != null ? ExplosiveArrowSetup.Explosion.GetComponent<Aoe>() : null;
             Projectile flight = ExplosiveArrowSetup.Projectile != null ? ExplosiveArrowSetup.Projectile.GetComponent<Projectile>() : null;
@@ -39,10 +41,10 @@ namespace GunPowdered.Testing.TestHooks
         {
             Player p = Player.m_localPlayer;
             GameObject flightPrefab = ExplosiveArrowSetup.Projectile;
-            if (p == null || flightPrefab == null || ExplosiveArrowSetup.Item == null) return "no player or no arrow";
+            if (p == null || flightPrefab == null || ExplosiveArrowSetup.Item == null) { if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowTestHooks.ShootAt: returns \"no player or no arrow\" because p == null || flightPrefab == null || ExplosiveArrowSetup.Item == null (line 44)"); return "no player or no arrow"; }
             Vector3 from = p.GetEyePoint() + p.transform.forward * 0.6f;
             Vector3? target = Nearest(prefab, from);
-            if (!target.HasValue) return "no " + prefab + " within 40 m";
+            if (!target.HasValue) { var returnedAt47 = "no " + prefab + " within 40 m"; if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowTestHooks.ShootAt: returns {returnedAt47} because !target.HasValue (line 47)"); return returnedAt47; }
             Vector3 dir = (target.Value - from).normalized;
             GameObject arrow = Object.Instantiate(flightPrefab, from, Quaternion.LookRotation(dir));
             var flight = arrow.GetComponent<Projectile>();
@@ -59,9 +61,10 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.explosiveArrowBurstSeen")]
         static bool BurstSeen()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowTestHooks.BurstSeen()");
             foreach (Aoe a in Object.FindObjectsByType<Aoe>(FindObjectsSortMode.None))
-                if (a.name.StartsWith(ExplosiveArrowSetup.ExplosionId) && Time.time - _shotAt < 6f) return true;
-            return false;
+                if (a.name.StartsWith(ExplosiveArrowSetup.ExplosionId) && Time.time - _shotAt < 6f) { if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowTestHooks.BurstSeen: returns true because a.name.StartsWith(ExplosiveArrowSetup.ExplosionId) && Time.time - _shotAt < 6f (line 66)"); return true; }
+            { if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowTestHooks.BurstSeen: returns false (line 67)"); return false; }
         }
 
         static readonly System.Collections.Generic.List<GameObject> Placed = new System.Collections.Generic.List<GameObject>();
@@ -70,47 +73,50 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.placePieceAhead")]
         static string PlacePieceAhead(string prefab, double metres)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowTestHooks.PlacePieceAhead(prefab={prefab}, metres={metres})");
             Player p = Player.m_localPlayer;
             GameObject source = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
-            if (p == null || source == null) return "no player or no prefab " + prefab;
+            if (p == null || source == null) { var returnedAt79 = "no player or no prefab " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowTestHooks.PlacePieceAhead: returns {returnedAt79} because p == null || source == null (line 79)"); return returnedAt79; }
             Vector3 at = p.transform.position + p.transform.forward * (float)metres;
             float ground;
             if (ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(at, out ground)) at.y = ground;
             GameObject go = Object.Instantiate(source, at, Quaternion.LookRotation(-p.transform.forward));
             if (go != null) Placed.Add(go);
-            return go != null ? "placed " + prefab : "could not place " + prefab;
+            { var returnedAt85 = go != null ? "placed " + prefab : "could not place " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowTestHooks.PlacePieceAhead: returns {returnedAt85} (line 85)"); return returnedAt85; }
         }
 
         /// <summary>Removes what placePieceAhead placed. Returns "removed N".</summary>
         [TestHook("GunPowdered.removePiecesAhead")]
         static string RemovePiecesAhead(string prefab)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowTestHooks.RemovePiecesAhead(prefab={prefab})");
             int n = 0;
             foreach (GameObject go in Placed)
             {
-                if (go == null) continue;
+                if (go == null) { if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowTestHooks.RemovePiecesAhead: skips to the next item (continue) because go == null (line 96)"); continue; }
                 ZNetView nv = go.GetComponent<ZNetView>();
                 if (nv != null && nv.IsValid()) { nv.ClaimOwnership(); ZNetScene.instance.Destroy(go); }
                 else Object.Destroy(go);
                 n++;
             }
             Placed.Clear();
-            return "removed " + n;
+            { var returnedAt103 = "removed " + n; if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowTestHooks.RemovePiecesAhead: returns {returnedAt103} (line 103)"); return returnedAt103; }
         }
 
         static Vector3? Nearest(string prefab, Vector3 from)
         {
+            if (RuleLog.Due("ExplosiveArrowTestHooks.Nearest", 2d)) ModLog.Every("ExplosiveArrowTestHooks.Nearest", 2d, $"ExplosiveArrowTestHooks.Nearest(prefab={prefab}, from={from})");
             Vector3? best = null;
             float bestDist = 40f;
             foreach (ZNetView v in Object.FindObjectsByType<ZNetView>(FindObjectsSortMode.None))
             {
-                if (Utils.GetPrefabName(v.gameObject) != prefab) continue;
+                if (Utils.GetPrefabName(v.gameObject) != prefab) { if (RuleLog.Due("ExplosiveArrowTestHooks.Nearest:113", 2d)) ModLog.Every("ExplosiveArrowTestHooks.Nearest:113", 2d, $"ExplosiveArrowTestHooks.Nearest: skips to the next item (continue) because Utils.GetPrefabName(v.gameObject) != prefab (line 113)"); continue; }
                 Character c = v.GetComponent<Character>();
                 Vector3 at = c != null ? c.GetCenterPoint() : v.transform.position + Vector3.up;
                 float d = Vector3.Distance(from, at);
                 if (d < bestDist) { best = at; bestDist = d; }
             }
-            return best;
+            { var returnedAt119 = best; if (RuleLog.Due("ExplosiveArrowTestHooks.Nearest:119", 2d)) ModLog.Every("ExplosiveArrowTestHooks.Nearest:119", 2d, $"ExplosiveArrowTestHooks.Nearest: returns {returnedAt119} (line 119)"); return returnedAt119; }
         }
     }
 }

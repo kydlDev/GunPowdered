@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using BepInEx.Configuration;
 using KydlCore.Common;
 using GunPowdered.Core;
@@ -54,11 +54,11 @@ namespace GunPowdered.Configuration
             bool b;
             if (dict.Contains(def) && bool.TryParse((dict[def] as string ?? "").Trim(), out b))
             {
-                { var returnedAt55 = b; if (RuleLog.IsOn()) ModLog.Verbose($"ModSettings.Old: returns {RuleLog.Shown(returnedAt55)} (line 55)"); return returnedAt55; }
+                { var returnedAt57 = b; if (RuleLog.IsOn()) ModLog.Verbose($"ModSettings.Old: returns {returnedAt57} (line 57)"); return returnedAt57; }
             }
         }
 
-        { if (RuleLog.IsOn()) ModLog.Verbose("ModSettings.Old: returns true (line 59)"); return true; }
+        { if (RuleLog.IsOn()) ModLog.Verbose($"ModSettings.Old: returns true (line 61)"); return true; }
     }
 
         /// Expected outcome: every player entry is bound (returns that check).

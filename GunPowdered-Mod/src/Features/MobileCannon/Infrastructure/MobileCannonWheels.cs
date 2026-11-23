@@ -25,7 +25,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         {
             Vagon vagon = GetComponent<Vagon>();
             Transform model = transform.Find(MobileCannonSetup.ModelName);
-            if (vagon == null || model == null || vagon.m_wheels == null) { if (RuleLog.Due("MobileCannonWheels.Start:28", 2d)) ModLog.Every("MobileCannonWheels.Start:28", 2d, "MobileCannonWheels.Start: returns (line 28)"); return; }
+            if (vagon == null || model == null || vagon.m_wheels == null) { if (RuleLog.Due("MobileCannonWheels.Start:28", 2d)) ModLog.Every("MobileCannonWheels.Start:28", 2d, $"MobileCannonWheels.Start: returns because vagon == null || model == null || vagon.m_wheels == null (line 28)"); return; }
             var shown = new System.Collections.Generic.List<Transform>();
             foreach (Transform t in model)
                 if (t.name.StartsWith(WheelPrefix) && !t.name.EndsWith("_tyre")) shown.Add(t);
@@ -53,7 +53,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         {
             for (int i = 0; i < _shown.Length; i++)
             {
-                if (_shown[i] == null || _physics[i] == null) continue;
+                if (_shown[i] == null || _physics[i] == null) { if (RuleLog.Due("MobileCannonWheels.LateUpdate:56", 2d)) ModLog.Every("MobileCannonWheels.LateUpdate:56", 2d, $"MobileCannonWheels.LateUpdate: skips to the next item (continue) because _shown[i] == null || _physics[i] == null (line 56)"); continue; }
                 _shown[i].rotation = _physics[i].transform.rotation * _offset[i];
                 Quaternion now = _physics[i].transform.localRotation;
                 if (i == 0) TurnedDegrees += Quaternion.Angle(_start[i], now);

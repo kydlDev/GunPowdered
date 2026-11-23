@@ -1,6 +1,7 @@
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Features.Musket.Infrastructure;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -93,7 +94,7 @@ namespace GunPowdered.Testing.TestHooks
             Transform right = anim != null ? anim.GetBoneTransform(HumanBodyBones.RightHand) : null, left = anim != null ? anim.GetBoneTransform(HumanBodyBones.LeftHand) : null;
             VisEquipment vis = p.GetComponent<VisEquipment>();
             Transform model = null;
-            if (vis != null && vis.m_rightHand != null) foreach (Transform t in vis.m_rightHand.GetComponentsInChildren<Transform>(true)) if (t.name == "gp_model" && t.parent != null && t.parent.name.StartsWith("attach")) { model = t; break; }
+            if (vis != null && vis.m_rightHand != null) foreach (Transform t in vis.m_rightHand.GetComponentsInChildren<Transform>(true)) if (t.name == "gp_model" && t.parent != null && t.parent.name.StartsWith("attach")) { model = t; { if (RuleLog.IsOn()) ModLog.Verbose($"MusketTestHooks.Grip: leaves the loop / case (break) because t.name == \"gp_model\" && t.parent != null && t.parent.name.StartsWith(\"attach\") (line 97)"); break; } }
             GameObject other = vis != null ? HarmonyLib.Traverse.Create(vis).Field("m_rightItemInstance").GetValue<GameObject>() : null;
             string s = "dodging " + p.InDodge() + "; musket " + (model == null ? "not in the right hand" : "under " + model.parent.parent?.name + ", " + (right != null ? Vector3.Distance(model.position, right.position).ToString("0.00") : "?") + " m from the right hand, "
                 + (left != null ? Vector3.Distance(model.position, left.position).ToString("0.00") : "?") + " m from the left hand") + "; offhand " + (other != null && other.transform.parent != null ? "under " + other.transform.parent.name : "none");

@@ -65,7 +65,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// <summary>Puts the rig on a player (once). Expected outcome: the player has exactly one rig.</summary>
         internal static MusketRig AttachTo(Character character)
         {
-            if (character == null) { if (RuleLog.Due("MusketRig.AttachTo:68", 2d)) ModLog.Every("MusketRig.AttachTo:68", 2d, "MusketRig.AttachTo: returns null (line 68)"); return null; }
+            if (character == null) { if (RuleLog.Due("MusketRig.AttachTo:68", 2d)) ModLog.Every("MusketRig.AttachTo:68", 2d, $"MusketRig.AttachTo: returns null because character == null (line 68)"); return null; }
             MusketRig rig = character.GetComponent<MusketRig>() ?? character.gameObject.AddComponent<MusketRig>();
             rig._character = character;
             rig._vis = character.GetComponent<VisEquipment>();
@@ -79,9 +79,9 @@ namespace GunPowdered.Features.Musket.Infrastructure
         {
             if (RuleLog.Due("MusketRig.TryMuzzle", 2d)) ModLog.Every("MusketRig.TryMuzzle", 2d, $"MusketRig.TryMuzzle()");
             at = Vector3.zero;
-            if (_model == null || !_wasHolding) { if (RuleLog.Due("MusketRig.TryMuzzle:82", 2d)) ModLog.Every("MusketRig.TryMuzzle:82", 2d, "MusketRig.TryMuzzle: returns false (line 82)"); return false; }
+            if (_model == null || !_wasHolding) { if (RuleLog.Due("MusketRig.TryMuzzle:82", 2d)) ModLog.Every("MusketRig.TryMuzzle:82", 2d, $"MusketRig.TryMuzzle: returns false because _model == null || !_wasHolding (line 82)"); return false; }
             at = _model.TransformPoint(new Vector3(0f, 0f, MusketPoses.MuzzleZ));
-            { if (RuleLog.Due("MusketRig.TryMuzzle:84", 2d)) ModLog.Every("MusketRig.TryMuzzle:84", 2d, "MusketRig.TryMuzzle: returns true (line 84)"); return true; }
+            { if (RuleLog.Due("MusketRig.TryMuzzle:84", 2d)) ModLog.Every("MusketRig.TryMuzzle:84", 2d, $"MusketRig.TryMuzzle: returns true (line 84)"); return true; }
         }
 
         /// <summary>Starts an action (a shot's recoil, a reload) for this player; Hold ends it.</summary>
@@ -98,7 +98,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         void Share(MusketAction action)
         {
             if (RuleLog.Due("MusketRig.Share", 2d)) ModLog.Every("MusketRig.Share", 2d, $"MusketRig.Share(action={RuleLog.Shown(action)})");
-            if (_nview == null || !_nview.IsValid() || !_nview.IsOwner()) { if (RuleLog.Due("MusketRig.Share:100", 2d)) ModLog.Every("MusketRig.Share:100", 2d, "MusketRig.Share: returns (line 100)"); return; }
+            if (_nview == null || !_nview.IsValid() || !_nview.IsOwner()) return;
             ZDO zdo = _nview.GetZDO();
             _seq = zdo.GetInt(ActionSeqKey) + 1;
             zdo.Set(ActionKey, (int)action);
@@ -110,11 +110,11 @@ namespace GunPowdered.Features.Musket.Infrastructure
         // another player's rig: start the action that player's client wrote (once per counter step). Expected outcome: true when a new action began.
         bool FollowOwner()
         {
-            if (_nview == null || !_nview.IsValid() || _nview.IsOwner()) { if (RuleLog.Due("MusketRig.FollowOwner:111", 2d)) ModLog.Every("MusketRig.FollowOwner:111", 2d, "MusketRig.FollowOwner: returns false (line 111)"); return false; }
+            if (_nview == null || !_nview.IsValid() || _nview.IsOwner()) { if (RuleLog.Due("MusketRig.FollowOwner:113", 2d)) ModLog.Every("MusketRig.FollowOwner:113", 2d, $"MusketRig.FollowOwner: returns false because _nview == null || !_nview.IsValid() || _nview.IsOwner() (line 113)"); return false; }
             ZDO zdo = _nview.GetZDO();
             int seq = zdo.GetInt(ActionSeqKey, MusketPoseRules.NoActionYet);
             // joining late: a past action is not replayed; but the shooter's very first action is (it was swallowed before, lab a17bjornita3)
-            if (!MusketPoseRules.IsNewAction(seq, _seenSeq, out _seenSeq)) { if (RuleLog.Due("MusketRig.FollowOwner:114", 2d)) ModLog.Every("MusketRig.FollowOwner:114", 2d, "MusketRig.FollowOwner: returns false (line 114)"); return false; }
+            if (!MusketPoseRules.IsNewAction(seq, _seenSeq, out _seenSeq)) { if (RuleLog.Due("MusketRig.FollowOwner:117", 2d)) ModLog.Every("MusketRig.FollowOwner:117", 2d, $"MusketRig.FollowOwner: returns false because !MusketPoseRules.IsNewAction(seq, _seenSeq, out _seenSeq) (line 117)"); return false; }
             _action = (MusketAction)zdo.GetInt(ActionKey);
             _stroke = zdo.GetFloat(StrokeKey, MusketPoseRules.ReloadSecondsPerCartridge);
             _actionStarted = Time.time;
@@ -268,7 +268,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 Trace(holding ? "no pose handler" : "not holding");
                 _wrote = false;
                 _spineSet = false;
-                { if (RuleLog.Due("MusketRig.LateUpdate:138", 2d)) ModLog.Every("MusketRig.LateUpdate:138", 2d, "MusketRig.LateUpdate: returns (line 138)"); return; }
+                { if (RuleLog.Due("MusketRig.LateUpdate:271", 2d)) ModLog.Every("MusketRig.LateUpdate:271", 2d, $"MusketRig.LateUpdate: returns (line 271)"); return; }
             }
             // the action, the raised / lowered state and the carry follow the owner every frame, also in frames the pose itself is skipped below
             FollowOwner();
@@ -295,12 +295,12 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 float skipSeconds = Time.time - _actionStarted;
                 PlaceModel(MusketPoseRules.ReloadWeight(_action, skipSeconds), skipSeconds);
                 Trace("skip");
-                { if (RuleLog.Due("MusketRig.LateUpdate:143", 2d)) ModLog.Every("MusketRig.LateUpdate:143", 2d, "MusketRig.LateUpdate: returns (line 143)"); return; }
+                { if (RuleLog.Due("MusketRig.LateUpdate:298", 2d)) ModLog.Every("MusketRig.LateUpdate:298", 2d, $"MusketRig.LateUpdate: returns (line 298)"); return; }
             }
 
             float seconds = Time.time - _actionStarted;
             if (_action == MusketAction.Fire && seconds > MusketPoseRules.FireSeconds) _action = MusketAction.Hold;
-            if (!MusketPoseRules.Evaluate(_action, seconds, _carry, _muscles, _stroke)) { if (RuleLog.Due("MusketRig.LateUpdate:151", 2d)) ModLog.Every("MusketRig.LateUpdate:151", 2d, "MusketRig.LateUpdate: returns (line 151)"); return; }
+            if (!MusketPoseRules.Evaluate(_action, seconds, _carry, _muscles, _stroke)) { if (RuleLog.Due("MusketRig.LateUpdate:303", 2d)) ModLog.Every("MusketRig.LateUpdate:303", 2d, $"MusketRig.LateUpdate: returns because !MusketPoseRules.Evaluate(_action, seconds, _carry, _muscles, _stroke) (line 303)"); return; }
 
             float w = MusketPoseRules.ReloadWeight(_action, seconds);
             float leftWeight = MusketPoseRules.LeftArmWeight(_carry, w);
@@ -337,16 +337,16 @@ namespace GunPowdered.Features.Musket.Infrastructure
         float AimChest()
         {
             if (RuleLog.Due("MusketRig.AimChest", 2d)) ModLog.Every("MusketRig.AimChest", 2d, $"MusketRig.AimChest()");
-            if (_action == MusketAction.Reload || _carry > 0.5f) { if (RuleLog.Due("MusketRig.AimChest:170", 2d)) ModLog.Every("MusketRig.AimChest:170", 2d, "MusketRig.AimChest: returns 0f (line 170)"); return 0f; }
+            if (_action == MusketAction.Reload || _carry > 0.5f) return 0f;
             Transform chest = _animator.GetBoneTransform(HumanBodyBones.UpperChest) ?? _animator.GetBoneTransform(HumanBodyBones.Chest);
-            if (chest == null) { if (RuleLog.Due("MusketRig.AimChest:172", 2d)) ModLog.Every("MusketRig.AimChest:172", 2d, "MusketRig.AimChest: returns 0f (line 172)"); return 0f; }
+            if (chest == null) { if (RuleLog.Due("MusketRig.AimChest:342", 2d)) ModLog.Every("MusketRig.AimChest:342", 2d, $"MusketRig.AimChest: returns 0f because chest == null (line 342)"); return 0f; }
             Transform body = _character.transform;
             Vector3 look = _character.GetLookDir();
             Vector3 flat = Vector3.ProjectOnPlane(look, body.up);
-            if (flat.sqrMagnitude < 1e-4f) { if (RuleLog.Due("MusketRig.AimChest:176", 2d)) ModLog.Every("MusketRig.AimChest:176", 2d, "MusketRig.AimChest: returns 0f (line 176)"); return 0f; }
+            if (flat.sqrMagnitude < 1e-4f) { if (RuleLog.Due("MusketRig.AimChest:346", 2d)) ModLog.Every("MusketRig.AimChest:346", 2d, $"MusketRig.AimChest: returns 0f because flat.sqrMagnitude < 1e-4f (line 346)"); return 0f; }
             float pitch = Mathf.Clamp(Vector3.SignedAngle(flat.normalized, look, body.right), -MaxAimPitch, MaxAimPitch) * (1f - _carry);
             chest.rotation = Quaternion.AngleAxis(pitch, body.right) * chest.rotation;
-            { var returnedAt179 = pitch; if (RuleLog.Due("MusketRig.AimChest:179", 2d)) ModLog.Every("MusketRig.AimChest:179", 2d, $"MusketRig.AimChest: returns {RuleLog.Shown(returnedAt179)} (line 179)"); return returnedAt179; }
+            { var returnedAt349 = pitch; if (RuleLog.Due("MusketRig.AimChest:349", 2d)) ModLog.Every("MusketRig.AimChest:349", 2d, $"MusketRig.AimChest: returns {returnedAt349} (line 349)"); return returnedAt349; }
         }
 
         // ---- D-155: the side carry placed in the body's space (the animation state - one-handed, left torch, crossbow, running - bends the spine and

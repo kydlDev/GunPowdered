@@ -42,9 +42,9 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 // first generation, the only one that places mud), so a missing placement can be traced.
                 if (__args != null && __args.Length > 2 && __args[0] is ZoneSystem.ZoneLocation zl0 && __args[2] is Vector3 p0 && (zl0.m_prefabName == Geyser || (zl0.m_prefabName ?? "").StartsWith("Grave")))
                     ModLog.Verbose("LocationSpawnPatch: " + zl0.m_prefabName + " spawn at " + p0.ToString("0") + ", mode " + (__state >= 0 ? ((ZoneSystem.SpawnMode)__state).ToString() : "?"));
-                if (__state != (int)ZoneSystem.SpawnMode.Full || __args == null || __args.Length < 5) { if (RuleLog.Due("LocationSpawnPatch.Postfix:41", 2d)) ModLog.Every("LocationSpawnPatch.Postfix:41", 2d, "LocationSpawnPatch.Postfix: returns (line 41)"); return; }
+                if (__state != (int)ZoneSystem.SpawnMode.Full || __args == null || __args.Length < 5) return;
                 var loc = __args[0] as ZoneSystem.ZoneLocation;
-                if (loc == null || !(__args[1] is int) || !(__args[2] is Vector3) || !(__args[3] is Quaternion)) { if (RuleLog.Due("LocationSpawnPatch.Postfix:43", 2d)) ModLog.Every("LocationSpawnPatch.Postfix:43", 2d, "LocationSpawnPatch.Postfix: returns (line 43)"); return; }
+                if (loc == null || !(__args[1] is int) || !(__args[2] is Vector3) || !(__args[3] is Quaternion)) { if (RuleLog.Due("LocationSpawnPatch.Postfix:47", 2d)) ModLog.Every("LocationSpawnPatch.Postfix:47", 2d, $"LocationSpawnPatch.Postfix: returns because loc == null || !(__args[1] is int) || !(__args[2] is Vector3) || !(__args[3] is Quaternion) (line 47)"); return; }
                 string name = loc.m_prefabName ?? "";
                 int seed = (int)__args[1];
                 var pos = (Vector3)__args[2];
@@ -54,9 +54,17 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 // a zone generated at the edge of the loaded area spawns its locations in Ghost mode, and those never got mud (a18mud1).
                 if (RuleLog.Due("loc-full", 10d)) ModLog.Every("loc-full", 10d, "LocationSpawnPatch: " + name + " generated (Full) at " + pos.ToString("0") + ", seed " + seed + ", rotation " + rot.eulerAngles.y.ToString("0") + " - mud follows when it appears near a player");
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("LocationSpawnPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("LocationSpawnPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn("LocationSpawnPatch: " + e.GetType().Name + ": " + e.Message);
+                ModLog.Warn("LocationSpawnPatch: " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
             }
         }
 
@@ -82,11 +90,11 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             if (RuleLog.Due("LocationSpawnPatch.Spots", 2d)) ModLog.Every("LocationSpawnPatch.Spots", 2d, $"LocationSpawnPatch.Spots(loc={RuleLog.Shown(loc)}, pos={RuleLog.Shown(pos)}, rot={RuleLog.Shown(rot)})");
             var spots = new List<Vector3>();
-            if (loc.m_prefab == null || !loc.m_prefab.IsLoaded) { var returnedAt69 = spots; if (RuleLog.Due("LocationSpawnPatch.Spots:69", 2d)) ModLog.Every("LocationSpawnPatch.Spots:69", 2d, $"LocationSpawnPatch.Spots: returns {RuleLog.Shown(returnedAt69)} (line 69)"); return returnedAt69; }
+            if (loc.m_prefab == null || !loc.m_prefab.IsLoaded) { var returnedAt93 = spots; if (RuleLog.Due("LocationSpawnPatch.Spots:93", 2d)) ModLog.Every("LocationSpawnPatch.Spots:93", 2d, $"LocationSpawnPatch.Spots: returns {returnedAt93} because loc.m_prefab == null || !loc.m_prefab.IsLoaded (line 93)"); return returnedAt93; }
             Transform root = loc.m_prefab.Asset.transform;
             foreach (Transform t in root.GetComponentsInChildren<Transform>(true))
                 if (t.name.StartsWith(DraugrPile)) spots.Add(pos + rot * root.InverseTransformPoint(t.position));
-            { var returnedAt73 = spots; if (RuleLog.Due("LocationSpawnPatch.Spots:73", 2d)) ModLog.Every("LocationSpawnPatch.Spots:73", 2d, $"LocationSpawnPatch.Spots: returns {RuleLog.Shown(returnedAt73)} (line 73)"); return returnedAt73; }
+            { var returnedAt97 = spots; if (RuleLog.Due("LocationSpawnPatch.Spots:97", 2d)) ModLog.Every("LocationSpawnPatch.Spots:97", 2d, $"LocationSpawnPatch.Spots: returns {returnedAt97} (line 97)"); return returnedAt97; }
         }
 
         static IEnumerator PlaceLater(string name, bool geyser, Vector3 pos, List<Vector3> spots, int seed)
@@ -107,9 +115,17 @@ namespace GunPowdered.Integrations.HarmonyPatches
                     ModLog.Decision("draugr pile mud", placed + " deposit(s)", name + ", " + spots.Count + " pile(s)");
                 }
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("LocationSpawnPatch.PlaceLater: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("LocationSpawnPatch.PlaceLater: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn("LocationSpawnPatch.PlaceLater: " + e.GetType().Name + ": " + e.Message);
+                ModLog.Warn("LocationSpawnPatch.PlaceLater: " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
             }
         }
     }
@@ -152,9 +168,17 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 bool started = LocationSpawnPatch.Plan(loc, zdo.GetInt(ZDOVars.s_seed), __instance.transform.position, __instance.transform.rotation, "shown near a player");
                 ModLog.Verbose("LocationProxyMudPatch: " + loc.m_prefabName + " at " + __instance.transform.position.ToString("0") + " marked done, placement started " + started);
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("LocationProxyMudPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("LocationProxyMudPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn("LocationProxyMudPatch: " + e.GetType().Name + ": " + e.Message);
+                ModLog.Warn("LocationProxyMudPatch: " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
             }
         }
     }

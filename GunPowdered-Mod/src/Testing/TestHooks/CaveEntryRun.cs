@@ -1,9 +1,10 @@
-﻿// kydl:read-only-observer - test-only: the local player is moved to cave entrances and uses them like a player would
+// kydl:read-only-observer - test-only: the local player is moved to cave entrances and uses them like a player would
 using System.Collections;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Bootstrap;
 using GunPowdered.Features.Guano.Infrastructure;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -54,11 +55,12 @@ namespace GunPowdered.Testing.TestHooks
 
         internal static string Start(string name, int count)
         {
+            if (RuleLog.Due("CaveEntryRun.Start", 2d)) ModLog.Every("CaveEntryRun.Start", 2d, $"CaveEntryRun.Start(name={name}, count={count})");
             if (_left > 0) return "FAIL: a cave run is still going (" + _left + " left)";
             _left = count; _count = count; _spawned = 0; _withEntrance = 0; _entered = 0; _filledBefore = 0; _name = name;
             _plannedAtStart = CaveEntryPlacer.Stats.Planned; _placedAtStart = CaveEntryPlacer.Stats.Placed; _filledAtStart = CaveEntryPlacer.Stats.Filled;
             Plugin.Instance.StartCoroutine(Run(name, count));
-            return "started " + count;
+            { var returnedAt63 = "started " + count; if (RuleLog.Due("CaveEntryRun.Start:63", 2d)) ModLog.Every("CaveEntryRun.Start:63", 2d, $"CaveEntryRun.Start: returns {returnedAt63} (line 63)"); return returnedAt63; }
         }
 
         /// <summary>
@@ -143,18 +145,20 @@ namespace GunPowdered.Testing.TestHooks
 
         static float CooldownOf(Player p)
         {
+            if (RuleLog.Due("CaveEntryRun.CooldownOf", 2d)) ModLog.Every("CaveEntryRun.CooldownOf", 2d, $"CaveEntryRun.CooldownOf(p={p})");
             object v = HarmonyLib.AccessTools.Field(typeof(Player), "m_teleportCooldown")?.GetValue(p);
-            return v is float f ? f : 0f;
+            { var returnedAt150 = v is float f ? f : 0f; if (RuleLog.Due("CaveEntryRun.CooldownOf:150", 2d)) ModLog.Every("CaveEntryRun.CooldownOf:150", 2d, $"CaveEntryRun.CooldownOf: returns {returnedAt150} (line 150)"); return returnedAt150; }
         }
 
         // The ground entrance of the cave at that spot: a Teleport whose target point is in the interior band (~5000 m up).
         static Teleport Entrance(Vector3 pos)
         {
+            if (RuleLog.Due("CaveEntryRun.Entrance", 2d)) ModLog.Every("CaveEntryRun.Entrance", 2d, $"CaveEntryRun.Entrance(pos={pos})");
             Location loc = Location.GetLocation(pos, false);
-            if (loc == null) return null;
+            if (loc == null) { if (RuleLog.Due("CaveEntryRun.Entrance:158", 2d)) ModLog.Every("CaveEntryRun.Entrance:158", 2d, $"CaveEntryRun.Entrance: returns null because loc == null (line 158)"); return null; }
             foreach (Teleport t in loc.GetComponentsInChildren<Teleport>())
-                if (t.m_targetPoint != null && t.transform.position.y < 3000f && t.m_targetPoint.transform.position.y > 3000f) return t;
-            return null;
+                if (t.m_targetPoint != null && t.transform.position.y < 3000f && t.m_targetPoint.transform.position.y > 3000f) { var returnedAt160 = t; if (RuleLog.Due("CaveEntryRun.Entrance:160", 2d)) ModLog.Every("CaveEntryRun.Entrance:160", 2d, $"CaveEntryRun.Entrance: returns {returnedAt160} because t.m_targetPoint != null && t.transform.position.y < 3000f && t.m_targetPoint.transform.position.y > 3000f (line 160)"); return returnedAt160; }
+            { if (RuleLog.Due("CaveEntryRun.Entrance:161", 2d)) ModLog.Every("CaveEntryRun.Entrance:161", 2d, $"CaveEntryRun.Entrance: returns null (line 161)"); return null; }
         }
     }
 }

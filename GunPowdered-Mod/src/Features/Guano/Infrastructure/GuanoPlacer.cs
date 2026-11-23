@@ -24,7 +24,7 @@ namespace GunPowdered.Features.Guano.Infrastructure
             var rng = new SeededRandom(seed ^ 0x6A09E667);
             int[] plan = GuanoDepositRules.Plan(kind, () => rng.NextDouble());
             planned = plan.Length;
-            if (plan.Length == 0 || spots.Count == 0) { if (RuleLog.Due("GuanoPlacer.Place:27", 2d)) ModLog.Every("GuanoPlacer.Place:27", 2d, "GuanoPlacer.Place: returns 0 (line 27)"); return 0; }
+            if (plan.Length == 0 || spots.Count == 0) { if (RuleLog.Due("GuanoPlacer.Place:27", 2d)) ModLog.Every("GuanoPlacer.Place:27", 2d, $"GuanoPlacer.Place: returns 0 because plan.Length == 0 || spots.Count == 0 (line 27)"); return 0; }
 
             // every spot, dealt evenly over the cave's floors (D-151: lowest floor first, one per floor per round, random within a floor); a spot without a
             // floor under it (a wall piece, a gap) is skipped and the next one is tried (seen in game: 2 of 3 missed)
@@ -36,7 +36,7 @@ namespace GunPowdered.Features.Guano.Infrastructure
             for (int s = 0; s < order.Count && placed < plan.Length; s++)
             {
                 Vector3 floor;
-                if (!DepositSpawner.Floor(order[s], out floor)) { noFloor++; continue; }
+                if (!DepositSpawner.Floor(order[s], out floor)) { noFloor++; { if (RuleLog.Due("GuanoPlacer.Place:39", 2d)) ModLog.Every("GuanoPlacer.Place:39", 2d, $"GuanoPlacer.Place: skips to the next item (continue) because !DepositSpawner.Floor(order[s], out floor) (line 39)"); continue; } }
                 if (DepositSpawner.Spawn(GunPowderedPrefabs.GuanoDeposit, floor, plan[placed], seed + placed) != null) placed++;
             }
             KydlCore.Common.ModLog.Verbose("GuanoPlacer: " + kind + " planned " + plan.Length + ", placed " + placed + ", no floor at " + noFloor + " spot(s)");

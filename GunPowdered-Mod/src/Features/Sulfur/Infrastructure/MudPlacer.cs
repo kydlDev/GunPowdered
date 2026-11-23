@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
 using GunPowdered.Features.Sulfur.Domain;
@@ -23,7 +23,7 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
         internal static int AroundGeyser(Vector3 centre, int seed)
         {
             if (RuleLog.Due("MudPlacer.AroundGeyser", 2d)) ModLog.Every("MudPlacer.AroundGeyser", 2d, $"MudPlacer.AroundGeyser(centre={RuleLog.Shown(centre)}, seed={RuleLog.Shown(seed)})");
-            { var returnedAt26 = Place(centre, seed, ModSettings.MudPerGeyser.Value, GeyserMin, GeyserMax, false); if (RuleLog.Due("MudPlacer.AroundGeyser:26", 2d)) ModLog.Every("MudPlacer.AroundGeyser:26", 2d, $"MudPlacer.AroundGeyser: returns {RuleLog.Shown(returnedAt26)} (line 26)"); return returnedAt26; }
+            return Place(centre, seed, ModSettings.MudPerGeyser.Value, GeyserMin, GeyserMax, false);
         }
 
         /// <summary>Next to a Draugr pile: only where the water covers the ground. Expected outcome: deposits placed.</summary>
@@ -31,7 +31,7 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
         {
             if (RuleLog.Due("MudPlacer.NearPile", 2d)) ModLog.Every("MudPlacer.NearPile", 2d, $"MudPlacer.NearPile(centre={RuleLog.Shown(centre)}, seed={RuleLog.Shown(seed)})");
             PilesSeen++;
-            { var returnedAt34 = Place(centre, seed, ModSettings.MudPerDraugrPile.Value, PileMin, PileMax, true); if (RuleLog.Due("MudPlacer.NearPile:34", 2d)) ModLog.Every("MudPlacer.NearPile:34", 2d, $"MudPlacer.NearPile: returns {RuleLog.Shown(returnedAt34)} (line 34)"); return returnedAt34; }
+            { var returnedAt34 = Place(centre, seed, ModSettings.MudPerDraugrPile.Value, PileMin, PileMax, true); if (RuleLog.Due("MudPlacer.NearPile:34", 2d)) ModLog.Every("MudPlacer.NearPile:34", 2d, $"MudPlacer.NearPile: returns {returnedAt34} (line 34)"); return returnedAt34; }
         }
 
         static int Place(Vector3 centre, int seed, int count, float minR, float maxR, bool needWater)
@@ -50,13 +50,13 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
                         KydlCore.Common.ModLog.Verbose("MudPlacer: no floor within 3 m above / 6 m below " + spot.ToString("0.0") + " (centre " + centre.ToString("0.0") + ")");
                         continue;
                     }
-                    if (needWater && !UnderWater(floor)) continue;
+                    if (needWater && !UnderWater(floor)) { if (RuleLog.Due("MudPlacer.Place:53", 2d)) ModLog.Every("MudPlacer.Place:53", 2d, $"MudPlacer.Place: skips to the next item (continue) because needWater && !UnderWater(floor) (line 53)"); continue; }
                     int amount = SulfurRules.Amount(SulfurSource.SulfurousMud, () => rng.NextDouble());
                     if (DepositSpawner.Spawn(GunPowderedPrefabs.SulfurousMud, floor, amount, seed + n) != null) placed++;
-                    break;
+                    { if (RuleLog.Due("MudPlacer.Place:56", 2d)) ModLog.Every("MudPlacer.Place:56", 2d, $"MudPlacer.Place: leaves the loop / case (break) (line 56)"); break; }
                 }
             }
-            { var returnedAt58 = placed; if (RuleLog.Due("MudPlacer.Place:58", 2d)) ModLog.Every("MudPlacer.Place:58", 2d, $"MudPlacer.Place: returns {RuleLog.Shown(returnedAt58)} (line 58)"); return returnedAt58; }
+            { var returnedAt59 = placed; if (RuleLog.Due("MudPlacer.Place:59", 2d)) ModLog.Every("MudPlacer.Place:59", 2d, $"MudPlacer.Place: returns {returnedAt59} (line 59)"); return returnedAt59; }
         }
 
         /// <summary>
@@ -84,8 +84,8 @@ namespace GunPowdered.Features.Sulfur.Infrastructure
                 Vector3 floor = wet[pick];
                 wet.RemoveAt(pick);
                 bool tooClose = false;
-                foreach (Vector3 u in used) if (Vector3.Distance(u, floor) < 2f) { tooClose = true; break; }
-                if (tooClose) { n--; continue; }
+                foreach (Vector3 u in used) if (Vector3.Distance(u, floor) < 2f) { tooClose = true; { if (RuleLog.Due("MudPlacer.PlaceInWater:87", 2d)) ModLog.Every("MudPlacer.PlaceInWater:87", 2d, $"MudPlacer.PlaceInWater: leaves the loop / case (break) because Vector3.Distance(u, floor) < 2f (line 87)"); break; } }
+                if (tooClose) { n--; { if (RuleLog.Due("MudPlacer.PlaceInWater:88", 2d)) ModLog.Every("MudPlacer.PlaceInWater:88", 2d, $"MudPlacer.PlaceInWater: skips to the next item (continue) because tooClose (line 88)"); continue; } }
                 int amount = SulfurRules.Amount(SulfurSource.SulfurousMud, () => rng.NextDouble());
                 if (DepositSpawner.Spawn(GunPowderedPrefabs.SulfurousMud, floor, amount, seed + n) != null) { placed++; used.Add(floor); }
             }

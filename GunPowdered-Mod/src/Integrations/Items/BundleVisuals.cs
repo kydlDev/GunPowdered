@@ -26,7 +26,7 @@ namespace GunPowdered.Integrations.Items
                 ModLog.Every("visual-missing-" + id, 600d, "BundleVisuals: no bundle model for " + id + ", the placeholder look stays");
                 return false;
             }
-            if (target.transform.Find(ModelChild) != null) { if (RuleLog.Due("BundleVisuals.Apply:29", 2d)) ModLog.Every("BundleVisuals.Apply:29", 2d, "BundleVisuals.Apply: returns true (line 29)"); return true; }           // already swapped
+            if (target.transform.Find(ModelChild) != null) { if (RuleLog.Due("BundleVisuals.Apply:29", 2d)) ModLog.Every("BundleVisuals.Apply:29", 2d, $"BundleVisuals.Apply: returns true because target.transform.Find(ModelChild) != null (line 29)"); return true; }           // already swapped
 
             foreach (Renderer r in target.GetComponentsInChildren<Renderer>(true)) r.enabled = false;
             foreach (Collider c in target.GetComponentsInChildren<Collider>(true)) if (!c.isTrigger) c.enabled = false;
@@ -83,7 +83,7 @@ namespace GunPowdered.Integrations.Items
                 return null;
             }
             Transform existing = target.transform.Find(newName);
-            if (existing != null) { var returnedAt86 = existing.gameObject; if (RuleLog.IsOn()) ModLog.Verbose($"BundleVisuals.CopyChild: returns {RuleLog.Shown(returnedAt86)} (line 86)"); return returnedAt86; }
+            if (existing != null) { var returnedAt86 = existing.gameObject; if (RuleLog.IsOn()) ModLog.Verbose($"BundleVisuals.CopyChild: returns {returnedAt86} because existing != null (line 86)"); return returnedAt86; }
             GameObject copy = Object.Instantiate(part.gameObject, target.transform);
             copy.name = newName;
             copy.transform.localPosition = part.localPosition;
@@ -99,7 +99,7 @@ namespace GunPowdered.Integrations.Items
         internal static Sprite Icon(string id)
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"BundleVisuals.Icon(id={RuleLog.Shown(id)})");
-            { var returnedAt102 = Plugin.Bundle != null ? Plugin.Bundle.LoadAsset<Sprite>(IconName(id)) : null; if (RuleLog.IsOn()) ModLog.Verbose($"BundleVisuals.Icon: returns {RuleLog.Shown(returnedAt102)} (line 102)"); return returnedAt102; }
+            return Plugin.Bundle != null ? Plugin.Bundle.LoadAsset<Sprite>(IconName(id)) : null;
         }
 
         /// <summary>The icon file name (without extension) of a prefab id: the id without GP_, except the Leaching Station.</summary>
@@ -107,7 +107,7 @@ namespace GunPowdered.Integrations.Items
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"BundleVisuals.IconName(id={RuleLog.Shown(id)})");
             if (id == GunPowderedPrefabs.LeachingVat) { if (RuleLog.IsOn()) ModLog.Verbose("BundleVisuals.IconName: returns \"LeachingStation\" (line 109)"); return "LeachingStation"; }
-            { var returnedAt110 = id.StartsWith("GP_") ? id.Substring(3) : id; if (RuleLog.IsOn()) ModLog.Verbose($"BundleVisuals.IconName: returns {RuleLog.Shown(returnedAt110)} (line 110)"); return returnedAt110; }
+            return id.StartsWith("GP_") ? id.Substring(3) : id;
         }
 
         static void SetLayer(GameObject go, int layer)

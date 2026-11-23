@@ -53,7 +53,7 @@ namespace GunPowdered.Integrations.Valheim
             foreach (MeshFilter mf in (model != null ? model : root.transform).GetComponentsInChildren<MeshFilter>(true))
             {
                 var r = mf.GetComponent<Renderer>();
-                if (mf.sharedMesh == null || r == null || !r.enabled || mf.name == "fire") continue;
+                if (mf.sharedMesh == null || r == null || !r.enabled || mf.name == "fire") { if (RuleLog.Due("StationSnapPoints.Footprint:56", 2d)) ModLog.Every("StationSnapPoints.Footprint:56", 2d, $"StationSnapPoints.Footprint: skips to the next item (continue) because mf.sharedMesh == null || r == null || !r.enabled || mf.name == \"fire\" (line 56)"); continue; }
                 Bounds b = mf.sharedMesh.bounds;
                 Matrix4x4 m = toRoot * mf.transform.localToWorldMatrix;
                 for (int c = 0; c < 8; c++)

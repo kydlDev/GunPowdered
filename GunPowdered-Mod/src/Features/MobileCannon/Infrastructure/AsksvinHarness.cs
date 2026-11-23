@@ -65,7 +65,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         void RPC_On(long sender)
         {
-            if (!_nview.IsOwner() || Harnessed) { if (RuleLog.IsOn()) ModLog.Verbose("AsksvinHarness.RPC_On: returns (line 68)"); return; }
+            if (!_nview.IsOwner() || Harnessed) { if (RuleLog.IsOn()) ModLog.Verbose($"AsksvinHarness.RPC_On: returns because !_nview.IsOwner() || Harnessed (line 68)"); return; }
             _nview.GetZDO().Set(KeyHarness, true);
             if (TowKey == 0L) _nview.GetZDO().Set(KeyTowKey, NewKey());
             ModLog.Info("AsksvinHarness: harness on " + name + ", tow key " + TowKey);
@@ -74,7 +74,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         /// <summary>Takes the harness off and drops it as an item beside the animal (with the saddle or on death). Expected outcome: true when one was dropped.</summary>
         internal bool Drop()
         {
-            if (!Harnessed) { if (RuleLog.Due("AsksvinHarness.Drop:77", 2d)) ModLog.Every("AsksvinHarness.Drop:77", 2d, "AsksvinHarness.Drop: returns false (line 77)"); return false; }
+            if (!Harnessed) { if (RuleLog.Due("AsksvinHarness.Drop:77", 2d)) ModLog.Every("AsksvinHarness.Drop:77", 2d, $"AsksvinHarness.Drop: returns false because !Harnessed (line 77)"); return false; }
             _nview.GetZDO().Set(KeyHarness, false);
             MobileCannonTow.AnimalGone(TowKey, _character != null && _character.IsDead() ? "the towing Asksvin died" : "the harness came off with the saddle");
             GameObject prefab = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(GunPowderedPrefabs.AsksvinHarness) : null;
@@ -88,20 +88,20 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (RuleLog.IsOn()) ModLog.Verbose($"AsksvinHarness.NewKey()");
             long key = 0L;
             while (key == 0L) key = ((long)UnityEngine.Random.Range(int.MinValue, int.MaxValue) << 32) ^ (uint)UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-            { var returnedAt91 = key; if (RuleLog.IsOn()) ModLog.Verbose($"AsksvinHarness.NewKey: returns {RuleLog.Shown(returnedAt91)} (line 91)"); return returnedAt91; }
+            { var returnedAt91 = key; if (RuleLog.IsOn()) ModLog.Verbose($"AsksvinHarness.NewKey: returns {returnedAt91} (line 91)"); return returnedAt91; }
         }
 
         /// <summary>The loaded, harnessed Asksvin with this tow key. Expected outcome: it, or null when none is loaded here.</summary>
         internal static AsksvinHarness WithKey(long key)
         {
             if (RuleLog.Due("AsksvinHarness.WithKey", 2d)) ModLog.Every("AsksvinHarness.WithKey", 2d, $"AsksvinHarness.WithKey(key={RuleLog.Shown(key)})");
-            if (key == 0L) { if (RuleLog.Due("AsksvinHarness.WithKey:98", 2d)) ModLog.Every("AsksvinHarness.WithKey:98", 2d, "AsksvinHarness.WithKey: returns null (line 98)"); return null; }
+            if (key == 0L) return null;
             foreach (Character c in Character.GetAllCharacters())
             {
                 AsksvinHarness h = c != null ? c.GetComponent<AsksvinHarness>() : null;
-                if (h != null && h.TowKey == key) { var returnedAt102 = h; if (RuleLog.Due("AsksvinHarness.WithKey:102", 2d)) ModLog.Every("AsksvinHarness.WithKey:102", 2d, $"AsksvinHarness.WithKey: returns {RuleLog.Shown(returnedAt102)} (line 102)"); return returnedAt102; }
+                if (h != null && h.TowKey == key) { var returnedAt102 = h; if (RuleLog.Due("AsksvinHarness.WithKey:102", 2d)) ModLog.Every("AsksvinHarness.WithKey:102", 2d, $"AsksvinHarness.WithKey: returns {returnedAt102} because h != null && h.TowKey == key (line 102)"); return returnedAt102; }
             }
-            { if (RuleLog.Due("AsksvinHarness.WithKey:104", 2d)) ModLog.Every("AsksvinHarness.WithKey:104", 2d, "AsksvinHarness.WithKey: returns null (line 104)"); return null; }
+            { if (RuleLog.Due("AsksvinHarness.WithKey:104", 2d)) ModLog.Every("AsksvinHarness.WithKey:104", 2d, $"AsksvinHarness.WithKey: returns null (line 104)"); return null; }
         }
 
         void OnDeath()
@@ -152,7 +152,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         void FollowRing()
         {
-            if (_hookBone == null) { if (RuleLog.Due("AsksvinHarness.FollowRing:148", 2d)) ModLog.Every("AsksvinHarness.FollowRing:148", 2d, "AsksvinHarness.FollowRing: returns (line 148)"); return; }
+            if (_hookBone == null) { if (RuleLog.Due("AsksvinHarness.FollowRing:155", 2d)) ModLog.Every("AsksvinHarness.FollowRing:155", 2d, $"AsksvinHarness.FollowRing: returns because _hookBone == null (line 155)"); return; }
             if (_towRing != null)
             {
                 Transform cannon = _towRing.parent != null ? _towRing.parent : _towRing;
@@ -165,7 +165,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 _hookBone.localRotation = Quaternion.identity;
                 if (_dropBone != null) { _dropBone.localPosition = Vector3.zero; _dropBone.localRotation = Quaternion.identity; }
             }
-            if (Time.time - _ringLogAt < 10f) { if (RuleLog.Due("AsksvinHarness.FollowRing:159", 2d)) ModLog.Every("AsksvinHarness.FollowRing:159", 2d, "AsksvinHarness.FollowRing: returns (line 159)"); return; }
+            if (Time.time - _ringLogAt < 10f) { if (RuleLog.Due("AsksvinHarness.FollowRing:168", 2d)) ModLog.Every("AsksvinHarness.FollowRing:168", 2d, $"AsksvinHarness.FollowRing: returns because Time.time - _ringLogAt < 10f (line 168)"); return; }
             _ringLogAt = Time.time;
             ModLog.Info("AsksvinHarness: " + name + " hook ring on the cannon's tow ring " + (_towRing != null) + ", " + (_hookBone.localPosition - HookLocal).magnitude.ToString("0.000")
                 + " m from the rest hook (the joint's sag and swing, now shown by the chain), " + SkinReport());
@@ -175,7 +175,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         internal string SkinReport()
         {
             if (RuleLog.Due("AsksvinHarness.SkinReport", 2d)) ModLog.Every("AsksvinHarness.SkinReport", 2d, $"AsksvinHarness.SkinReport()");
-            if (_saddle == null || _saddleBone < 0) { if (RuleLog.Due("AsksvinHarness.SkinReport:169", 2d)) ModLog.Every("AsksvinHarness.SkinReport:169", 2d, "AsksvinHarness.SkinReport: returns \"harness skin: no saddle bone\" (line 169)"); return "harness skin: no saddle bone"; }
+            if (_saddle == null || _saddleBone < 0) { if (RuleLog.Due("AsksvinHarness.SkinReport:169", 2d)) ModLog.Every("AsksvinHarness.SkinReport:178", 2d, "AsksvinHarness.SkinReport: returns \"harness skin: no saddle bone\" (line 178)"); return "harness skin: no saddle bone"; }
             Matrix4x4 pose = _saddle.bones[_saddleBone].localToWorldMatrix * _saddle.sharedMesh.bindposes[_saddleBone] * _saddle.transform.worldToLocalMatrix;
             Vector3 hook = transform.TransformPoint(HookLocal);
             Vector3 front = transform.TransformPoint(new Vector3(0f, 1.0f, _front));
@@ -218,10 +218,10 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             var sb = new System.Text.StringBuilder();
             foreach (System.Collections.Generic.KeyValuePair<SkinnedMeshRenderer, int> t in _tails)
             {
-                if (t.Key == null) continue;
+                if (t.Key == null) { if (RuleLog.Due("AsksvinHarness.TailReport:221", 2d)) ModLog.Every("AsksvinHarness.TailReport:221", 2d, $"AsksvinHarness.TailReport: skips to the next item (continue) because t.Key == null (line 221)"); continue; }
                 t.Key.BakeMesh(_baked, true);
                 Vector3[] v = _baked.vertices;
-                if (t.Value >= v.Length) continue;
+                if (t.Value >= v.Length) { if (RuleLog.Due("AsksvinHarness.TailReport:224", 2d)) ModLog.Every("AsksvinHarness.TailReport:224", 2d, $"AsksvinHarness.TailReport: skips to the next item (continue) because t.Value >= v.Length (line 224)"); continue; }
                 Transform s = t.Key.transform;
                 Vector3 drawn = Matrix4x4.TRS(s.position, s.rotation, Vector3.one).MultiplyPoint3x4(v[t.Value]);
                 sb.Append($"; {s.name} tail drawn {drawn:0.00} (ring - tail dy {ring.y - drawn.y:0.00} m, {(ring - drawn).magnitude:0.00} m apart)");
@@ -233,7 +233,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         void FollowSaddle()
         {
-            if (_saddleSearched) { if (RuleLog.Due("AsksvinHarness.FollowSaddle:179", 2d)) ModLog.Every("AsksvinHarness.FollowSaddle:179", 2d, "AsksvinHarness.FollowSaddle: returns (line 179)"); return; }
+            if (_saddleSearched) { if (RuleLog.Due("AsksvinHarness.FollowSaddle:236", 2d)) ModLog.Every("AsksvinHarness.FollowSaddle:236", 2d, $"AsksvinHarness.FollowSaddle: returns because _saddleSearched (line 236)"); return; }
             _saddleSearched = true;
             foreach (SkinnedMeshRenderer s in GetComponentsInChildren<SkinnedMeshRenderer>(true))
                 if (s.name == "Sadel" && s.sharedMesh != null && s.bones != null && s.bones.Length > 0) _saddle = s;
@@ -263,7 +263,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             string unreadable = "";
             foreach (SkinnedMeshRenderer s in GetComponentsInChildren<SkinnedMeshRenderer>(true))
             {
-                if (s == null || s.sharedMesh == null || s.bones == null || s.bones.Length == 0 || s.transform.IsChildOf(_visual.transform)) continue;
+                if (s == null || s.sharedMesh == null || s.bones == null || s.bones.Length == 0 || s.transform.IsChildOf(_visual.transform)) { if (RuleLog.Due("AsksvinHarness.FollowSaddle:266", 2d)) ModLog.Every("AsksvinHarness.FollowSaddle:266", 2d, $"AsksvinHarness.FollowSaddle: skips to the next item (continue) because s == null || s.sharedMesh == null || s.bones == null || s.bones.Length == 0 || s.transform.IsChildOf(_visual.transform) (line 266)"); continue; }
                 int[] map = new int[s.bones.Length];
                 Matrix4x4[] bp = s.sharedMesh.bindposes;                     // readable even when the vertices are not
                 for (int b = 0; b < s.bones.Length; b++)
@@ -272,7 +272,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                     if (at < 0 && s.bones[b] != null && b < bp.Length) { boneList.Add(s.bones[b]); bindList.Add(bp[b] * s.transform.worldToLocalMatrix); at = boneList.Count - 1; }
                     map[b] = Mathf.Max(0, at);
                 }
-                if (!s.sharedMesh.isReadable) { unreadable += s.name + " "; continue; }
+                if (!s.sharedMesh.isReadable) { unreadable += s.name + " "; { if (RuleLog.Due("AsksvinHarness.FollowSaddle:275", 2d)) ModLog.Every("AsksvinHarness.FollowSaddle:275", 2d, $"AsksvinHarness.FollowSaddle: skips to the next item (continue) because !s.sharedMesh.isReadable (line 275)"); continue; } }
                 donor.Add(s.sharedMesh.vertices, s.sharedMesh.boneWeights, map, s.transform.localToWorldMatrix);
                 donors++;
             }
@@ -284,7 +284,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 for (int b = 0; b < map.Length; b++)
                 {
                     map[b] = -1;
-                    for (int k = 0; k < boneList.Count; k++) if (boneList[k] != null && boneList[k].name == DonorFile.Bones[b]) { map[b] = k; break; }
+                    for (int k = 0; k < boneList.Count; k++) if (boneList[k] != null && boneList[k].name == DonorFile.Bones[b]) { map[b] = k; { if (RuleLog.Due("AsksvinHarness.FollowSaddle:287", 2d)) ModLog.Every("AsksvinHarness.FollowSaddle:287", 2d, $"AsksvinHarness.FollowSaddle: leaves the loop / case (break) because boneList[k] != null && boneList[k].name == DonorFile.Bones[b] (line 287)"); break; } }
                     if (map[b] < 0) { missing++; map[b] = 0; }
                 }
                 donor.Add(DonorFile.Points, DonorFile.Weights, map, transform.localToWorldMatrix);
@@ -306,7 +306,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             {
                 Mesh src = mf.sharedMesh;
                 MeshRenderer mr = mf.GetComponent<MeshRenderer>();
-                if (src == null || mr == null || !src.isReadable) { kept++; continue; }
+                if (src == null || mr == null || !src.isReadable) { kept++; { if (RuleLog.Due("AsksvinHarness.FollowSaddle:309", 2d)) ModLog.Every("AsksvinHarness.FollowSaddle:309", 2d, $"AsksvinHarness.FollowSaddle: skips to the next item (continue) because src == null || mr == null || !src.isReadable (line 309)"); continue; } }
                 Matrix4x4 restWorld = mf.transform.localToWorldMatrix;
                 Matrix4x4 toAnimal = transform.worldToLocalMatrix * restWorld;
                 Mesh mesh = Instantiate(src);
@@ -324,7 +324,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                     {
                         float onRing = 1f - GunPowdered.Features.MobileCannon.Domain.AsksvinTowRules.SaddleWeight(z, _rear, hookZ);
                         w[i] = new BoneWeight { boneIndex0 = hookIndex, weight0 = onRing, boneIndex1 = dropIndex, weight1 = 1f - onRing };      // spreader on the drop follower (D-143), chain to the cannon's ring
-                        continue;
+                        { if (RuleLog.Due("AsksvinHarness.FollowSaddle:327", 2d)) ModLog.Every("AsksvinHarness.FollowSaddle:327", 2d, $"AsksvinHarness.FollowSaddle: skips to the next item (continue) (line 327)"); continue; }
                     }
                     float dist;
                     BoneWeight body;
@@ -362,7 +362,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         {
             if (RuleLog.Due("AsksvinHarness.MakeVisual", 2d)) ModLog.Every("AsksvinHarness.MakeVisual", 2d, $"AsksvinHarness.MakeVisual()");
             Transform model = Model();
-            if (model == null) { if (RuleLog.Due("AsksvinHarness.MakeVisual:300", 2d)) ModLog.Every("AsksvinHarness.MakeVisual:300", 2d, "AsksvinHarness.MakeVisual: returns null (line 300)"); return null; }
+            if (model == null) { if (RuleLog.Due("AsksvinHarness.MakeVisual:365", 2d)) ModLog.Every("AsksvinHarness.MakeVisual:365", 2d, $"AsksvinHarness.MakeVisual: returns null because model == null (line 365)"); return null; }
             GameObject v = Instantiate(model.gameObject, transform);
             v.name = VisualName;
             v.transform.localPosition = model.localPosition;
@@ -370,21 +370,21 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             v.transform.localScale = Vector3.one;
             foreach (Collider c in v.GetComponentsInChildren<Collider>(true)) Destroy(c);
             foreach (Transform t in v.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = gameObject.layer;
-            { var returnedAt308 = v; if (RuleLog.Due("AsksvinHarness.MakeVisual:308", 2d)) ModLog.Every("AsksvinHarness.MakeVisual:308", 2d, $"AsksvinHarness.MakeVisual: returns {RuleLog.Shown(returnedAt308)} (line 308)"); return returnedAt308; }
+            { var returnedAt373 = v; if (RuleLog.Due("AsksvinHarness.MakeVisual:373", 2d)) ModLog.Every("AsksvinHarness.MakeVisual:373", 2d, $"AsksvinHarness.MakeVisual: returns {returnedAt373} (line 373)"); return returnedAt373; }
         }
 
         static Transform Model()
         {
             if (RuleLog.Due("AsksvinHarness.Model", 2d)) ModLog.Every("AsksvinHarness.Model", 2d, $"AsksvinHarness.Model()");
             GameObject source = Plugin.Bundle != null ? Plugin.Bundle.LoadAsset<GameObject>(GunPowderedPrefabs.AsksvinHarness) : null;
-            { var returnedAt315 = source != null ? source.transform.Find("model") : null; if (RuleLog.Due("AsksvinHarness.Model:315", 2d)) ModLog.Every("AsksvinHarness.Model:315", 2d, $"AsksvinHarness.Model: returns {RuleLog.Shown(returnedAt315)} (line 315)"); return returnedAt315; }
+            { var returnedAt380 = source != null ? source.transform.Find("model") : null; if (RuleLog.Due("AsksvinHarness.Model:380", 2d)) ModLog.Every("AsksvinHarness.Model:380", 2d, $"AsksvinHarness.Model: returns {returnedAt380} (line 380)"); return returnedAt380; }
         }
 
         static Transform Find(Transform root, string name)
         {
             if (RuleLog.Due("AsksvinHarness.Find", 2d)) ModLog.Every("AsksvinHarness.Find", 2d, $"AsksvinHarness.Find(root={RuleLog.Shown(root)}, name={RuleLog.Shown(name)})");
-            foreach (Transform t in root.GetComponentsInChildren<Transform>(true)) if (t.name == name) { var returnedAt321 = t; if (RuleLog.Due("AsksvinHarness.Find:321", 2d)) ModLog.Every("AsksvinHarness.Find:321", 2d, $"AsksvinHarness.Find: returns {RuleLog.Shown(returnedAt321)} (line 321)"); return returnedAt321; }
-            { if (RuleLog.Due("AsksvinHarness.Find:322", 2d)) ModLog.Every("AsksvinHarness.Find:322", 2d, "AsksvinHarness.Find: returns null (line 322)"); return null; }
+            foreach (Transform t in root.GetComponentsInChildren<Transform>(true)) if (t.name == name) return t;
+            { if (RuleLog.Due("AsksvinHarness.Find:387", 2d)) ModLog.Every("AsksvinHarness.Find:387", 2d, $"AsksvinHarness.Find: returns null (line 387)"); return null; }
         }
     }
 
@@ -399,7 +399,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         internal static bool Load()
         {
-            if (_tried) { var returnedAt337 = Points != null; if (RuleLog.Due("DonorFile.Load:337", 2d)) ModLog.Every("DonorFile.Load:337", 2d, $"DonorFile.Load: returns {RuleLog.Shown(returnedAt337)} (line 337)"); return returnedAt337; }
+            if (_tried) { var returnedAt402 = Points != null; if (RuleLog.Due("DonorFile.Load:402", 2d)) ModLog.Every("DonorFile.Load:402", 2d, $"DonorFile.Load: returns {returnedAt402} because _tried (line 402)"); return returnedAt402; }
             _tried = true;
             TextAsset text = Plugin.Bundle != null ? Plugin.Bundle.LoadAsset<TextAsset>(AssetName) : null;
             if (text == null) { ModLog.Warn("AsksvinHarness: no " + AssetName + " in the bundle"); return false; }
@@ -409,10 +409,10 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             foreach (string raw in text.text.Split('\n'))
             {
                 string line = raw.Trim();
-                if (line.Length == 0 || line[0] == '#') continue;
+                if (line.Length == 0 || line[0] == '#') { if (RuleLog.Due("DonorFile.Load:412", 2d)) ModLog.Every("DonorFile.Load:412", 2d, $"DonorFile.Load: skips to the next item (continue) because line.Length == 0 || line[0] == '#' (line 412)"); continue; }
                 string[] f = line.Split(' ');
-                if (f[0] == "bones") { Bones = new string[f.Length - 1]; System.Array.Copy(f, 1, Bones, 0, Bones.Length); continue; }
-                if (f.Length < 11) continue;
+                if (f[0] == "bones") { Bones = new string[f.Length - 1]; System.Array.Copy(f, 1, Bones, 0, Bones.Length); { if (RuleLog.Due("DonorFile.Load:414", 2d)) ModLog.Every("DonorFile.Load:414", 2d, $"DonorFile.Load: skips to the next item (continue) because f[0] == \"bones\" (line 414)"); continue; } }
+                if (f.Length < 11) { if (RuleLog.Due("DonorFile.Load:415", 2d)) ModLog.Every("DonorFile.Load:415", 2d, $"DonorFile.Load: skips to the next item (continue) because f.Length < 11 (line 415)"); continue; }
                 pts.Add(new Vector3(float.Parse(f[0], ci), float.Parse(f[1], ci), float.Parse(f[2], ci)));
                 ws.Add(new BoneWeight
                 {
@@ -420,7 +420,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                     boneIndex2 = int.Parse(f[7], ci), weight2 = float.Parse(f[8], ci), boneIndex3 = int.Parse(f[9], ci), weight3 = float.Parse(f[10], ci)
                 });
             }
-            if (Bones == null || pts.Count == 0) { if (RuleLog.Due("DonorFile.Load:358", 2d)) ModLog.Every("DonorFile.Load:358", 2d, "DonorFile.Load: returns false (line 358)"); return false; }
+            if (Bones == null || pts.Count == 0) { if (RuleLog.Due("DonorFile.Load:423", 2d)) ModLog.Every("DonorFile.Load:423", 2d, $"DonorFile.Load: returns false because Bones == null || pts.Count == 0 (line 423)"); return false; }
             Points = pts.ToArray();
             Weights = ws.ToArray();
             ModLog.Info("AsksvinHarness: skin donor file " + Points.Length + " vertices, " + Bones.Length + " bones");
@@ -441,7 +441,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         internal void Add(Vector3[] vertices, BoneWeight[] weights, int[] map, Matrix4x4 toWorld)
         {
             if (RuleLog.Due("SkinDonor.Add", 2d)) ModLog.Every("SkinDonor.Add", 2d, $"SkinDonor.Add(vertices={RuleLog.Shown(vertices)}, weights={RuleLog.Shown(weights)}, map={RuleLog.Shown(map)}, toWorld={RuleLog.Shown(toWorld)})");
-            if (vertices == null || weights == null || weights.Length != vertices.Length) { if (RuleLog.Due("SkinDonor.Add:379", 2d)) ModLog.Every("SkinDonor.Add:379", 2d, "SkinDonor.Add: returns (line 379)"); return; }
+            if (vertices == null || weights == null || weights.Length != vertices.Length) return;
             for (int i = 0; i < vertices.Length; i++)
             {
                 BoneWeight w = weights[i];
@@ -470,17 +470,17 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                         for (int z = -r; z <= r; z++)
                         {
                             System.Collections.Generic.List<int> list;
-                            if (!_grid.TryGetValue(new Vector3Int(k.x + x, k.y + y, k.z + z), out list)) continue;
+                            if (!_grid.TryGetValue(new Vector3Int(k.x + x, k.y + y, k.z + z), out list)) { if (RuleLog.Due("SkinDonor.Nearest:473", 2d)) ModLog.Every("SkinDonor.Nearest:473", 2d, $"SkinDonor.Nearest: skips to the next item (continue) because !_grid.TryGetValue(new Vector3Int(k.x + x, k.y + y, k.z + z), out list) (line 473)"); continue; }
                             foreach (int i in list)
                             {
                                 float d = (_points[i] - p).sqrMagnitude;
                                 if (d < distance) { distance = d; best = i; }
                             }
                         }
-            if (best < 0) { if (RuleLog.Due("SkinDonor.Nearest:415", 2d)) ModLog.Every("SkinDonor.Nearest:415", 2d, "SkinDonor.Nearest: returns false (line 415)"); return false; }
+            if (best < 0) { if (RuleLog.Due("SkinDonor.Nearest:480", 2d)) ModLog.Every("SkinDonor.Nearest:480", 2d, $"SkinDonor.Nearest: returns false because best < 0 (line 480)"); return false; }
             distance = Mathf.Sqrt(distance);
             weight = _weights[best];
-            { if (RuleLog.Due("SkinDonor.Nearest:418", 2d)) ModLog.Every("SkinDonor.Nearest:418", 2d, "SkinDonor.Nearest: returns true (line 418)"); return true; }
+            { if (RuleLog.Due("SkinDonor.Nearest:483", 2d)) ModLog.Every("SkinDonor.Nearest:483", 2d, $"SkinDonor.Nearest: returns true (line 483)"); return true; }
         }
 
         /// <summary>The donor's weights scaled by <paramref name="share"/>, the rest on the root bone; four strongest kept and normalised.</summary>
@@ -496,7 +496,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             System.Array.Reverse(wt);
             System.Array.Reverse(idx);
             float sum = wt[0] + wt[1] + wt[2] + wt[3];
-            if (sum <= 0f) { var returnedAt434 = new BoneWeight { boneIndex0 = root, weight0 = 1f }; if (RuleLog.Due("SkinDonor.Blend:434", 2d)) ModLog.Every("SkinDonor.Blend:434", 2d, $"SkinDonor.Blend: returns {RuleLog.Shown(returnedAt434)} (line 434)"); return returnedAt434; }
+            if (sum <= 0f) { var returnedAt499 = new BoneWeight { boneIndex0 = root, weight0 = 1f }; if (RuleLog.Due("SkinDonor.Blend:499", 2d)) ModLog.Every("SkinDonor.Blend:499", 2d, $"SkinDonor.Blend: returns {returnedAt499} because sum <= 0f (line 499)"); return returnedAt499; }
             return new BoneWeight
             {
                 boneIndex0 = idx[0], weight0 = wt[0] / sum, boneIndex1 = idx[1], weight1 = wt[1] / sum,

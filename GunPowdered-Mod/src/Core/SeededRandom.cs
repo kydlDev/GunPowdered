@@ -32,7 +32,7 @@ namespace GunPowdered.Core
                 // Stryker disable once Bitwise : on a ulong >> and >>> are the same (logical) shift
                 z = (z ^ (z >> 27)) * 0x94D049BB133111EBUL;
                 // Stryker disable once Bitwise : on a ulong >> and >>> are the same (logical) shift
-                { var returnedAt35 = z ^ (z >> 31); if (RuleLog.Due("SeededRandom.NextRaw:35", 2d)) RuleLog.Every("SeededRandom.NextRaw:35", 2d, $"SeededRandom.NextRaw: returns {RuleLog.Shown(returnedAt35)} (line 35)"); return returnedAt35; }
+                { var returnedAt35 = z ^ (z >> 31); if (RuleLog.Due("SeededRandom.NextRaw:35", 2d)) RuleLog.Every("SeededRandom.NextRaw:35", 2d, $"SeededRandom.NextRaw: returns {returnedAt35} (line 35)"); return returnedAt35; }
             }
         }
 
@@ -52,7 +52,7 @@ namespace GunPowdered.Core
             // Stryker disable once Bitwise : on a ulong >> and >>> are the same (logical) shift
             ulong draw31 = NextRaw() >> 33;
             // Stryker disable once Bitwise : on a ulong >> and >>> are the same (logical) shift
-            { var returnedAt55 = (int)((draw31 * (ulong)maxExclusive) >> 31); if (RuleLog.Due("SeededRandom.Next:55", 2d)) RuleLog.Every("SeededRandom.Next:55", 2d, $"SeededRandom.Next: returns {RuleLog.Shown(returnedAt55)} (line 55)"); return returnedAt55; }
+            { var returnedAt55 = (int)((draw31 * (ulong)maxExclusive) >> 31); if (RuleLog.Due("SeededRandom.Next:55", 2d)) RuleLog.Every("SeededRandom.Next:55", 2d, $"SeededRandom.Next: returns {returnedAt55} (line 55)"); return returnedAt55; }
         }
     }
 }

@@ -48,27 +48,27 @@ namespace GunPowdered.Features.Musket.Infrastructure
             ItemDrop.ItemData weapon = player != null ? player.GetCurrentWeapon() : null;
             // D-155: with a torch next to the lowered musket the current weapon is the torch; the musket is still in the hand (the bow-type left slot)
             if (!IsMusket(weapon) && player != null && IsMusket(player.LeftItem)) weapon = player.LeftItem;
-            { var returnedAt49 = IsMusket(weapon) ? weapon : null; if (RuleLog.Due("MusketGun.Held:49", 2d)) ModLog.Every("MusketGun.Held:49", 2d, $"MusketGun.Held: returns {RuleLog.Shown(returnedAt49)} (line 49)"); return returnedAt49; }
+            { var returnedAt51 = IsMusket(weapon) ? weapon : null; if (RuleLog.Due("MusketGun.Held:51", 2d)) ModLog.Every("MusketGun.Held:51", 2d, $"MusketGun.Held: returns {returnedAt51} (line 51)"); return returnedAt51; }
         }
 
         /// <summary>How many cartridges this musket holds (0 when nothing is stored).</summary>
         internal static int Loaded(ItemDrop.ItemData musket)
         {
             if (RuleLog.Due("MusketGun.Loaded", 2d)) ModLog.Every("MusketGun.Loaded", 2d, $"MusketGun.Loaded(musket={RuleLog.Shown(musket)})");
-            if (musket == null || musket.m_customData == null) { if (RuleLog.Due("MusketGun.Loaded:56", 2d)) ModLog.Every("MusketGun.Loaded:56", 2d, "MusketGun.Loaded: returns 0 (line 56)"); return 0; }
+            if (musket == null || musket.m_customData == null) return 0;
             string stored;
-            { var returnedAt58 = musket.m_customData.TryGetValue(LoadedKey, out stored) ? MusketRules.ParseLoaded(stored) : 0; if (RuleLog.Due("MusketGun.Loaded:58", 2d)) ModLog.Every("MusketGun.Loaded:58", 2d, $"MusketGun.Loaded: returns {RuleLog.Shown(returnedAt58)} (line 58)"); return returnedAt58; }
+            { var returnedAt60 = musket.m_customData.TryGetValue(LoadedKey, out stored) ? MusketRules.ParseLoaded(stored) : 0; if (RuleLog.Due("MusketGun.Loaded:60", 2d)) ModLog.Every("MusketGun.Loaded:60", 2d, $"MusketGun.Loaded: returns {returnedAt60} (line 60)"); return returnedAt60; }
         }
 
         /// <summary>Stores a load on the musket (kept inside 0..5). Expected outcome: the load stored.</summary>
         internal static int SetLoaded(ItemDrop.ItemData musket, int loaded)
         {
             if (RuleLog.Due("MusketGun.SetLoaded", 2d)) ModLog.Every("MusketGun.SetLoaded", 2d, $"MusketGun.SetLoaded(musket={RuleLog.Shown(musket)}, loaded={RuleLog.Shown(loaded)})");
-            if (musket == null) { if (RuleLog.Due("MusketGun.SetLoaded:65", 2d)) ModLog.Every("MusketGun.SetLoaded:65", 2d, "MusketGun.SetLoaded: returns 0 (line 65)"); return 0; }
+            if (musket == null) return 0;
             int v = MusketRules.ClampLoaded(loaded);
             if (musket.m_customData == null) musket.m_customData = new System.Collections.Generic.Dictionary<string, string>();
             musket.m_customData[LoadedKey] = v.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            { var returnedAt69 = v; if (RuleLog.Due("MusketGun.SetLoaded:69", 2d)) ModLog.Every("MusketGun.SetLoaded:69", 2d, $"MusketGun.SetLoaded: returns {RuleLog.Shown(returnedAt69)} (line 69)"); return returnedAt69; }
+            { var returnedAt71 = v; if (RuleLog.Due("MusketGun.SetLoaded:71", 2d)) ModLog.Every("MusketGun.SetLoaded:71", 2d, $"MusketGun.SetLoaded: returns {returnedAt71} (line 71)"); return returnedAt71; }
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         {
             if (RuleLog.Due("MusketGun.Fire", 2d)) ModLog.Every("MusketGun.Fire", 2d, $"MusketGun.Fire(player={RuleLog.Shown(player)})");
             LastAttempt = FireCore(player);
-            { var returnedAt80 = LastAttempt; if (RuleLog.Due("MusketGun.Fire:80", 2d)) ModLog.Every("MusketGun.Fire:80", 2d, $"MusketGun.Fire: returns {RuleLog.Shown(returnedAt80)} (line 80)"); return returnedAt80; }
+            { var returnedAt82 = LastAttempt; if (RuleLog.Due("MusketGun.Fire:82", 2d)) ModLog.Every("MusketGun.Fire:82", 2d, $"MusketGun.Fire: returns {returnedAt82} (line 82)"); return returnedAt82; }
         }
 
         /// <summary>What the last press of the attack button with the musket did (for test hooks).</summary>
@@ -88,7 +88,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         static string FireCore(Player player)
         {
             ItemDrop.ItemData musket = Held(player);
-            if (musket == null) { if (RuleLog.Due("MusketGun.FireCore:89", 2d)) ModLog.Every("MusketGun.FireCore:89", 2d, "MusketGun.FireCore: returns \"no musket in hand\" (line 89)"); return "no musket in hand"; }
+            if (musket == null) { if (RuleLog.Due("MusketGun.FireCore:89", 2d)) ModLog.Every("MusketGun.FireCore:91", 2d, "MusketGun.FireCore: returns \"no musket in hand\" (line 91)"); return "no musket in hand"; }
             MusketRig aimRig = player.GetComponent<MusketRig>();
             if (aimRig != null && !aimRig.ReadyToFire)
             {
@@ -99,13 +99,13 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 return notAimed;
             }
             MusketReloader.Stop(player, "a shot");
-            if (!MusketRules.ShotIntervalOver(Time.time, _lastShot)) { if (RuleLog.Due("MusketGun.FireCore:91", 2d)) ModLog.Every("MusketGun.FireCore:91", 2d, "MusketGun.FireCore: returns \"too soon\" (line 91)"); return "too soon"; }
+            if (!MusketRules.ShotIntervalOver(Time.time, _lastShot)) { if (RuleLog.Due("MusketGun.FireCore:91", 2d)) ModLog.Every("MusketGun.FireCore:102", 2d, "MusketGun.FireCore: returns \"too soon\" (line 102)"); return "too soon"; }
             int loaded = Loaded(musket);
             string why = MusketRules.WhyNotFire(loaded);
             if (why != null)
             {
                 player.Message(MessageHud.MessageType.Center, why);
-                { var returnedAt97 = why; if (RuleLog.Due("MusketGun.FireCore:97", 2d)) ModLog.Every("MusketGun.FireCore:97", 2d, $"MusketGun.FireCore: returns {RuleLog.Shown(returnedAt97)} (line 97)"); return returnedAt97; }
+                { var returnedAt108 = why; if (RuleLog.Due("MusketGun.FireCore:108", 2d)) ModLog.Every("MusketGun.FireCore:108", 2d, $"MusketGun.FireCore: returns {returnedAt108} (line 108)"); return returnedAt108; }
             }
             GameObject prefab = MusketSetup.Bullet;
             if (prefab == null)
@@ -144,7 +144,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             LastShot = "fired from " + muzzle.ToString("0.00") + " along " + dir.ToString("0.00") + ", flight " + (flight != null) + ", effects " + fx + ", shove " + push.ToString("0.0") + ", " + left + " left";
             ModLog.Info("MusketGun: " + player.GetPlayerName() + " " + LastShot);
             RaiseFired(player, musket, muzzle, dir, left, bullet);
-            { var returnedAt135 = "fired, " + left + " left"; if (RuleLog.Due("MusketGun.FireCore:135", 2d)) ModLog.Every("MusketGun.FireCore:135", 2d, $"MusketGun.FireCore: returns {RuleLog.Shown(returnedAt135)} (line 135)"); return returnedAt135; }
+            { var returnedAt147 = "fired, " + left + " left"; if (RuleLog.Due("MusketGun.FireCore:147", 2d)) ModLog.Every("MusketGun.FireCore:147", 2d, $"MusketGun.FireCore: returns {returnedAt147} (line 147)"); return returnedAt147; }
         }
 
         /// <summary>On the bullet this client fired: notes how far it got (MusketGun.LastBulletReach).</summary>
@@ -166,17 +166,17 @@ namespace GunPowdered.Features.Musket.Infrastructure
             Rigidbody body = player.GetComponent<Rigidbody>();
             float push = MusketRules.RecoilPushForce(MusketRules.RecoilShoveMetres, body != null ? body.mass : 0f, player.GetEquipmentMovementModifier());
             if (push > 0f) player.ApplyPushback(-dir, push);
-            { var returnedAt157 = push; if (RuleLog.Due("MusketBulletTrace.Shove:157", 2d)) ModLog.Every("MusketBulletTrace.Shove:157", 2d, $"MusketBulletTrace.Shove: returns {RuleLog.Shown(returnedAt157)} (line 157)"); return returnedAt157; }
+            { var returnedAt169 = push; if (RuleLog.Due("MusketBulletTrace.Shove:169", 2d)) ModLog.Every("MusketBulletTrace.Shove:169", 2d, $"MusketBulletTrace.Shove: returns {returnedAt169} (line 169)"); return returnedAt169; }
         }
 
         static void RaiseFired(Player player, ItemDrop.ItemData musket, Vector3 muzzle, Vector3 dir, int left, GameObject bullet)
         {
             System.Action<Player, ItemDrop.ItemData, Vector3, Vector3, int, GameObject> listeners = Fired;
-            if (listeners == null) { if (RuleLog.Due("MusketBulletTrace.RaiseFired:163", 2d)) ModLog.Every("MusketBulletTrace.RaiseFired:163", 2d, "MusketBulletTrace.RaiseFired: returns (line 163)"); return; }
+            if (listeners == null) { if (RuleLog.Due("MusketBulletTrace.RaiseFired:175", 2d)) ModLog.Every("MusketBulletTrace.RaiseFired:175", 2d, $"MusketBulletTrace.RaiseFired: returns because listeners == null (line 175)"); return; }
             foreach (System.Delegate d in listeners.GetInvocationList())
             {
                 try { ((System.Action<Player, ItemDrop.ItemData, Vector3, Vector3, int, GameObject>)d)(player, musket, muzzle, dir, left, bullet); }
-                catch (System.Exception e) { ModLog.Warn("MusketGun: a shot listener failed (" + d.Method.DeclaringType + "." + d.Method.Name + "): " + e.GetType().Name + ": " + e.Message); }
+                catch (System.Exception e) { ModLog.Warn("MusketGun: a shot listener failed (" + d.Method.DeclaringType + "." + d.Method.Name + "): " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace); }      // foreign code: another mod's listener / Jotunn ran here - its exception types are not ours to know, so the catch-all is the only catch
             }
         }
 
@@ -186,22 +186,22 @@ namespace GunPowdered.Features.Musket.Infrastructure
             Vector3 side = Vector3.Cross(aim, Vector3.up);
             if (side.sqrMagnitude < 1e-6f) side = Vector3.right;
             Vector3 d = Quaternion.AngleAxis(Random.Range(-degrees, degrees), side) * aim;
-            { var returnedAt177 = (Quaternion.AngleAxis(Random.Range(-degrees, degrees), Vector3.up) * d).normalized; if (RuleLog.Due("MusketBulletTrace.Spread:177", 2d)) ModLog.Every("MusketBulletTrace.Spread:177", 2d, $"MusketBulletTrace.Spread: returns {RuleLog.Shown(returnedAt177)} (line 177)"); return returnedAt177; }
+            { var returnedAt189 = (Quaternion.AngleAxis(Random.Range(-degrees, degrees), Vector3.up) * d).normalized; if (RuleLog.Due("MusketBulletTrace.Spread:189", 2d)) ModLog.Every("MusketBulletTrace.Spread:189", 2d, $"MusketBulletTrace.Spread: returns {returnedAt189} (line 189)"); return returnedAt189; }
         }
 
         static int PlayMuzzle(Vector3 at, Vector3 forward)
         {
             if (RuleLog.Due("MusketBulletTrace.PlayMuzzle", 2d)) ModLog.Every("MusketBulletTrace.PlayMuzzle", 2d, $"MusketBulletTrace.PlayMuzzle(at={RuleLog.Shown(at)}, forward={RuleLog.Shown(forward)})");
-            if (ZNetScene.instance == null) { if (RuleLog.Due("MusketBulletTrace.PlayMuzzle:183", 2d)) ModLog.Every("MusketBulletTrace.PlayMuzzle:183", 2d, "MusketBulletTrace.PlayMuzzle: returns 0 (line 183)"); return 0; }
+            if (ZNetScene.instance == null) return 0;
             int made = 0;
             foreach (string n in MuzzleEffects)
             {
                 GameObject fx = ZNetScene.instance.GetPrefab(n);
-                if (fx == null) continue;
+                if (fx == null) { if (RuleLog.Due("MusketBulletTrace.PlayMuzzle:200", 2d)) ModLog.Every("MusketBulletTrace.PlayMuzzle:200", 2d, $"MusketBulletTrace.PlayMuzzle: skips to the next item (continue) because fx == null (line 200)"); continue; }
                 Object.Instantiate(fx, at, Quaternion.LookRotation(forward));
                 made++;
             }
-            { var returnedAt192 = made; if (RuleLog.Due("MusketBulletTrace.PlayMuzzle:192", 2d)) ModLog.Every("MusketBulletTrace.PlayMuzzle:192", 2d, $"MusketBulletTrace.PlayMuzzle: returns {RuleLog.Shown(returnedAt192)} (line 192)"); return returnedAt192; }
+            { var returnedAt204 = made; if (RuleLog.Due("MusketBulletTrace.PlayMuzzle:204", 2d)) ModLog.Every("MusketBulletTrace.PlayMuzzle:204", 2d, $"MusketBulletTrace.PlayMuzzle: returns {returnedAt204} (line 204)"); return returnedAt204; }
         }
     }
 }

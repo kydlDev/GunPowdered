@@ -76,7 +76,7 @@ namespace GunPowdered.Core
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"ItemSpec.AfterGlobalKey(key={RuleLog.Shown(key)})");
             RequiredGlobalKey = string.IsNullOrEmpty(key) ? null : key;
-            { var returnedAt79 = this; if (RuleLog.IsOn()) RuleLog.Verbose($"ItemSpec.AfterGlobalKey: returns {RuleLog.Shown(returnedAt79)} (line 79)"); return returnedAt79; }
+            { var returnedAt79 = this; if (RuleLog.IsOn()) RuleLog.Verbose($"ItemSpec.AfterGlobalKey: returns {returnedAt79} (line 79)"); return returnedAt79; }
         }
 
         /// <summary>Sets the station level the recipe needs. Expected outcome: this entry, with <see cref="StationLevel"/> = level (at least 1).</summary>
@@ -84,7 +84,7 @@ namespace GunPowdered.Core
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"ItemSpec.AtStationLevel(level={RuleLog.Shown(level)})");
             StationLevel = level < 1 ? 1 : level;
-            { var returnedAt87 = this; if (RuleLog.IsOn()) RuleLog.Verbose($"ItemSpec.AtStationLevel: returns {RuleLog.Shown(returnedAt87)} (line 87)"); return returnedAt87; }
+            { var returnedAt87 = this; if (RuleLog.IsOn()) RuleLog.Verbose($"ItemSpec.AtStationLevel: returns {returnedAt87} (line 87)"); return returnedAt87; }
         }
     }
 

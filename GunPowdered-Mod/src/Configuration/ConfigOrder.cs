@@ -22,12 +22,12 @@ internal static class ConfigOrder
     public static ConfigDescription First(string description)
     {
         if (RuleLog.IsOn()) ModLog.Verbose($"ConfigOrder.First(description={RuleLog.Shown(description)})");
-        { var returnedAt25 = new ConfigDescription(description, null, new ConfigurationManagerAttributes { Order = FirstOrder }); if (RuleLog.IsOn()) ModLog.Verbose($"ConfigOrder.First: returns {RuleLog.Shown(returnedAt25)} (line 25)"); return returnedAt25; }
+        return new ConfigDescription(description, null, new ConfigurationManagerAttributes { Order = FirstOrder });
     }
 
     public static ConfigDescription Last(string description)
     {
         if (RuleLog.IsOn()) ModLog.Verbose($"ConfigOrder.Last(description={RuleLog.Shown(description)})");
-        { var returnedAt31 = new ConfigDescription(description, null, new ConfigurationManagerAttributes { Order = LastOrder }); if (RuleLog.IsOn()) ModLog.Verbose($"ConfigOrder.Last: returns {RuleLog.Shown(returnedAt31)} (line 31)"); return returnedAt31; }
+        return new ConfigDescription(description, null, new ConfigurationManagerAttributes { Order = LastOrder });
     }
 }

@@ -31,7 +31,7 @@ namespace GunPowdered.Features.Example.Application
         {
             if (RuleLog.Due("SetExampleValueHandler.Handle", 2d)) RuleLog.Every("SetExampleValueHandler.Handle", 2d, $"SetExampleValueHandler.Handle(command={RuleLog.Shown(command)})");
             var decision = _pipeline.Run(command);
-            { var returnedAt35 = decision.IsSuccess ? _executor.Apply(decision.Value) : decision; if (RuleLog.Due("SetExampleValueHandler.Handle:35", 2d)) RuleLog.Every("SetExampleValueHandler.Handle:35", 2d, $"SetExampleValueHandler.Handle: returns {RuleLog.Shown(returnedAt35)} (line 35)"); return returnedAt35; }
+            { var returnedAt34 = decision.IsSuccess ? _executor.Apply(decision.Value) : decision; if (RuleLog.Due("SetExampleValueHandler.Handle:34", 2d)) RuleLog.Every("SetExampleValueHandler.Handle:34", 2d, $"SetExampleValueHandler.Handle: returns {returnedAt34} (line 34)"); return returnedAt34; }
         }
     }
 }

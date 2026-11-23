@@ -27,7 +27,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             Player p = Player.m_localPlayer;
             GameObject prefab = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(GunPowderedPrefabs.CannonStock) : null;
-            if (p == null || prefab == null) return "no player or no stock prefab";
+            if (p == null || prefab == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.SpawnStock: returns \"no player or no stock prefab\" because p == null || prefab == null (line 30)"); return "no player or no stock prefab"; }
             RemoveStock();
             Vector3 fwd = p.transform.forward;
             fwd.y = 0f;
@@ -57,8 +57,9 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.cannonAdoptStock")]
         static string AdoptStock()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.AdoptStock()");
             Player p = Player.m_localPlayer;
-            if (p == null) return "no player";
+            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.AdoptStock: returns \"no player\" because p == null (line 62)"); return "no player"; }
             CannonMount best = null;
             float bestDist = 30f;
             foreach (CannonMount m in Object.FindObjectsByType<CannonMount>(FindObjectsSortMode.None))
@@ -66,13 +67,13 @@ namespace GunPowdered.Testing.TestHooks
                 float d = Vector3.Distance(p.transform.position, m.transform.position);
                 if (d < bestDist) { best = m; bestDist = d; }
             }
-            if (best == null) return "no stock within 30 m";
+            if (best == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.AdoptStock: returns \"no stock within 30 m\" because best == null (line 70)"); return "no stock within 30 m"; }
             _stock = best;
             _stockAt = best.transform.position;
             _fuse0 = CannonEffects.FuseCount;
             _muzzle0 = CannonEffects.MuzzleCount;
             _impact0 = CannonEffects.ImpactCount;
-            return "adopted at " + F(bestDist) + " m";
+            { var returnedAt76 = "adopted at " + F(bestDist) + " m"; if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.AdoptStock: returns {returnedAt76} (line 76)"); return returnedAt76; }
         }
 
         /// The player interacts with the stock (alt = shift + use). Returns what Interact answered.
@@ -80,7 +81,7 @@ namespace GunPowdered.Testing.TestHooks
         static bool Use(bool alt)
         {
             Player p = Player.m_localPlayer;
-            if (p == null || _stock == null) return false;
+            if (p == null || _stock == null) { if (RuleLog.Due("CannonTestHooks.Use:84", 2d)) ModLog.Every("CannonTestHooks.Use:84", 2d, $"CannonTestHooks.Use: returns false because p == null || _stock == null (line 84)"); return false; }
             bool r = _stock.Interact(p, false, alt);
             ModLog.Verbose("CannonTestHooks: use (alt " + alt + ") -> " + r + ", hover now: " + _stock.GetHoverText().Replace("\n", " | "));
             return r;
@@ -90,41 +91,45 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.cannonState")]
         static string State()
         {
-            if (_stock == null) return "no stock";
+            if (RuleLog.Due("CannonTestHooks.State", 2d)) ModLog.Every("CannonTestHooks.State", 2d, $"CannonTestHooks.State()");
+            if (_stock == null) { if (RuleLog.Due("CannonTestHooks.State:95", 2d)) ModLog.Every("CannonTestHooks.State:95", 2d, $"CannonTestHooks.State: returns \"no stock\" because _stock == null (line 95)"); return "no stock"; }
             CannonStatus s = _stock.Status();
             bool barrel = _stock.Barrel != null && _stock.Barrel.gameObject.activeSelf;
-            return "mounted " + s.Mounted + ", loaded " + s.Loaded + ", barrel shown " + barrel + ", loading " + _stock.Loading + ", aiming " + (CannonAim.Current == _stock);
+            { var returnedAt98 = "mounted " + s.Mounted + ", loaded " + s.Loaded + ", barrel shown " + barrel + ", loading " + _stock.Loading + ", aiming " + (CannonAim.Current == _stock); if (RuleLog.Due("CannonTestHooks.State:98", 2d)) ModLog.Every("CannonTestHooks.State:98", 2d, $"CannonTestHooks.State: returns {returnedAt98} (line 98)"); return returnedAt98; }
         }
 
         /// Is the cast ball in the player's right hand right now (the game's own hand visual, as everybody sees it)?
         [TestHook("GunPowdered.cannonBallInHand")]
         static bool BallInHand()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.BallInHand()");
             Player p = Player.m_localPlayer;
             ZNetView nv = p != null ? p.GetComponent<ZNetView>() : null;
-            return nv != null && nv.IsValid() && nv.GetZDO().GetInt(ZDOVars.s_rightItem, 0) == GunPowderedPrefabs.CannonBall.GetStableHashCode();
+            { var returnedAt108 = nv != null && nv.IsValid() && nv.GetZDO().GetInt(ZDOVars.s_rightItem, 0) == GunPowderedPrefabs.CannonBall.GetStableHashCode(); if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.BallInHand: returns {returnedAt108} (line 108)"); return returnedAt108; }
         }
 
         /// Starts aiming (Interact) at a spot distance metres out and side degrees off the stock's forward. Returns "aiming True at D m".
         [TestHook("GunPowdered.cannonAim")]
         static string Aim(double distance, double side)
         {
+            if (RuleLog.Due("CannonTestHooks.Aim", 2d)) ModLog.Every("CannonTestHooks.Aim", 2d, $"CannonTestHooks.Aim(distance={distance}, side={side})");
             Player p = Player.m_localPlayer;
-            if (p == null || _stock == null) return "no stock";
+            if (p == null || _stock == null) { if (RuleLog.Due("CannonTestHooks.Aim:117", 2d)) ModLog.Every("CannonTestHooks.Aim:117", 2d, $"CannonTestHooks.Aim: returns \"no stock\" because p == null || _stock == null (line 117)"); return "no stock"; }
             CannonAim.TestAim = new Vector2((float)distance, (float)side);
             if (CannonAim.Current != _stock) _stock.Interact(p, false, false);
-            return "aiming " + (CannonAim.Current == _stock) + " at " + F(CannonAim.TargetDistance) + " m";
+            { var returnedAt120 = "aiming " + (CannonAim.Current == _stock) + " at " + F(CannonAim.TargetDistance) + " m"; if (RuleLog.Due("CannonTestHooks.Aim:120", 2d)) ModLog.Every("CannonTestHooks.Aim:120", 2d, $"CannonTestHooks.Aim: returns {returnedAt120} (line 120)"); return returnedAt120; }
         }
 
         /// Presses attack the way the game does (Humanoid.StartAttack). Returns the cannon's answer: "lit" or why not.
         [TestHook("GunPowdered.cannonLight")]
         static string Light()
         {
+            if (RuleLog.Due("CannonTestHooks.Light", 2d)) ModLog.Every("CannonTestHooks.Light", 2d, $"CannonTestHooks.Light()");
             Player p = Player.m_localPlayer;
-            if (p == null) return "no player";
+            if (p == null) { if (RuleLog.Due("CannonTestHooks.Light:129", 2d)) ModLog.Every("CannonTestHooks.Light:129", 2d, $"CannonTestHooks.Light: returns \"no player\" because p == null (line 129)"); return "no player"; }
             CannonBallFlight.ClearLast();
             p.StartAttack(null, false);
-            return CannonAim.LastLight;
+            { var returnedAt132 = CannonAim.LastLight; if (RuleLog.Due("CannonTestHooks.Light:132", 2d)) ModLog.Every("CannonTestHooks.Light:132", 2d, $"CannonTestHooks.Light: returns {returnedAt132} (line 132)"); return returnedAt132; }
         }
 
         /// What the last shot did ("landed at ... m (aimed ... m), passed N, stopped by ..., hits: ...").
@@ -148,20 +153,22 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.cannonLandingRule")]
         static string LandingRule(double tolerance)
         {
-            if (!ShotDone() || CannonBallFlight.LastPassed < 1) return "no pass-through shot";
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.LandingRule(tolerance={tolerance})");
+            if (!ShotDone() || CannonBallFlight.LastPassed < 1) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.LandingRule: returns \"no pass-through shot\" because !ShotDone() || CannonBallFlight.LastPassed < 1 (line 157)"); return "no pass-through shot"; }
             float want = CannonRules.PassThroughLanding(CannonBallFlight.LastAimed, CannonBallFlight.LastPassAt);
             bool ok = Mathf.Abs(CannonBallFlight.LastDistance - want) <= (float)tolerance;
-            return (ok ? "held" : "broken") + ", expected " + F(want) + ", landed " + F(CannonBallFlight.LastDistance);
+            { var returnedAt160 = (ok ? "held" : "broken") + ", expected " + F(want) + ", landed " + F(CannonBallFlight.LastDistance); if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.LandingRule: returns {returnedAt160} (line 160)"); return returnedAt160; }
         }
 
         /// The damage of each hit of the last ball, in order: "130.0, 65.0" ("none").
         [TestHook("GunPowdered.cannonDamages")]
         static string Damages()
         {
-            if (CannonBallFlight.LastDamages.Count == 0) return "none";
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Damages()");
+            if (CannonBallFlight.LastDamages.Count == 0) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Damages: returns \"none\" because CannonBallFlight.LastDamages.Count == 0 (line 168)"); return "none"; }
             var parts = new List<string>();
             foreach (float d in CannonBallFlight.LastDamages) parts.Add(F(d));
-            return string.Join(", ", parts.ToArray());
+            { var returnedAt171 = string.Join(", ", parts.ToArray()); if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Damages: returns {returnedAt171} (line 171)"); return returnedAt171; }
         }
 
         /// How many trees / creatures the last ball passed.
@@ -189,12 +196,13 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.cannonPickBall")]
         static bool PickBall()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.PickBall()");
             Player p = Player.m_localPlayer;
-            if (p == null || !CannonBallFlight.LastStop.HasValue) return false;
+            if (p == null || !CannonBallFlight.LastStop.HasValue) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.PickBall: returns false because p == null || !CannonBallFlight.LastStop.HasValue (line 201)"); return false; }
             foreach (ItemDrop d in Object.FindObjectsByType<ItemDrop>(FindObjectsSortMode.None))
                 if (Utils.GetPrefabName(d.gameObject) == StoppedBall() && Vector3.Distance(d.transform.position, CannonBallFlight.LastStop.Value) < 1.5f)
-                    return p.Pickup(d.gameObject, false, false);
-            return false;
+                    { var returnedAt204 = p.Pickup(d.gameObject, false, false); if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.PickBall: returns {returnedAt204} (line 204)"); return returnedAt204; }
+            { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.PickBall: returns false (line 205)"); return false; }
         }
 
         /// How many of a prefab the player carries (all stacks).
@@ -205,11 +213,12 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.cannonDismantle")]
         static string Dismantle()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Dismantle()");
             WearNTear w = _stock != null ? _stock.GetComponent<WearNTear>() : null;
-            if (w == null) return "no stock";
+            if (w == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Dismantle: returns \"no stock\" because w == null (line 218)"); return "no stock"; }
             w.Remove();
             _stock = null;
-            return "removed";
+            { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Dismantle: returns \"removed\" (line 221)"); return "removed"; }
         }
 
         /// Items of a prefab lying within 4 m of where the stock stood plus those the player already carries (the auto pickup takes drops at the feet).
@@ -221,7 +230,7 @@ namespace GunPowdered.Testing.TestHooks
         static string PlaceOnLine(string prefab, double distance)
         {
             GameObject go = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
-            if (go == null || _stock == null) return "no prefab " + prefab + " or no stock";
+            if (go == null || _stock == null) { var returnedAt233 = "no prefab " + prefab + " or no stock"; if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.PlaceOnLine: returns {returnedAt233} because go == null || _stock == null (line 233)"); return returnedAt233; }
             Vector3 fwd = _stock.transform.forward;
             Vector3 at = _stock.transform.position + (fwd * (float)distance);
             at.y = Ground(at);
@@ -241,26 +250,28 @@ namespace GunPowdered.Testing.TestHooks
         /// Lifts a placed piece whose colliders reach below the ground (a pivot in the middle, like the wood wall) so it stands on the ground. Returns the collider bounds for the log.
         static string StandOnGround(GameObject made, float groundY)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.StandOnGround(made={made}, groundY={groundY})");
             Collider[] cols = made.GetComponentsInChildren<Collider>();
-            if (cols.Length == 0) return "no collider";
+            if (cols.Length == 0) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.StandOnGround: returns \"no collider\" because cols.Length == 0 (line 255)"); return "no collider"; }
             Bounds b = cols[0].bounds;
             foreach (Collider col in cols) b.Encapsulate(col.bounds);
             float lift = groundY - b.min.y;
             if (lift > 0.01f) made.transform.position += Vector3.up * lift;
-            return "colliders y " + F(b.min.y) + ".." + F(b.max.y) + ", lifted " + F(lift > 0.01f ? lift : 0f) + " m";
+            { var returnedAt260 = "colliders y " + F(b.min.y) + ".." + F(b.max.y) + ", lifted " + F(lift > 0.01f ? lift : 0f) + " m"; if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.StandOnGround: returns {returnedAt260} (line 260)"); return returnedAt260; }
         }
 
         /// How many of the placed creatures of a prefab have lost health.
         [TestHook("GunPowdered.cannonHurt")]
         static int Hurt(string prefab)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Hurt(prefab={prefab})");
             int n = 0;
             foreach (GameObject g in Placed)
             {
                 Character c = g != null ? g.GetComponent<Character>() : null;
                 if (c != null && Utils.GetPrefabName(g) == prefab && (c.IsDead() || c.GetHealth() < c.GetMaxHealth() - 0.5f)) n++;
             }
-            return n;
+            { var returnedAt274 = n; if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Hurt: returns {returnedAt274} (line 274)"); return returnedAt274; }
         }
 
         /// What the right hand shows: "N renderers, enabled M, size X m, at Y m from the hand, lossy scale S" of the objects under the hand joint.
@@ -269,13 +280,13 @@ namespace GunPowdered.Testing.TestHooks
         {
             Player p = Player.m_localPlayer;
             VisEquipment vis = p != null ? p.GetComponent<VisEquipment>() : null;
-            if (vis == null || vis.m_rightHand == null) return "no hand";
+            if (vis == null || vis.m_rightHand == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.RightHandInfo: returns \"no hand\" because vis == null || vis.m_rightHand == null (line 283)"); return "no hand"; }
             int n = 0, on = 0;
             Bounds b = new Bounds(vis.m_rightHand.position, Vector3.zero);
             foreach (Renderer r in vis.m_rightHand.GetComponentsInChildren<Renderer>(true))
             {
                 n++;
-                if (!r.enabled || !r.gameObject.activeInHierarchy) continue;
+                if (!r.enabled || !r.gameObject.activeInHierarchy) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.RightHandInfo: skips to the next item (continue) because !r.enabled || !r.gameObject.activeInHierarchy (line 289)"); continue; }
                 on++;
                 b.Encapsulate(r.bounds);
             }
@@ -291,11 +302,12 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.cameraDistance")]
         static float CameraDistance(double metres)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.CameraDistance(metres={metres})");
             if (GameCamera.instance == null) return -1f;
             var field = HarmonyLib.AccessTools.Field(typeof(GameCamera), "m_distance");
             float old = (float)field.GetValue(GameCamera.instance);
             field.SetValue(GameCamera.instance, (float)metres);
-            return old;
+            { var returnedAt310 = old; if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.CameraDistance: returns {returnedAt310} (line 310)"); return returnedAt310; }
         }
 
         /// How many of the objects placed on the line with that prefab still exist (a rock the ball broke is gone).
@@ -317,7 +329,7 @@ namespace GunPowdered.Testing.TestHooks
             foreach (GameObject g in Placed)
             {
                 Character c = g != null && Utils.GetPrefabName(g) == prefab ? g.GetComponent<Character>() : null;
-                if (c == null) continue;
+                if (c == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Tame: skips to the next item (continue) because c == null (line 332)"); continue; }
                 c.SetTamed(true);
                 if (c.IsTamed()) n++;
             }
@@ -330,7 +342,7 @@ namespace GunPowdered.Testing.TestHooks
         static bool SetPvp(bool on)
         {
             Player p = Player.m_localPlayer;
-            if (p == null) throw new System.InvalidOperationException("no local player");
+            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.SetPvp: throws new System.InvalidOperationException(\"no local player\") because p == null (line 345)"); throw new System.InvalidOperationException("no local player"); }
             p.SetPVP(on);
             ModLog.Verbose("CannonTestHooks: PvP asked " + on + ", now " + p.IsPVPEnabled());
             return p.IsPVPEnabled();
@@ -341,6 +353,7 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.cannonCleanup")]
         static string Cleanup()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Cleanup()");
             CannonAim.End("test cleanup");
             CannonAim.TestAim = null;
             Player me = Player.m_localPlayer;
@@ -354,7 +367,7 @@ namespace GunPowdered.Testing.TestHooks
             }
             Placed.Clear();
             int fragments = RemoveRockFragments(me != null ? me.transform.position : Vector3.zero, 60f);
-            return "cleaned " + removed + ", rock fragments " + fragments;
+            { var returnedAt370 = "cleaned " + removed + ", rock fragments " + fragments; if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Cleanup: returns {returnedAt370} (line 370)"); return returnedAt370; }
         }
 
         // a rock the ball breaks leaves fragments (a "..._frac" prefab or a "___MineRock5" object, run a5cannon1); the arena has no rocks of its own,
@@ -364,9 +377,9 @@ namespace GunPowdered.Testing.TestHooks
             int n = 0;
             foreach (ZNetView nv in Object.FindObjectsByType<ZNetView>(FindObjectsSortMode.None))
             {
-                if (nv == null || !nv.IsValid() || Vector3.Distance(nv.transform.position, around) > radius) continue;
+                if (nv == null || !nv.IsValid() || Vector3.Distance(nv.transform.position, around) > radius) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.RemoveRockFragments: skips to the next item (continue) because nv == null || !nv.IsValid() || Vector3.Distance(nv.transform.position, around) > radius (line 380)"); continue; }
                 bool debris = nv.GetComponent<MineRock5>() != null || Utils.GetPrefabName(nv.gameObject).EndsWith("_frac");
-                if (!debris) continue;
+                if (!debris) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.RemoveRockFragments: skips to the next item (continue) because !debris (line 382)"); continue; }
                 nv.ClaimOwnership();
                 ZNetScene.instance.Destroy(nv.gameObject);
                 n++;
@@ -377,6 +390,7 @@ namespace GunPowdered.Testing.TestHooks
 
         static void RemoveStock()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.RemoveStock()");
             if (_stock == null) return;
             ZNetView nv = _stock.GetComponent<ZNetView>();
             if (nv != null && nv.IsValid()) { nv.ClaimOwnership(); ZNetScene.instance.Destroy(_stock.gameObject); }
@@ -385,16 +399,18 @@ namespace GunPowdered.Testing.TestHooks
 
         static int Drops(string prefab, Vector3 at, float radius)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Drops(prefab={prefab}, at={at}, radius={radius})");
             int n = 0;
             foreach (ItemDrop d in Object.FindObjectsByType<ItemDrop>(FindObjectsSortMode.None))
                 if (Utils.GetPrefabName(d.gameObject) == prefab && Vector3.Distance(d.transform.position, at) <= radius) n += d.m_itemData.m_stack;
-            return n;
+            { var returnedAt406 = n; if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Drops: returns {returnedAt406} (line 406)"); return returnedAt406; }
         }
 
         static float Ground(Vector3 at)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Ground(at={at})");
             RaycastHit h;
-            if (Physics.Raycast(at + (Vector3.up * 50f), Vector3.down, out h, 120f, LayerMask.GetMask("Default", "static_solid", "terrain"), QueryTriggerInteraction.Ignore)) return h.point.y;
+            if (Physics.Raycast(at + (Vector3.up * 50f), Vector3.down, out h, 120f, LayerMask.GetMask("Default", "static_solid", "terrain"), QueryTriggerInteraction.Ignore)) { var returnedAt413 = h.point.y; if (RuleLog.IsOn()) ModLog.Verbose($"CannonTestHooks.Ground: returns {returnedAt413} because Physics.Raycast(at + (Vector3.up * 50f), Vector3.down, out h, 120f, LayerMask.GetMask(\"Default\", \"static_solid\", \"terrain\"), QueryTriggerInteraction.Ignore) (line 413)"); return returnedAt413; }
             return at.y;
         }
 

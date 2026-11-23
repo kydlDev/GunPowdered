@@ -5,6 +5,7 @@ using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Bootstrap;
 using GunPowdered.Features.Grenades.Infrastructure;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -33,9 +34,10 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.arcShown")]
         static string ArcShown()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.ArcShown()");
             Vector3? l = ThrowArcView.LastLanding;
             Player p = Player.m_localPlayer;
-            if (!l.HasValue || p == null) return "hidden";
+            if (!l.HasValue || p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.ArcShown: returns \"hidden\" because !l.HasValue || p == null (line 40)"); return "hidden"; }
             return "landing at (" + l.Value.x.ToString("0.0", CultureInfo.InvariantCulture) + ", " + l.Value.z.ToString("0.0", CultureInfo.InvariantCulture) + "), "
                 + Vector3.Distance(p.transform.position, l.Value).ToString("0.0", CultureInfo.InvariantCulture) + " m, red=" + ThrowArcView.LastInBlast;
         }
@@ -51,7 +53,7 @@ namespace GunPowdered.Testing.TestHooks
             _note = started ? "thrown" : "the attack did not start";
             ModLog.Verbose("GrenadeTestHooks: throw " + _note);
             if (started) WatchBlastOnce();
-            return started;
+            { var returnedAt56 = started; if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.ThrowGrenade: returns {returnedAt56} (line 56)"); return returnedAt56; }
         }
 
         /// Starts following a throw that is about to happen (the aimed throw lets the game start the attack itself): remembers where it should land and which blasts are old.
@@ -91,8 +93,8 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.grenadeFollowedArc")]
         static string FollowedArc()
         {
-            if (!_predicted.HasValue) return "bad: no landing was drawn when it was thrown (" + _note + ")";
-            if (!_blast.HasValue) return "bad: no blast seen (" + _note + ")";
+            if (!_predicted.HasValue) { var returnedAt96 = "bad: no landing was drawn when it was thrown (" + _note + ")"; if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.FollowedArc: returns {returnedAt96} because !_predicted.HasValue (line 96)"); return returnedAt96; }
+            if (!_blast.HasValue) { var returnedAt97 = "bad: no blast seen (" + _note + ")"; if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.FollowedArc: returns {returnedAt97} because !_blast.HasValue (line 97)"); return returnedAt97; }
             float flat = Vector2.Distance(new Vector2(_predicted.Value.x, _predicted.Value.z), new Vector2(_blast.Value.x, _blast.Value.z));
             string nums = "drawn " + _predicted.Value.ToString("0.00") + ", blast " + _blast.Value.ToString("0.00") + ", " + flat.ToString("0.00", CultureInfo.InvariantCulture) + " m apart";
             if (_throwTestDrag > 0f) ModLog.Info("GrenadeTestHooks: intended miss of the negative test (test flight drag " + _throwTestDrag.ToString("0.###", CultureInfo.InvariantCulture) + " at the throw): " + nums);
@@ -109,7 +111,7 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.blastProbe")]
         static string BlastProbe(double radius)
         {
-            if (!_blast.HasValue) return "no burst seen";
+            if (!_blast.HasValue) { if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.BlastProbe: returns \"no burst seen\" because !_blast.HasValue (line 114)"); return "no burst seen"; }
             int chars = Physics.OverlapSphere(_blast.Value, (float)radius, LayerMask.GetMask("character", "character_net", "character_ghost")).Length;
             Collider[] props = Physics.OverlapSphere(_blast.Value, (float)radius, LayerMask.GetMask("Default", "static_solid", "Default_small", "piece", "hitbox", "character_noenv", "vehicle"));
             var names = new System.Collections.Generic.Dictionary<string, int>();
@@ -130,8 +132,9 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.pieceDamaged")]
         static bool PieceDamaged(string prefab)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.PieceDamaged(prefab={prefab})");
             float pct = PieceHealth(prefab);
-            return pct >= 0f && pct < 99.9f;
+            { var returnedAt137 = pct >= 0f && pct < 99.9f; if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.PieceDamaged: returns {returnedAt137} (line 137)"); return returnedAt137; }
         }
 
         /// Health of the nearest piece of a prefab within 20 m, in percent (100 = untouched), or -1 when there is none.
@@ -178,7 +181,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             Vector3? l = ThrowArcView.LastLanding;
             GameObject source = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
-            if (!l.HasValue) return "no landing drawn";
+            if (!l.HasValue) { if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.SpawnAtLanding: returns \"no landing drawn\" because !l.HasValue (line 184)"); return "no landing drawn"; }
             if (source == null) return "no prefab " + prefab;
             GameObject go = Object.Instantiate(source, l.Value, Quaternion.identity);
             if (go != null) Placed.Add(go);
@@ -193,7 +196,7 @@ namespace GunPowdered.Testing.TestHooks
             int n = 0;
             foreach (GameObject go in Placed)
             {
-                if (go == null) continue;
+                if (go == null) { if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.RemoveLandingPieces: skips to the next item (continue) because go == null (line 199)"); continue; }
                 ZNetView nv = go.GetComponent<ZNetView>();
                 if (nv != null && nv.IsValid()) { nv.ClaimOwnership(); ZNetScene.instance.Destroy(go); }
                 else Object.Destroy(go);
@@ -210,11 +213,11 @@ namespace GunPowdered.Testing.TestHooks
         static string RemoveStationsNearby()
         {
             Player p = Player.m_localPlayer;
-            if (p == null || ZNetScene.instance == null) return "removed 0 (no player)";
+            if (p == null || ZNetScene.instance == null) { if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.RemoveStationsNearby: returns \"removed 0 (no player)\" because p == null || ZNetScene.instance == null (line 216)"); return "removed 0 (no player)"; }
             int n = 0;
             foreach (Piece piece in Object.FindObjectsByType<Piece>(FindObjectsSortMode.None))
             {
-                if (!Utils.GetPrefabName(piece.gameObject).StartsWith("GP_") || Vector3.Distance(p.transform.position, piece.transform.position) > 20f) continue;
+                if (!Utils.GetPrefabName(piece.gameObject).StartsWith("GP_") || Vector3.Distance(p.transform.position, piece.transform.position) > 20f) { if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.RemoveStationsNearby: skips to the next item (continue) because !Utils.GetPrefabName(piece.gameObject).StartsWith(\"GP_\") || Vector3.Distance(p.transform.position, piece.transform.position) > 20f (line 220)"); continue; }
                 ZNetView nv = piece.GetComponent<ZNetView>();
                 if (nv != null && nv.IsValid()) { nv.ClaimOwnership(); ZNetScene.instance.Destroy(piece.gameObject); }
                 else Object.Destroy(piece.gameObject);
@@ -244,7 +247,7 @@ namespace GunPowdered.Testing.TestHooks
             {
                 foreach (Aoe a in Object.FindObjectsByType<Aoe>(FindObjectsSortMode.None))
                 {
-                    if (a.name.StartsWith(GrenadeSetup.ExplosionId) && !OldBlasts.Contains(a.GetInstanceID())) { _blast = a.transform.position; break; }
+                    if (a.name.StartsWith(GrenadeSetup.ExplosionId) && !OldBlasts.Contains(a.GetInstanceID())) { _blast = a.transform.position; { if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeTestHooks.WatchBlast: leaves the loop / case (break) because a.name.StartsWith(GrenadeSetup.ExplosionId) && !OldBlasts.Contains(a.GetInstanceID()) (line 250)"); break; } }
                 }
                 yield return null;
             }

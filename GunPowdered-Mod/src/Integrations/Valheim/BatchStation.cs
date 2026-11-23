@@ -75,7 +75,7 @@ namespace GunPowdered.Integrations.Valheim
             for (int i = Live.Count - 1; i >= 0; i--)
             {
                 BatchStation s = Live[i];
-                if (s == null) { Live.RemoveAt(i); continue; }
+                if (s == null) { Live.RemoveAt(i); { if (RuleLog.Due("BatchStation.AnyRunningNear:78", 2d)) ModLog.Every("BatchStation.AnyRunningNear:78", 2d, $"BatchStation.AnyRunningNear: skips to the next item (continue) because s == null (line 78)"); continue; } }
                 Vector3 d = s.transform.position - point;
                 if (s.Config.StationKey == stationKey && s.Running && StationPlacementRules.InRange(d.x, d.y, d.z, range))
                 {
@@ -93,8 +93,8 @@ namespace GunPowdered.Integrations.Valheim
             for (int i = Live.Count - 1; i >= 0; i--)
             {
                 BatchStation s = Live[i];
-                if (s == null) { Live.RemoveAt(i); continue; }
-                if (!s.Placed) continue;
+                if (s == null) { Live.RemoveAt(i); { if (RuleLog.Due("BatchStation.StandsOn:96", 2d)) ModLog.Every("BatchStation.StandsOn:96", 2d, $"BatchStation.StandsOn: skips to the next item (continue) because s == null (line 96)"); continue; } }
+                if (!s.Placed) { if (RuleLog.Due("BatchStation.StandsOn:97", 2d)) ModLog.Every("BatchStation.StandsOn:97", 2d, $"BatchStation.StandsOn: skips to the next item (continue) because !s.Placed (line 97)"); continue; }
                 if (!s._measured) { s._footprint = StationSnapPoints.Footprint(s.gameObject); s._measured = true; }
                 Vector3 local = s.transform.InverseTransformPoint(point);
                 Bounds f = s._footprint;
@@ -168,9 +168,17 @@ namespace GunPowdered.Integrations.Valheim
                 ShowState(State == StateRunning, Held, Ready);
                 ModLog.Every(c.Label + "-" + gameObject.GetInstanceID(), 30d, $"{c.Label} state {State}, step {Step}, holds {BatchStationRules.Text(Held)} of {BatchStationRules.Text(BatchStationRules.FullBatch(c.Spec, c.Unit(), Step))}, pile {Ready} {c.OutputName}");
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn($"BatchStation.Tick({c.Label}): {e.GetType().FullName}: {e.Message} - the station skips this tick" + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn($"BatchStation.Tick({c.Label}): {e.GetType().FullName}: {e.Message} - the station skips this tick" + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn($"BatchStation.Tick({c.Label}): {e.GetType().FullName}: {e.Message} - the station skips this tick");
+                ModLog.Warn($"BatchStation.Tick({c.Label}): {e.GetType().FullName}: {e.Message} - the station skips this tick" + "\n" + e.StackTrace);
             }
         }
 

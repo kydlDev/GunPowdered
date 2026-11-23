@@ -23,7 +23,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
             }
             catch (Exception e)
             {
-                ModLog.Warn("MusketRigPatch: " + e.GetType().FullName + ": " + e.Message + " - this player keeps the crossbow hold");
+                ModLog.Warn("MusketRigPatch: " + e.GetType().FullName + ": " + e.Message + " - this player keeps the crossbow hold" + "\n" + e.StackTrace);
             }
         }
     }

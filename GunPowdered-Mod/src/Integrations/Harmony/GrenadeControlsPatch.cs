@@ -18,9 +18,17 @@ namespace GunPowdered.Integrations.HarmonyPatches
             {
                 GrenadeAim.FilterControls(__instance, ref attack, ref attackHold, ref block, ref blockHold);
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("GrenadeControlsPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().FullName + " filtering the grenade controls: " + e.Message + " - the buttons go through unchanged" + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("GrenadeControlsPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + " filtering the grenade controls: " + e.Message + " - the buttons go through unchanged" + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn("GrenadeControlsPatch: " + e.GetType().FullName + " filtering the grenade controls: " + e.Message + " - the buttons go through unchanged");
+                ModLog.Warn("GrenadeControlsPatch: " + e.GetType().FullName + " filtering the grenade controls: " + e.Message + " - the buttons go through unchanged" + "\n" + e.StackTrace);
             }
         }
     }

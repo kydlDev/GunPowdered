@@ -35,9 +35,17 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 SetAnimationState(player, state);
                 ModLog.Verbose("MusketAnimationStatePatch: " + player.GetPlayerName() + " musket at the side - animation state " + state);
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("MusketAnimationStatePatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().FullName + ": " + e.Message + " - the game's own animation state stays" + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("MusketAnimationStatePatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + ": " + e.Message + " - the game's own animation state stays" + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn("MusketAnimationStatePatch: " + e.GetType().FullName + ": " + e.Message + " - the game's own animation state stays");
+                ModLog.Warn("MusketAnimationStatePatch: " + e.GetType().FullName + ": " + e.Message + " - the game's own animation state stays" + "\n" + e.StackTrace);
             }
         }
 
@@ -51,9 +59,19 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 ModLog.Verbose("MusketAnimationStatePatch.Refresh: applied for " + human.name);
                 return true;
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("MusketAnimationStatePatch.Refresh: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().FullName + ": " + e.Message + "\n" + e.StackTrace);
+                return false;
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("MusketAnimationStatePatch.Refresh: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + ": " + e.Message + "\n" + e.StackTrace);
+                return false;
+            }
             catch (Exception e)
             {
-                ModLog.Warn("MusketAnimationStatePatch.Refresh: " + e.GetType().FullName + ": " + e.Message);
+                ModLog.Warn("MusketAnimationStatePatch.Refresh: " + e.GetType().FullName + ": " + e.Message + "\n" + e.StackTrace);
                 return false;
             }
         }

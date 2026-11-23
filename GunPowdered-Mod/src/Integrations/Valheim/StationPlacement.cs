@@ -46,7 +46,7 @@ namespace GunPowdered.Integrations.Valheim
             float best = float.MaxValue;
             for (int i = 0; i < mine.Count; i++)
             {
-                if (manual >= 0 && i != manual) continue;
+                if (manual >= 0 && i != manual) { if (RuleLog.Due("StationPlacement.FilterSnap:49", 2d)) ModLog.Every("StationPlacement.FilterSnap:49", 2d, $"StationPlacement.FilterSnap: skips to the next item (continue) because manual >= 0 && i != manual (line 49)"); continue; }
                 foreach (Transform t in theirs)
                 {
                     float d = Vector3.Distance(mine[i].position, t.position);

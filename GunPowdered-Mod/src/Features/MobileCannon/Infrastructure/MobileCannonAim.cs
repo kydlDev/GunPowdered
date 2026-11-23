@@ -50,7 +50,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         void AddCrankHandle()
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonAim.AddCrankHandle()");
-            if (_crank == null || transform.Find(MobileCannonCrank.ObjectName) != null) { if (RuleLog.IsOn()) ModLog.Verbose("MobileCannonAim.AddCrankHandle: returns (line 53)"); return; }
+            if (_crank == null || transform.Find(MobileCannonCrank.ObjectName) != null) return;
             var go = new GameObject(MobileCannonCrank.ObjectName);
             go.layer = gameObject.layer;
             go.transform.SetParent(transform, false);
@@ -66,14 +66,14 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         internal bool Turn(int notches)
         {
             if (RuleLog.Due("MobileCannonAim.Turn", 2d)) ModLog.Every("MobileCannonAim.Turn", 2d, $"MobileCannonAim.Turn(notches={RuleLog.Shown(notches)})");
-            if (notches == 0 || _nview == null || !_nview.IsValid()) { if (RuleLog.Due("MobileCannonAim.Turn:69", 2d)) ModLog.Every("MobileCannonAim.Turn:69", 2d, "MobileCannonAim.Turn: returns false (line 69)"); return false; }
+            if (notches == 0 || _nview == null || !_nview.IsValid()) return false;
             _nview.InvokeRPC(ZNetView.Everybody, RpcTurn, notches);
-            { if (RuleLog.Due("MobileCannonAim.Turn:71", 2d)) ModLog.Every("MobileCannonAim.Turn:71", 2d, "MobileCannonAim.Turn: returns true (line 71)"); return true; }
+            { if (RuleLog.Due("MobileCannonAim.Turn:71", 2d)) ModLog.Every("MobileCannonAim.Turn:71", 2d, $"MobileCannonAim.Turn: returns true (line 71)"); return true; }
         }
 
         void RPC_Turn(long sender, int notches)
         {
-            if (!_nview.IsOwner()) { if (RuleLog.IsOn()) ModLog.Verbose("MobileCannonAim.RPC_Turn: returns (line 76)"); return; }
+            if (!_nview.IsOwner()) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonAim.RPC_Turn: returns because !_nview.IsOwner() (line 76)"); return; }
             float before = Pitch;
             float after = MobileCannonAimRules.Turn(before, notches, ModSettings.MobileCannonPitchStep.Value, ModSettings.MobileCannonMinPitch.Value, ModSettings.MobileCannonMaxPitch.Value);
             _nview.GetZDO().Set(KeyPitch, after);

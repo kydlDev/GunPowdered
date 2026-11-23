@@ -22,8 +22,9 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.packInfo")]
         static string Info()
         {
+            if (RuleLog.Due("Target.Info", 2d)) ModLog.Every("Target.Info", 2d, $"Target.Info()");
             DynamiteSetup.ChargeKind k = DynamiteSetup.PackKind;
-            if (k.Explosion == null) return "no pack blast";
+            if (k.Explosion == null) { if (RuleLog.Due("Target.Info:27", 2d)) ModLog.Every("Target.Info:27", 2d, $"Target.Info: returns \"no pack blast\" because k.Explosion == null (line 27)"); return "no pack blast"; }
             Aoe props = k.Explosion.GetComponent<Aoe>();
             Transform child = k.Explosion.transform.Find("gp_creature_blast");
             Aoe creatures = child != null ? child.GetComponent<Aoe>() : null;
@@ -44,7 +45,7 @@ namespace GunPowdered.Testing.TestHooks
             Player p = Player.m_localPlayer;
             DynamiteCharge c = NearestCharge();
             GameObject pf = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
-            if (p == null || c == null) return "no player or no charge";
+            if (p == null || c == null) { if (RuleLog.IsOn()) ModLog.Verbose($"Target.SpawnBeyond: returns \"no player or no charge\" because p == null || c == null (line 48)"); return "no player or no charge"; }
             if (pf == null) return "no prefab " + prefab;
             Vector3 dir = Vector3.ProjectOnPlane(c.transform.position - p.transform.position, Vector3.up).normalized;
             Vector3 at = c.transform.position + dir * (float)metres;
@@ -70,16 +71,17 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.packCleanup")]
         static string Cleanup()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"Target.Cleanup()");
             int n = 0;
             foreach (Target t in Targets)
             {
-                if (t.Go == null) continue;
+                if (t.Go == null) { if (RuleLog.IsOn()) ModLog.Verbose($"Target.Cleanup: skips to the next item (continue) because t.Go == null (line 78)"); continue; }
                 ZNetView v = t.Go.GetComponent<ZNetView>();
                 if (v != null && v.IsValid()) { v.ClaimOwnership(); ZNetScene.instance.Destroy(t.Go); } else Object.Destroy(t.Go);
                 n++;
             }
             Targets.Clear();
-            return "removed " + n;
+            { var returnedAt84 = "removed " + n; if (RuleLog.IsOn()) ModLog.Verbose($"Target.Cleanup: returns {returnedAt84} (line 84)"); return returnedAt84; }
         }
 
         /// <summary>The countdown the local player saw: "shows N, last 'text'".</summary>
@@ -90,24 +92,26 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.globalKey")]
         static string GlobalKey(string key, bool on)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"Target.GlobalKey(key={key}, on={on})");
             ZoneSystem zs = ZoneSystem.instance;
-            if (zs == null) return "no zone system";
+            if (zs == null) { if (RuleLog.IsOn()) ModLog.Verbose($"Target.GlobalKey: returns \"no zone system\" because zs == null (line 97)"); return "no zone system"; }
             bool was = zs.GetGlobalKey(key);
             if (!KeysAtStart.ContainsKey(key)) KeysAtStart[key] = was;
             if (on) zs.SetGlobalKey(key); else zs.RemoveGlobalKey(key);
-            return "key " + key + " was " + was + ", now " + zs.GetGlobalKey(key);
+            { var returnedAt101 = "key " + key + " was " + was + ", now " + zs.GetGlobalKey(key); if (RuleLog.IsOn()) ModLog.Verbose($"Target.GlobalKey: returns {returnedAt101} (line 101)"); return returnedAt101; }
         }
 
         /// <summary>Puts every key globalKey touched back the way it was. Returns "restored N".</summary>
         [TestHook("GunPowdered.globalKeysRestore")]
         static string GlobalKeysRestore()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"Target.GlobalKeysRestore()");
             ZoneSystem zs = ZoneSystem.instance;
             int n = 0;
             if (zs != null)
                 foreach (var kv in KeysAtStart) { if (kv.Value) zs.SetGlobalKey(kv.Key); else zs.RemoveGlobalKey(kv.Key); n++; }
             KeysAtStart.Clear();
-            return "restored " + n;
+            { var returnedAt114 = "restored " + n; if (RuleLog.IsOn()) ModLog.Verbose($"Target.GlobalKeysRestore: returns {returnedAt114} (line 114)"); return returnedAt114; }
         }
 
         /// <summary>
@@ -117,12 +121,13 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.packRecipe")]
         static string Recipe()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"Target.Recipe()");
             Player p = Player.m_localPlayer;
-            if (p == null || ObjectDB.instance == null) return "no player";
+            if (p == null || ObjectDB.instance == null) { if (RuleLog.IsOn()) ModLog.Verbose($"Target.Recipe: returns \"no player\" because p == null || ObjectDB.instance == null (line 126)"); return "no player"; }
             var list = new List<global::Recipe>();
             p.GetAvailableRecipes(ref list);
             global::Recipe r = ObjectDB.instance.m_recipes.FirstOrDefault(x => x != null && x.m_item != null && x.m_item.name == GunPowderedPrefabs.DeepNorthPack);
-            if (r == null) return "no recipe";
+            if (r == null) { if (RuleLog.IsOn()) ModLog.Verbose($"Target.Recipe: returns \"no recipe\" because r == null (line 130)"); return "no recipe"; }
             return "recipe on " + r.m_enabled + ", station " + (r.m_craftingStation != null ? r.m_craftingStation.name : "none") + " level " + r.m_minStationLevel
                 + ", needs " + string.Join(", ", r.m_resources.Select(x => (x.m_resItem != null ? x.m_resItem.name : "?") + " " + x.m_amount).ToArray());
         }
@@ -141,11 +146,11 @@ namespace GunPowdered.Testing.TestHooks
             float bestDist = 60f;
             foreach (Character c in Character.GetAllCharacters())
             {
-                if (c == null || c == p || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab) continue;
+                if (c == null || c == p || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab) { if (RuleLog.IsOn()) ModLog.Verbose($"Target.BackstabUsed: skips to the next item (continue) because c == null || c == p || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab (line 149)"); continue; }
                 float d = p != null ? Vector3.Distance(c.transform.position, p.transform.position) : 0f;
                 if (d < bestDist) { best = c; bestDist = d; }
             }
-            if (best == null) return "no " + prefab;
+            if (best == null) { var returnedAt153 = "no " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"Target.BackstabUsed: returns {returnedAt153} because best == null (line 153)"); return returnedAt153; }
             HarmonyLib.AccessTools.Field(typeof(Character), "m_backstabTime").SetValue(best, Time.time);
             ModLog.Info("PackTestHooks: backstab of " + best.name + " used up (alerted " + (best.GetComponent<BaseAI>() != null && best.GetComponent<BaseAI>().IsAlerted()) + ")");
             return "backstab used on " + prefab;
@@ -157,18 +162,19 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.creatureDamageWatch")]
         static string DamageWatch(string prefab)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"Target.DamageWatch(prefab={prefab})");
             Player p = Player.m_localPlayer;
             _watched = null;
             float bestDist = 60f;
             foreach (Character c in Character.GetAllCharacters())
             {
-                if (c == null || c == p || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab) continue;
+                if (c == null || c == p || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab) { if (RuleLog.IsOn()) ModLog.Verbose($"Target.DamageWatch: skips to the next item (continue) because c == null || c == p || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab (line 171)"); continue; }
                 float d = p != null ? Vector3.Distance(c.transform.position, p.transform.position) : 0f;
                 if (d < bestDist) { _watched = c; bestDist = d; }
             }
-            if (_watched == null) return "no " + prefab;
+            if (_watched == null) { var returnedAt175 = "no " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"Target.DamageWatch: returns {returnedAt175} because _watched == null (line 175)"); return returnedAt175; }
             GunPowdered.Integrations.HarmonyPatches.DamageWatchTestPatch.Apply(c => c != null && c == _watched);
-            return "watching " + prefab;
+            { var returnedAt177 = "watching " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"Target.DamageWatch: returns {returnedAt177} (line 177)"); return returnedAt177; }
         }
 
         /// <summary>How many hits the watched creature took since creatureDamageWatch: "hits N".</summary>
@@ -177,6 +183,7 @@ namespace GunPowdered.Testing.TestHooks
 
         static DynamiteCharge NearestCharge()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"Target.NearestCharge()");
             Player p = Player.m_localPlayer;
             DynamiteCharge best = null;
             float d = float.MaxValue;
@@ -185,24 +192,25 @@ namespace GunPowdered.Testing.TestHooks
                 float x = p != null ? Vector3.Distance(c.transform.position, p.transform.position) : 0f;
                 if (x < d) { d = x; best = c; }
             }
-            return best;
+            { var returnedAt195 = best; if (RuleLog.IsOn()) ModLog.Verbose($"Target.NearestCharge: returns {returnedAt195} (line 195)"); return returnedAt195; }
         }
 
         // parts still standing: a MineRock5's hit areas with health left, else 1 for a whole object
         static int Parts(GameObject go)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"Target.Parts(go={go})");
             if (go == null) return 0;
             MineRock5 rock = go.GetComponent<MineRock5>();
-            if (rock == null) return 1;
+            if (rock == null) { if (RuleLog.IsOn()) ModLog.Verbose($"Target.Parts: returns 1 because rock == null (line 204)"); return 1; }
             var areas = HarmonyLib.AccessTools.Field(typeof(MineRock5), "m_hitAreas")?.GetValue(rock) as System.Collections.IList;
-            if (areas == null) return -1;
+            if (areas == null) { if (RuleLog.IsOn()) ModLog.Verbose($"Target.Parts: returns -1 because areas == null (line 206)"); return -1; }
             int n = 0;
             foreach (object a in areas)
             {
                 object h = a != null ? HarmonyLib.AccessTools.Field(a.GetType(), "m_health")?.GetValue(a) : null;
                 if (h is float f && f > 0f) n++;
             }
-            return n;
+            { var returnedAt213 = n; if (RuleLog.IsOn()) ModLog.Verbose($"Target.Parts: returns {returnedAt213} (line 213)"); return returnedAt213; }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Reflection;
 using BepInEx;
 using BepInEx.Configuration;
@@ -73,7 +73,7 @@ namespace GunPowdered.Bootstrap
             var asm = Assembly.GetExecutingAssembly();
             foreach (var res in asm.GetManifestResourceNames())
             {
-                if (res != BundleName && !res.EndsWith("." + BundleName)) continue;
+                if (res != BundleName && !res.EndsWith("." + BundleName)) { if (RuleLog.IsOn()) ModLog.Verbose($"Plugin.LoadBundle: skips to the next item (continue) because res != BundleName && !res.EndsWith(\".\" + BundleName) (line 76)"); continue; }
                 using (var stream = asm.GetManifestResourceStream(res))
                 using (var ms = new MemoryStream())
                 {

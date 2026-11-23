@@ -44,7 +44,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         {
             if (RuleLog.Due("AsksvinLeadRope.WorldPoint", 2d)) ModLog.Every("AsksvinLeadRope.WorldPoint", 2d, "AsksvinLeadRope.WorldPoint(reverse=" + RuleLog.Shown(reverse) + ")");
             Transform t = reverse != null ? reverse.transform.Find(ObjectName) : null;
-            { var returnedAt44 = t != null ? t.position : reverse != null ? reverse.transform.TransformPoint(FallbackLocal) : Vector3.zero; if (RuleLog.Due("AsksvinLeadRope.WorldPoint:44", 2d)) ModLog.Every("AsksvinLeadRope.WorldPoint:44", 2d, $"AsksvinLeadRope.WorldPoint: returns {returnedAt44} (line 44)"); return returnedAt44; }
+            { var returnedAt47 = t != null ? t.position : reverse != null ? reverse.transform.TransformPoint(FallbackLocal) : Vector3.zero; if (RuleLog.Due("AsksvinLeadRope.WorldPoint:47", 2d)) ModLog.Every("AsksvinLeadRope.WorldPoint:47", 2d, $"AsksvinLeadRope.WorldPoint: returns {returnedAt47} (line 47)"); return returnedAt47; }
         }
 
         void Update()
@@ -81,7 +81,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (_reverse == null || !_reverse.Saddled) return "";
             Player p = Player.m_localPlayer;
             bool mine = p != null && _reverse.Leader == p.GetZDOID();
-            { var returnedAt78 = Localization.instance.Localize("Chest rope\n[<color=yellow><b>$KEY_Use</b></color>] " + (mine ? AsksvinReverseRules.LetGoHover : AsksvinReverseRules.LeadHover)); if (RuleLog.IsOn()) ModLog.Verbose($"AsksvinLeadRope.GetHoverText: returns {returnedAt78} (line 78)"); return returnedAt78; }
+            { var returnedAt84 = Localization.instance.Localize("Chest rope\n[<color=yellow><b>$KEY_Use</b></color>] " + (mine ? AsksvinReverseRules.LetGoHover : AsksvinReverseRules.LeadHover)); if (RuleLog.Due("AsksvinLeadRope.GetHoverText:84", 2d)) ModLog.Every("AsksvinLeadRope.GetHoverText:84", 2d, $"AsksvinLeadRope.GetHoverText: returns {returnedAt84} (line 84)"); return returnedAt84; }
         }
 
         public string GetHoverName() => "Chest rope";

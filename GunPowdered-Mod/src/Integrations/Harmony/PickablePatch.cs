@@ -29,9 +29,9 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 try
                 {
                     bool guano = IsGuano(__instance), mud = IsMud(__instance);
-                    if (!guano && !mud) { if (RuleLog.Due("RequireTool.Prefix:32", 2d)) ModLog.Every("RequireTool.Prefix:32", 2d, "RequireTool.Prefix: returns true (line 32)"); return true; }
+                    if (!guano && !mud) { if (RuleLog.Due("RequireTool.Prefix:32", 2d)) ModLog.Every("RequireTool.Prefix:32", 2d, $"RequireTool.Prefix: returns true because !guano && !mud (line 32)"); return true; }
                     var user = __args != null && __args.Length > 0 ? __args[0] as Humanoid : null;
-                    if (user == null) { if (RuleLog.Due("RequireTool.Prefix:34", 2d)) ModLog.Every("RequireTool.Prefix:34", 2d, "RequireTool.Prefix: returns true (line 34)"); return true; }
+                    if (user == null) { if (RuleLog.Due("RequireTool.Prefix:34", 2d)) ModLog.Every("RequireTool.Prefix:34", 2d, $"RequireTool.Prefix: returns true because user == null (line 34)"); return true; }
 
                     ItemDrop.ItemData held = user.GetCurrentWeapon();
                     bool ok = held != null && held.m_shared.m_skillType == Skills.SkillType.Pickaxes;
@@ -40,11 +40,21 @@ namespace GunPowdered.Integrations.HarmonyPatches
 
                     user.Message(MessageHud.MessageType.Center, "You need a pickaxe");
                     __result = false;
-                    { if (RuleLog.Due("RequireTool.Prefix:43", 2d)) ModLog.Every("RequireTool.Prefix:43", 2d, "RequireTool.Prefix: returns false (line 43)"); return false; }
+                    { if (RuleLog.Due("RequireTool.Prefix:43", 2d)) ModLog.Every("RequireTool.Prefix:43", 2d, $"RequireTool.Prefix: returns false (line 43)"); return false; }
+                }
+                catch (System.NullReferenceException e)
+                {
+                    ModLog.Warn("PickablePatch.RequireTool: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+                    return true;
+                }
+                catch (UnityEngine.MissingReferenceException e)
+                {
+                    ModLog.Warn("PickablePatch.RequireTool: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+                    return true;
                 }
                 catch (Exception e)
                 {
-                    ModLog.Warn("PickablePatch.RequireTool: " + e.GetType().Name + ": " + e.Message);
+                    ModLog.Warn("PickablePatch.RequireTool: " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
                     return true;
                 }
             }
@@ -59,9 +69,9 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 try
                 {
                     bool guano = IsGuano(__instance), mud = IsMud(__instance);
-                    if (!guano && !mud) { if (RuleLog.Due("SetAmount.Prefix:62", 2d)) ModLog.Every("SetAmount.Prefix:62", 2d, "SetAmount.Prefix: returns (line 62)"); return; }
+                    if (!guano && !mud) { if (RuleLog.Due("SetAmount.Prefix:72", 2d)) ModLog.Every("SetAmount.Prefix:72", 2d, $"SetAmount.Prefix: returns because !guano && !mud (line 72)"); return; }
                     ZNetView view = __instance.GetComponent<ZNetView>();
-                    if (view == null || !view.IsValid()) { if (RuleLog.Due("SetAmount.Prefix:64", 2d)) ModLog.Every("SetAmount.Prefix:64", 2d, "SetAmount.Prefix: returns (line 64)"); return; }
+                    if (view == null || !view.IsValid()) { if (RuleLog.Due("SetAmount.Prefix:74", 2d)) ModLog.Every("SetAmount.Prefix:74", 2d, $"SetAmount.Prefix: returns because view == null || !view.IsValid() (line 74)"); return; }
 
                     int amount = view.GetZDO().GetInt(DepositSpawner.KeyAmount, 0);
                     if (amount < 1)
@@ -75,9 +85,17 @@ namespace GunPowdered.Integrations.HarmonyPatches
                     if (!full) ModLog.Decision("deposit picked", "nothing, not full", Utils.GetPrefabName(__instance.gameObject));
                     ModLog.Decision("deposit picked", amount + " " + (guano ? "Bat Guano" : "Sulfur"), Utils.GetPrefabName(__instance.gameObject) + " at " + __instance.transform.position.ToString("0") + ", extra drops " + (__instance.m_extraDrops != null && __instance.m_extraDrops.m_drops != null ? __instance.m_extraDrops.m_drops.Count : 0));
                 }
+                catch (System.NullReferenceException e)
+                {
+                    ModLog.Warn("PickablePatch.SetAmount: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+                }
+                catch (UnityEngine.MissingReferenceException e)
+                {
+                    ModLog.Warn("PickablePatch.SetAmount: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+                }
                 catch (Exception e)
                 {
-                    ModLog.Warn("PickablePatch.SetAmount: " + e.GetType().Name + ": " + e.Message);
+                    ModLog.Warn("PickablePatch.SetAmount: " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
                 }
             }
         }

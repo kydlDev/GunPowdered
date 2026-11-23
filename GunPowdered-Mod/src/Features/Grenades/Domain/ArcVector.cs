@@ -20,7 +20,7 @@ namespace GunPowdered.Features.Grenades.Domain
         {
             if (RuleLog.Due("ArcVector.FlatDistanceTo", 2d)) RuleLog.Every("ArcVector.FlatDistanceTo", 2d, $"ArcVector.FlatDistanceTo(other={RuleLog.Shown(other)})");
             float dx = other.X - X, dz = other.Z - Z;
-            { var returnedAt23 = (float)Math.Sqrt((dx * dx) + (dz * dz)); if (RuleLog.Due("ArcVector.FlatDistanceTo:23", 2d)) RuleLog.Every("ArcVector.FlatDistanceTo:23", 2d, $"ArcVector.FlatDistanceTo: returns {RuleLog.Shown(returnedAt23)} (line 23)"); return returnedAt23; }
+            { var returnedAt23 = (float)Math.Sqrt((dx * dx) + (dz * dz)); if (RuleLog.Due("ArcVector.FlatDistanceTo:23", 2d)) RuleLog.Every("ArcVector.FlatDistanceTo:23", 2d, $"ArcVector.FlatDistanceTo: returns {returnedAt23} (line 23)"); return returnedAt23; }
         }
 
         internal float DistanceTo(ArcVector other) => (other - this).Length;

@@ -16,9 +16,17 @@ namespace GunPowdered.Integrations.HarmonyPatches
             {
                 StationPlacement.FilterSnap(__instance, ghost, maxSnapDistance, ref a, ref b, ref __result);
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("StationSnapPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().FullName + ": " + e.Message + " - the game's snap stays" + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("StationSnapPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + ": " + e.Message + " - the game's snap stays" + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn("StationSnapPatch: " + e.GetType().FullName + ": " + e.Message + " - the game's snap stays");
+                ModLog.Warn("StationSnapPatch: " + e.GetType().FullName + ": " + e.Message + " - the game's snap stays" + "\n" + e.StackTrace);
             }
         }
     }

@@ -21,7 +21,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
         internal static void Apply(Func<MonsterAI, Vector3?> target)
         {
             _target = target;
-            if (_applied) { if (RuleLog.Due("AsksvinTestDrivePatch.Apply:24", 2d)) ModLog.Every("AsksvinTestDrivePatch.Apply:24", 2d, "AsksvinTestDrivePatch.Apply: returns (line 24)"); return; }
+            if (_applied) { if (RuleLog.Due("AsksvinTestDrivePatch.Apply:24", 2d)) ModLog.Every("AsksvinTestDrivePatch.Apply:24", 2d, $"AsksvinTestDrivePatch.Apply: returns because _applied (line 24)"); return; }
             var h = new Harmony("com.kydldev.GunPowdered.testdrive");
             h.Patch(AccessTools.Method(typeof(MonsterAI), nameof(MonsterAI.UpdateAI)), prefix: new HarmonyMethod(typeof(AsksvinTestDrivePatch), nameof(Prefix)));
             _applied = true;
@@ -32,13 +32,13 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             if (RuleLog.Due("AsksvinTestDrivePatch.Prefix", 2d)) ModLog.Every("AsksvinTestDrivePatch.Prefix", 2d, $"AsksvinTestDrivePatch.Prefix(__instance={RuleLog.Shown(__instance)}, __result={RuleLog.Shown(__result)})");
             Vector3? to = _target != null ? _target(__instance) : null;
-            if (to == null) { if (RuleLog.Due("AsksvinTestDrivePatch.Prefix:35", 2d)) ModLog.Every("AsksvinTestDrivePatch.Prefix:35", 2d, "AsksvinTestDrivePatch.Prefix: returns true (line 35)"); return true; }
+            if (to == null) { if (RuleLog.Due("AsksvinTestDrivePatch.Prefix:35", 2d)) ModLog.Every("AsksvinTestDrivePatch.Prefix:35", 2d, $"AsksvinTestDrivePatch.Prefix: returns true because to == null (line 35)"); return true; }
             Vector3 d = to.Value - __instance.transform.position;
             d.y = 0f;
             if (d.magnitude < 2f) __instance.StopMoving();
             else __instance.MoveTowards(d.normalized, true);
             __result = true;
-            { if (RuleLog.Due("AsksvinTestDrivePatch.Prefix:41", 2d)) ModLog.Every("AsksvinTestDrivePatch.Prefix:41", 2d, "AsksvinTestDrivePatch.Prefix: returns false (line 41)"); return false; }
+            { if (RuleLog.Due("AsksvinTestDrivePatch.Prefix:41", 2d)) ModLog.Every("AsksvinTestDrivePatch.Prefix:41", 2d, $"AsksvinTestDrivePatch.Prefix: returns false (line 41)"); return false; }
         }
     }
 }

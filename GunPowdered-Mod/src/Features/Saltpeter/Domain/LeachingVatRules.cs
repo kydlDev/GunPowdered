@@ -22,7 +22,7 @@ namespace GunPowdered.Features.Saltpeter.Domain
         internal static bool CanStart(bool barrelLoaded, int fuel, int fuelPerBatch)
         {
             if (RuleLog.Due("LeachingVatRules.CanStart", 2d)) RuleLog.Every("LeachingVatRules.CanStart", 2d, $"LeachingVatRules.CanStart(barrelLoaded={RuleLog.Shown(barrelLoaded)}, fuel={RuleLog.Shown(fuel)}, fuelPerBatch={RuleLog.Shown(fuelPerBatch)})");
-            { var returnedAt24 = barrelLoaded && fuelPerBatch >= 1 && fuel >= fuelPerBatch; if (RuleLog.Due("LeachingVatRules.CanStart:24", 2d)) RuleLog.Every("LeachingVatRules.CanStart:24", 2d, $"LeachingVatRules.CanStart: returns {RuleLog.Shown(returnedAt24)} (line 24)"); return returnedAt24; }
+            return barrelLoaded && fuelPerBatch >= 1 && fuel >= fuelPerBatch;
         }
 
         /// <summary>Guano and water in the barrel and wood in the hearth (what the station holds, or what one batch needs).</summary>
@@ -44,11 +44,11 @@ namespace GunPowdered.Features.Saltpeter.Domain
         internal static Feed Accept(string prefab, VatAmounts have, VatAmounts need)
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Accept(prefab={RuleLog.Shown(prefab)}, have={RuleLog.Shown(have)}, need={RuleLog.Shown(need)})");
-            if (string.IsNullOrEmpty(prefab)) { var returnedAt46 = Feed.Refused; if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Accept: returns {RuleLog.Shown(returnedAt46)} (line 46)"); return returnedAt46; }
-            if (prefab == "GP_BatGuano") { var returnedAt47 = have.Guano < need.Guano ? Feed.Guano : Feed.Refused; if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Accept: returns {RuleLog.Shown(returnedAt47)} (line 47)"); return returnedAt47; }
-            if (prefab == "GP_Water") { var returnedAt48 = have.Water < need.Water ? Feed.Water : Feed.Refused; if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Accept: returns {RuleLog.Shown(returnedAt48)} (line 48)"); return returnedAt48; }
-            if (prefab == "Wood") { var returnedAt49 = have.Fuel < need.Fuel ? Feed.Wood : Feed.Refused; if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Accept: returns {RuleLog.Shown(returnedAt49)} (line 49)"); return returnedAt49; }
-            { var returnedAt50 = Feed.Refused; if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Accept: returns {RuleLog.Shown(returnedAt50)} (line 50)"); return returnedAt50; }
+            if (string.IsNullOrEmpty(prefab)) return Feed.Refused;
+            if (prefab == "GP_BatGuano") { var returnedAt48 = have.Guano < need.Guano ? Feed.Guano : Feed.Refused; if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Accept: returns {returnedAt48} because prefab == \"GP_BatGuano\" (line 48)"); return returnedAt48; }
+            if (prefab == "GP_Water") { var returnedAt49 = have.Water < need.Water ? Feed.Water : Feed.Refused; if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Accept: returns {returnedAt49} because prefab == \"GP_Water\" (line 49)"); return returnedAt49; }
+            if (prefab == "Wood") { var returnedAt50 = have.Fuel < need.Fuel ? Feed.Wood : Feed.Refused; if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Accept: returns {returnedAt50} because prefab == \"Wood\" (line 50)"); return returnedAt50; }
+            return Feed.Refused;
         }
 
         /// <summary>The barrel is ready when it holds a whole batch of guano and of water. Expected outcome: false for any shortfall or a bad setting.</summary>
@@ -59,29 +59,29 @@ namespace GunPowdered.Features.Saltpeter.Domain
         internal static int Batches(int guano, int water, int guanoPerBatch, int waterPerBatch)
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Batches(guano={RuleLog.Shown(guano)}, water={RuleLog.Shown(water)}, guanoPerBatch={RuleLog.Shown(guanoPerBatch)}, waterPerBatch={RuleLog.Shown(waterPerBatch)})");
-            if (guanoPerBatch < 1 || waterPerBatch < 1) { if (RuleLog.IsOn()) RuleLog.Verbose("VatAmounts.Batches: returns 0 (line 61)"); return 0; }
-            { var returnedAt62 = Math.Max(0, Math.Min(guano / guanoPerBatch, water / waterPerBatch)); if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Batches: returns {RuleLog.Shown(returnedAt62)} (line 62)"); return returnedAt62; }   // a negative amount (bad input) gives 0
+            if (guanoPerBatch < 1 || waterPerBatch < 1) return 0;
+            { var returnedAt63 = Math.Max(0, Math.Min(guano / guanoPerBatch, water / waterPerBatch)); if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.Batches: returns {returnedAt63} (line 63)"); return returnedAt63; }   // a negative amount (bad input) gives 0
         }
 
         /// <summary>Saltpeter for a number of batches. Expected outcome: batches x perBatch, 0 for no batches or a negative setting.</summary>
         internal static int Saltpeter(int batches, int saltpeterPerBatch)
         {
             if (RuleLog.Due("VatAmounts.Saltpeter", 2d)) RuleLog.Every("VatAmounts.Saltpeter", 2d, $"VatAmounts.Saltpeter(batches={RuleLog.Shown(batches)}, saltpeterPerBatch={RuleLog.Shown(saltpeterPerBatch)})");
-            { var returnedAt69 = batches < 1 || saltpeterPerBatch < 1 ? 0 : batches * saltpeterPerBatch; if (RuleLog.Due("VatAmounts.Saltpeter:69", 2d)) RuleLog.Every("VatAmounts.Saltpeter:69", 2d, $"VatAmounts.Saltpeter: returns {RuleLog.Shown(returnedAt69)} (line 69)"); return returnedAt69; }
+            return batches < 1 || saltpeterPerBatch < 1 ? 0 : batches * saltpeterPerBatch;
         }
 
         /// <summary>The game-clock second at which a batch started at startSeconds is done. Expected outcome: startSeconds + days x dayLengthSeconds.</summary>
         internal static double ReadyAt(double startSeconds, double dayLengthSeconds, double days)
         {
             if (RuleLog.Due("VatAmounts.ReadyAt", 2d)) RuleLog.Every("VatAmounts.ReadyAt", 2d, $"VatAmounts.ReadyAt(startSeconds={RuleLog.Shown(startSeconds)}, dayLengthSeconds={RuleLog.Shown(dayLengthSeconds)}, days={RuleLog.Shown(days)})");
-            { var returnedAt76 = startSeconds + days * dayLengthSeconds; if (RuleLog.Due("VatAmounts.ReadyAt:76", 2d)) RuleLog.Every("VatAmounts.ReadyAt:76", 2d, $"VatAmounts.ReadyAt: returns {RuleLog.Shown(returnedAt76)} (line 76)"); return returnedAt76; }
+            return startSeconds + days * dayLengthSeconds;
         }
 
         /// <summary>Is the batch done at nowSeconds. A clock that went backwards (a reloaded older save) means not done yet.</summary>
         internal static bool IsReady(double startSeconds, double nowSeconds, double dayLengthSeconds, double days)
         {
             if (RuleLog.Due("VatAmounts.IsReady", 2d)) RuleLog.Every("VatAmounts.IsReady", 2d, $"VatAmounts.IsReady(startSeconds={RuleLog.Shown(startSeconds)}, nowSeconds={RuleLog.Shown(nowSeconds)}, dayLengthSeconds={RuleLog.Shown(dayLengthSeconds)}, days={RuleLog.Shown(days)})");
-            { var returnedAt83 = nowSeconds >= ReadyAt(startSeconds, dayLengthSeconds, days); if (RuleLog.Due("VatAmounts.IsReady:83", 2d)) RuleLog.Every("VatAmounts.IsReady:83", 2d, $"VatAmounts.IsReady: returns {RuleLog.Shown(returnedAt83)} (line 83)"); return returnedAt83; }
+            return nowSeconds >= ReadyAt(startSeconds, dayLengthSeconds, days);
         }
 
         /// <summary>Seconds left until the batch is done, never below 0. Expected outcome: 0 exactly when <see cref="IsReady"/>.</summary>
@@ -89,7 +89,7 @@ namespace GunPowdered.Features.Saltpeter.Domain
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.SecondsLeft(startSeconds={RuleLog.Shown(startSeconds)}, nowSeconds={RuleLog.Shown(nowSeconds)}, dayLengthSeconds={RuleLog.Shown(dayLengthSeconds)}, days={RuleLog.Shown(days)})");
             double left = ReadyAt(startSeconds, dayLengthSeconds, days) - nowSeconds;
-            { var returnedAt91 = Math.Max(0d, left); if (RuleLog.IsOn()) RuleLog.Verbose($"VatAmounts.SecondsLeft: returns {RuleLog.Shown(returnedAt91)} (line 91)"); return returnedAt91; }
+            { var returnedAt92 = Math.Max(0d, left); if (RuleLog.Due("VatAmounts.SecondsLeft:92", 2d)) RuleLog.Every("VatAmounts.SecondsLeft:92", 2d, $"VatAmounts.SecondsLeft: returns {returnedAt92} (line 92)"); return returnedAt92; }
         }
     }
 }

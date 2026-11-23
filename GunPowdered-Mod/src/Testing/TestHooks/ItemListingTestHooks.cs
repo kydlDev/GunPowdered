@@ -5,6 +5,7 @@ using Jotunn.Managers;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Integrations.KyRegistry;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -15,10 +16,10 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.recipeOf")]
         static string RecipeOf(string prefab)
         {
-            if (ObjectDB.instance == null) return "no ObjectDB";
+            if (ObjectDB.instance == null) { if (RuleLog.Due("ItemListingTestHooks.RecipeOf:19", 2d)) ModLog.Every("ItemListingTestHooks.RecipeOf:19", 2d, $"ItemListingTestHooks.RecipeOf: returns \"no ObjectDB\" because ObjectDB.instance == null (line 19)"); return "no ObjectDB"; }
             foreach (Recipe r in ObjectDB.instance.m_recipes)
             {
-                if (r == null || r.m_item == null || r.m_item.name != prefab) continue;
+                if (r == null || r.m_item == null || r.m_item.name != prefab) { if (RuleLog.Due("ItemListingTestHooks.RecipeOf:22", 2d)) ModLog.Every("ItemListingTestHooks.RecipeOf:22", 2d, $"ItemListingTestHooks.RecipeOf: skips to the next item (continue) because r == null || r.m_item == null || r.m_item.name != prefab (line 22)"); continue; }
                 var sb = new StringBuilder();
                 sb.Append(r.m_craftingStation != null ? r.m_craftingStation.name : "no station").Append(" level ").Append(r.m_minStationLevel.ToString(CultureInfo.InvariantCulture));
                 sb.Append(", makes ").Append(r.m_amount.ToString(CultureInfo.InvariantCulture)).Append(", enabled ").Append(r.m_enabled).Append(':');
@@ -26,7 +27,7 @@ namespace GunPowdered.Testing.TestHooks
                 ModLog.Verbose("ItemListingTestHooks: recipe of " + prefab + " = " + sb);
                 return sb.ToString();
             }
-            return "no recipe for " + prefab;
+            { var returnedAt30 = "no recipe for " + prefab; if (RuleLog.Due("ItemListingTestHooks.RecipeOf:30", 2d)) ModLog.Every("ItemListingTestHooks.RecipeOf:30", 2d, $"ItemListingTestHooks.RecipeOf: returns {returnedAt30} (line 30)"); return returnedAt30; }
         }
 
         /// The game's build piece of a prefab: "category Misc, station piece_workbench: Wood x10, Resin x4, in KY-Items True" or why there is none.
@@ -35,7 +36,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             GameObject go = PrefabManager.Instance != null ? PrefabManager.Instance.GetPrefab(prefab) : null;
             Piece p = go != null ? go.GetComponent<Piece>() : null;
-            if (p == null) return "no piece " + prefab;
+            if (p == null) { var returnedAt39 = "no piece " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"ItemListingTestHooks.PieceOf: returns {returnedAt39} because p == null (line 39)"); return returnedAt39; }
             var sb = new StringBuilder();
             sb.Append("category ").Append(p.m_category == PieceManager.Instance.GetPieceCategory(KyCategory.Name) ? KyCategory.Name : p.m_category.ToString()).Append(", station ").Append(p.m_craftingStation != null ? p.m_craftingStation.name : "none").Append(", enabled ").Append(p.m_enabled).Append(':');
             for (int i = 0; i < p.m_resources.Length; i++) sb.Append(i == 0 ? " " : ", ").Append(p.m_resources[i].m_resItem.name).Append(" x").Append(p.m_resources[i].m_amount.ToString(CultureInfo.InvariantCulture));
@@ -48,11 +49,12 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.itemOf")]
         static string ItemOf(string prefab)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"ItemListingTestHooks.ItemOf(prefab={prefab})");
             GameObject go = PrefabManager.Instance != null ? PrefabManager.Instance.GetPrefab(prefab) : null;
             ItemDrop drop = go != null ? go.GetComponent<ItemDrop>() : null;
-            if (drop == null) return "no item " + prefab;
+            if (drop == null) { var returnedAt55 = "no item " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"ItemListingTestHooks.ItemOf: returns {returnedAt55} because drop == null (line 55)"); return returnedAt55; }
             ItemDrop.ItemData.SharedData s = drop.m_itemData.m_shared;
-            return "stack " + s.m_maxStackSize.ToString(CultureInfo.InvariantCulture) + ", weight " + s.m_weight.ToString("0.##", CultureInfo.InvariantCulture) + ", type " + s.m_itemType;
+            { var returnedAt57 = "stack " + s.m_maxStackSize.ToString(CultureInfo.InvariantCulture) + ", weight " + s.m_weight.ToString("0.##", CultureInfo.InvariantCulture) + ", type " + s.m_itemType; if (RuleLog.IsOn()) ModLog.Verbose($"ItemListingTestHooks.ItemOf: returns {returnedAt57} (line 57)"); return returnedAt57; }
         }
 
         /// "all N listed" when KY-Items lists every item and piece of the mod, else "M of N listed".

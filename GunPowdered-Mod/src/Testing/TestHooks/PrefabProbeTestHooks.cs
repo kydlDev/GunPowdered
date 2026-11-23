@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using KydlCore.Common;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -12,7 +13,7 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.prefabsLike")]
         static string PrefabsLike(string pattern)
         {
-            if (ZNetScene.instance == null) return "no scene";
+            if (ZNetScene.instance == null) { if (RuleLog.IsOn()) ModLog.Verbose($"PrefabProbeTestHooks.PrefabsLike: returns \"no scene\" because ZNetScene.instance == null (line 16)"); return "no scene"; }
             var re = new Regex(pattern ?? ".", RegexOptions.IgnoreCase, System.TimeSpan.FromSeconds(1));
             var names = new List<string>();
             foreach (UnityEngine.GameObject go in ZNetScene.instance.m_prefabs) if (go != null && re.IsMatch(go.name)) names.Add(go.name);

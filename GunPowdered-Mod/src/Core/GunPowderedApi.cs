@@ -70,14 +70,14 @@ namespace GunPowdered
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.DisplayName(prefab={RuleLog.Shown(prefab)})");
             var spec = Core.ItemCatalog.All.FirstOrDefault(i => i.Id == prefab);
-            { var returnedAt64 = spec == null ? null : spec.Name; if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.DisplayName: returns {RuleLog.Shown(returnedAt64)} (line 64)"); return returnedAt64; }
+            { var returnedAt73 = spec == null ? null : spec.Name; if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.DisplayName: returns {returnedAt73} (line 73)"); return returnedAt73; }
         }
 
         /// <summary>Is this prefab one of the three gunpowder ingredients made by this mod or its vanilla partners (Saltpeter, Charcoal, Sulfur)?</summary>
         public static bool IsGunpowderIngredient(string prefab)
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.IsGunpowderIngredient(prefab={RuleLog.Shown(prefab)})");
-            { var returnedAt71 = prefab == Prefabs.Saltpeter || prefab == Core.ItemCatalog.Charcoal || prefab == Core.ItemCatalog.Sulfur; if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.IsGunpowderIngredient: returns {RuleLog.Shown(returnedAt71)} (line 71)"); return returnedAt71; }
+            return prefab == Prefabs.Saltpeter || prefab == Core.ItemCatalog.Charcoal || prefab == Core.ItemCatalog.Sulfur;
         }
 
         /// <summary>Gunpowder made from the given ingredients at the default recipe (3 Saltpeter + 1 Charcoal + 1 Sulfur gives 5).</summary>
@@ -85,7 +85,7 @@ namespace GunPowdered
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.GunpowderFrom(saltpeter={RuleLog.Shown(saltpeter)}, charcoal={RuleLog.Shown(charcoal)}, sulfur={RuleLog.Shown(sulfur)})");
             int batches = GunpowderRules.Batches(saltpeter, charcoal, sulfur, GunpowderRules.DefaultSaltpeter, GunpowderRules.DefaultCharcoal, GunpowderRules.DefaultSulfur);
-            { var returnedAt79 = GunpowderRules.Output(batches, GunpowderRules.DefaultYield); if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.GunpowderFrom: returns {RuleLog.Shown(returnedAt79)} (line 79)"); return returnedAt79; }
+            { var returnedAt88 = GunpowderRules.Output(batches, GunpowderRules.DefaultYield); if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.GunpowderFrom: returns {returnedAt88} (line 88)"); return returnedAt88; }
         }
 
         /// <summary>Saltpeter a Leaching Vat makes from the given guano and water at the default recipe (10 + 10 gives 5 per batch).</summary>
@@ -93,7 +93,7 @@ namespace GunPowdered
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.SaltpeterFrom(guano={RuleLog.Shown(guano)}, water={RuleLog.Shown(water)})");
             int batches = LeachingVatRules.Batches(guano, water, LeachingVatRules.DefaultGuanoPerBatch, LeachingVatRules.DefaultWaterPerBatch);
-            { var returnedAt87 = LeachingVatRules.Saltpeter(batches, LeachingVatRules.DefaultSaltpeterPerBatch); if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.SaltpeterFrom: returns {RuleLog.Shown(returnedAt87)} (line 87)"); return returnedAt87; }
+            { var returnedAt96 = LeachingVatRules.Saltpeter(batches, LeachingVatRules.DefaultSaltpeterPerBatch); if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.SaltpeterFrom: returns {returnedAt96} (line 96)"); return returnedAt96; }
         }
 
         /// <summary>Water a Rain Barrel holds after the given real-life seconds, starting at <paramref name="current"/> (default capacity and rate).</summary>
@@ -101,7 +101,7 @@ namespace GunPowdered
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.RainBarrelWater(current={RuleLog.Shown(current)}, seconds={RuleLog.Shown(seconds)}, raining={RuleLog.Shown(raining)}, covered={RuleLog.Shown(covered)})");
             var r = RainBarrelRules.Fill(current, RainBarrelRules.DefaultCapacity, RainBarrelRules.DefaultRatePerMinute, seconds, raining, covered);
-            { var returnedAt95 = r.Status == ResponseStatus.Success ? r.Value : current; if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.RainBarrelWater: returns {RuleLog.Shown(returnedAt95)} (line 95)"); return returnedAt95; }
+            { var returnedAt104 = r.Status == ResponseStatus.Success ? r.Value : current; if (RuleLog.IsOn()) RuleLog.Verbose($"Prefabs.RainBarrelWater: returns {returnedAt104} (line 104)"); return returnedAt104; }
         }
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace GunPowdered
         public static int GuanoDeposits(CaveKind kind, Func<double> next01)
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"Musket.GuanoDeposits(kind={RuleLog.Shown(kind)}, next01={RuleLog.Shown(next01)})");
-            { var returnedAt136 = GuanoDepositRules.DepositCount(kind, next01); if (RuleLog.IsOn()) RuleLog.Verbose($"Musket.GuanoDeposits: returns {RuleLog.Shown(returnedAt136)} (line 136)"); return returnedAt136; }
+            return GuanoDepositRules.DepositCount(kind, next01);
         }
     }
 }

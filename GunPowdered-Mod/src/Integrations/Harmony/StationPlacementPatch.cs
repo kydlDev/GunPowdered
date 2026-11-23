@@ -16,9 +16,17 @@ namespace GunPowdered.Integrations.HarmonyPatches
             {
                 StationPlacement.CheckGhost(__instance);
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("StationPlacementGhostPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().FullName + ": " + e.Message + " - the ghost keeps the game's verdict" + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("StationPlacementGhostPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + ": " + e.Message + " - the ghost keeps the game's verdict" + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn("StationPlacementGhostPatch: " + e.GetType().FullName + ": " + e.Message + " - the ghost keeps the game's verdict");
+                ModLog.Warn("StationPlacementGhostPatch: " + e.GetType().FullName + ": " + e.Message + " - the ghost keeps the game's verdict" + "\n" + e.StackTrace);
             }
         }
     }

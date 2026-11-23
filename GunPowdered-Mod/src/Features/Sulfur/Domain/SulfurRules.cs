@@ -31,7 +31,7 @@ namespace GunPowdered.Features.Sulfur.Domain
         internal static bool KillDrops(double roll01)
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"SulfurRules.KillDrops(roll01={RuleLog.Shown(roll01)})");
-            { var returnedAt34 = Roll.Chance(KillDropChance, roll01); if (RuleLog.IsOn()) RuleLog.Verbose($"SulfurRules.KillDrops: returns {RuleLog.Shown(returnedAt34)} (line 34)"); return returnedAt34; }
+            return Roll.Chance(KillDropChance, roll01);
         }
 
         /// <summary>
@@ -42,27 +42,27 @@ namespace GunPowdered.Features.Sulfur.Domain
         {
             if (RuleLog.Due("SulfurRules.KillChance", 2d)) RuleLog.Every("SulfurRules.KillChance", 2d, $"SulfurRules.KillChance(source={RuleLog.Shown(source)}, blobOozerChance={RuleLog.Shown(blobOozerChance)}, writhanChance={RuleLog.Shown(writhanChance)})");
             double chance = source == SulfurSource.SulfurousMud ? 1d : source == SulfurSource.Writhan ? writhanChance : blobOozerChance;
-            { var returnedAt45 = Math.Max(0d, Math.Min(1d, chance)); if (RuleLog.Due("SulfurRules.KillChance:45", 2d)) RuleLog.Every("SulfurRules.KillChance:45", 2d, $"SulfurRules.KillChance: returns {RuleLog.Shown(returnedAt45)} (line 45)"); return returnedAt45; }
+            { var returnedAt45 = Math.Max(0d, Math.Min(1d, chance)); if (RuleLog.Due("SulfurRules.KillChance:45", 2d)) RuleLog.Every("SulfurRules.KillChance:45", 2d, $"SulfurRules.KillChance: returns {returnedAt45} (line 45)"); return returnedAt45; }
         }
 
         /// <summary>Expected outcome: a whole number from <see cref="MinOf"/> to <see cref="Max"/> of the source, every amount equally likely.</summary>
         internal static int Amount(SulfurSource source, Func<double> next01)
         {
             if (RuleLog.Due("SulfurRules.Amount", 2d)) RuleLog.Every("SulfurRules.Amount", 2d, $"SulfurRules.Amount(source={RuleLog.Shown(source)}, next01={RuleLog.Shown(next01)})");
-            { var returnedAt52 = Roll.IntInclusive(MinOf(source), Max(source), next01()); if (RuleLog.Due("SulfurRules.Amount:52", 2d)) RuleLog.Every("SulfurRules.Amount:52", 2d, $"SulfurRules.Amount: returns {RuleLog.Shown(returnedAt52)} (line 52)"); return returnedAt52; }
+            return Roll.IntInclusive(MinOf(source), Max(source), next01());
         }
 
         /// <summary>The fewest sulfur one drop of the source gives: 3 for the Writhan (D-146), else 1.</summary>
         internal static int MinOf(SulfurSource source)
         {
             if (RuleLog.Due("SulfurRules.MinOf", 2d)) RuleLog.Every("SulfurRules.MinOf", 2d, $"SulfurRules.MinOf(source={RuleLog.Shown(source)})");
-            { var returnedAt59 = source == SulfurSource.Writhan ? 3 : Min; if (RuleLog.Due("SulfurRules.MinOf:59", 2d)) RuleLog.Every("SulfurRules.MinOf:59", 2d, $"SulfurRules.MinOf: returns {RuleLog.Shown(returnedAt59)} (line 59)"); return returnedAt59; }
+            return source == SulfurSource.Writhan ? 3 : Min;
         }
 
         internal static int Max(SulfurSource source)
         {
             if (RuleLog.Due("SulfurRules.Max", 2d)) RuleLog.Every("SulfurRules.Max", 2d, $"SulfurRules.Max(source={RuleLog.Shown(source)})");
-            { var returnedAt65 = source == SulfurSource.Writhan ? 5 : source == SulfurSource.SulfurousMud ? 3 : 2; if (RuleLog.Due("SulfurRules.Max:65", 2d)) RuleLog.Every("SulfurRules.Max:65", 2d, $"SulfurRules.Max: returns {RuleLog.Shown(returnedAt65)} (line 65)"); return returnedAt65; }
+            return source == SulfurSource.Writhan ? 5 : source == SulfurSource.SulfurousMud ? 3 : 2;
         }
     }
 }

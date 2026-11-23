@@ -40,9 +40,19 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 ModLog.Info("MusketOffhandPatch: " + player.GetPlayerName() + " holds " + item.m_shared.m_name + " (" + item.m_shared.m_itemType + ") next to the lowered musket");
                 return false;
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("MusketOffhandPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().FullName + ": " + e.Message + " - the game equips the item its own way" + "\n" + e.StackTrace);
+                return true;
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("MusketOffhandPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + ": " + e.Message + " - the game equips the item its own way" + "\n" + e.StackTrace);
+                return true;
+            }
             catch (Exception e)
             {
-                ModLog.Warn("MusketOffhandPatch: " + e.GetType().FullName + ": " + e.Message + " - the game equips the item its own way");
+                ModLog.Warn("MusketOffhandPatch: " + e.GetType().FullName + ": " + e.Message + " - the game equips the item its own way" + "\n" + e.StackTrace);
                 return true;
             }
         }
@@ -66,9 +76,17 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 __result = shield;
                 if (RuleLog.Due("MusketOffhandBlockerPatch:shield", 2d)) ModLog.Every("MusketOffhandBlockerPatch:shield", 2d, "MusketOffhandBlockerPatch: " + player.GetPlayerName() + " blocks with " + shield.m_shared.m_name + " (beside the lowered musket)");
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("MusketOffhandBlockerPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().FullName + ": " + e.Message + " - the game's blocker stays" + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("MusketOffhandBlockerPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + ": " + e.Message + " - the game's blocker stays" + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn("MusketOffhandBlockerPatch: " + e.GetType().FullName + ": " + e.Message + " - the game's blocker stays");
+                ModLog.Warn("MusketOffhandBlockerPatch: " + e.GetType().FullName + ": " + e.Message + " - the game's blocker stays" + "\n" + e.StackTrace);
             }
         }
 

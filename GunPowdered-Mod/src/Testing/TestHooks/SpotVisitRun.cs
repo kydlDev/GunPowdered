@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Bootstrap;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -35,11 +36,11 @@ namespace GunPowdered.Testing.TestHooks
         {
             ModLog.Verbose("SpotVisitRun.Start(kind=" + kind + ", count=" + count + ")");
             if (_left > 0) return "FAIL: a spot visit is still going (" + _left + " left)";
-            if (!Spots.TryGetValue(kind, out var spots)) return "FAIL: no spots for " + kind;
+            if (!Spots.TryGetValue(kind, out var spots)) { var returnedAt39 = "FAIL: no spots for " + kind; if (RuleLog.Due("SpotVisitRun.Start:39", 2d)) ModLog.Every("SpotVisitRun.Start:39", 2d, $"SpotVisitRun.Start: returns {returnedAt39} because !Spots.TryGetValue(kind, out var spots) (line 39)"); return returnedAt39; }
             int n = Mathf.Clamp(count, 1, spots.Length);
             _kind = kind; _left = n; _seen.Clear();
             Plugin.Instance.StartCoroutine(Run(spots, n));
-            return "started " + n;
+            { var returnedAt43 = "started " + n; if (RuleLog.Due("SpotVisitRun.Start:43", 2d)) ModLog.Every("SpotVisitRun.Start:43", 2d, $"SpotVisitRun.Start: returns {returnedAt43} (line 43)"); return returnedAt43; }
         }
 
         /// <summary>How many spots are left to visit (0 = done).</summary>
@@ -86,7 +87,7 @@ namespace GunPowdered.Testing.TestHooks
                 float sea = ZoneSystem.instance != null ? ZoneSystem.instance.m_waterLevel : 30f;
                 foreach (ZNetView nv in Object.FindObjectsByType<ZNetView>(FindObjectsSortMode.None))
                 {
-                    if (nv == null || !nv.name.StartsWith("GP_SulfurousMud") || Vector3.Distance(nv.transform.position, pos) > CountMetres) continue;
+                    if (nv == null || !nv.name.StartsWith("GP_SulfurousMud") || Vector3.Distance(nv.transform.position, pos) > CountMetres) { if (RuleLog.Due("SpotVisitRun.Run:90", 2d)) ModLog.Every("SpotVisitRun.Run:90", 2d, $"SpotVisitRun.Run: skips to the next item (continue) because nv == null || !nv.name.StartsWith(\"GP_SulfurousMud\") || Vector3.Distance(nv.transform.position, pos) > CountMetres (line 90)"); continue; }
                     mud++;
                     if (nv.transform.position.y < sea) wet++;
                 }

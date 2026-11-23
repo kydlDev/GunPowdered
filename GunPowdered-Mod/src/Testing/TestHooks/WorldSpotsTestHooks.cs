@@ -1,8 +1,9 @@
-﻿// kydl:read-only-observer - test-only: reads the world's placed locations near the user's spot list; changes nothing
+// kydl:read-only-observer - test-only: reads the world's placed locations near the user's spot list; changes nothing
 using System.Collections.Generic;
 using HarmonyLib;
 using KydlCore.Common;
 using UnityEngine;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -43,7 +44,7 @@ namespace GunPowdered.Testing.TestHooks
             string head = "world " + (world != null ? world.m_name : "?") + " seed " + (world != null ? world.m_seedName : "?");
             var zs = ZoneSystem.instance;
             var wg = WorldGenerator.instance;
-            if (zs == null || wg == null) return head + ": no zone system";
+            if (zs == null || wg == null) { var returnedAt47 = head + ": no zone system"; if (RuleLog.IsOn()) ModLog.Verbose($"WorldSpotsTestHooks.Survey: returns {returnedAt47} because zs == null || wg == null (line 47)"); return returnedAt47; }
             var all = new List<ZoneSystem.LocationInstance>(zs.GetLocationList());
             int near = 0;
             foreach (var s in Spots)

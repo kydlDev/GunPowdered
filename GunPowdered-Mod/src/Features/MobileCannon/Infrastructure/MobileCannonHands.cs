@@ -14,14 +14,14 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         internal static bool Hold(Animator animator, Transform gripA, Transform gripB, Vector3 towardsCannon)
         {
             if (RuleLog.Due("MobileCannonHands.Hold", 2d)) ModLog.Every("MobileCannonHands.Hold", 2d, $"MobileCannonHands.Hold(animator={RuleLog.Shown(animator)}, gripA={RuleLog.Shown(gripA)}, gripB={RuleLog.Shown(gripB)}, towardsCannon={RuleLog.Shown(towardsCannon)})");
-            if (animator == null || !animator.isHuman || gripA == null || gripB == null) { if (RuleLog.Due("MobileCannonHands.Hold:17", 2d)) ModLog.Every("MobileCannonHands.Hold:17", 2d, "MobileCannonHands.Hold: returns false (line 17)"); return false; }
+            if (animator == null || !animator.isHuman || gripA == null || gripB == null) return false;
             Transform body = animator.transform;
             Vector3 right = body.right;
             // the grip on the character's right side goes to the right hand
             bool aIsRight = Vector3.Dot(gripA.position - body.position, right) > Vector3.Dot(gripB.position - body.position, right);
             bool r = Arm(animator, true, aIsRight ? gripA.position : gripB.position, towardsCannon, body);
             bool l = Arm(animator, false, aIsRight ? gripB.position : gripA.position, towardsCannon, body);
-            { var returnedAt24 = r && l; if (RuleLog.Due("MobileCannonHands.Hold:24", 2d)) ModLog.Every("MobileCannonHands.Hold:24", 2d, $"MobileCannonHands.Hold: returns {RuleLog.Shown(returnedAt24)} (line 24)"); return returnedAt24; }
+            { var returnedAt24 = r && l; if (RuleLog.Due("MobileCannonHands.Hold:24", 2d)) ModLog.Every("MobileCannonHands.Hold:24", 2d, $"MobileCannonHands.Hold: returns {returnedAt24} (line 24)"); return returnedAt24; }
         }
 
         static bool Arm(Animator a, bool right, Vector3 grip, Vector3 forward, Transform body)
@@ -32,7 +32,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             Transform hand = a.GetBoneTransform(right ? HumanBodyBones.RightHand : HumanBodyBones.LeftHand);
             Transform mid = a.GetBoneTransform(right ? HumanBodyBones.RightMiddleProximal : HumanBodyBones.LeftMiddleProximal);
             Transform thumb = a.GetBoneTransform(right ? HumanBodyBones.RightThumbProximal : HumanBodyBones.LeftThumbProximal);
-            if (upper == null || lower == null || hand == null || mid == null || thumb == null) { if (RuleLog.Due("MobileCannonHands.Arm:35", 2d)) ModLog.Every("MobileCannonHands.Arm:35", 2d, "MobileCannonHands.Arm: returns false (line 35)"); return false; }
+            if (upper == null || lower == null || hand == null || mid == null || thumb == null) { if (RuleLog.Due("MobileCannonHands.Arm:35", 2d)) ModLog.Every("MobileCannonHands.Arm:35", 2d, $"MobileCannonHands.Arm: returns false because upper == null || lower == null || hand == null || mid == null || thumb == null (line 35)"); return false; }
             Vector3 fingers = (forward - body.up * 0.6f).normalized;          // over the bar and down
             Vector3 palm = -body.up;                                           // palm on the bar
             Vector3 elbowHint = upper.position - body.up * 0.5f + (right ? body.right : -body.right) * 0.3f;
@@ -45,7 +45,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 Solve(upper, lower, hand, wrist, elbowHint);
                 hand.rotation = keep;
             }
-            { if (RuleLog.Due("MobileCannonHands.Arm:48", 2d)) ModLog.Every("MobileCannonHands.Arm:48", 2d, "MobileCannonHands.Arm: returns true (line 48)"); return true; }
+            { if (RuleLog.Due("MobileCannonHands.Arm:48", 2d)) ModLog.Every("MobileCannonHands.Arm:48", 2d, $"MobileCannonHands.Arm: returns true (line 48)"); return true; }
         }
 
         /// <summary>Turns the hand so the fingers point along <paramref name="fingers"/> and the palm faces <paramref name="palm"/> (palm normal = cross(fingers, thumb) x side).</summary>
@@ -55,7 +55,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             Vector3 cf = (mid.position - hand.position).normalized;
             Vector3 cn = Vector3.ProjectOnPlane(Vector3.Cross(cf, (thumb.position - hand.position).normalized) * side, cf).normalized;
             Vector3 dn = Vector3.ProjectOnPlane(palm, fingers).normalized;
-            if (cn.sqrMagnitude < 1e-6f || dn.sqrMagnitude < 1e-6f) { if (RuleLog.Due("MobileCannonHands.Orient:58", 2d)) ModLog.Every("MobileCannonHands.Orient:58", 2d, "MobileCannonHands.Orient: returns (line 58)"); return; }
+            if (cn.sqrMagnitude < 1e-6f || dn.sqrMagnitude < 1e-6f) { if (RuleLog.Due("MobileCannonHands.Orient:58", 2d)) ModLog.Every("MobileCannonHands.Orient:58", 2d, $"MobileCannonHands.Orient: returns because cn.sqrMagnitude < 1e-6f || dn.sqrMagnitude < 1e-6f (line 58)"); return; }
             hand.rotation = Quaternion.LookRotation(fingers, dn) * Quaternion.Inverse(Quaternion.LookRotation(cf, cn)) * hand.rotation;
         }
 
@@ -65,7 +65,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (RuleLog.Due("MobileCannonHands.Solve", 2d)) ModLog.Every("MobileCannonHands.Solve", 2d, $"MobileCannonHands.Solve(upper={RuleLog.Shown(upper)}, lower={RuleLog.Shown(lower)}, end={RuleLog.Shown(end)}, target={RuleLog.Shown(target)}, hint={RuleLog.Shown(hint)})");
             Vector3 a = upper.position;
             float ab = (lower.position - a).magnitude, bc = (end.position - lower.position).magnitude;
-            if (ab < 1e-4f || bc < 1e-4f) { if (RuleLog.Due("MobileCannonHands.Solve:68", 2d)) ModLog.Every("MobileCannonHands.Solve:68", 2d, "MobileCannonHands.Solve: returns (line 68)"); return; }
+            if (ab < 1e-4f || bc < 1e-4f) { if (RuleLog.Due("MobileCannonHands.Solve:68", 2d)) ModLog.Every("MobileCannonHands.Solve:68", 2d, $"MobileCannonHands.Solve: returns because ab < 1e-4f || bc < 1e-4f (line 68)"); return; }
             Vector3 to = target - a;
             float at = Mathf.Clamp(to.magnitude, Mathf.Abs(ab - bc) + 1e-3f, ab + bc - 1e-3f);
             Vector3 dir = to.sqrMagnitude > 1e-8f ? to.normalized : upper.forward;

@@ -79,7 +79,7 @@ namespace GunPowdered.Bootstrap
             if (!r.IsSuccess) ModLog.Warn("ModInstaller: " + r.Reason);
             bool gone = HubTabs.UnregisterModPage();
             if (Current == this) Current = null;
-            { var returnedAt81 = r.IsSuccess && gone; if (RuleLog.IsOn()) ModLog.Verbose($"ModInstaller.Uninstall: returns {RuleLog.Shown(returnedAt81)} (line 81)"); return returnedAt81; }
+            { var returnedAt82 = r.IsSuccess && gone; if (RuleLog.IsOn()) ModLog.Verbose($"ModInstaller.Uninstall: returns {returnedAt82} (line 82)"); return returnedAt82; }
         }
 
         void Add(IFeature feature)

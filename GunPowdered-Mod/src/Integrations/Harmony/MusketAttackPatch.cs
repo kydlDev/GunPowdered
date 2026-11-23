@@ -19,14 +19,24 @@ namespace GunPowdered.Integrations.HarmonyPatches
             try
             {
                 Player player = __instance as Player;
-                if (player == null || player != Player.m_localPlayer || MusketGun.Held(player) == null) { if (RuleLog.Due("MusketAttackPatch.Prefix:22", 2d)) ModLog.Every("MusketAttackPatch.Prefix:22", 2d, "MusketAttackPatch.Prefix: returns true (line 22)"); return true; }
+                if (player == null || player != Player.m_localPlayer || MusketGun.Held(player) == null) { if (RuleLog.Due("MusketAttackPatch.Prefix:22", 2d)) ModLog.Every("MusketAttackPatch.Prefix:22", 2d, $"MusketAttackPatch.Prefix: returns true because player == null || player != Player.m_localPlayer || MusketGun.Held(player) == null (line 22)"); return true; }
                 if (!secondaryAttack) MusketGun.Fire(player);     // the secondary attack does nothing with the musket: reload has its own key (D-100)
                 __result = false;
-                { if (RuleLog.Due("MusketAttackPatch.Prefix:25", 2d)) ModLog.Every("MusketAttackPatch.Prefix:25", 2d, "MusketAttackPatch.Prefix: returns false (line 25)"); return false; }
+                { if (RuleLog.Due("MusketAttackPatch.Prefix:25", 2d)) ModLog.Every("MusketAttackPatch.Prefix:25", 2d, $"MusketAttackPatch.Prefix: returns false (line 25)"); return false; }
+            }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("MusketAttackPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().FullName + ": " + e.Message + " - the attack goes on as usual" + "\n" + e.StackTrace);
+                return true;
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("MusketAttackPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + ": " + e.Message + " - the attack goes on as usual" + "\n" + e.StackTrace);
+                return true;
             }
             catch (Exception e)
             {
-                ModLog.Warn("MusketAttackPatch: " + e.GetType().FullName + ": " + e.Message + " - the attack goes on as usual");
+                ModLog.Warn("MusketAttackPatch: " + e.GetType().FullName + ": " + e.Message + " - the attack goes on as usual" + "\n" + e.StackTrace);
                 return true;
             }
         }

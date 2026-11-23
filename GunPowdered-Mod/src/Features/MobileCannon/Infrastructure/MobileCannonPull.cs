@@ -46,7 +46,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (c == null)
             {
                 HandsOnHandle = false;
-                { if (RuleLog.Due("MobileCannonPull.LateUpdate:49", 2d)) ModLog.Every("MobileCannonPull.LateUpdate:49", 2d, "MobileCannonPull.LateUpdate: returns (line 49)"); return; }
+                { if (RuleLog.Due("MobileCannonPull.LateUpdate:49", 2d)) ModLog.Every("MobileCannonPull.LateUpdate:49", 2d, $"MobileCannonPull.LateUpdate: returns (line 49)"); return; }
             }
             if (_gripA == null)
             {
@@ -73,10 +73,10 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         internal static MobileCannonPull PulledBy(Character c)
         {
             if (RuleLog.Due("MobileCannonPull.PulledBy", 2d)) ModLog.Every("MobileCannonPull.PulledBy", 2d, $"MobileCannonPull.PulledBy(c={RuleLog.Shown(c)})");
-            if (c == null) { if (RuleLog.Due("MobileCannonPull.PulledBy:76", 2d)) ModLog.Every("MobileCannonPull.PulledBy:76", 2d, "MobileCannonPull.PulledBy: returns null (line 76)"); return null; }
+            if (c == null) return null;
             foreach (MobileCannonPull p in Instances)
-                if (p != null && p.Hitched == c) { var returnedAt78 = p; if (RuleLog.Due("MobileCannonPull.PulledBy:78", 2d)) ModLog.Every("MobileCannonPull.PulledBy:78", 2d, $"MobileCannonPull.PulledBy: returns {RuleLog.Shown(returnedAt78)} (line 78)"); return returnedAt78; }
-            { if (RuleLog.Due("MobileCannonPull.PulledBy:79", 2d)) ModLog.Every("MobileCannonPull.PulledBy:79", 2d, "MobileCannonPull.PulledBy: returns null (line 79)"); return null; }
+                if (p != null && p.Hitched == c) { var returnedAt78 = p; if (RuleLog.Due("MobileCannonPull.PulledBy:78", 2d)) ModLog.Every("MobileCannonPull.PulledBy:78", 2d, $"MobileCannonPull.PulledBy: returns {returnedAt78} because p != null && p.Hitched == c (line 78)"); return returnedAt78; }
+            { if (RuleLog.Due("MobileCannonPull.PulledBy:79", 2d)) ModLog.Every("MobileCannonPull.PulledBy:79", 2d, $"MobileCannonPull.PulledBy: returns null (line 79)"); return null; }
         }
 
         /// <summary>Where the character should face: towards the cannon's body, flat.</summary>
@@ -85,7 +85,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             if (RuleLog.Due("MobileCannonPull.FacingFor", 2d)) ModLog.Every("MobileCannonPull.FacingFor", 2d, $"MobileCannonPull.FacingFor(c={RuleLog.Shown(c)})");
             Vector3 to = transform.position - c.transform.position;
             to.y = 0f;
-            { var returnedAt88 = to.sqrMagnitude > 0.0001f ? Quaternion.LookRotation(to.normalized) : c.transform.rotation; if (RuleLog.Due("MobileCannonPull.FacingFor:88", 2d)) ModLog.Every("MobileCannonPull.FacingFor:88", 2d, $"MobileCannonPull.FacingFor: returns {RuleLog.Shown(returnedAt88)} (line 88)"); return returnedAt88; }
+            { var returnedAt88 = to.sqrMagnitude > 0.0001f ? Quaternion.LookRotation(to.normalized) : c.transform.rotation; if (RuleLog.Due("MobileCannonPull.FacingFor:88", 2d)) ModLog.Every("MobileCannonPull.FacingFor:88", 2d, $"MobileCannonPull.FacingFor: returns {returnedAt88} (line 88)"); return returnedAt88; }
         }
 
         void Update()
@@ -100,7 +100,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 StaminaUsed = 0f;
             }
             Player p = c as Player;
-            if (p == null || p != Player.m_localPlayer) { if (RuleLog.Due("MobileCannonPull.Update:103", 2d)) ModLog.Every("MobileCannonPull.Update:103", 2d, "MobileCannonPull.Update: returns (line 103)"); return; }
+            if (p == null || p != Player.m_localPlayer) { if (RuleLog.Due("MobileCannonPull.Update:103", 2d)) ModLog.Every("MobileCannonPull.Update:103", 2d, $"MobileCannonPull.Update: returns because p == null || p != Player.m_localPlayer (line 103)"); return; }
             Vector3 v = p.GetVelocity();
             float speed = new Vector3(v.x, 0f, v.z).magnitude;
             float cost = MobileCannonPullRules.StaminaCost(speed, Time.deltaTime, ModSettings.MobileCannonPullStamina.Value);

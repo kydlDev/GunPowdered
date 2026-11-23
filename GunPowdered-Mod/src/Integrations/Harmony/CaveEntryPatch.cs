@@ -21,12 +21,20 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             try
             {
-                if (!__result || __instance.m_targetPoint == null) { if (RuleLog.Due("CaveEntryPatch.Postfix:24", 2d)) ModLog.Every("CaveEntryPatch.Postfix:24", 2d, "CaveEntryPatch.Postfix: returns (line 24)"); return; }
+                if (!__result || __instance.m_targetPoint == null) { if (RuleLog.Due("CaveEntryPatch.Postfix:24", 2d)) ModLog.Every("CaveEntryPatch.Postfix:24", 2d, $"CaveEntryPatch.Postfix: returns because !__result || __instance.m_targetPoint == null (line 24)"); return; }
                 CaveEntryPlacer.OnEntered(character as Player, __instance.GetComponentInParent<Location>(), __instance.m_targetPoint.transform.position, __state);
+            }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("CaveEntryPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().FullName + " after a cave teleport: " + e.Message + " - no guano placed this time" + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("CaveEntryPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + " after a cave teleport: " + e.Message + " - no guano placed this time" + "\n" + e.StackTrace);
             }
             catch (Exception e)
             {
-                ModLog.Warn("CaveEntryPatch: " + e.GetType().FullName + " after a cave teleport: " + e.Message + " - no guano placed this time");
+                ModLog.Warn("CaveEntryPatch: " + e.GetType().FullName + " after a cave teleport: " + e.Message + " - no guano placed this time" + "\n" + e.StackTrace);
             }
         }
     }

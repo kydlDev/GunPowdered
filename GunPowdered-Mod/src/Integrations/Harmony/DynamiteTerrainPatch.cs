@@ -27,7 +27,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
             }
             catch (Exception e)
             {
-                ModLog.Warn("DynamiteTerrainPatch: " + e.GetType().FullName + ": " + e.Message + " - dynamite will not dig a crater");
+                ModLog.Warn("DynamiteTerrainPatch: " + e.GetType().FullName + ": " + e.Message + " - dynamite will not dig a crater" + "\n" + e.StackTrace);
             }
         }
     }

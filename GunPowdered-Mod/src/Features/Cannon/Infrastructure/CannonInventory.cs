@@ -11,10 +11,10 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         internal static int Count(Inventory inv, string prefab)
         {
             if (RuleLog.Due("CannonInventory.Count", 2d)) ModLog.Every("CannonInventory.Count", 2d, $"CannonInventory.Count(inv={RuleLog.Shown(inv)}, prefab={RuleLog.Shown(prefab)})");
-            if (inv == null) { if (RuleLog.Due("CannonInventory.Count:14", 2d)) ModLog.Every("CannonInventory.Count:14", 2d, "CannonInventory.Count: returns 0 (line 14)"); return 0; }
+            if (inv == null) return 0;
             int n = 0;
             foreach (ItemDrop.ItemData i in inv.GetAllItems()) if (Is(i, prefab)) n += i.m_stack;
-            { var returnedAt17 = n; if (RuleLog.Due("CannonInventory.Count:17", 2d)) ModLog.Every("CannonInventory.Count:17", 2d, $"CannonInventory.Count: returns {RuleLog.Shown(returnedAt17)} (line 17)"); return returnedAt17; }
+            { var returnedAt17 = n; if (RuleLog.Due("CannonInventory.Count:17", 2d)) ModLog.Every("CannonInventory.Count:17", 2d, $"CannonInventory.Count: returns {returnedAt17} (line 17)"); return returnedAt17; }
         }
 
         /// <summary>How many of each cannon ball (CannonAmmoRules.Balls, in that order) the inventory holds (D-145).</summary>
@@ -24,25 +24,25 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             string[] balls = GunPowdered.Features.Cannon.Domain.CannonAmmoRules.Balls;
             var counts = new int[balls.Length];
             for (int i = 0; i < balls.Length; i++) counts[i] = Count(inv, balls[i]);
-            { var returnedAt27 = counts; if (RuleLog.Due("CannonInventory.BallsCarried:27", 2d)) ModLog.Every("CannonInventory.BallsCarried:27", 2d, $"CannonInventory.BallsCarried: returns {RuleLog.Shown(returnedAt27)} (line 27)"); return returnedAt27; }
+            { var returnedAt27 = counts; if (RuleLog.Due("CannonInventory.BallsCarried:27", 2d)) ModLog.Every("CannonInventory.BallsCarried:27", 2d, $"CannonInventory.BallsCarried: returns {returnedAt27} (line 27)"); return returnedAt27; }
         }
 
         /// <summary>Takes amount items of the prefab out of the inventory. Expected outcome: true when all of them were taken (nothing is taken when too few).</summary>
         internal static bool Take(Inventory inv, string prefab, int amount)
         {
             if (RuleLog.Due("CannonInventory.Take", 2d)) ModLog.Every("CannonInventory.Take", 2d, $"CannonInventory.Take(inv={RuleLog.Shown(inv)}, prefab={RuleLog.Shown(prefab)}, amount={RuleLog.Shown(amount)})");
-            if (amount <= 0) { if (RuleLog.Due("CannonInventory.Take:34", 2d)) ModLog.Every("CannonInventory.Take:34", 2d, "CannonInventory.Take: returns true (line 34)"); return true; }
-            if (Count(inv, prefab) < amount) { if (RuleLog.Due("CannonInventory.Take:35", 2d)) ModLog.Every("CannonInventory.Take:35", 2d, "CannonInventory.Take: returns false (line 35)"); return false; }
+            if (amount <= 0) return true;
+            if (Count(inv, prefab) < amount) { if (RuleLog.Due("CannonInventory.Take:35", 2d)) ModLog.Every("CannonInventory.Take:35", 2d, $"CannonInventory.Take: returns false because Count(inv, prefab) < amount (line 35)"); return false; }
             int left = amount;
             foreach (ItemDrop.ItemData i in inv.GetAllItems().ToArray())
             {
-                if (left <= 0) break;
-                if (!Is(i, prefab)) continue;
+                if (left <= 0) { if (RuleLog.Due("CannonInventory.Take:39", 2d)) ModLog.Every("CannonInventory.Take:39", 2d, $"CannonInventory.Take: leaves the loop / case (break) because left <= 0 (line 39)"); break; }
+                if (!Is(i, prefab)) { if (RuleLog.Due("CannonInventory.Take:40", 2d)) ModLog.Every("CannonInventory.Take:40", 2d, $"CannonInventory.Take: skips to the next item (continue) because !Is(i, prefab) (line 40)"); continue; }
                 int take = Mathf.Min(left, i.m_stack);
                 inv.RemoveItem(i, take);
                 left -= take;
             }
-            { var returnedAt45 = left <= 0; if (RuleLog.Due("CannonInventory.Take:45", 2d)) ModLog.Every("CannonInventory.Take:45", 2d, $"CannonInventory.Take: returns {RuleLog.Shown(returnedAt45)} (line 45)"); return returnedAt45; }
+            { var returnedAt45 = left <= 0; if (RuleLog.Due("CannonInventory.Take:45", 2d)) ModLog.Every("CannonInventory.Take:45", 2d, $"CannonInventory.Take: returns {returnedAt45} (line 45)"); return returnedAt45; }
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         internal static int Give(Player p, string prefab, int amount)
         {
             GameObject go = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
-            if (p == null || go == null || amount <= 0) { if (RuleLog.Due("CannonInventory.Give:55", 2d)) ModLog.Every("CannonInventory.Give:55", 2d, "CannonInventory.Give: returns 0 (line 55)"); return 0; }
+            if (p == null || go == null || amount <= 0) { if (RuleLog.Due("CannonInventory.Give:55", 2d)) ModLog.Every("CannonInventory.Give:55", 2d, $"CannonInventory.Give: returns 0 because p == null || go == null || amount <= 0 (line 55)"); return 0; }
             int added = 0;
             for (int k = 0; k < amount; k++)
             {
@@ -68,24 +68,24 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         {
             if (RuleLog.Due("CannonInventory.Drop", 2d)) ModLog.Every("CannonInventory.Drop", 2d, $"CannonInventory.Drop(prefab={RuleLog.Shown(prefab)}, amount={RuleLog.Shown(amount)}, at={RuleLog.Shown(at)})");
             GameObject go = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
-            if (go == null) { if (RuleLog.Due("CannonInventory.Drop:71", 2d)) ModLog.Every("CannonInventory.Drop:71", 2d, "CannonInventory.Drop: returns 0 (line 71)"); return 0; }
+            if (go == null) { if (RuleLog.Due("CannonInventory.Drop:71", 2d)) ModLog.Every("CannonInventory.Drop:71", 2d, $"CannonInventory.Drop: returns 0 because go == null (line 71)"); return 0; }
             for (int k = 0; k < amount; k++)
             {
                 GameObject drop = Object.Instantiate(go, at + (Vector3.up * (0.15f * k)), Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
                 ItemDrop item = drop.GetComponent<ItemDrop>();
                 if (item != null) ItemDrop.OnCreateNew(item);
             }
-            { var returnedAt78 = amount; if (RuleLog.Due("CannonInventory.Drop:78", 2d)) ModLog.Every("CannonInventory.Drop:78", 2d, $"CannonInventory.Drop: returns {RuleLog.Shown(returnedAt78)} (line 78)"); return returnedAt78; }
+            { var returnedAt78 = amount; if (RuleLog.Due("CannonInventory.Drop:78", 2d)) ModLog.Every("CannonInventory.Drop:78", 2d, $"CannonInventory.Drop: returns {returnedAt78} (line 78)"); return returnedAt78; }
         }
 
         /// <summary>Does the player hold a torch (a Torch type item equipped in either hand)?</summary>
         internal static bool HoldsTorch(Player p)
         {
             if (RuleLog.Due("CannonInventory.HoldsTorch", 2d)) ModLog.Every("CannonInventory.HoldsTorch", 2d, $"CannonInventory.HoldsTorch(p={RuleLog.Shown(p)})");
-            if (p == null) { if (RuleLog.Due("CannonInventory.HoldsTorch:85", 2d)) ModLog.Every("CannonInventory.HoldsTorch:85", 2d, "CannonInventory.HoldsTorch: returns false (line 85)"); return false; }
+            if (p == null) return false;
             foreach (ItemDrop.ItemData i in p.GetInventory().GetAllItems())
-                if (i.m_equipped && i.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Torch) { if (RuleLog.Due("CannonInventory.HoldsTorch:87", 2d)) ModLog.Every("CannonInventory.HoldsTorch:87", 2d, "CannonInventory.HoldsTorch: returns true (line 87)"); return true; }
-            { if (RuleLog.Due("CannonInventory.HoldsTorch:88", 2d)) ModLog.Every("CannonInventory.HoldsTorch:88", 2d, "CannonInventory.HoldsTorch: returns false (line 88)"); return false; }
+                if (i.m_equipped && i.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Torch) { if (RuleLog.Due("CannonInventory.HoldsTorch:87", 2d)) ModLog.Every("CannonInventory.HoldsTorch:87", 2d, $"CannonInventory.HoldsTorch: returns true because i.m_equipped && i.m_shared.m_itemType == ItemDrop.ItemData.ItemType.Torch (line 87)"); return true; }
+            { if (RuleLog.Due("CannonInventory.HoldsTorch:88", 2d)) ModLog.Every("CannonInventory.HoldsTorch:88", 2d, $"CannonInventory.HoldsTorch: returns false (line 88)"); return false; }
         }
 
         static bool Is(ItemDrop.ItemData i, string prefab) => i != null && i.m_dropPrefab != null && i.m_dropPrefab.name == prefab;

@@ -21,7 +21,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
             try
             {
                 Character c = CharacterRef(__instance);
-                if (c == null || !c.IsPlayer() || MobileCannonPull.PulledBy(c) == null) { if (RuleLog.Due("MobileCannonSpeedPatch.Postfix:24", 2d)) ModLog.Every("MobileCannonSpeedPatch.Postfix:24", 2d, "MobileCannonSpeedPatch.Postfix: returns (line 24)"); return; }
+                if (c == null || !c.IsPlayer() || MobileCannonPull.PulledBy(c) == null) { if (RuleLog.Due("MobileCannonSpeedPatch.Postfix:24", 2d)) ModLog.Every("MobileCannonSpeedPatch.Postfix:24", 2d, $"MobileCannonSpeedPatch.Postfix: returns because c == null || !c.IsPlayer() || MobileCannonPull.PulledBy(c) == null (line 24)"); return; }
                 speed = MobileCannonPullRules.CapSpeed(speed, ModSettings.MobileCannonPullSpeed.Value);
             }
             catch (NullReferenceException e)
@@ -53,7 +53,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
             if (RuleLog.Due("MobileCannonTurnPatch.Prefix", 2d)) ModLog.Every("MobileCannonTurnPatch.Prefix", 2d, $"MobileCannonTurnPatch.Prefix(__instance={RuleLog.Shown(__instance)}, turnSpeed={RuleLog.Shown(turnSpeed)})");
             __state = null;
             MobileCannonPull pull = __instance.IsPlayer() ? MobileCannonPull.PulledBy(__instance) : null;
-            if (pull == null) { if (RuleLog.Due("MobileCannonTurnPatch.Prefix:56", 2d)) ModLog.Every("MobileCannonTurnPatch.Prefix:56", 2d, "MobileCannonTurnPatch.Prefix: returns (line 56)"); return; }
+            if (pull == null) { if (RuleLog.Due("MobileCannonTurnPatch.Prefix:56", 2d)) ModLog.Every("MobileCannonTurnPatch.Prefix:56", 2d, $"MobileCannonTurnPatch.Prefix: returns because pull == null (line 56)"); return; }
             turnSpeed = Mathf.Max(turnSpeed, __instance.m_turnSpeed);   // the game passes the turn speed through the same speed mods, so the walking cap would make turning crawl
             __state = LookYawRef(__instance);
             LookYawRef(__instance) = pull.FacingFor(__instance);

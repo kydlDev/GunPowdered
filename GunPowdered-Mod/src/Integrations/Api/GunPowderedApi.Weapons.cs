@@ -44,7 +44,7 @@ namespace GunPowdered
             static void Hook()
             {
                 if (RuleLog.IsOn()) ModLog.Verbose($"Musket.Hook()");
-                if (_hooked) { if (RuleLog.IsOn()) ModLog.Verbose("Musket.Hook: returns (line 47)"); return; }
+                if (_hooked) return;
                 _hooked = true;
                 MusketGun.Fired += Pass;
             }
@@ -52,12 +52,12 @@ namespace GunPowdered
             static void Pass(Player shooter, ItemDrop.ItemData musket, Vector3 muzzle, Vector3 direction, int left, GameObject bullet)
             {
                 Action<MusketShot> listeners = _shotFired;
-                if (listeners == null) { if (RuleLog.IsOn()) ModLog.Verbose("Musket.Pass: returns (line 55)"); return; }
+                if (listeners == null) { if (RuleLog.IsOn()) ModLog.Verbose($"Musket.Pass: returns because listeners == null (line 55)"); return; }
                 var shot = new MusketShot(shooter, musket, muzzle, direction, left, bullet);
                 foreach (Delegate d in listeners.GetInvocationList())
                 {
                     try { ((Action<MusketShot>)d)(shot); }
-                    catch (Exception e) { ModLog.Warn("GunPowderedApi.Musket.ShotFired: a listener failed (" + d.Method.DeclaringType + "." + d.Method.Name + "): " + e.GetType().Name + ": " + e.Message); }
+                    catch (Exception e) { ModLog.Warn("GunPowderedApi.Musket.ShotFired: a listener failed (" + d.Method.DeclaringType + "." + d.Method.Name + "): " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace); }      // foreign code: another mod's listener / Jotunn ran here - its exception types are not ours to know, so the catch-all is the only catch
                 }
             }
         }

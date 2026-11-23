@@ -22,7 +22,7 @@ namespace GunPowdered.Testing.TestHooks
             float bestDist = 10f;
             foreach (ItemDrop d in Object.FindObjectsByType<ItemDrop>(FindObjectsSortMode.None))
             {
-                if (d == null || Utils.GetPrefabName(d.gameObject) != prefab) continue;
+                if (d == null || Utils.GetPrefabName(d.gameObject) != prefab) { if (RuleLog.IsOn()) ModLog.Verbose($"BallModelTestHooks.DroppedBallModels: skips to the next item (continue) because d == null || Utils.GetPrefabName(d.gameObject) != prefab (line 25)"); continue; }
                 float dist = Vector3.Distance(d.transform.position, p.transform.position);
                 if (dist < bestDist) { best = d; bestDist = dist; }
             }

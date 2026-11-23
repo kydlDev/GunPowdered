@@ -81,7 +81,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         /// <summary>Registers the button with Jotunn (once, at start). Expected outcome: true when it is registered.</summary>
         internal static bool Register()
         {
-            if (_registered) { if (RuleLog.IsOn()) ModLog.Verbose("MusketInput.Register: returns true (line 36)"); return true; }
+            if (_registered) { if (RuleLog.IsOn()) ModLog.Verbose($"MusketInput.Register: returns true because _registered (line 84)"); return true; }
             ModLog.Verbose("MusketInput: Register - key setting " + (ModSettings.MusketReloadKey != null ? ModSettings.MusketReloadKey.Value.ToString() : "missing"));
             if (ReloadButton == null)
             {
@@ -105,12 +105,12 @@ namespace GunPowdered.Features.Musket.Infrastructure
             bool gameKey = key != UnityEngine.KeyCode.None && ZInput.GetKeyDown(key, true);
             bool button = _registered && ZInput.GetButtonDown(ReloadButtonName);
             bool raw = key != UnityEngine.KeyCode.None && UnityEngine.Input.GetKeyDown(key);
-            if (!gameKey && !button && !raw) { if (RuleLog.Due("MusketInput.Poll:58", 2d)) ModLog.Every("MusketInput.Poll:58", 2d, "MusketInput.Poll: returns null (line 58)"); return null; }                       // nothing pressed this frame: nothing to log
+            if (!gameKey && !button && !raw) { if (RuleLog.Due("MusketInput.Poll:108", 2d)) ModLog.Every("MusketInput.Poll:108", 2d, $"MusketInput.Poll: returns null because !gameKey && !button && !raw (line 108)"); return null; }                       // nothing pressed this frame: nothing to log
             bool held = MusketGun.Held(local) != null;
             string blocked = Blocker();
             ModLog.Verbose("MusketInput: reload key " + key + " down - game key " + gameKey + ", Jotunn button " + button + ", raw key " + raw
                 + ", musket in hand " + held + ", blocked by " + (blocked ?? "nothing"));
-            if (!held || blocked != null) { if (RuleLog.Due("MusketInput.Poll:63", 2d)) ModLog.Every("MusketInput.Poll:63", 2d, "MusketInput.Poll: returns null (line 63)"); return null; }
+            if (!held || blocked != null) { if (RuleLog.Due("MusketInput.Poll:113", 2d)) ModLog.Every("MusketInput.Poll:113", 2d, $"MusketInput.Poll: returns null because !held || blocked != null (line 113)"); return null; }
             if (!gameKey && !button)
             {
                 ModLog.Verbose("MusketInput: only the raw key saw the press, the game's input did not - no reload");
@@ -133,13 +133,13 @@ namespace GunPowdered.Features.Musket.Infrastructure
         static string Blocker()
         {
             if (RuleLog.Due("MusketInput.Blocker", 2d)) ModLog.Every("MusketInput.Blocker", 2d, $"MusketInput.Blocker()");
-            if (Chat.instance != null && Chat.instance.HasFocus()) { if (RuleLog.Due("MusketInput.Blocker:86", 2d)) ModLog.Every("MusketInput.Blocker:86", 2d, "MusketInput.Blocker: returns \"chat\" (line 86)"); return "chat"; }
-            if (Console.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:87", 2d)) ModLog.Every("MusketInput.Blocker:87", 2d, "MusketInput.Blocker: returns \"console\" (line 87)"); return "console"; }
-            if (Menu.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:88", 2d)) ModLog.Every("MusketInput.Blocker:88", 2d, "MusketInput.Blocker: returns \"menu\" (line 88)"); return "menu"; }
-            if (InventoryGui.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:89", 2d)) ModLog.Every("MusketInput.Blocker:89", 2d, "MusketInput.Blocker: returns \"inventory\" (line 89)"); return "inventory"; }
-            if (TextInput.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:90", 2d)) ModLog.Every("MusketInput.Blocker:90", 2d, "MusketInput.Blocker: returns \"text input\" (line 90)"); return "text input"; }
-            if (Minimap.IsOpen()) { if (RuleLog.Due("MusketInput.Blocker:91", 2d)) ModLog.Every("MusketInput.Blocker:91", 2d, "MusketInput.Blocker: returns \"map\" (line 91)"); return "map"; }
-            { if (RuleLog.Due("MusketInput.Blocker:92", 2d)) ModLog.Every("MusketInput.Blocker:92", 2d, "MusketInput.Blocker: returns null (line 92)"); return null; }
+            if (Chat.instance != null && Chat.instance.HasFocus()) { if (RuleLog.Due("MusketInput.Blocker:86", 2d)) ModLog.Every("MusketInput.Blocker:136", 2d, "MusketInput.Blocker: returns \"chat\" (line 136)"); return "chat"; }
+            if (Console.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:87", 2d)) ModLog.Every("MusketInput.Blocker:137", 2d, "MusketInput.Blocker: returns \"console\" (line 137)"); return "console"; }
+            if (Menu.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:88", 2d)) ModLog.Every("MusketInput.Blocker:138", 2d, "MusketInput.Blocker: returns \"menu\" (line 138)"); return "menu"; }
+            if (InventoryGui.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:89", 2d)) ModLog.Every("MusketInput.Blocker:139", 2d, "MusketInput.Blocker: returns \"inventory\" (line 139)"); return "inventory"; }
+            if (TextInput.IsVisible()) { if (RuleLog.Due("MusketInput.Blocker:90", 2d)) ModLog.Every("MusketInput.Blocker:140", 2d, "MusketInput.Blocker: returns \"text input\" (line 140)"); return "text input"; }
+            if (Minimap.IsOpen()) { if (RuleLog.Due("MusketInput.Blocker:91", 2d)) ModLog.Every("MusketInput.Blocker:141", 2d, "MusketInput.Blocker: returns \"map\" (line 141)"); return "map"; }
+            return null;
         }
     }
 }

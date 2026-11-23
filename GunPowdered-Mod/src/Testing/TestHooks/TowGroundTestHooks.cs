@@ -21,7 +21,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             Player p = Player.m_localPlayer;
             MonsterAI ai = AsksvinTowTestHooks.Animal != null ? AsksvinTowTestHooks.Animal.GetComponent<MonsterAI>() : null;
-            if (p == null || ai == null || ZoneSystem.instance == null) return "no player or no asksvin";
+            if (p == null || ai == null || ZoneSystem.instance == null) { if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.FollowSlope: returns \"no player or no asksvin\" because p == null || ai == null || ZoneSystem.instance == null (line 24)"); return "no player or no asksvin"; }
             Vector3 from = AsksvinTowTestHooks.Animal.transform.position;
             float h0, best = -1f;
             h0 = GroundY(from);
@@ -70,7 +70,7 @@ namespace GunPowdered.Testing.TestHooks
         static string GroundSlopeHere()
         {
             Player p = Player.m_localPlayer;
-            if (p == null) return "no player";
+            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.GroundSlopeHere: returns \"no player\" because p == null (line 73)"); return "no player"; }
             Vector3 c = p.transform.position;
             float dx = GroundY(c + Vector3.right * 4f) - GroundY(c - Vector3.right * 4f), dz = GroundY(c + Vector3.forward * 4f) - GroundY(c - Vector3.forward * 4f);
             float deg = Mathf.Atan(new Vector2(dx, dz).magnitude / 8f) * Mathf.Rad2Deg;
@@ -83,7 +83,7 @@ namespace GunPowdered.Testing.TestHooks
         static string GroundProfile()
         {
             Player p = Player.m_localPlayer;
-            if (p == null) return "no player";
+            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.GroundProfile: returns \"no player\" because p == null (line 86)"); return "no player"; }
             Vector3 o = p.transform.position;
             var sb = new System.Text.StringBuilder("ground profile at " + o.ToString("0") + ":");
             int mask = LayerMask.GetMask("terrain");
@@ -104,9 +104,10 @@ namespace GunPowdered.Testing.TestHooks
         /// <summary>Ground height: the loaded ground where there is one, else the world generator's (GetGroundHeight answered false everywhere in a9slope1).</summary>
         internal static float GroundY(Vector3 at)
         {
+            if (RuleLog.Due("TowGroundTestHooks.GroundY", 2d)) ModLog.Every("TowGroundTestHooks.GroundY", 2d, $"TowGroundTestHooks.GroundY(at={at})");
             float h;
-            if (ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(at, out h) && h != 0f) return h;
-            return WorldGenerator.instance != null ? WorldGenerator.instance.GetHeight(at.x, at.z) : at.y;
+            if (ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(at, out h) && h != 0f) { var returnedAt109 = h; if (RuleLog.Due("TowGroundTestHooks.GroundY:109", 2d)) ModLog.Every("TowGroundTestHooks.GroundY:109", 2d, $"TowGroundTestHooks.GroundY: returns {returnedAt109} because ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(at, out h) && h != 0f (line 109)"); return returnedAt109; }
+            { var returnedAt110 = WorldGenerator.instance != null ? WorldGenerator.instance.GetHeight(at.x, at.z) : at.y; if (RuleLog.Due("TowGroundTestHooks.GroundY:110", 2d)) ModLog.Every("TowGroundTestHooks.GroundY:110", 2d, $"TowGroundTestHooks.GroundY: returns {returnedAt110} (line 110)"); return returnedAt110; }
         }
 
         // ---- slopes: the KydlFlat template's baked cliffs ----
@@ -125,7 +126,7 @@ namespace GunPowdered.Testing.TestHooks
         static string GoToMountainCliffTop(double metres)
         {
             Player p = Player.m_localPlayer;
-            if (p == null) return "no player";
+            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.GoToMountainCliffTop: returns \"no player\" because p == null (line 129)"); return "no player"; }
             _arenaSpot = p.transform.position;
             _arenaRot = p.transform.rotation;
             Vector3 at = MountainCliffTop + Vector3.back * (float)metres;
@@ -137,8 +138,9 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.cannonHeightBetween")]
         static bool CannonHeightBetween(double min, double max)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.CannonHeightBetween(min={min}, max={max})");
             GameObject cannon = MobileCannonTestHooks.Cannon;
-            return cannon != null && cannon.transform.position.y >= min && cannon.transform.position.y <= max;
+            { var returnedAt143 = cannon != null && cannon.transform.position.y >= min && cannon.transform.position.y <= max; if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.CannonHeightBetween: returns {returnedAt143} (line 143)"); return returnedAt143; }
         }
 
         static Vector3 _arenaSpot;
@@ -153,7 +155,7 @@ namespace GunPowdered.Testing.TestHooks
         static string BackFromCliff()
         {
             Player p = Player.m_localPlayer;
-            if (p == null || _arenaSpot == Vector3.zero) return "no player or no arena spot";
+            if (p == null || _arenaSpot == Vector3.zero) { if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.BackFromCliff: returns \"no player or no arena spot\" because p == null || _arenaSpot == Vector3.zero (line 158)"); return "no player or no arena spot"; }
             p.TeleportTo(_arenaSpot + Vector3.up * 0.3f, _arenaRot, true);
             ModLog.Info("TowGroundTestHooks: back to the arena spot " + _arenaSpot.ToString("0"));
             return "back to the arena spot";
@@ -163,9 +165,10 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.groundUnderPlayer")]
         static bool GroundUnderPlayer()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.GroundUnderPlayer()");
             Player p = Player.m_localPlayer;
-            if (p == null || p.IsTeleporting()) return false;
-            return Physics.Raycast(p.transform.position + Vector3.up * 1f, Vector3.down, 4f, LayerMask.GetMask("terrain"));
+            if (p == null || p.IsTeleporting()) { if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.GroundUnderPlayer: returns false because p == null || p.IsTeleporting() (line 170)"); return false; }
+            { var returnedAt171 = Physics.Raycast(p.transform.position + Vector3.up * 1f, Vector3.down, 4f, LayerMask.GetMask("terrain")); if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.GroundUnderPlayer: returns {returnedAt171} (line 171)"); return returnedAt171; }
         }
 
 
@@ -177,7 +180,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             Player p = Player.m_localPlayer;
             GameObject prefab = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab("Beech1") : null;
-            if (p == null || AsksvinTowTestHooks.Animal == null || prefab == null) return "no player, asksvin or tree prefab";
+            if (p == null || AsksvinTowTestHooks.Animal == null || prefab == null) { if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.TreesOnPath: returns \"no player, asksvin or tree prefab\" because p == null || AsksvinTowTestHooks.Animal == null || prefab == null (line 183)"); return "no player, asksvin or tree prefab"; }
             Vector3 a = AsksvinTowTestHooks.Animal.transform.position, b = p.transform.position;
             Vector3 side = Vector3.Cross(Vector3.up, Vector3.ProjectOnPlane(b - a, Vector3.up).normalized);
             int n = (int)count;
@@ -196,15 +199,16 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.treesRemove")]
         static string TreesRemove()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.TreesRemove()");
             int n = 0;
             foreach (GameObject t in Trees)
             {
-                if (t == null) continue;
+                if (t == null) { if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.TreesRemove: skips to the next item (continue) because t == null (line 206)"); continue; }
                 ZNetView v = t.GetComponent<ZNetView>();
                 if (v != null && v.IsValid()) { v.ClaimOwnership(); ZNetScene.instance.Destroy(t); n++; }
             }
             Trees.Clear();
-            return "trees removed " + n;
+            { var returnedAt211 = "trees removed " + n; if (RuleLog.IsOn()) ModLog.Verbose($"TowGroundTestHooks.TreesRemove: returns {returnedAt211} (line 211)"); return returnedAt211; }
         }
 
     }

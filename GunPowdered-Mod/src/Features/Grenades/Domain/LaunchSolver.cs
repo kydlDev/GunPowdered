@@ -28,11 +28,11 @@ namespace GunPowdered.Features.Grenades.Domain
         {
             if (RuleLog.Due("LaunchSolver.Solve", 2d)) RuleLog.Every("LaunchSolver.Solve", 2d, $"LaunchSolver.Solve(spawn={RuleLog.Shown(spawn)}, target={RuleLog.Shown(target)}, speed={RuleLog.Shown(speed)}, gravity={RuleLog.Shown(gravity)}, step={RuleLog.Shown(step)})");
             if (speed <= 0f) throw new ArgumentOutOfRangeException(nameof(speed), speed, "the speed must be above 0");
-            if (gravity <= 0f) throw new ArgumentOutOfRangeException(nameof(gravity), gravity, "the gravity must be above 0");
-            if (step < 0f) throw new ArgumentOutOfRangeException(nameof(step), step, "the step must not be negative");
+            if (gravity <= 0f) { if (RuleLog.Due("LaunchSolver.Solve:31", 2d)) RuleLog.Every("LaunchSolver.Solve:31", 2d, $"LaunchSolver.Solve: throws new ArgumentOutOfRangeException(nameof(gravity), gravity, \"the gravity must be  because gravity <= 0f (line 31)"); throw new ArgumentOutOfRangeException(nameof(gravity), gravity, "the gravity must be above 0"); }
+            if (step < 0f) { if (RuleLog.Due("LaunchSolver.Solve:32", 2d)) RuleLog.Every("LaunchSolver.Solve:32", 2d, $"LaunchSolver.Solve: throws new ArgumentOutOfRangeException(nameof(step), step, \"the step must not be negat because step < 0f (line 32)"); throw new ArgumentOutOfRangeException(nameof(step), step, "the step must not be negative"); }
 
             float flat = spawn.FlatDistanceTo(target);
-            if (flat < MinFlatDistance) { var returnedAt35 = new LaunchSolution(new ArcVector(0f, 1f, 0f), 90f, true); if (RuleLog.Due("LaunchSolver.Solve:35", 2d)) RuleLog.Every("LaunchSolver.Solve:35", 2d, $"LaunchSolver.Solve: returns {RuleLog.Shown(returnedAt35)} (line 35)"); return returnedAt35; }
+            if (flat < MinFlatDistance) { var returnedAt35 = new LaunchSolution(new ArcVector(0f, 1f, 0f), 90f, true); if (RuleLog.Due("LaunchSolver.Solve:35", 2d)) RuleLog.Every("LaunchSolver.Solve:35", 2d, $"LaunchSolver.Solve: returns {returnedAt35} because flat < MinFlatDistance (line 35)"); return returnedAt35; }
 
             double v = speed, g = gravity, d = flat, dy = target.Y - spawn.Y;
             bool reachable;
@@ -47,7 +47,7 @@ namespace GunPowdered.Features.Grenades.Domain
             float fx = (target.X - spawn.X) / flat, fz = (target.Z - spawn.Z) / flat;
             float cos = (float)Math.Cos(elevation);
             var direction = new ArcVector(fx * cos, (float)Math.Sin(elevation), fz * cos);
-            { var returnedAt50 = new LaunchSolution(direction, (float)(elevation * 180d / Math.PI), reachable); if (RuleLog.Due("LaunchSolver.Solve:50", 2d)) RuleLog.Every("LaunchSolver.Solve:50", 2d, $"LaunchSolver.Solve: returns {RuleLog.Shown(returnedAt50)} (line 50)"); return returnedAt50; }
+            { var returnedAt50 = new LaunchSolution(direction, (float)(elevation * 180d / Math.PI), reachable); if (RuleLog.Due("LaunchSolver.Solve:50", 2d)) RuleLog.Every("LaunchSolver.Solve:50", 2d, $"LaunchSolver.Solve: returns {returnedAt50} (line 50)"); return returnedAt50; }
         }
 
         // the low-arc angle for a spot d metres away and dy metres higher; out of reach: the angle that goes farthest towards it
@@ -58,7 +58,7 @@ namespace GunPowdered.Features.Grenades.Domain
             double discriminant = (v2 * v2) - (g * ((g * d * d) + (2d * dy * v2)));
             reachable = discriminant >= 0d;
             double tan = reachable ? (v2 - Math.Sqrt(discriminant)) / (g * d) : v2 / (g * d);
-            { var returnedAt61 = Math.Atan(tan); if (RuleLog.Due("LaunchSolver.Elevation:61", 2d)) RuleLog.Every("LaunchSolver.Elevation:61", 2d, $"LaunchSolver.Elevation: returns {RuleLog.Shown(returnedAt61)} (line 61)"); return returnedAt61; }
+            { var returnedAt61 = Math.Atan(tan); if (RuleLog.Due("LaunchSolver.Elevation:61", 2d)) RuleLog.Every("LaunchSolver.Elevation:61", 2d, $"LaunchSolver.Elevation: returns {returnedAt61} (line 61)"); return returnedAt61; }
         }
     }
 }

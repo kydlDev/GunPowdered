@@ -55,7 +55,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             Vector3? t = Target;
             Player p = Player.m_localPlayer;
             string where = t.HasValue && p != null ? "target " + t.Value.ToString("0.0") + ", " + Vector2.Distance(new Vector2(p.transform.position.x, p.transform.position.z), new Vector2(t.Value.x, t.Value.z)).ToString("0.0", System.Globalization.CultureInfo.InvariantCulture) + " m" : "no target";
-            { var returnedAt58 = _phase + ", spot " + _spot + ", " + where; if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeAim.Describe: returns {RuleLog.Shown(returnedAt58)} (line 58)"); return returnedAt58; }
+            { var returnedAt58 = _phase + ", spot " + _spot + ", " + where; if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeAim.Describe: returns {returnedAt58} (line 58)"); return returnedAt58; }
         }
 
         /// <summary>Test input: mouse movement the next look filter treats as the player's own (right, up in game mouse units).</summary>
@@ -83,7 +83,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             if (!Applies(player))
             {
                 if (_phase != AimPhase.Idle) Reset("no grenade in hand, menu open or feature off");
-                { if (RuleLog.Due("GrenadeAim.FilterControls:86", 2d)) ModLog.Every("GrenadeAim.FilterControls:86", 2d, "GrenadeAim.FilterControls: returns (line 86)"); return; }
+                { if (RuleLog.Due("GrenadeAim.FilterControls:86", 2d)) ModLog.Every("GrenadeAim.FilterControls:86", 2d, $"GrenadeAim.FilterControls: returns (line 86)"); return; }
             }
             if (_testActive)     // TestLab: the buttons are the test's, the real ones would override a synthetic press every physics step
             {
@@ -95,7 +95,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             AimStep step = GrenadeAimRules.Next(_phase, attack || attackHold, block);
             if (step.Happened != AimEvent.None) Handle(player, step.Happened);
             _phase = step.Next;
-            if (!step.Intercept) { if (RuleLog.Due("GrenadeAim.FilterControls:98", 2d)) ModLog.Every("GrenadeAim.FilterControls:98", 2d, "GrenadeAim.FilterControls: returns (line 98)"); return; }
+            if (!step.Intercept) { if (RuleLog.Due("GrenadeAim.FilterControls:98", 2d)) ModLog.Every("GrenadeAim.FilterControls:98", 2d, $"GrenadeAim.FilterControls: returns because !step.Intercept (line 98)"); return; }
             attack = step.Attack;
             attackHold = false;
             if (step.SuppressBlock)
@@ -112,7 +112,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         internal static void FilterLook(Player player, ref Vector2 look)
         {
             if (RuleLog.Due("GrenadeAim.FilterLook", 2d)) ModLog.Every("GrenadeAim.FilterLook", 2d, $"GrenadeAim.FilterLook(player={RuleLog.Shown(player)}, look={RuleLog.Shown(look)})");
-            if (_phase != AimPhase.Aiming || player != Player.m_localPlayer) { if (RuleLog.Due("GrenadeAim.FilterLook:115", 2d)) ModLog.Every("GrenadeAim.FilterLook:115", 2d, "GrenadeAim.FilterLook: returns (line 115)"); return; }
+            if (_phase != AimPhase.Aiming || player != Player.m_localPlayer) return;
             Vector2 mouse = _testActive ? _testMouse : look;
             _testMouse = Vector2.zero;
             if (mouse != Vector2.zero) _spot = _spot.Move(mouse.x, mouse.y, Tuning());
@@ -127,7 +127,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         {
             aim = Vector3.zero;
             Vector3? target = Target;
-            if (!target.HasValue) { if (RuleLog.Due("GrenadeAim.AimFor:130", 2d)) ModLog.Every("GrenadeAim.AimFor:130", 2d, "GrenadeAim.AimFor: returns false (line 130)"); return false; }
+            if (!target.HasValue) { if (RuleLog.Due("GrenadeAim.AimFor:130", 2d)) ModLog.Every("GrenadeAim.AimFor:130", 2d, $"GrenadeAim.AimFor: returns false because !target.HasValue (line 130)"); return false; }
             LaunchSolution s = LaunchSolver.Solve(ToArc(spawn), ToArc(target.Value), ModSettings.GrenadeSpeed.Value, ModSettings.GrenadeGravity.Value, Time.fixedDeltaTime);
             aim = new Vector3(s.Direction.X, s.Direction.Y, s.Direction.Z);
             if (launchAngle != 0f) aim = Quaternion.AngleAxis(-launchAngle, Vector3.Cross(Vector3.up, aim)) * aim;
@@ -142,7 +142,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             {
                 case AimEvent.Started:
                     Begin(player);
-                    break;
+                    { if (RuleLog.Due("GrenadeAim.Handle:145", 2d)) ModLog.Every("GrenadeAim.Handle:145", 2d, $"GrenadeAim.Handle: leaves the loop / case (break) (line 145)"); break; }
                 case AimEvent.Thrown:
                     _latchedTarget = TargetPoint(player, _spot);
                     _latchedUntil = Time.time + LatchSeconds;
@@ -179,10 +179,10 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         static bool Applies(Player player)
         {
             if (RuleLog.Due("GrenadeAim.Applies", 2d)) ModLog.Every("GrenadeAim.Applies", 2d, $"GrenadeAim.Applies(player={RuleLog.Shown(player)})");
-            if (player == null || player != Player.m_localPlayer || player.IsDead()) { if (RuleLog.Due("GrenadeAim.Applies:182", 2d)) ModLog.Every("GrenadeAim.Applies:182", 2d, "GrenadeAim.Applies: returns false (line 182)"); return false; }
-            if (!ModSettings.FeatureOn(ModSettings.EnableGrenades)) { if (RuleLog.Due("GrenadeAim.Applies:183", 2d)) ModLog.Every("GrenadeAim.Applies:183", 2d, "GrenadeAim.Applies: returns false (line 183)"); return false; }
-            if (InventoryGui.IsVisible() || Menu.IsVisible()) { if (RuleLog.Due("GrenadeAim.Applies:184", 2d)) ModLog.Every("GrenadeAim.Applies:184", 2d, "GrenadeAim.Applies: returns false (line 184)"); return false; }
-            { var returnedAt185 = GrenadeSetup.IsGrenade(player.GetCurrentWeapon()); if (RuleLog.Due("GrenadeAim.Applies:185", 2d)) ModLog.Every("GrenadeAim.Applies:185", 2d, $"GrenadeAim.Applies: returns {RuleLog.Shown(returnedAt185)} (line 185)"); return returnedAt185; }
+            if (player == null || player != Player.m_localPlayer || player.IsDead()) return false;
+            if (!ModSettings.FeatureOn(ModSettings.EnableGrenades)) { if (RuleLog.Due("GrenadeAim.Applies:183", 2d)) ModLog.Every("GrenadeAim.Applies:183", 2d, $"GrenadeAim.Applies: returns false because !ModSettings.FeatureOn(ModSettings.EnableGrenades) (line 183)"); return false; }
+            if (InventoryGui.IsVisible() || Menu.IsVisible()) { if (RuleLog.Due("GrenadeAim.Applies:184", 2d)) ModLog.Every("GrenadeAim.Applies:184", 2d, $"GrenadeAim.Applies: returns false because InventoryGui.IsVisible() || Menu.IsVisible() (line 184)"); return false; }
+            { var returnedAt185 = GrenadeSetup.IsGrenade(player.GetCurrentWeapon()); if (RuleLog.Due("GrenadeAim.Applies:185", 2d)) ModLog.Every("GrenadeAim.Applies:185", 2d, $"GrenadeAim.Applies: returns {returnedAt185} (line 185)"); return returnedAt185; }
         }
 
         // the landing spot dropped onto the ground below it, so the solver aims at the floor and not at the air
@@ -193,7 +193,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             Vector3 p = player.transform.position + (dir * spot.Distance);
             RaycastHit hit;
             if (Physics.Raycast(p + (Vector3.up * 30f), Vector3.down, out hit, 80f, ThrowArcView.SolidsMask(), QueryTriggerInteraction.Ignore)) p.y = hit.point.y;
-            { var returnedAt196 = p; if (RuleLog.Due("GrenadeAim.TargetPoint:196", 2d)) ModLog.Every("GrenadeAim.TargetPoint:196", 2d, $"GrenadeAim.TargetPoint: returns {RuleLog.Shown(returnedAt196)} (line 196)"); return returnedAt196; }
+            { var returnedAt196 = p; if (RuleLog.Due("GrenadeAim.TargetPoint:196", 2d)) ModLog.Every("GrenadeAim.TargetPoint:196", 2d, $"GrenadeAim.TargetPoint: returns {returnedAt196} (line 196)"); return returnedAt196; }
         }
 
         static AimTuning Tuning() => new AimTuning(ModSettings.GrenadeAimMetersPerUnit.Value, ModSettings.GrenadeAimDegreesPerUnit.Value,

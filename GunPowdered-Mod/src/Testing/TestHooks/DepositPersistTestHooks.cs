@@ -1,10 +1,11 @@
-﻿// kydl:read-only-observer - test-only: reads the saved records (ZDOs) of the mod's deposits and compares them; changes nothing
+// kydl:read-only-observer - test-only: reads the saved records (ZDOs) of the mod's deposits and compares them; changes nothing
 using System.Collections;
 using System.Collections.Generic;
 using HarmonyLib;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Bootstrap;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -35,8 +36,9 @@ namespace GunPowdered.Testing.TestHooks
 
         static string Count(List<(string prefab, Vector3 pos)> l)
         {
+            if (RuleLog.Due("DepositPersistTestHooks.Count", 2d)) ModLog.Every("DepositPersistTestHooks.Count", 2d, $"DepositPersistTestHooks.Count(l={l})");
             int mud = l.FindAll(r => r.prefab == Prefabs[0]).Count, guano = l.Count - mud;
-            return mud + " mud, " + guano + " guano";
+            { var returnedAt41 = mud + " mud, " + guano + " guano"; if (RuleLog.Due("DepositPersistTestHooks.Count:41", 2d)) ModLog.Every("DepositPersistTestHooks.Count:41", 2d, $"DepositPersistTestHooks.Count: returns {returnedAt41} (line 41)"); return returnedAt41; }
         }
 
         /// <summary>Remembers every deposit record. Returns "snapshot N mud, M guano".</summary>
@@ -71,7 +73,7 @@ namespace GunPowdered.Testing.TestHooks
             if (_travelling) return "FAIL: still travelling";
             _travelling = true;
             Plugin.Instance.StartCoroutine(Travel((float)metres, (float)waitSeconds));
-            return "started";
+            { if (RuleLog.IsOn()) ModLog.Verbose($"DepositPersistTestHooks.TravelFarAndBack: returns \"started\" (line 76)"); return "started"; }
         }
 
         /// <summary>True when travelFarAndBack has come back.</summary>

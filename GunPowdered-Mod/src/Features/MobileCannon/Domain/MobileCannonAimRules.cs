@@ -21,7 +21,7 @@ namespace GunPowdered.Features.MobileCannon.Domain
             if (RuleLog.Due("MobileCannonAimRules.Turn", 2d)) RuleLog.Every("MobileCannonAimRules.Turn", 2d, $"MobileCannonAimRules.Turn(pitch={RuleLog.Shown(pitch)}, notches={RuleLog.Shown(notches)}, step={RuleLog.Shown(step)}, min={RuleLog.Shown(min)}, max={RuleLog.Shown(max)})");
             float lo = Math.Min(min, max), hi = Math.Max(min, max);
             float next = pitch + notches * Math.Abs(step);
-            { var returnedAt24 = next < lo ? lo : next > hi ? hi : next; if (RuleLog.Due("MobileCannonAimRules.Turn:24", 2d)) RuleLog.Every("MobileCannonAimRules.Turn:24", 2d, $"MobileCannonAimRules.Turn: returns {RuleLog.Shown(returnedAt24)} (line 24)"); return returnedAt24; }
+            { var returnedAt24 = next < lo ? lo : next > hi ? hi : next; if (RuleLog.Due("MobileCannonAimRules.Turn:24", 2d)) RuleLog.Every("MobileCannonAimRules.Turn:24", 2d, $"MobileCannonAimRules.Turn: returns {returnedAt24} (line 24)"); return returnedAt24; }
         }
 
         /// <summary>Wheel notches from the game's scroll value (one notch per sign; 0 when it did not move).</summary>

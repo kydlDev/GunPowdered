@@ -3,6 +3,7 @@ using System;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Features.Water.Infrastructure;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -18,7 +19,7 @@ namespace GunPowdered.Testing.TestHooks
         static string ZdoValue(GameObject target, string key)
         {
             ZNetView view = target != null ? target.GetComponentInParent<ZNetView>() : null;
-            if (view == null || !view.IsValid()) return "no object";
+            if (view == null || !view.IsValid()) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.ZdoValue: returns \"no object\" because view == null || !view.IsValid() (line 22)"); return "no object"; }
             ZDO zdo = view.GetZDO();
             string value = zdo.GetInt(key, int.MinValue) != int.MinValue ? zdo.GetInt(key).ToString()
                 : !float.IsNaN(zdo.GetFloat(key, float.NaN)) ? zdo.GetFloat(key).ToString("0.###")
@@ -33,15 +34,15 @@ namespace GunPowdered.Testing.TestHooks
         static string SetZdo(GameObject target, string key, string type, double value)
         {
             ZNetView view = target != null ? target.GetComponentInParent<ZNetView>() : null;
-            if (view == null || !view.IsValid()) return "no object";
+            if (view == null || !view.IsValid()) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.SetZdo: returns \"no object\" because view == null || !view.IsValid() (line 37)"); return "no object"; }
             if (!view.IsOwner()) view.ClaimOwnership();
             ZDO zdo = view.GetZDO();
             switch (type)
             {
-                case "int": zdo.Set(key, (int)value); break;
-                case "float": zdo.Set(key, (float)value); break;
-                case "long": zdo.Set(key, (long)value); break;
-                default: return "unknown type " + type;
+                case "int": zdo.Set(key, (int)value); { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.SetZdo: leaves the loop / case (break) (line 42)"); break; }
+                case "float": zdo.Set(key, (float)value); { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.SetZdo: leaves the loop / case (break) (line 43)"); break; }
+                case "long": zdo.Set(key, (long)value); { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.SetZdo: leaves the loop / case (break) (line 44)"); break; }
+                default: { var returnedAt45 = "unknown type " + type; if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.SetZdo: returns {returnedAt45} (line 45)"); return returnedAt45; }
             }
             ModLog.Verbose("CoreTestHooks: set " + key + " (" + type + ") of " + target.name + " to " + value);
             return view.IsOwner() ? "set" : "not owner";
@@ -52,7 +53,7 @@ namespace GunPowdered.Testing.TestHooks
         static string BucketUseHook()
         {
             Player p = Player.m_localPlayer;
-            if (p == null) return "no player";
+            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.BucketUseHook: returns \"no player\" because p == null (line 56)"); return "no player"; }
             ItemDrop.ItemData held = p.GetCurrentWeapon();
             string before = BucketUse.PrefabOf(held);
             bool handled = BucketUse.Use(p, held);
@@ -64,8 +65,9 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.heldPrefab")]
         static string HeldPrefab()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.HeldPrefab()");
             Player p = Player.m_localPlayer;
-            return p != null ? BucketUse.PrefabOf(p.GetCurrentWeapon()) : "no player";
+            { var returnedAt70 = p != null ? BucketUse.PrefabOf(p.GetCurrentWeapon()) : "no player"; if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.HeldPrefab: returns {returnedAt70} (line 70)"); return returnedAt70; }
         }
 
         /// One ZDO value of a tagged object as a number (float, then int), for checks with min / max; -1 without an object.
@@ -73,7 +75,7 @@ namespace GunPowdered.Testing.TestHooks
         static double ZdoNumber(GameObject target, string key)
         {
             ZNetView view = target != null ? target.GetComponentInParent<ZNetView>() : null;
-            if (view == null || !view.IsValid()) return -1d;
+            if (view == null || !view.IsValid()) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.ZdoNumber: returns -1d because view == null || !view.IsValid() (line 78)"); return -1d; }
             float f = view.GetZDO().GetFloat(key, float.NaN);
             double value = !float.IsNaN(f) ? f : view.GetZDO().GetInt(key, 0);
             ModLog.Verbose("CoreTestHooks: zdo number " + key + " of " + target.name + " = " + value.ToString("0.###"));
@@ -85,7 +87,7 @@ namespace GunPowdered.Testing.TestHooks
         static string SetTunable(string field, string value)
         {
             var info = HarmonyLib.AccessTools.Field(typeof(GunPowdered.Configuration.ModSettings), field);
-            if (!(info?.GetValue(null) is Tunable<float> t)) return "no float Tunable " + field;
+            if (!(info?.GetValue(null) is Tunable<float> t)) { var returnedAt90 = "no float Tunable " + field; if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.SetTunable: returns {returnedAt90} because !(info?.GetValue(null) is Tunable<float> t) (line 90)"); return returnedAt90; }
             if (value == "reset") t.Reset();
             else t.Value = float.Parse(value, System.Globalization.CultureInfo.InvariantCulture);
             ModLog.Verbose("CoreTestHooks: Tunable " + field + " = " + t.Value);
@@ -97,7 +99,7 @@ namespace GunPowdered.Testing.TestHooks
         static string KillNearest(string prefab)
         {
             Player p = Player.m_localPlayer;
-            if (p == null) return "no player";
+            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.KillNearest: returns \"no player\" because p == null (line 102)"); return "no player"; }
             Character best = null;
             float bestDist = 30f;
             foreach (Character c in Character.GetAllCharacters())
@@ -105,7 +107,7 @@ namespace GunPowdered.Testing.TestHooks
                 float d = Vector3.Distance(c.transform.position, p.transform.position);
                 if (c != p && Utils.GetPrefabName(c.gameObject) == prefab && d < bestDist) { best = c; bestDist = d; }
             }
-            if (best == null) return "no " + prefab + " within 30 m";
+            if (best == null) { var returnedAt110 = "no " + prefab + " within 30 m"; if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.KillNearest: returns {returnedAt110} because best == null (line 110)"); return returnedAt110; }
             var hit = new HitData { m_point = best.transform.position, m_dir = Vector3.down };
             hit.m_damage.m_blunt = best.GetHealth() * 10f + 1000f;
             hit.SetAttacker(p);
@@ -119,7 +121,7 @@ namespace GunPowdered.Testing.TestHooks
         static int CountCreatures(string prefab)
         {
             Player p = Player.m_localPlayer;
-            if (p == null) return -1;
+            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.CountCreatures: returns -1 because p == null (line 124)"); return -1; }
             int n = 0;
             foreach (Character c in Character.GetAllCharacters())
                 if (c != null && !c.IsDead() && Utils.GetPrefabName(c.gameObject) == prefab && Vector3.Distance(c.transform.position, p.transform.position) < 30f) n++;
@@ -132,7 +134,7 @@ namespace GunPowdered.Testing.TestHooks
         static int RemoveCreatures(string prefab)
         {
             Player p = Player.m_localPlayer;
-            if (p == null || ZNetScene.instance == null) return -1;
+            if (p == null || ZNetScene.instance == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.RemoveCreatures: returns -1 because p == null || ZNetScene.instance == null (line 137)"); return -1; }
             var doomed = new System.Collections.Generic.List<Character>();
             foreach (Character c in Character.GetAllCharacters())
                 if (c != null && c != p && Utils.GetPrefabName(c.gameObject) == prefab && Vector3.Distance(c.transform.position, p.transform.position) < 30f) doomed.Add(c);
@@ -152,7 +154,7 @@ namespace GunPowdered.Testing.TestHooks
         static string GoToWater(double radius)
         {
             Player p = Player.m_localPlayer;
-            if (p == null || ZoneSystem.instance == null) return "no player";
+            if (p == null || ZoneSystem.instance == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.GoToWater: returns \"no player\" because p == null || ZoneSystem.instance == null (line 157)"); return "no player"; }
             Vector3 from = p.transform.position, bestStand = Vector3.zero, bestDir = Vector3.zero;
             float best = float.MaxValue;
             bool found = false;   // Sonar S1244: no float equality on the sentinel
@@ -161,19 +163,19 @@ namespace GunPowdered.Testing.TestHooks
                 {
                     Vector3 stand = new Vector3(from.x + x, 0f, from.z + z);
                     float ground;
-                    if (!ZoneSystem.instance.GetGroundHeight(stand, out ground)) continue;     // only loaded ground: an unloaded point reads 0 m and looked like water (run core4)
-                    if (ground <= ZoneSystem.instance.m_waterLevel + 0.2f) continue;            // must stand on dry land
+                    if (!ZoneSystem.instance.GetGroundHeight(stand, out ground)) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.GoToWater: skips to the next item (continue) because !ZoneSystem.instance.GetGroundHeight(stand, out ground) (line 166)"); continue; }     // only loaded ground: an unloaded point reads 0 m and looked like water (run core4)
+                    if (ground <= ZoneSystem.instance.m_waterLevel + 0.2f) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.GoToWater: skips to the next item (continue) because ground <= ZoneSystem.instance.m_waterLevel + 0.2f (line 167)"); continue; }            // must stand on dry land
                     for (int a = 0; a < 8; a++)
                     {
                         Vector3 dir = Quaternion.Euler(0f, a * 45f, 0f) * Vector3.forward;
                         Vector3 ahead = stand + dir * 2f;
                         float aheadGround;
-                        if (!ZoneSystem.instance.GetGroundHeight(ahead, out aheadGround) || aheadGround > ZoneSystem.instance.m_waterLevel - 0.3f) continue;   // 2 m ahead must be under water
+                        if (!ZoneSystem.instance.GetGroundHeight(ahead, out aheadGround) || aheadGround > ZoneSystem.instance.m_waterLevel - 0.3f) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.GoToWater: skips to the next item (continue) because !ZoneSystem.instance.GetGroundHeight(ahead, out aheadGround) || aheadGround > ZoneSystem.instance.m_waterLevel - 0.3f (line 173)"); continue; }   // 2 m ahead must be under water
                         float dist = new Vector2(x, z).magnitude;
                         if (dist < best) { found = true; best = dist; bestStand = new Vector3(stand.x, ground + 0.2f, stand.z); bestDir = dir; }
                     }
                 }
-            if (!found) return "no water within " + radius.ToString("0") + " m";
+            if (!found) { var returnedAt178 = "no water within " + radius.ToString("0") + " m"; if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.GoToWater: returns {returnedAt178} because !found (line 178)"); return returnedAt178; }
             p.TeleportTo(bestStand, Quaternion.LookRotation(bestDir), true);
             ModLog.Verbose("CoreTestHooks: shore at " + bestStand.ToString("0.0") + ", facing " + bestDir.ToString("0.0") + ", " + best.ToString("0") + " m away, water level " + ZoneSystem.instance.m_waterLevel);
             return "shore at (" + bestStand.x.ToString("0") + ", " + bestStand.z.ToString("0") + "), water ahead";
@@ -185,12 +187,12 @@ namespace GunPowdered.Testing.TestHooks
         static int ClearLoose(string prefab)
         {
             Player p = Player.m_localPlayer;
-            if (p == null || ZNetScene.instance == null) return -1;
+            if (p == null || ZNetScene.instance == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.ClearLoose: returns -1 because p == null || ZNetScene.instance == null (line 190)"); return -1; }
             int removed = 0;
             foreach (ItemDrop d in UnityEngine.Object.FindObjectsByType<ItemDrop>(FindObjectsSortMode.None))
             {
                 ZNetView view = d != null ? d.GetComponent<ZNetView>() : null;
-                if (view == null || !view.IsValid() || Utils.GetPrefabName(d.gameObject) != prefab || Vector3.Distance(d.transform.position, p.transform.position) > 30f) continue;
+                if (view == null || !view.IsValid() || Utils.GetPrefabName(d.gameObject) != prefab || Vector3.Distance(d.transform.position, p.transform.position) > 30f) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.ClearLoose: skips to the next item (continue) because view == null || !view.IsValid() || Utils.GetPrefabName(d.gameObject) != prefab || Vector3.Distance(d.transform.position, p.transform.position) > 30f (line 195)"); continue; }
                 if (!view.IsOwner()) view.ClaimOwnership();
                 ZNetScene.instance.Destroy(d.gameObject);
                 removed++;
@@ -207,7 +209,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             Pickable pick = target != null ? target.GetComponentInChildren<Pickable>() : null;
             ZNetView view = pick != null ? pick.GetComponent<ZNetView>() : null;
-            if (pick == null || view == null || !view.IsValid() || ZNet.instance == null) return "no deposit";
+            if (pick == null || view == null || !view.IsValid() || ZNet.instance == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.DepositRespawnCheck: returns \"no deposit\" because pick == null || view == null || !view.IsValid() || ZNet.instance == null (line 212)"); return "no deposit"; }
             if (!view.IsOwner()) view.ClaimOwnership();
             try
             {
@@ -215,7 +217,7 @@ namespace GunPowdered.Testing.TestHooks
             }
             catch (System.Reflection.TargetInvocationException e)
             {
-                ModLog.Verbose("CoreTestHooks: deposit respawn check threw " + e.InnerException);
+                ModLog.Warn("CoreTestHooks: deposit respawn check threw " + e.InnerException);
                 return "check threw " + (e.InnerException != null ? e.InnerException.GetType().Name + ": " + e.InnerException.Message : e.Message);
             }
             bool picked = view.GetZDO().GetBool(ZDOVars.s_picked);
@@ -223,7 +225,7 @@ namespace GunPowdered.Testing.TestHooks
             double minutes = pickedAt > 1 ? (ZNet.instance.GetTime() - new DateTime(pickedAt)).TotalMinutes : -1d;
             ModLog.Verbose("CoreTestHooks: deposit " + target.name + " picked " + minutes.ToString("0.0") + " min ago, respawn after "
                 + pick.m_respawnTimeMinutes.ToString("0") + " min -> " + (picked ? "empty" : "refilled"));
-            return picked ? "empty" : "refilled";
+            { var returnedAt228 = picked ? "empty" : "refilled"; if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.DepositRespawnCheck: returns {returnedAt228} (line 228)"); return returnedAt228; }
         }
 
         /// "visible" when the deposit shows its model, "hidden" when it does not (it hides while it is not full), "no deposit" otherwise.
@@ -232,7 +234,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             Pickable pick = target != null ? target.GetComponentInChildren<Pickable>() : null;
             Transform model = pick != null ? pick.transform.Find("gp_model") : null;
-            if (model == null) return "no deposit";
+            if (model == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.DepositVisible: returns \"no deposit\" because model == null (line 237)"); return "no deposit"; }
             ModLog.Verbose("CoreTestHooks: deposit " + target.name + " model active " + model.gameObject.activeInHierarchy);
             return model.gameObject.activeInHierarchy ? "visible" : "hidden";
         }
@@ -244,7 +246,7 @@ namespace GunPowdered.Testing.TestHooks
         static double TerrainMark(double x, double z)
         {
             float h;
-            if (ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(new Vector3((float)x, 0f, (float)z), out h)) return -1d;
+            if (ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(new Vector3((float)x, 0f, (float)z), out h)) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.TerrainMark: returns -1d because ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(new Vector3((float)x, 0f, (float)z), out h) (line 249)"); return -1d; }
             _markedGround = h;
             int pieces = TerrainSnapshot.Mark(new Vector3((float)x, 0f, (float)z), TerrainMarkRadius);
             ModLog.Verbose("CoreTestHooks: terrain height marked " + h.ToString("0.00") + " at (" + x + ", " + z + "), " + pieces + " terrain piece(s) copied");
@@ -271,8 +273,8 @@ namespace GunPowdered.Testing.TestHooks
         static string TerrainBack(double x, double z)
         {
             float h;
-            if (float.IsNaN(_markedGround)) return "nothing marked";
-            if (ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(new Vector3((float)x, 0f, (float)z), out h)) return "ground not loaded";
+            if (float.IsNaN(_markedGround)) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.TerrainBack: returns \"nothing marked\" because float.IsNaN(_markedGround) (line 276)"); return "nothing marked"; }
+            if (ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(new Vector3((float)x, 0f, (float)z), out h)) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.TerrainBack: returns \"ground not loaded\" because ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(new Vector3((float)x, 0f, (float)z), out h) (line 277)"); return "ground not loaded"; }
             float diff = h - _markedGround;
             ModLog.Verbose("CoreTestHooks: terrain at (" + x + ", " + z + ") is " + h.ToString("0.00") + ", marked " + _markedGround.ToString("0.00"));
             return Mathf.Abs(diff) <= 0.05f ? "back" : "differs by " + diff.ToString("0.00") + " m";
@@ -283,7 +285,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             float ground;
             var pos = new Vector3((float)x, 0f, (float)z);
-            if (ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(pos, out ground)) return -1;
+            if (ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(pos, out ground)) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.MudNearPile: returns -1 because ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(pos, out ground) (line 288)"); return -1; }
             pos.y = ground;
             int placed = GunPowdered.Features.Sulfur.Infrastructure.MudPlacer.NearPile(pos, (int)x * 7919 + (int)z);
             ModLog.Verbose("CoreTestHooks: mud next to a pile at " + pos.ToString("0.0") + " -> " + placed + " deposit(s)");
@@ -294,6 +296,7 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.pilesSeen")]
         static int PilesSeen()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.PilesSeen()");
             return GunPowdered.Features.Sulfur.Infrastructure.MudPlacer.PilesSeen;
         }
 
@@ -304,23 +307,23 @@ namespace GunPowdered.Testing.TestHooks
         static string MillArm(GameObject target)
         {
             Transform arm = null;
-            if (target != null) foreach (Transform t in target.GetComponentsInChildren<Transform>(true)) if (t.name == "mill_arm") { arm = t; break; }
-            if (arm == null) return "no arm";
+            if (target != null) foreach (Transform t in target.GetComponentsInChildren<Transform>(true)) if (t.name == "mill_arm") { arm = t; { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.MillArm: leaves the loop / case (break) because t.name == \"mill_arm\" (line 310)"); break; } }
+            if (arm == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.MillArm: returns \"no arm\" because arm == null (line 311)"); return "no arm"; }
             float angle = arm.localEulerAngles.y;
             string state = float.IsNaN(_lastArmAngle) ? "first" : Mathf.Abs(Mathf.DeltaAngle(angle, _lastArmAngle)) > 1f ? "turning" : "still";
             ModLog.Verbose("CoreTestHooks: mill arm at " + angle.ToString("0.0") + " deg (before " + _lastArmAngle.ToString("0.0") + ") -> " + state);
             _lastArmAngle = angle;
-            return state;
+            { var returnedAt316 = state; if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.MillArm: returns {returnedAt316} (line 316)"); return returnedAt316; }
         }
 
         /// Generates a real location at a world position with the game's TestSpawnLocation (e.g. a swamp ruin in the test world's lake). "spawned" or why not.
         [TestHook("GunPowdered.spawnLocationAt")]
         static string SpawnLocationAt(string name, double x, double z)
         {
-            if (ZoneSystem.instance == null) return "no ZoneSystem";
+            if (ZoneSystem.instance == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.SpawnLocationAt: returns \"no ZoneSystem\" because ZoneSystem.instance == null (line 323)"); return "no ZoneSystem"; }
             var pos = new Vector3((float)x, 0f, (float)z);
             float ground;
-            if (!ZoneSystem.instance.GetGroundHeight(pos, out ground)) return "ground at (" + x + ", " + z + ") not loaded";
+            if (!ZoneSystem.instance.GetGroundHeight(pos, out ground)) { var returnedAt326 = "ground at (" + x + ", " + z + ") not loaded"; if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.SpawnLocationAt: returns {returnedAt326} because !ZoneSystem.instance.GetGroundHeight(pos, out ground) (line 326)"); return returnedAt326; }
             pos.y = ground;
             bool ok = ZoneSystem.instance.TestSpawnLocation(name, pos, true);
             ModLog.Verbose("CoreTestHooks: " + name + " at " + pos.ToString("0.0") + " -> " + ok);
@@ -348,11 +351,11 @@ namespace GunPowdered.Testing.TestHooks
             int removed = 0, proxies = 0;
             foreach (ZNetView nv in UnityEngine.Object.FindObjectsByType<ZNetView>(FindObjectsSortMode.None))
             {
-                if (nv == null || !nv.IsValid() || nv.GetComponent<Player>() != null || nv.GetComponent<TerrainComp>() != null) continue;
+                if (nv == null || !nv.IsValid() || nv.GetComponent<Player>() != null || nv.GetComponent<TerrainComp>() != null) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.RemoveLocationObjects: skips to the next item (continue) because nv == null || !nv.IsValid() || nv.GetComponent<Player>() != null || nv.GetComponent<TerrainComp>() != null (line 354)"); continue; }
                 Vector3 p = nv.transform.position;
-                if (Vector2.Distance(new Vector2(p.x, p.z), centre) > radius) continue;
+                if (Vector2.Distance(new Vector2(p.x, p.z), centre) > radius) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.RemoveLocationObjects: skips to the next item (continue) because Vector2.Distance(new Vector2(p.x, p.z), centre) > radius (line 356)"); continue; }
                 bool ownProxy = nv.GetComponent<LocationProxy>() != null && nv.GetZDO().GetInt(ZDOVars.s_location) == locationHash;
-                if (!ownProxy && !names.Contains(Utils.GetPrefabName(nv.gameObject))) continue;
+                if (!ownProxy && !names.Contains(Utils.GetPrefabName(nv.gameObject))) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.RemoveLocationObjects: skips to the next item (continue) because !ownProxy && !names.Contains(Utils.GetPrefabName(nv.gameObject)) (line 358)"); continue; }
                 if (ownProxy) ModLog.Info("CoreTestHooks: removing the LocationProxy of " + name + " at (" + p.x.ToString("0.0") + ", " + p.z.ToString("0.0") + ") with its terrain levelling");
                 nv.ClaimOwnership();
                 ZNetScene.instance.Destroy(nv.gameObject);
@@ -368,11 +371,12 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.claimCave")]
         static string ClaimCave(GameObject target)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.ClaimCave(target={target})");
             var claim = target != null ? target.GetComponentInParent<GunPowdered.Features.Guano.Infrastructure.CaveClaim>() : null;
-            if (claim == null) return "no CaveClaim on " + (target != null ? target.name : "nothing");
+            if (claim == null) { var returnedAt376 = "no CaveClaim on " + (target != null ? target.name : "nothing"); if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.ClaimCave: returns {returnedAt376} because claim == null (line 376)"); return returnedAt376; }
             _claimAnswer = "pending";
             claim.Request(granted => _claimAnswer = granted ? "granted" : "refused");
-            return "asked";
+            { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.ClaimCave: returns \"asked\" (line 379)"); return "asked"; }
         }
 
         /// The owner's last answer to claimCave: "granted", "refused", "pending" or "none".
@@ -384,7 +388,7 @@ namespace GunPowdered.Testing.TestHooks
         static int CountWithInventory(string prefab)
         {
             Player p = Player.m_localPlayer;
-            if (p == null) return -1;
+            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.CountWithInventory: returns -1 because p == null (line 391)"); return -1; }
             GameObject go = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
             ItemDrop drop = go != null ? go.GetComponent<ItemDrop>() : null;
             int carried = drop != null ? p.GetInventory().CountItems(drop.m_itemData.m_shared.m_name) : 0;

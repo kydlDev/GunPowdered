@@ -70,9 +70,17 @@ namespace GunPowdered.Integrations.Valheim
                 }
                 if (_burning) Flicker();
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn($"ExtensionFire.Update: {e.GetType().FullName}: {e.Message} - the fire keeps its last state this frame" + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn($"ExtensionFire.Update: {e.GetType().FullName}: {e.Message} - the fire keeps its last state this frame" + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn($"ExtensionFire.Update: {e.GetType().FullName}: {e.Message} - the fire keeps its last state this frame");
+                ModLog.Warn($"ExtensionFire.Update: {e.GetType().FullName}: {e.Message} - the fire keeps its last state this frame" + "\n" + e.StackTrace);
             }
         }
 

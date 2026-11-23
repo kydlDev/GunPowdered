@@ -81,7 +81,7 @@ namespace GunPowdered.Features.Grenades.Domain
         {
             if (RuleLog.Due("ThrowArcRules.LaunchVelocity", 2d)) RuleLog.Every("ThrowArcRules.LaunchVelocity", 2d, $"ThrowArcRules.LaunchVelocity(aimDirection={RuleLog.Shown(aimDirection)}, speed={RuleLog.Shown(speed)})");
             float len = aimDirection.Length;
-            { var returnedAt84 = len > 0f ? aimDirection * (speed / len) : new ArcVector(0f, 0f, 0f); if (RuleLog.Due("ThrowArcRules.LaunchVelocity:84", 2d)) RuleLog.Every("ThrowArcRules.LaunchVelocity:84", 2d, $"ThrowArcRules.LaunchVelocity: returns {RuleLog.Shown(returnedAt84)} (line 84)"); return returnedAt84; }
+            { var returnedAt84 = len > 0f ? aimDirection * (speed / len) : new ArcVector(0f, 0f, 0f); if (RuleLog.Due("ThrowArcRules.LaunchVelocity:84", 2d)) RuleLog.Every("ThrowArcRules.LaunchVelocity:84", 2d, $"ThrowArcRules.LaunchVelocity: returns {returnedAt84} (line 84)"); return returnedAt84; }
         }
 
         /// <summary>Would the thrower be hit by the blast at the landing point (the red ring). Expected outcome: true when the thrower is within radius of it.</summary>

@@ -5,6 +5,7 @@ using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Bootstrap;
 using GunPowdered.Integrations.Valheim;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -27,7 +28,7 @@ namespace GunPowdered.Testing.TestHooks
         static string FireState(GameObject target)
         {
             var fire = target != null ? target.GetComponent<ExtensionFire>() : null;
-            if (fire == null) return "no oven fire on " + (target != null ? target.name : "null");
+            if (fire == null) { var returnedAt31 = "no oven fire on " + (target != null ? target.name : "null"); if (RuleLog.IsOn()) ModLog.Verbose($"ExtensionFireTestHooks.FireState: returns {returnedAt31} because fire == null (line 31)"); return returnedAt31; }
             string answer = string.Format(CultureInfo.InvariantCulture, "burning {0}, flames {1}, light {2:0.00}", fire.Burning, fire.FlamesShown, fire.LightNow);
             ModLog.Verbose("ExtensionFireTestHooks: " + target.name + " " + answer);
             return answer;
@@ -37,16 +38,17 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.fireMarkIdle")]
         static double FireMarkIdle(GameObject target)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"ExtensionFireTestHooks.FireMarkIdle(target={target})");
             Color c = Panes(target);
             if (target != null) Idle[target.GetInstanceID()] = c;
-            return Luma(c);
+            { var returnedAt44 = Luma(c); if (RuleLog.IsOn()) ModLog.Verbose($"ExtensionFireTestHooks.FireMarkIdle: returns {returnedAt44} (line 44)"); return returnedAt44; }
         }
 
         /// Renders the panes now and returns how many times brighter they are than the oven's IDLE picture (fireMarkIdle); -1 without one.
         [TestHook("GunPowdered.fireBrightnessGain")]
         static double FireBrightnessGain(GameObject target)
         {
-            if (target == null || !Idle.TryGetValue(target.GetInstanceID(), out Color idle)) return -1d;
+            if (target == null || !Idle.TryGetValue(target.GetInstanceID(), out Color idle)) { if (RuleLog.IsOn()) ModLog.Verbose($"ExtensionFireTestHooks.FireBrightnessGain: returns -1d because target == null || !Idle.TryGetValue(target.GetInstanceID(), out Color idle) (line 51)"); return -1d; }
             double gain = Luma(Panes(target)) / System.Math.Max(0.01d, Luma(idle));
             ModLog.Verbose($"ExtensionFireTestHooks: {target.name} brightness x{gain:0.00} of idle");
             return gain;
@@ -56,7 +58,7 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.fireOrangeGain")]
         static double FireOrangeGain(GameObject target)
         {
-            if (target == null || !Idle.TryGetValue(target.GetInstanceID(), out Color idle)) return -2d;
+            if (target == null || !Idle.TryGetValue(target.GetInstanceID(), out Color idle)) { if (RuleLog.IsOn()) ModLog.Verbose($"ExtensionFireTestHooks.FireOrangeGain: returns -2d because target == null || !Idle.TryGetValue(target.GetInstanceID(), out Color idle) (line 61)"); return -2d; }
             Color now = Panes(target);
             double gain = (now.r - now.b) - (idle.r - idle.b);
             ModLog.Verbose($"ExtensionFireTestHooks: {target.name} orange {now.r - now.b:0.000} now, {idle.r - idle.b:0.000} idle, gain {gain:0.000}");
@@ -77,7 +79,7 @@ namespace GunPowdered.Testing.TestHooks
             Renderer glass = Glass(target);
             if (p == null || glass == null) { ModLog.Verbose("ExtensionFireTestHooks.ViewPanes: no player or no panes"); return "no player or no panes"; }
             Vector3 centre = glass.bounds.center, front = Front(target, centre);
-            if (!TestCamera.Place(centre + front * CameraDistance + Vector3.up * CameraHeight, centre, "panes of " + target.name)) return "no game camera";
+            if (!TestCamera.Place(centre + front * CameraDistance + Vector3.up * CameraHeight, centre, "panes of " + target.name)) { if (RuleLog.IsOn()) ModLog.Verbose($"ExtensionFireTestHooks.ViewPanes: returns \"no game camera\" because !TestCamera.Place(centre + front * CameraDistance + Vector3.up * CameraHeight, centre, \"panes of \" + target.name) (line 82)"); return "no game camera"; }
             if (Visual(p) != null) Visual(p).SetActive(false);                // only for the picture: viewBack shows the body again
             ModLog.Verbose($"ExtensionFireTestHooks: camera in front of the panes of {target.name} at {centre:0.00}");
             return "in front of " + Utils.GetPrefabName(target);
@@ -96,7 +98,8 @@ namespace GunPowdered.Testing.TestHooks
 
         static Renderer Glass(GameObject oven)
         {
-            if (oven != null) foreach (Renderer r in oven.GetComponentsInChildren<Renderer>(true)) if (r.name.EndsWith("_glass")) return r;
+            if (RuleLog.IsOn()) ModLog.Verbose($"ExtensionFireTestHooks.Glass(oven={oven})");
+            if (oven != null) foreach (Renderer r in oven.GetComponentsInChildren<Renderer>(true)) if (r.name.EndsWith("_glass")) { var returnedAt102 = r; if (RuleLog.IsOn()) ModLog.Verbose($"ExtensionFireTestHooks.Glass: returns {returnedAt102} because oven != null) foreach (Renderer r in oven.GetComponentsInChildren<Renderer>(true)) if (r.name.EndsWith(\"_glass\") (line 102)"); return returnedAt102; }
             return null;
         }
 
@@ -120,7 +123,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             Renderer glass = Glass(target);
             Camera cam = GameCamera.instance != null ? GameCamera.instance.GetComponent<Camera>() : Camera.main;
-            if (glass == null || cam == null) return "no panes or no camera";
+            if (glass == null || cam == null) { if (RuleLog.IsOn()) ModLog.Verbose($"ExtensionFireTestHooks.CameraOnPanes: returns \"no panes or no camera\" because glass == null || cam == null (line 126)"); return "no panes or no camera"; }
             Vector3 centre = glass.bounds.center, front = Front(target, centre);
             Vector3 toCamera = Vector3.ProjectOnPlane(cam.transform.position - centre, Vector3.up);
             float angle = Vector3.Angle(Vector3.ProjectOnPlane(front, Vector3.up), toCamera);

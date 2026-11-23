@@ -52,8 +52,8 @@ namespace GunPowdered.Integrations.Valheim
             for (int i = Live.Count - 1; i >= 0; i--)
             {
                 BatchStationExtension e = Live[i];
-                if (e == null) { Live.RemoveAt(i); continue; }
-                if (!e.Placed) continue;                                       // a build ghost (enabled before the game marks it) never counts
+                if (e == null) { Live.RemoveAt(i); { if (RuleLog.IsOn()) ModLog.Verbose($"BatchStationExtension.KindsNear: skips to the next item (continue) because e == null (line 55)"); continue; } }
+                if (!e.Placed) { if (RuleLog.IsOn()) ModLog.Verbose($"BatchStationExtension.KindsNear: skips to the next item (continue) because !e.Placed (line 56)"); continue; }                                       // a build ghost (enabled before the game marks it) never counts
                 Vector3 d = e.transform.position - point;
                 if (e.Station == station && StationPlacementRules.InRange(d.x, d.y, d.z, Range)) kinds.Add(e.Kind);   // D-140: a 5 m bubble, up and down count
             }

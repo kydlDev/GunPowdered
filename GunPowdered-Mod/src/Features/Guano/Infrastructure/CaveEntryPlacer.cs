@@ -32,7 +32,7 @@ namespace GunPowdered.Features.Guano.Infrastructure
         /// <summary>Called after a successful dungeon teleport. Expected outcome: a placement run started when the target is a guano cave not yet filled (logged as a decision).</summary>
         internal static void OnEntered(Player player, Location entranceLocation, Vector3 target, bool goingIn)
         {
-            if (player == null || player != Player.m_localPlayer || !ModSettings.FeatureOn(ModSettings.EnableGuano)) { if (RuleLog.Due("Stats.OnEntered:35", 2d)) ModLog.Every("Stats.OnEntered:35", 2d, "Stats.OnEntered: returns (line 35)"); return; }
+            if (player == null || player != Player.m_localPlayer || !ModSettings.FeatureOn(ModSettings.EnableGuano)) { if (RuleLog.Due("Stats.OnEntered:35", 2d)) ModLog.Every("Stats.OnEntered:35", 2d, $"Stats.OnEntered: returns because player == null || player != Player.m_localPlayer || !ModSettings.FeatureOn(ModSettings.EnableGuano) (line 35)"); return; }
             // the entrance's own location: looking it up by the target point picked an older cave that overlapped it (run entry4)
             Location loc = entranceLocation != null ? entranceLocation : Location.GetLocation(target, true);
             ZNetView proxy = loc != null ? loc.GetComponentInParent<ZNetView>() : null;
@@ -78,9 +78,13 @@ namespace GunPowdered.Features.Guano.Infrastructure
             {
                 ModLog.Warn("CaveEntryPlacer: " + e.GetType().FullName + " while placing in a cave that went away: " + e.Message + " - skipped (the cave stays marked as filled)");
             }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("CaveEntryPlacer: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + " while placing guano: " + e.Message + " - skipped (the cave stays marked as filled)" + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn("CaveEntryPlacer: " + e.GetType().FullName + " while placing guano: " + e.Message + " - skipped (the cave stays marked as filled)");
+                ModLog.Warn("CaveEntryPlacer: " + e.GetType().FullName + " while placing guano: " + e.Message + " - skipped (the cave stays marked as filled)" + "\n" + e.StackTrace);
             }
         }
 
@@ -88,8 +92,8 @@ namespace GunPowdered.Features.Guano.Infrastructure
         static DungeonGenerator Generator(Location loc)
         {
             if (RuleLog.Due("Stats.Generator", 2d)) ModLog.Every("Stats.Generator", 2d, $"Stats.Generator(loc={RuleLog.Shown(loc)})");
-            if (loc == null) { if (RuleLog.Due("Stats.Generator:91", 2d)) ModLog.Every("Stats.Generator:91", 2d, "Stats.Generator: returns null (line 91)"); return null; }
-            { var returnedAt92 = loc.m_generator != null ? loc.m_generator : loc.GetComponentInChildren<DungeonGenerator>(true); if (RuleLog.Due("Stats.Generator:92", 2d)) ModLog.Every("Stats.Generator:92", 2d, $"Stats.Generator: returns {RuleLog.Shown(returnedAt92)} (line 92)"); return returnedAt92; }
+            if (loc == null) return null;
+            { var returnedAt96 = loc.m_generator != null ? loc.m_generator : loc.GetComponentInChildren<DungeonGenerator>(true); if (RuleLog.Due("Stats.Generator:96", 2d)) ModLog.Every("Stats.Generator:96", 2d, $"Stats.Generator: returns {returnedAt96} (line 96)"); return returnedAt96; }
         }
 
         // Rooms of a generated dungeon, the fixed room pieces under a Troll cave's Interior, or else every Room within the interior radius of the

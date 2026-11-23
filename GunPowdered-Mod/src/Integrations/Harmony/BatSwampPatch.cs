@@ -30,10 +30,10 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 foreach (AltBiomeList list in __instance.m_altBiomeLists)
                     foreach (AltBiome alt in list.m_alts)
                     {
-                        if (alt.m_name != AltName) continue;
+                        if (alt.m_name != AltName) { if (RuleLog.Due("BatSwampPatch.Postfix:33", 2d)) ModLog.Every("BatSwampPatch.Postfix:33", 2d, $"BatSwampPatch.Postfix: skips to the next item (continue) because alt.m_name != AltName (line 33)"); continue; }
                         // per ZoneSystem, not once per game: a new world load (logout + login, a relog) brings a fresh ZoneSystem with fresh alt biome lists,
                         // and a static "done" flag left them without guano (G16 a9g16f: spawn-geysers red after mobilecannon-relog)
-                        if (alt.m_addVegetation.Exists(v => v.m_name == GunPowderedPrefabs.GuanoDeposit)) continue;
+                        if (alt.m_addVegetation.Exists(v => v.m_name == GunPowderedPrefabs.GuanoDeposit)) { ModLog.Verbose("BatSwampPatch.Postfix: skips " + alt.m_name + " - it already has the guano deposit"); continue; }
                         alt.m_addVegetation.Add(new ZoneSystem.ZoneVegetation
                         {
                             m_name = GunPowderedPrefabs.GuanoDeposit,
@@ -56,9 +56,17 @@ namespace GunPowdered.Integrations.HarmonyPatches
                     }
                 ModLog.Decision("bat swamp guano", added + " vegetation entr" + (added == 1 ? "y" : "ies") + " added", "per zone " + ModSettings.SwampGuanoPerZone.Value);
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("BatSwampPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("BatSwampPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn("BatSwampPatch: " + e.GetType().Name + ": " + e.Message);
+                ModLog.Warn("BatSwampPatch: " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
             }
         }
     }

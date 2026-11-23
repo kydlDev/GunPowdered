@@ -16,10 +16,10 @@ namespace GunPowdered.Features.Example.Domain
         internal static OperationResponse<float> Decide(float requested)
         {
             if (RuleLog.IsOn()) RuleLog.Verbose($"ExampleRules.Decide(requested={RuleLog.Shown(requested)})");
-            if (float.IsNaN(requested) || float.IsInfinity(requested)) { var returnedAt19 = OperationResponse<float>.Rejected(NotANumber); if (RuleLog.IsOn()) RuleLog.Verbose($"ExampleRules.Decide: returns {RuleLog.Shown(returnedAt19)} (line 19)"); return returnedAt19; }
+            if (float.IsNaN(requested) || float.IsInfinity(requested)) return OperationResponse<float>.Rejected(NotANumber);
             bool clamped = requested < Min || requested > Max;   // Sonar S1244: decided by the comparison, not by float equality
             float value = System.Math.Max(Min, System.Math.Min(Max, requested));
-            { var returnedAt22 = OperationResponse<float>.Success(value, clamped ? Clamped : InRange); if (RuleLog.IsOn()) RuleLog.Verbose($"ExampleRules.Decide: returns {RuleLog.Shown(returnedAt22)} (line 22)"); return returnedAt22; }
+            { var returnedAt22 = OperationResponse<float>.Success(value, clamped ? Clamped : InRange); if (RuleLog.IsOn()) RuleLog.Verbose($"ExampleRules.Decide: returns {returnedAt22} (line 22)"); return returnedAt22; }
         }
     }
 }

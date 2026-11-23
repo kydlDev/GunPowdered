@@ -17,18 +17,18 @@ namespace GunPowdered.Features.MobileCannon.Domain
         public static string WhyNotHarness(bool tamed, bool saddled, bool harnessed)
         {
             if (RuleLog.Due("AsksvinTowRules.WhyNotHarness", 2d)) RuleLog.Every("AsksvinTowRules.WhyNotHarness", 2d, $"AsksvinTowRules.WhyNotHarness(tamed={RuleLog.Shown(tamed)}, saddled={RuleLog.Shown(saddled)}, harnessed={RuleLog.Shown(harnessed)})");
-            if (!tamed) { var returnedAt20 = NotTamed; if (RuleLog.Due("AsksvinTowRules.WhyNotHarness:20", 2d)) RuleLog.Every("AsksvinTowRules.WhyNotHarness:20", 2d, $"AsksvinTowRules.WhyNotHarness: returns {RuleLog.Shown(returnedAt20)} (line 20)"); return returnedAt20; }
-            if (!saddled) { var returnedAt21 = NoSaddle; if (RuleLog.Due("AsksvinTowRules.WhyNotHarness:21", 2d)) RuleLog.Every("AsksvinTowRules.WhyNotHarness:21", 2d, $"AsksvinTowRules.WhyNotHarness: returns {RuleLog.Shown(returnedAt21)} (line 21)"); return returnedAt21; }
-            { var returnedAt22 = harnessed ? HasHarness : null; if (RuleLog.Due("AsksvinTowRules.WhyNotHarness:22", 2d)) RuleLog.Every("AsksvinTowRules.WhyNotHarness:22", 2d, $"AsksvinTowRules.WhyNotHarness: returns {RuleLog.Shown(returnedAt22)} (line 22)"); return returnedAt22; }
+            if (!tamed) return NotTamed;
+            if (!saddled) { var returnedAt21 = NoSaddle; if (RuleLog.Due("AsksvinTowRules.WhyNotHarness:21", 2d)) RuleLog.Every("AsksvinTowRules.WhyNotHarness:21", 2d, $"AsksvinTowRules.WhyNotHarness: returns {returnedAt21} because !saddled (line 21)"); return returnedAt21; }
+            { var returnedAt22 = harnessed ? HasHarness : null; if (RuleLog.Due("AsksvinTowRules.WhyNotHarness:22", 2d)) RuleLog.Every("AsksvinTowRules.WhyNotHarness:22", 2d, $"AsksvinTowRules.WhyNotHarness: returns {returnedAt22} (line 22)"); return returnedAt22; }
         }
 
         /// <summary>Why the cannon cannot be hitched. Expected outcome: null when it can, else the message shown to the player.</summary>
         public static string WhyNotHitch(bool towed, bool heldByPlayer, bool animalNear, float range)
         {
             if (RuleLog.Due("AsksvinTowRules.WhyNotHitch", 2d)) RuleLog.Every("AsksvinTowRules.WhyNotHitch", 2d, $"AsksvinTowRules.WhyNotHitch(towed={RuleLog.Shown(towed)}, heldByPlayer={RuleLog.Shown(heldByPlayer)}, animalNear={RuleLog.Shown(animalNear)}, range={RuleLog.Shown(range)})");
-            if (towed) { var returnedAt29 = AlreadyTowed; if (RuleLog.Due("AsksvinTowRules.WhyNotHitch:29", 2d)) RuleLog.Every("AsksvinTowRules.WhyNotHitch:29", 2d, $"AsksvinTowRules.WhyNotHitch: returns {RuleLog.Shown(returnedAt29)} (line 29)"); return returnedAt29; }
-            if (heldByPlayer) { var returnedAt30 = HeldByPlayer; if (RuleLog.Due("AsksvinTowRules.WhyNotHitch:30", 2d)) RuleLog.Every("AsksvinTowRules.WhyNotHitch:30", 2d, $"AsksvinTowRules.WhyNotHitch: returns {RuleLog.Shown(returnedAt30)} (line 30)"); return returnedAt30; }
-            { var returnedAt31 = animalNear ? null : NoAnimal(range); if (RuleLog.Due("AsksvinTowRules.WhyNotHitch:31", 2d)) RuleLog.Every("AsksvinTowRules.WhyNotHitch:31", 2d, $"AsksvinTowRules.WhyNotHitch: returns {RuleLog.Shown(returnedAt31)} (line 31)"); return returnedAt31; }
+            if (towed) return AlreadyTowed;
+            if (heldByPlayer) { var returnedAt30 = HeldByPlayer; if (RuleLog.Due("AsksvinTowRules.WhyNotHitch:30", 2d)) RuleLog.Every("AsksvinTowRules.WhyNotHitch:30", 2d, $"AsksvinTowRules.WhyNotHitch: returns {returnedAt30} because heldByPlayer (line 30)"); return returnedAt30; }
+            { var returnedAt31 = animalNear ? null : NoAnimal(range); if (RuleLog.Due("AsksvinTowRules.WhyNotHitch:31", 2d)) RuleLog.Every("AsksvinTowRules.WhyNotHitch:31", 2d, $"AsksvinTowRules.WhyNotHitch: returns {returnedAt31} (line 31)"); return returnedAt31; }
         }
 
         /// <summary>The message when no harnessed Asksvin is near the tow ring.</summary>
@@ -47,9 +47,9 @@ namespace GunPowdered.Features.MobileCannon.Domain
         public static float SaddleWeight(float z, float front, float rear)
         {
             if (RuleLog.Due("AsksvinTowRules.SaddleWeight", 2d)) RuleLog.Every("AsksvinTowRules.SaddleWeight", 2d, $"AsksvinTowRules.SaddleWeight(z={RuleLog.Shown(z)}, front={RuleLog.Shown(front)}, rear={RuleLog.Shown(rear)})");
-            if (front <= rear) { var returnedAt50 = z >= front ? 1f : 0f; if (RuleLog.Due("AsksvinTowRules.SaddleWeight:50", 2d)) RuleLog.Every("AsksvinTowRules.SaddleWeight:50", 2d, $"AsksvinTowRules.SaddleWeight: returns {RuleLog.Shown(returnedAt50)} (line 50)"); return returnedAt50; }
+            if (front <= rear) return z >= front ? 1f : 0f;
             float t = (z - rear) / (front - rear);
-            { var returnedAt52 = t <= 0f ? 0f : t >= 1f ? 1f : t; if (RuleLog.Due("AsksvinTowRules.SaddleWeight:52", 2d)) RuleLog.Every("AsksvinTowRules.SaddleWeight:52", 2d, $"AsksvinTowRules.SaddleWeight: returns {RuleLog.Shown(returnedAt52)} (line 52)"); return returnedAt52; }
+            { var returnedAt52 = t <= 0f ? 0f : t >= 1f ? 1f : t; if (RuleLog.Due("AsksvinTowRules.SaddleWeight:52", 2d)) RuleLog.Every("AsksvinTowRules.SaddleWeight:52", 2d, $"AsksvinTowRules.SaddleWeight: returns {returnedAt52} (line 52)"); return returnedAt52; }
         }
 
         /// <summary>Roll (about the cannon's length) a towed cannon may take before it is held: side slopes still tilt it, a yank cannot tip it over (deg).</summary>
@@ -77,9 +77,9 @@ namespace GunPowdered.Features.MobileCannon.Domain
         public static float Excess(float angleDeg, float limit)
         {
             if (RuleLog.Due("AsksvinTowRules.Excess", 2d)) RuleLog.Every("AsksvinTowRules.Excess", 2d, $"AsksvinTowRules.Excess(angleDeg={RuleLog.Shown(angleDeg)}, limit={RuleLog.Shown(limit)})");
-            if (angleDeg > limit) { var returnedAt80 = angleDeg - limit; if (RuleLog.Due("AsksvinTowRules.Excess:80", 2d)) RuleLog.Every("AsksvinTowRules.Excess:80", 2d, $"AsksvinTowRules.Excess: returns {RuleLog.Shown(returnedAt80)} (line 80)"); return returnedAt80; }
-            if (angleDeg < -limit) { var returnedAt81 = angleDeg + limit; if (RuleLog.Due("AsksvinTowRules.Excess:81", 2d)) RuleLog.Every("AsksvinTowRules.Excess:81", 2d, $"AsksvinTowRules.Excess: returns {RuleLog.Shown(returnedAt81)} (line 81)"); return returnedAt81; }
-            { if (RuleLog.Due("AsksvinTowRules.Excess:82", 2d)) RuleLog.Every("AsksvinTowRules.Excess:82", 2d, "AsksvinTowRules.Excess: returns 0f (line 82)"); return 0f; }
+            if (angleDeg > limit) return angleDeg - limit;
+            if (angleDeg < -limit) { var returnedAt81 = angleDeg + limit; if (RuleLog.Due("AsksvinTowRules.Excess:81", 2d)) RuleLog.Every("AsksvinTowRules.Excess:81", 2d, $"AsksvinTowRules.Excess: returns {returnedAt81} because angleDeg < -limit (line 81)"); return returnedAt81; }
+            { if (RuleLog.Due("AsksvinTowRules.Excess:82", 2d)) RuleLog.Every("AsksvinTowRules.Excess:82", 2d, $"AsksvinTowRules.Excess: returns 0f (line 82)"); return 0f; }
         }
 
         /// <summary>How far (m) the tow hook may move down or up from its place on level ground, to follow the ground under it on a slope.</summary>
@@ -112,10 +112,10 @@ namespace GunPowdered.Features.MobileCannon.Domain
         public static string OwnerMove(long me, long cannonOwner, long animalOwner)
         {
             if (RuleLog.Due("AsksvinTowRules.OwnerMove", 2d)) RuleLog.Every("AsksvinTowRules.OwnerMove", 2d, $"AsksvinTowRules.OwnerMove(me={RuleLog.Shown(me)}, cannonOwner={RuleLog.Shown(cannonOwner)}, animalOwner={RuleLog.Shown(animalOwner)})");
-            if (animalOwner == 0L) { if (RuleLog.Due("AsksvinTowRules.OwnerMove:93", 2d)) RuleLog.Every("AsksvinTowRules.OwnerMove:93", 2d, "AsksvinTowRules.OwnerMove: returns null (line 93)"); return null; }
-            if (cannonOwner == me && animalOwner != me) { if (RuleLog.Due("AsksvinTowRules.OwnerMove:94", 2d)) RuleLog.Every("AsksvinTowRules.OwnerMove:94", 2d, "AsksvinTowRules.OwnerMove: returns \"push\" (line 94)"); return "push"; }
-            if (cannonOwner != me && animalOwner == me) { if (RuleLog.Due("AsksvinTowRules.OwnerMove:95", 2d)) RuleLog.Every("AsksvinTowRules.OwnerMove:95", 2d, "AsksvinTowRules.OwnerMove: returns \"pull\" (line 95)"); return "pull"; }
-            { if (RuleLog.Due("AsksvinTowRules.OwnerMove:96", 2d)) RuleLog.Every("AsksvinTowRules.OwnerMove:96", 2d, "AsksvinTowRules.OwnerMove: returns null (line 96)"); return null; }
+            if (animalOwner == 0L) return null;
+            if (cannonOwner == me && animalOwner != me) { if (RuleLog.Due("AsksvinTowRules.OwnerMove:94", 2d)) RuleLog.Every("AsksvinTowRules.OwnerMove:116", 2d, "AsksvinTowRules.OwnerMove: returns \"push\" (line 116)"); return "push"; }
+            if (cannonOwner != me && animalOwner == me) { if (RuleLog.Due("AsksvinTowRules.OwnerMove:95", 2d)) RuleLog.Every("AsksvinTowRules.OwnerMove:117", 2d, "AsksvinTowRules.OwnerMove: returns \"pull\" (line 117)"); return "pull"; }
+            return null;
         }
     }
 }

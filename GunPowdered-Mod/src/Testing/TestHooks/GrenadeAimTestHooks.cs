@@ -2,6 +2,7 @@
 using System.Globalization;
 using KydlCore.Common;
 using GunPowdered.Features.Grenades.Infrastructure;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -18,9 +19,9 @@ namespace GunPowdered.Testing.TestHooks
         {
             switch (value)
             {
-                case "hold": GrenadeAim.SetTestInput(true, true, false); break;
-                case "hold+block": GrenadeAim.SetTestInput(true, true, true); break;
-                case "block": GrenadeAim.SetTestInput(true, false, true); break;
+                case "hold": GrenadeAim.SetTestInput(true, true, false); { if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeAimTestHooks.AimInput: leaves the loop / case (break) (line 22)"); break; }
+                case "hold+block": GrenadeAim.SetTestInput(true, true, true); { if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeAimTestHooks.AimInput: leaves the loop / case (break) (line 23)"); break; }
+                case "block": GrenadeAim.SetTestInput(true, false, true); { if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeAimTestHooks.AimInput: leaves the loop / case (break) (line 24)"); break; }
                 case "release":
                     if (GrenadeAim.Aiming)     // the letting go is the throw: follow it so grenadeFollowedArc can compare the blast with the chosen spot
                     {
@@ -28,8 +29,8 @@ namespace GunPowdered.Testing.TestHooks
                         GrenadeTestHooks.WatchBlastOnce();
                     }
                     GrenadeAim.SetTestInput(true, false, false);
-                    break;
-                default: GrenadeAim.SetTestInput(false, false, false); GrenadeAim.Reset("test input off"); break;
+                    { if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeAimTestHooks.AimInput: leaves the loop / case (break) (line 32)"); break; }
+                default: GrenadeAim.SetTestInput(false, false, false); GrenadeAim.Reset("test input off"); { if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeAimTestHooks.AimInput: leaves the loop / case (break) (line 33)"); break; }
             }
             ModLog.Verbose("GrenadeAimTestHooks: input '" + value + "'");
             return GrenadeAim.Describe();
@@ -65,8 +66,9 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.lookYaw")]
         static int LookYaw()
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeAimTestHooks.LookYaw()");
             Player p = Player.m_localPlayer;
-            return p == null ? 0 : UnityEngine.Mathf.RoundToInt(UnityEngine.Quaternion.LookRotation(p.GetLookDir()).eulerAngles.y / 30f) * 30 % 360;
+            { var returnedAt71 = p == null ? 0 : UnityEngine.Mathf.RoundToInt(UnityEngine.Quaternion.LookRotation(p.GetLookDir()).eulerAngles.y / 30f) * 30 % 360; if (RuleLog.IsOn()) ModLog.Verbose($"GrenadeAimTestHooks.LookYaw: returns {returnedAt71} (line 71)"); return returnedAt71; }
         }
     }
 }

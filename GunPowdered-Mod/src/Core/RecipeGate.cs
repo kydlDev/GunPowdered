@@ -12,9 +12,9 @@ namespace GunPowdered.Core
         public static bool IsOn(bool featureOn, string requiredKey, Func<string, bool> hasKey)
         {
             if (RuleLog.Due("RecipeGate.IsOn", 2d)) RuleLog.Every("RecipeGate.IsOn", 2d, $"RecipeGate.IsOn(featureOn={RuleLog.Shown(featureOn)}, requiredKey={RuleLog.Shown(requiredKey)}, hasKey={RuleLog.Shown(hasKey)})");
-            if (!featureOn) { if (RuleLog.Due("RecipeGate.IsOn:15", 2d)) RuleLog.Every("RecipeGate.IsOn:15", 2d, "RecipeGate.IsOn: returns false (line 15)"); return false; }
-            if (string.IsNullOrEmpty(requiredKey)) { if (RuleLog.Due("RecipeGate.IsOn:16", 2d)) RuleLog.Every("RecipeGate.IsOn:16", 2d, "RecipeGate.IsOn: returns true (line 16)"); return true; }
-            { var returnedAt17 = hasKey != null && hasKey(requiredKey); if (RuleLog.Due("RecipeGate.IsOn:17", 2d)) RuleLog.Every("RecipeGate.IsOn:17", 2d, $"RecipeGate.IsOn: returns {RuleLog.Shown(returnedAt17)} (line 17)"); return returnedAt17; }
+            if (!featureOn) return false;
+            if (string.IsNullOrEmpty(requiredKey)) { if (RuleLog.Due("RecipeGate.IsOn:16", 2d)) RuleLog.Every("RecipeGate.IsOn:16", 2d, $"RecipeGate.IsOn: returns true because string.IsNullOrEmpty(requiredKey) (line 16)"); return true; }
+            { var returnedAt17 = hasKey != null && hasKey(requiredKey); if (RuleLog.Due("RecipeGate.IsOn:17", 2d)) RuleLog.Every("RecipeGate.IsOn:17", 2d, $"RecipeGate.IsOn: returns {returnedAt17} (line 17)"); return returnedAt17; }
         }
     }
 }

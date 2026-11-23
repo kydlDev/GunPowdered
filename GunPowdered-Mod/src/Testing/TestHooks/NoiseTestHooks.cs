@@ -3,6 +3,7 @@ using HarmonyLib;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Integrations.Valheim;
+using GunPowdered.Core;
 
 namespace GunPowdered.Testing.TestHooks
 {
@@ -107,6 +108,7 @@ namespace GunPowdered.Testing.TestHooks
 
         static string Describe(MonsterAI m)
         {
+            if (RuleLog.IsOn()) ModLog.Verbose($"NoiseTestHooks.Describe(m={m})");
             Character t = Target(m);
             Character c = m.GetComponent<Character>();
             Vector3 v = c != null ? c.GetVelocity() : Vector3.zero;
@@ -118,6 +120,7 @@ namespace GunPowdered.Testing.TestHooks
         /// <summary>The nearest living <paramref name="prefab"/> to the local player, or null. Reads only.</summary>
         static MonsterAI Nearest(string prefab)
         {
+            if (RuleLog.Due("NoiseTestHooks.Nearest", 2d)) ModLog.Every("NoiseTestHooks.Nearest", 2d, $"NoiseTestHooks.Nearest(prefab={prefab})");
             Player p = Player.m_localPlayer;
             MonsterAI best = null;
             float bestDist = float.MaxValue;
@@ -125,11 +128,11 @@ namespace GunPowdered.Testing.TestHooks
             {
                 var m = ai as MonsterAI;
                 Character c = m != null ? m.GetComponent<Character>() : null;
-                if (c == null || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab || p == null) continue;
+                if (c == null || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab || p == null) { if (RuleLog.Due("NoiseTestHooks.Nearest:131", 2d)) ModLog.Every("NoiseTestHooks.Nearest:131", 2d, $"NoiseTestHooks.Nearest: skips to the next item (continue) because c == null || c.IsDead() || Utils.GetPrefabName(c.gameObject) != prefab || p == null (line 131)"); continue; }
                 float d = Vector3.Distance(c.transform.position, p.transform.position);
                 if (d < bestDist) { best = m; bestDist = d; }
             }
-            return best;
+            { var returnedAt135 = best; if (RuleLog.Due("NoiseTestHooks.Nearest:135", 2d)) ModLog.Every("NoiseTestHooks.Nearest:135", 2d, $"NoiseTestHooks.Nearest: returns {returnedAt135} (line 135)"); return returnedAt135; }
         }
     }
 }

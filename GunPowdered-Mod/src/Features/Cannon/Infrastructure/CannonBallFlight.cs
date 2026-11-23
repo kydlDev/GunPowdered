@@ -79,7 +79,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         /// </summary>
         internal bool Launch(Character shooter, Transform ignoreRoot, Vector3 velocity, float targetFlat)
         {
-            if (_nview == null || !_nview.IsValid()) { if (RuleLog.Due("CannonBallFlight.Launch:80", 2d)) ModLog.Every("CannonBallFlight.Launch:80", 2d, "CannonBallFlight.Launch: returns false (line 80)"); return false; }
+            if (_nview == null || !_nview.IsValid()) { if (RuleLog.Due("CannonBallFlight.Launch:82", 2d)) ModLog.Every("CannonBallFlight.Launch:82", 2d, $"CannonBallFlight.Launch: returns false because _nview == null || !_nview.IsValid() (line 82)"); return false; }
             _shooter = shooter;
             // D-157: the shooter's Cannons skill makes the cannon's blunt part harder (x1.0 at level 0 .. x1.5 at level 100); this runs on the shooter's client
             _blunt = SkillRules.CannonBluntFactor(GunSkills.Level(shooter, GunSkills.Cannons));
@@ -107,7 +107,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         {
             try
             {
-                if (!_flying || _nview == null || !_nview.IsValid() || !_nview.IsOwner()) { if (RuleLog.Due("CannonBallFlight.FixedUpdate:104", 2d)) ModLog.Every("CannonBallFlight.FixedUpdate:104", 2d, "CannonBallFlight.FixedUpdate: returns (line 104)"); return; }
+                if (!_flying || _nview == null || !_nview.IsValid() || !_nview.IsOwner()) { if (RuleLog.Due("CannonBallFlight.FixedUpdate:110", 2d)) ModLog.Every("CannonBallFlight.FixedUpdate:110", 2d, $"CannonBallFlight.FixedUpdate: returns because !_flying || _nview == null || !_nview.IsValid() || !_nview.IsOwner() (line 110)"); return; }
                 float dt = Time.fixedDeltaTime;
                 _age += dt;
                 Vector3 from = _pos;
@@ -117,13 +117,23 @@ namespace GunPowdered.Features.Cannon.Infrastructure
                 _vel = ToVec(v);
                 if (RuleLog.Due("cannon-ball-flight", 2d)) ModLog.Every("cannon-ball-flight", 2d, "CannonBallFlight: ball at " + _pos.ToString("0.0") + ", " + Fmt(_vel.magnitude) + " m/s, "
                     + Fmt(Flat(_origin, _pos)) + " m out, passed " + _passed + ", age " + Fmt(_age) + " s");
-                if (Segment(from, _pos)) { if (RuleLog.Due("CannonBallFlight.FixedUpdate:114", 2d)) ModLog.Every("CannonBallFlight.FixedUpdate:114", 2d, "CannonBallFlight.FixedUpdate: returns (line 114)"); return; }
+                if (Segment(from, _pos)) { if (RuleLog.Due("CannonBallFlight.FixedUpdate:120", 2d)) ModLog.Every("CannonBallFlight.FixedUpdate:120", 2d, $"CannonBallFlight.FixedUpdate: returns because Segment(from, _pos) (line 120)"); return; }
                 transform.position = _pos;
                 if (_age >= ModSettings.CannonMaxFlightSeconds.Value) Stop(_pos, "time ran out in the air");
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("CannonBallFlight.FixedUpdate: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().Name + ": " + e.Message + " - the ball drops where it is" + "\n" + e.StackTrace);
+                Stop(_pos, "error");
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("CannonBallFlight.FixedUpdate: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().Name + ": " + e.Message + " - the ball drops where it is" + "\n" + e.StackTrace);
+                Stop(_pos, "error");
+            }
             catch (Exception e)
             {
-                ModLog.Warn("CannonBallFlight.FixedUpdate: " + e.GetType().Name + ": " + e.Message + " - the ball drops where it is");
+                ModLog.Warn("CannonBallFlight.FixedUpdate: " + e.GetType().Name + ": " + e.Message + " - the ball drops where it is" + "\n" + e.StackTrace);
                 Stop(_pos, "error");
             }
         }
@@ -134,32 +144,32 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             if (RuleLog.Due("CannonBallFlight.Segment", 2d)) ModLog.Every("CannonBallFlight.Segment", 2d, $"CannonBallFlight.Segment(from={RuleLog.Shown(from)}, to={RuleLog.Shown(to)})");
             Vector3 d = to - from;
             float len = d.magnitude;
-            if (len <= 0f) { if (RuleLog.Due("CannonBallFlight.Segment:131", 2d)) ModLog.Every("CannonBallFlight.Segment:131", 2d, "CannonBallFlight.Segment: returns false (line 131)"); return false; }
+            if (len <= 0f) { if (RuleLog.Due("CannonBallFlight.Segment:147", 2d)) ModLog.Every("CannonBallFlight.Segment:147", 2d, $"CannonBallFlight.Segment: returns false because len <= 0f (line 147)"); return false; }
             int n = Physics.SphereCastNonAlloc(from, BallRadius, d / len, Hits, len, Mask(), QueryTriggerInteraction.Ignore);
             Array.Sort(Hits, 0, n, HitOrder.Instance);
             for (int i = 0; i < n; i++)
             {
                 RaycastHit h = Hits[i];
-                if (Ignored(h.collider)) continue;
+                if (Ignored(h.collider)) { if (RuleLog.Due("CannonBallFlight.Segment:153", 2d)) ModLog.Every("CannonBallFlight.Segment:153", 2d, $"CannonBallFlight.Segment: skips to the next item (continue) because Ignored(h.collider) (line 153)"); continue; }
                 Vector3 at = h.distance > 0f ? h.point : from;
-                if (Impact(h.collider, at, h.normal.sqrMagnitude > 0f ? h.normal : -d / len)) { if (RuleLog.Due("CannonBallFlight.Segment:139", 2d)) ModLog.Every("CannonBallFlight.Segment:139", 2d, "CannonBallFlight.Segment: returns true (line 139)"); return true; }
+                if (Impact(h.collider, at, h.normal.sqrMagnitude > 0f ? h.normal : -d / len)) { if (RuleLog.Due("CannonBallFlight.Segment:155", 2d)) ModLog.Every("CannonBallFlight.Segment:155", 2d, $"CannonBallFlight.Segment: returns true because Impact(h.collider, at, h.normal.sqrMagnitude > 0f ? h.normal : -d / len) (line 155)"); return true; }
             }
-            { if (RuleLog.Due("CannonBallFlight.Segment:141", 2d)) ModLog.Every("CannonBallFlight.Segment:141", 2d, "CannonBallFlight.Segment: returns false (line 141)"); return false; }
+            { if (RuleLog.Due("CannonBallFlight.Segment:157", 2d)) ModLog.Every("CannonBallFlight.Segment:157", 2d, $"CannonBallFlight.Segment: returns false (line 157)"); return false; }
         }
 
         bool Ignored(Collider c)
         {
             if (RuleLog.Due("CannonBallFlight.Ignored", 2d)) ModLog.Every("CannonBallFlight.Ignored", 2d, $"CannonBallFlight.Ignored(c={RuleLog.Shown(c)})");
-            if (c == null) { if (RuleLog.Due("CannonBallFlight.Ignored:147", 2d)) ModLog.Every("CannonBallFlight.Ignored:147", 2d, "CannonBallFlight.Ignored: returns true (line 147)"); return true; }
+            if (c == null) return true;
             Transform t = c.transform;
-            if (_ignore != null && t.IsChildOf(_ignore)) { if (RuleLog.Due("CannonBallFlight.Ignored:149", 2d)) ModLog.Every("CannonBallFlight.Ignored:149", 2d, "CannonBallFlight.Ignored: returns true (line 149)"); return true; }
-            if (_shooter != null && t.IsChildOf(_shooter.transform)) { if (RuleLog.Due("CannonBallFlight.Ignored:150", 2d)) ModLog.Every("CannonBallFlight.Ignored:150", 2d, "CannonBallFlight.Ignored: returns true (line 150)"); return true; }
-            if (t.IsChildOf(transform)) { if (RuleLog.Due("CannonBallFlight.Ignored:151", 2d)) ModLog.Every("CannonBallFlight.Ignored:151", 2d, "CannonBallFlight.Ignored: returns true (line 151)"); return true; }
+            if (_ignore != null && t.IsChildOf(_ignore)) { if (RuleLog.Due("CannonBallFlight.Ignored:165", 2d)) ModLog.Every("CannonBallFlight.Ignored:165", 2d, $"CannonBallFlight.Ignored: returns true because _ignore != null && t.IsChildOf(_ignore) (line 165)"); return true; }
+            if (_shooter != null && t.IsChildOf(_shooter.transform)) { if (RuleLog.Due("CannonBallFlight.Ignored:166", 2d)) ModLog.Every("CannonBallFlight.Ignored:166", 2d, $"CannonBallFlight.Ignored: returns true because _shooter != null && t.IsChildOf(_shooter.transform) (line 166)"); return true; }
+            if (t.IsChildOf(transform)) { if (RuleLog.Due("CannonBallFlight.Ignored:167", 2d)) ModLog.Every("CannonBallFlight.Ignored:167", 2d, $"CannonBallFlight.Ignored: returns true because t.IsChildOf(transform) (line 167)"); return true; }
             Character ch = c.GetComponentInParent<Character>();
-            if (ch != null && !HitsCreature(ch)) { if (RuleLog.Due("CannonBallFlight.Ignored:153", 2d)) ModLog.Every("CannonBallFlight.Ignored:153", 2d, "CannonBallFlight.Ignored: returns true (line 153)"); return true; }                    // a friend while PvP is off: the ball flies through (D-055 addendum 2)
+            if (ch != null && !HitsCreature(ch)) { if (RuleLog.Due("CannonBallFlight.Ignored:169", 2d)) ModLog.Every("CannonBallFlight.Ignored:169", 2d, $"CannonBallFlight.Ignored: returns true because ch != null && !HitsCreature(ch) (line 169)"); return true; }                    // a friend while PvP is off: the ball flies through (D-055 addendum 2)
             // a tree the ball breaks drops its logs right where it stood: they are still that tree, not a second target (run cannonA)
-            if (_passedTreeAt.HasValue && c.GetComponentInParent<TreeLog>() != null && Flat(_passedTreeAt.Value, c.transform.position) < TreeLogReach) { if (RuleLog.Due("CannonBallFlight.Ignored:155", 2d)) ModLog.Every("CannonBallFlight.Ignored:155", 2d, "CannonBallFlight.Ignored: returns true (line 155)"); return true; }
-            { var returnedAt156 = _passedRoots.Contains(RootId(c)); if (RuleLog.Due("CannonBallFlight.Ignored:156", 2d)) ModLog.Every("CannonBallFlight.Ignored:156", 2d, $"CannonBallFlight.Ignored: returns {RuleLog.Shown(returnedAt156)} (line 156)"); return returnedAt156; }
+            if (_passedTreeAt.HasValue && c.GetComponentInParent<TreeLog>() != null && Flat(_passedTreeAt.Value, c.transform.position) < TreeLogReach) { if (RuleLog.Due("CannonBallFlight.Ignored:171", 2d)) ModLog.Every("CannonBallFlight.Ignored:171", 2d, $"CannonBallFlight.Ignored: returns true because _passedTreeAt.HasValue && c.GetComponentInParent<TreeLog>() != null && Flat(_passedTreeAt.Value, c.transform.position) < TreeLogReach (line 171)"); return true; }
+            { var returnedAt172 = _passedRoots.Contains(RootId(c)); if (RuleLog.Due("CannonBallFlight.Ignored:172", 2d)) ModLog.Every("CannonBallFlight.Ignored:172", 2d, $"CannonBallFlight.Ignored: returns {returnedAt172} (line 172)"); return returnedAt172; }
         }
 
         // the game's own friendly-fire rule for a player's projectile (Projectile.OnHit + Character.RPC_Damage, 1.0.21), decided by CannonRules
@@ -172,7 +182,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             bool hits = CannonRules.HitsCreature(check);
             ModLog.Decision("cannon ball target", hits ? "hit" : "flies through", Utils.GetPrefabName(ch.gameObject.name) + " (" + check
                 + ", tamed " + ch.IsTamed() + ")");
-            { var returnedAt169 = hits; if (RuleLog.Due("CannonBallFlight.HitsCreature:169", 2d)) ModLog.Every("CannonBallFlight.HitsCreature:169", 2d, $"CannonBallFlight.HitsCreature: returns {RuleLog.Shown(returnedAt169)} (line 169)"); return returnedAt169; }
+            { var returnedAt185 = hits; if (RuleLog.Due("CannonBallFlight.HitsCreature:185", 2d)) ModLog.Every("CannonBallFlight.HitsCreature:185", 2d, $"CannonBallFlight.HitsCreature: returns {returnedAt185} (line 185)"); return returnedAt185; }
         }
 
         // one impact; true when the step ends here (the ball stopped or flies on along a new arc)
@@ -188,7 +198,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             if (outcome == ImpactOutcome.Stop)
             {
                 Stop(at + (normal * (BallRadius + 0.02f)), "stopped by " + Name(c));
-                { if (RuleLog.Due("CannonBallFlight.Impact:185", 2d)) ModLog.Every("CannonBallFlight.Impact:185", 2d, "CannonBallFlight.Impact: returns true (line 185)"); return true; }
+                { if (RuleLog.Due("CannonBallFlight.Impact:201", 2d)) ModLog.Every("CannonBallFlight.Impact:201", 2d, $"CannonBallFlight.Impact: returns true (line 201)"); return true; }
             }
             float dealt = Damage(creature, tree, solid, c, at);
             _hits.Add(Name(c) + " " + Fmt(dealt));
@@ -197,11 +207,11 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             {
                 Vector3 rest = solid != null ? at + (normal * (BallRadius + 0.02f)) : at;
                 Stop(rest, "stopped by " + Name(c) + (solid != null ? " (building / rock, damaged)" : " (second target)"));
-                { if (RuleLog.Due("CannonBallFlight.Impact:194", 2d)) ModLog.Every("CannonBallFlight.Impact:194", 2d, "CannonBallFlight.Impact: returns true (line 194)"); return true; }
+                { if (RuleLog.Due("CannonBallFlight.Impact:210", 2d)) ModLog.Every("CannonBallFlight.Impact:210", 2d, $"CannonBallFlight.Impact: returns true (line 210)"); return true; }
             }
             if (tree != null) _passedTreeAt = at;
             PassThrough(c, at);
-            { if (RuleLog.Due("CannonBallFlight.Impact:198", 2d)) ModLog.Every("CannonBallFlight.Impact:198", 2d, "CannonBallFlight.Impact: returns true (line 198)"); return true; }
+            { if (RuleLog.Due("CannonBallFlight.Impact:214", 2d)) ModLog.Every("CannonBallFlight.Impact:214", 2d, $"CannonBallFlight.Impact: returns true (line 214)"); return true; }
         }
 
         void PassThrough(Collider c, Vector3 at)
@@ -230,7 +240,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             string label = "cannon ball hit " + creature.m_name;
             float total = hit.m_damage.m_pierce + hit.m_damage.m_blunt;
             FlightRecorder.Track(creature, label, () => "hit by a cannon ball for " + Fmt(total) + " (pierce + blunt), pass " + _passed);
-            { var returnedAt227 = total; if (RuleLog.Due("CannonBallFlight.HitCreature:227", 2d)) ModLog.Every("CannonBallFlight.HitCreature:227", 2d, $"CannonBallFlight.HitCreature: returns {RuleLog.Shown(returnedAt227)} (line 227)"); return returnedAt227; }
+            { var returnedAt243 = total; if (RuleLog.Due("CannonBallFlight.HitCreature:243", 2d)) ModLog.Every("CannonBallFlight.HitCreature:243", 2d, $"CannonBallFlight.HitCreature: returns {returnedAt243} (line 243)"); return returnedAt243; }
         }
 
         float HitTree(IDestructible tree, Vector3 at)
@@ -239,22 +249,22 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             HitData hit = MakeHit(at);
             hit.m_damage.m_chop = hit.m_damage.m_pierce + hit.m_damage.m_blunt;     // a tree only cares for chopping; the ball breaks it like an axe
             tree.Damage(hit);
-            { var returnedAt236 = hit.m_damage.m_pierce + hit.m_damage.m_blunt; if (RuleLog.Due("CannonBallFlight.HitTree:236", 2d)) ModLog.Every("CannonBallFlight.HitTree:236", 2d, $"CannonBallFlight.HitTree: returns {RuleLog.Shown(returnedAt236)} (line 236)"); return returnedAt236; }
+            { var returnedAt252 = hit.m_damage.m_pierce + hit.m_damage.m_blunt; if (RuleLog.Due("CannonBallFlight.HitTree:252", 2d)) ModLog.Every("CannonBallFlight.HitTree:252", 2d, $"CannonBallFlight.HitTree: returns {returnedAt252} (line 252)"); return returnedAt252; }
         }
 
         static ImpactKind KindOf(bool passable, IDestructible solid)
         {
             if (RuleLog.Due("CannonBallFlight.KindOf", 2d)) ModLog.Every("CannonBallFlight.KindOf", 2d, $"CannonBallFlight.KindOf(passable={RuleLog.Shown(passable)}, solid={RuleLog.Shown(solid)})");
-            if (passable) { var returnedAt242 = ImpactKind.Passable; if (RuleLog.Due("CannonBallFlight.KindOf:242", 2d)) ModLog.Every("CannonBallFlight.KindOf:242", 2d, $"CannonBallFlight.KindOf: returns {RuleLog.Shown(returnedAt242)} (line 242)"); return returnedAt242; }
-            { var returnedAt243 = solid != null ? ImpactKind.Solid : ImpactKind.Ground; if (RuleLog.Due("CannonBallFlight.KindOf:243", 2d)) ModLog.Every("CannonBallFlight.KindOf:243", 2d, $"CannonBallFlight.KindOf: returns {RuleLog.Shown(returnedAt243)} (line 243)"); return returnedAt243; }
+            if (passable) return ImpactKind.Passable;
+            { var returnedAt259 = solid != null ? ImpactKind.Solid : ImpactKind.Ground; if (RuleLog.Due("CannonBallFlight.KindOf:259", 2d)) ModLog.Every("CannonBallFlight.KindOf:259", 2d, $"CannonBallFlight.KindOf: returns {returnedAt259} (line 259)"); return returnedAt259; }
         }
 
         // the damage of one impact on whatever was struck (exactly one of creature / tree / solid is set)
         float Damage(Character creature, IDestructible tree, IDestructible solid, Collider c, Vector3 at)
         {
             if (RuleLog.Due("CannonBallFlight.Damage", 2d)) ModLog.Every("CannonBallFlight.Damage", 2d, $"CannonBallFlight.Damage(creature={RuleLog.Shown(creature)}, tree={RuleLog.Shown(tree)}, solid={RuleLog.Shown(solid)}, c={RuleLog.Shown(c)}, at={RuleLog.Shown(at)})");
-            if (creature != null) { var returnedAt250 = HitCreature(creature, at); if (RuleLog.Due("CannonBallFlight.Damage:250", 2d)) ModLog.Every("CannonBallFlight.Damage:250", 2d, $"CannonBallFlight.Damage: returns {RuleLog.Shown(returnedAt250)} (line 250)"); return returnedAt250; }
-            { var returnedAt251 = tree != null ? HitTree(tree, at) : HitSolid(solid, c, at); if (RuleLog.Due("CannonBallFlight.Damage:251", 2d)) ModLog.Every("CannonBallFlight.Damage:251", 2d, $"CannonBallFlight.Damage: returns {RuleLog.Shown(returnedAt251)} (line 251)"); return returnedAt251; }
+            if (creature != null) return HitCreature(creature, at);
+            { var returnedAt267 = tree != null ? HitTree(tree, at) : HitSolid(solid, c, at); if (RuleLog.Due("CannonBallFlight.Damage:267", 2d)) ModLog.Every("CannonBallFlight.Damage:267", 2d, $"CannonBallFlight.Damage: returns {returnedAt267} (line 267)"); return returnedAt267; }
         }
 
         // a building piece (WearNTear) or a rock (MineRock, MineRock5, Destructible) under the collider; null for bare ground
@@ -278,7 +288,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
             solid.Damage(hit);
             ModLog.Verbose("CannonBallFlight: " + (building ? "building piece " : "rock ") + Name(c) + " takes " + Fmt(total) + " (momentum "
                 + Fmt(_momentum) + ")");
-            { var returnedAt275 = total; if (RuleLog.Due("CannonBallFlight.HitSolid:275", 2d)) ModLog.Every("CannonBallFlight.HitSolid:275", 2d, $"CannonBallFlight.HitSolid: returns {RuleLog.Shown(returnedAt275)} (line 275)"); return returnedAt275; }
+            { var returnedAt291 = total; if (RuleLog.Due("CannonBallFlight.HitSolid:291", 2d)) ModLog.Every("CannonBallFlight.HitSolid:291", 2d, $"CannonBallFlight.HitSolid: returns {returnedAt291} (line 291)"); return returnedAt291; }
         }
 
         bool _mobile;

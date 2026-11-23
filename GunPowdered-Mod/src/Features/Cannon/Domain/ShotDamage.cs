@@ -32,14 +32,14 @@ namespace GunPowdered.Features.Cannon.Domain
         internal static ShotDamage Sum(ShotDamage weapon, ShotDamage ammo)
         {
             if (RuleLog.Due("ShotDamage.Sum", 2d)) RuleLog.Every("ShotDamage.Sum", 2d, $"ShotDamage.Sum(weapon={RuleLog.Shown(weapon)}, ammo={RuleLog.Shown(ammo)})");
-            { var returnedAt35 = new ShotDamage(weapon.Pierce + ammo.Pierce, weapon.Blunt + ammo.Blunt, weapon.Pickaxe + ammo.Pickaxe, weapon.FirePerSecond + ammo.FirePerSecond, Math.Max(weapon.ToolTier, ammo.ToolTier)); if (RuleLog.Due("ShotDamage.Sum:35", 2d)) RuleLog.Every("ShotDamage.Sum:35", 2d, $"ShotDamage.Sum: returns {RuleLog.Shown(returnedAt35)} (line 35)"); return returnedAt35; }
+            return new ShotDamage(weapon.Pierce + ammo.Pierce, weapon.Blunt + ammo.Blunt, weapon.Pickaxe + ammo.Pickaxe, weapon.FirePerSecond + ammo.FirePerSecond, Math.Max(weapon.ToolTier, ammo.ToolTier));
         }
 
         /// <summary>This damage times a factor (the cannon ball's momentum after it passed a tree or creature); the tool tier stays.</summary>
         internal ShotDamage Times(float factor)
         {
             if (RuleLog.Due("ShotDamage.Times", 2d)) RuleLog.Every("ShotDamage.Times", 2d, $"ShotDamage.Times(factor={RuleLog.Shown(factor)})");
-            { var returnedAt42 = new ShotDamage(Pierce * factor, Blunt * factor, Pickaxe * factor, FirePerSecond * factor, ToolTier); if (RuleLog.Due("ShotDamage.Times:42", 2d)) RuleLog.Every("ShotDamage.Times:42", 2d, $"ShotDamage.Times: returns {RuleLog.Shown(returnedAt42)} (line 42)"); return returnedAt42; }
+            return new ShotDamage(Pierce * factor, Blunt * factor, Pickaxe * factor, FirePerSecond * factor, ToolTier);
         }
 
         public override string ToString() => "pierce " + Pierce + ", blunt " + Blunt + ", pickaxe " + Pickaxe + ", fire " + FirePerSecond + "/s, tool tier " + ToolTier;

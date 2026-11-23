@@ -72,7 +72,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             Quaternion q = Quaternion.Slerp(Quaternion.Euler(a[3], a[4], a[5]), Quaternion.Euler(s[3], s[4], s[5]), _carry);
             _model.localPosition = Vector3.Lerp(p, new Vector3(b[0], b[1], b[2]), w);
             _model.localRotation = Quaternion.Slerp(q, Quaternion.Euler(b[3], b[4], b[5]), w);
-            if (_rod == null) { if (RuleLog.Due("MusketRig.PlaceModel:189", 2d)) ModLog.Every("MusketRig.PlaceModel:189", 2d, "MusketRig.PlaceModel: returns (line 189)"); return; }
+            if (_rod == null) { if (RuleLog.Due("MusketRig.PlaceModel:75", 2d)) ModLog.Every("MusketRig.PlaceModel:75", 2d, $"MusketRig.PlaceModel: returns because _rod == null (line 75)"); return; }
             var rammed = new Vector3(_rodHome.x, _rodHome.y - MusketPoses.RodPipeY, _rodHome.z + MusketPoses.MuzzleZ + MusketPoseRules.RodAboveMuzzle(seconds, _stroke) - MusketPoses.RodTopZ);
             _rod.localPosition = w > 0.5f ? rammed : _rodHome;
         }

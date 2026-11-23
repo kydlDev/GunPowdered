@@ -25,9 +25,9 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             try
             {
-                if (!ModSettings.FeatureOn(ModSettings.EnableSulfur) || __result == null || __instance == null) { if (RuleLog.Due("SulfurDropPatch.Postfix:28", 2d)) ModLog.Every("SulfurDropPatch.Postfix:28", 2d, "SulfurDropPatch.Postfix: returns (line 28)"); return; }
+                if (!ModSettings.FeatureOn(ModSettings.EnableSulfur) || __result == null || __instance == null) { if (RuleLog.Due("SulfurDropPatch.Postfix:28", 2d)) ModLog.Every("SulfurDropPatch.Postfix:28", 2d, $"SulfurDropPatch.Postfix: returns because !ModSettings.FeatureOn(ModSettings.EnableSulfur) || __result == null || __instance == null (line 28)"); return; }
                 SulfurSource? source = SourceOf(Utils.GetPrefabName(__instance.gameObject));
-                if (source == null) { if (RuleLog.Due("SulfurDropPatch.Postfix:30", 2d)) ModLog.Every("SulfurDropPatch.Postfix:30", 2d, "SulfurDropPatch.Postfix: returns (line 30)"); return; }
+                if (source == null) { if (RuleLog.Due("SulfurDropPatch.Postfix:30", 2d)) ModLog.Every("SulfurDropPatch.Postfix:30", 2d, $"SulfurDropPatch.Postfix: returns because source == null (line 30)"); return; }
 
                 double chance = SulfurRules.KillChance(source.Value, ModSettings.KillSulfurChance.Value, ModSettings.WrithanSulfurChance.Value);
                 if (!Roll.Chance(chance, UnityEngine.Random.value))
@@ -42,9 +42,17 @@ namespace GunPowdered.Integrations.HarmonyPatches
                 __result.Add(new KeyValuePair<GameObject, int>(sulfur, amount));
                 ModLog.Decision("sulfur drop", amount + " Sulfur", source.Value + " killed");
             }
+            catch (System.NullReferenceException e)
+            {
+                ModLog.Warn("SulfurDropPatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+            }
+            catch (UnityEngine.MissingReferenceException e)
+            {
+                ModLog.Warn("SulfurDropPatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
+            }
             catch (Exception e)
             {
-                ModLog.Warn("SulfurDropPatch: " + e.GetType().Name + ": " + e.Message);
+                ModLog.Warn("SulfurDropPatch: " + e.GetType().Name + ": " + e.Message + "\n" + e.StackTrace);
             }
         }
 
@@ -52,10 +60,10 @@ namespace GunPowdered.Integrations.HarmonyPatches
         internal static SulfurSource? SourceOf(string prefabName)
         {
             if (RuleLog.Due("SulfurDropPatch.SourceOf", 2d)) ModLog.Every("SulfurDropPatch.SourceOf", 2d, $"SulfurDropPatch.SourceOf(prefabName={RuleLog.Shown(prefabName)})");
-            if (prefabName == BlobPrefab) { var returnedAt55 = SulfurSource.Blob; if (RuleLog.Due("SulfurDropPatch.SourceOf:55", 2d)) ModLog.Every("SulfurDropPatch.SourceOf:55", 2d, $"SulfurDropPatch.SourceOf: returns {RuleLog.Shown(returnedAt55)} (line 55)"); return returnedAt55; }
-            if (prefabName == OozerPrefab) { var returnedAt56 = SulfurSource.Oozer; if (RuleLog.Due("SulfurDropPatch.SourceOf:56", 2d)) ModLog.Every("SulfurDropPatch.SourceOf:56", 2d, $"SulfurDropPatch.SourceOf: returns {RuleLog.Shown(returnedAt56)} (line 56)"); return returnedAt56; }
-            if (prefabName == WrithanPrefab) { var returnedAt57 = SulfurSource.Writhan; if (RuleLog.Due("SulfurDropPatch.SourceOf:57", 2d)) ModLog.Every("SulfurDropPatch.SourceOf:57", 2d, $"SulfurDropPatch.SourceOf: returns {RuleLog.Shown(returnedAt57)} (line 57)"); return returnedAt57; }
-            { if (RuleLog.Due("SulfurDropPatch.SourceOf:58", 2d)) ModLog.Every("SulfurDropPatch.SourceOf:58", 2d, "SulfurDropPatch.SourceOf: returns null (line 58)"); return null; }
+            if (prefabName == BlobPrefab) return SulfurSource.Blob;
+            if (prefabName == OozerPrefab) { var returnedAt64 = SulfurSource.Oozer; if (RuleLog.Due("SulfurDropPatch.SourceOf:64", 2d)) ModLog.Every("SulfurDropPatch.SourceOf:64", 2d, $"SulfurDropPatch.SourceOf: returns {returnedAt64} because prefabName == OozerPrefab (line 64)"); return returnedAt64; }
+            if (prefabName == WrithanPrefab) { var returnedAt65 = SulfurSource.Writhan; if (RuleLog.Due("SulfurDropPatch.SourceOf:65", 2d)) ModLog.Every("SulfurDropPatch.SourceOf:65", 2d, $"SulfurDropPatch.SourceOf: returns {returnedAt65} because prefabName == WrithanPrefab (line 65)"); return returnedAt65; }
+            { if (RuleLog.Due("SulfurDropPatch.SourceOf:66", 2d)) ModLog.Every("SulfurDropPatch.SourceOf:66", 2d, $"SulfurDropPatch.SourceOf: returns null (line 66)"); return null; }
         }
     }
 }

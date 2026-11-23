@@ -24,7 +24,9 @@ namespace GunPowdered.Integrations.HarmonyPatches
         static void Refresh()
         {
             try { ItemRegistry.RefreshKeyed(); }
-            catch (Exception e) { ModLog.Every("recipe-gate-error", 60d, "RecipeGatePatch: " + e.GetType().FullName + ": " + e.Message + " - keyed recipes keep their state"); }
+            catch (System.NullReferenceException e) { ModLog.Warn("RecipeGatePatch: NullReferenceException - an object it used is not set or was taken away - " + e.GetType().FullName + ": " + e.Message + " - keyed recipes keep their state" + "\n" + e.StackTrace); }
+            catch (UnityEngine.MissingReferenceException e) { ModLog.Warn("RecipeGatePatch: MissingReferenceException - a destroyed Unity object was used - " + e.GetType().FullName + ": " + e.Message + " - keyed recipes keep their state" + "\n" + e.StackTrace); }
+            catch (Exception e) { ModLog.Warn("RecipeGatePatch: " + e.GetType().FullName + ": " + e.Message + " - keyed recipes keep their state" + "\n" + e.StackTrace); }
         }
     }
 }
