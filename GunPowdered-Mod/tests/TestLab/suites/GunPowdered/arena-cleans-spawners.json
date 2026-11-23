@@ -1,4 +1,4 @@
-{
+﻿{
     "name": "arena-cleans-spawners",
     "description": "User 2026-11-23 ('test cleanup does also removes any spawners created by the previous tests'): the first-step hook GunPowdered.arena destroys spawners (CreatureSpawner, SpawnArea such as a bone pile) and creatures left by an earlier test. Two spawners and a Greydwarf are placed, the arena step must report and remove them, and a second arena step finds nothing left.",
     "timeout": 60,
@@ -35,8 +35,8 @@
         {
             "do": "hook",
             "name": "GunPowdered.arena",
-            "regex": ".*, 2 spawner\\(s\\), [1-9][0-9]* creature\\(s\\).*",
-            "label": "the arena step removes both spawners and the creature(s) a test left behind"
+            "regex": ".*creatures [1-9][0-9]*,.*, 2 spawner\\(s\\),.*",
+            "label": "the arena step removes both spawners (GunPowdered cleanup) and the creature(s) (KydlCore cleanup: creatures N) a test left behind"
         },
         {
             "do": "wait",
@@ -45,7 +45,7 @@
         {
             "do": "hook",
             "name": "GunPowdered.arena",
-            "contains": ", 0 spawner(s), 0 creature(s)",
+            "regex": ".*creatures 0,.*, 0 spawner\\(s\\),.*",
             "label": "nothing is left for the next test"
         },
         {
