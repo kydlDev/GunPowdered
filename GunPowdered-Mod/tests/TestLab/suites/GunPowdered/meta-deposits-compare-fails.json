@@ -1,0 +1,75 @@
+{
+  "name": "meta-deposits-compare-fails",
+  "description": "Negative test for deposits-stay-put: after new mud is placed (geyser #2), the compare must FAIL with a count difference, so it can catch a change.",
+  "timeout": 300,
+  "expectFailure": "the records are the same (must fail",
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.visitSpots",
+      "args": {
+        "kind": "geyser",
+        "count": 1
+      },
+      "contains": "started",
+      "label": "visit geyser #0",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.visitLeft",
+        "expect": 0
+      },
+      "timeout": 70
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.depositSnapshot",
+      "regex": "snapshot [1-9][0-9]* mud, [0-9]+ guano",
+      "label": "remember the records"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.visitSpots",
+      "args": {
+        "kind": "geyser",
+        "count": 3
+      },
+      "contains": "started",
+      "label": "visit geysers #0-#2: #2 gets new mud",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.visitLeft",
+        "expect": 0
+      },
+      "timeout": 150
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.depositCompare",
+      "regex": "same [0-9]+ mud, [0-9]+ guano",
+      "label": "the records are the same (must fail: new mud at geyser #2)"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

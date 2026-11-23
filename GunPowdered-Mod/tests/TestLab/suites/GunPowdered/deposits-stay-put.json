@@ -1,0 +1,148 @@
+{
+  "name": "deposits-stay-put",
+  "description": "User 2026-11-23: mud and guano keep their exact spots after a log out and after the player goes far away and comes back (zones unload / reload); nothing is placed twice. Real spots only: geyser #0 and the first 3 real mountain caves.",
+  "timeout": 900,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.visitSpots",
+      "args": {
+        "kind": "geyser",
+        "count": 1
+      },
+      "contains": "started",
+      "label": "visit geyser #0 (its mud is placed on the first visit)",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.visitLeft",
+        "expect": 0
+      },
+      "timeout": 70
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.visitVerdict",
+      "args": {
+        "rule": "mudEach"
+      },
+      "expect": "ok",
+      "label": "geyser #0 has mud"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.enterCaves",
+      "args": {
+        "name": "MountainCave02",
+        "count": 3
+      },
+      "contains": "started",
+      "label": "enter 3 real mountain caves (their guano is placed on entry)",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.caveRunLeft",
+        "expect": 0
+      },
+      "timeout": 240
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.depositSnapshot",
+      "regex": "snapshot [1-9][0-9]* mud, [1-9][0-9]* guano",
+      "label": "remember every mud and guano record (both placed)"
+    },
+    {
+      "do": "relog",
+      "timeout": 150
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.depositCompare",
+      "regex": "same [0-9]+ mud, [0-9]+ guano",
+      "label": "after log out / log in: same count, every deposit at the same spot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.travelFarAndBack",
+      "args": {
+        "metres": 2000,
+        "waitSeconds": 15
+      },
+      "contains": "started",
+      "label": "go 2 km away (the zones unload) and come back",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.travelDone",
+        "expect": true
+      },
+      "timeout": 120
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.depositCompare",
+      "regex": "same [0-9]+ mud, [0-9]+ guano",
+      "label": "after going far away: same count, every deposit at the same spot"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.visitSpots",
+      "args": {
+        "kind": "geyser",
+        "count": 1
+      },
+      "contains": "started",
+      "label": "back at geyser #0: its zone loads again",
+      "stop": true
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.visitLeft",
+        "expect": 0
+      },
+      "timeout": 70
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.visitVerdict",
+      "args": {
+        "rule": "mudEach"
+      },
+      "expect": "ok",
+      "label": "geyser #0 shows its mud again"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.depositCompare",
+      "regex": "same [0-9]+ mud, [0-9]+ guano",
+      "label": "after the zone reloaded: no new mud, none moved"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

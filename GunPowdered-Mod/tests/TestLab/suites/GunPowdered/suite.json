@@ -227,6 +227,8 @@
     "geysers-get-mud",
     "bonepiles-wet-get-mud",
     "bonepiles-dry-no-mud",
-    "meta-dry-mud-check-fails"
+    "meta-dry-mud-check-fails",
+    "deposits-stay-put",
+    "meta-deposits-compare-fails"
   ]
 }
