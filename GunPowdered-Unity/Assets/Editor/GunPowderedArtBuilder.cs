@@ -1,4 +1,4 @@
-// Builds textures, materials, prefabs and icons for the weapon / vehicle models (D-075).
+﻿// Builds textures, materials, prefabs and icons for the weapon / vehicle models (D-075).
 // Menu: GunPowdered/Build weapon art. Safe to run again: it overwrites its own output only.
 using System.Collections.Generic;
 using System.IO;
@@ -92,10 +92,10 @@ public static class GunPowderedArtBuilder
         new ItemDef("SettlingTank", "GP_SettlingTank", "SettlingTank", new Vector3(1f, 0.55f, -0.80f), false, 0f),
         new ItemDef("BlackMetalBoiler", "GP_BlackMetalBoiler", "BlackMetalBoiler", new Vector3(1f, 0.55f, -0.80f), false, 0f),
         new ItemDef("DvergrDripPipes", "GP_DvergrDripPipes", "DvergrDripPipes", new Vector3(1f, 0.55f, -0.80f), false, 0f),
-        new ItemDef("FlametalHeater", "GP_FlametalHeater", "FlametalHeater", new Vector3(1f, 0.55f, -0.80f), false, 0f),
+        new ItemDef("FlametalHeater", "GP_FlametalHeater", "FlametalHeater", new Vector3(-0.6f, 0.5f, 1f), false, 0f),
         new ItemDef("MillGrindstone", "GP_MillGrindstone", "MillGrindstone", new Vector3(1f, 0.55f, -0.80f), false, 0f),
         new ItemDef("MillSieve", "GP_MillSieve", "MillSieve", new Vector3(1f, 0.55f, -0.80f), false, 0f),
-        new ItemDef("MillOven", "GP_MillOven", "MillOven", new Vector3(1f, 0.55f, -0.80f), false, 0f),
+        new ItemDef("MillOven", "GP_MillOven", "MillOven", new Vector3(-0.6f, 0.5f, 1f), false, 0f),
     };
 
     [MenuItem("GunPowdered/Build weapon art")]
