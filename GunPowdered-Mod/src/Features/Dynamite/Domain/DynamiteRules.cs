@@ -14,6 +14,21 @@ namespace GunPowdered.Features.Dynamite.Domain
         /// <summary>D-158 (user 2026-11-23: "once the character has placed the dynamite, have it get back up and not remain kneeled"): how long the kneel lasts before the character stands up again.</summary>
         internal const float KneelSeconds = 1.0f;
 
+        /// <summary>
+        /// D-183 (user 2026-11-24 08:45: "when placing the last dynamite on the ground, the character does a fist kick right after that"): the attack
+        /// press that set the last stick down is still held, and with the hands now empty the game turns it into a punch. For this long after a charge was
+        /// set down, an attack with nothing in the hands is swallowed.
+        /// </summary>
+        internal const float NoPunchSeconds = 0.6f;
+
+        /// <summary>Whether an attack with empty hands <paramref name="secondsSincePlaced"/> s after a charge was set down is the leftover of that press.</summary>
+        internal static bool SwallowsPunch(float secondsSincePlaced, bool handsEmpty)
+        {
+            bool swallow = handsEmpty && secondsSincePlaced >= 0f && secondsSincePlaced < NoPunchSeconds;
+            if (RuleLog.Due("DynamiteRules.SwallowsPunch", 2d)) RuleLog.Every("DynamiteRules.SwallowsPunch", 2d, $"DynamiteRules.SwallowsPunch(secondsSincePlaced={secondsSincePlaced}, handsEmpty={handsEmpty}): returns {swallow}");
+            return swallow;
+        }
+
         /// <summary>The share of the building damage a creature takes (user: 20 %).</summary>
         internal const float CreatureShare = 0.2f;
 
