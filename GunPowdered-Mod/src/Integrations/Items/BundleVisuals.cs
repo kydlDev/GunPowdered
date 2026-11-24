@@ -37,6 +37,7 @@ namespace GunPowdered.Integrations.Items
             inst.transform.localRotation = model.localRotation;
             inst.transform.localScale = Vector3.one;
             SetLayer(inst, target.layer);
+            FlametalLook.Apply(inst, id);              // D-182: flametal parts look like the game's FlametalNew ingot
 
             // a bundle prefab may carry its solid shapes as a child "colliders" (the Cannon Stock: a base and two trestles instead of one box)
             Transform shapes = source.transform.Find(CollidersChild);
