@@ -1,0 +1,85 @@
+{
+  "name": "flametal-look",
+  "description": "D-182 (user 2026-11-24, shot-008): every flametal part looks like the game's FlametalNew ingot - the Flametal Cannon Ball (item and flight), the Mobile Cannon (barrel, bands, tyres), the Flametal Heater and the drying oven; no old flametal material is left.",
+  "timeout": 40,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.arenaGround",
+        "contains": "ground flat"
+      },
+      "timeout": 15
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.flametalSlots",
+      "args": {
+        "prefab": "GP_FlametalCannonBall"
+      },
+      "regex": "ingot slots [1-9][0-9]* of [0-9]+, old flametal 0",
+      "label": "Flametal Cannon Ball"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.flametalSlots",
+      "args": {
+        "prefab": "GP_FlametalCannonBall_projectile"
+      },
+      "regex": "ingot slots [1-9][0-9]* of [0-9]+, old flametal 0",
+      "label": "its flight"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.flametalSlots",
+      "args": {
+        "prefab": "GP_MobileCannon"
+      },
+      "regex": "ingot slots [1-9][0-9]* of [0-9]+, old flametal 0",
+      "label": "Mobile Cannon"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.flametalSlots",
+      "args": {
+        "prefab": "GP_FlametalHeater"
+      },
+      "regex": "ingot slots [1-9][0-9]* of [0-9]+, old flametal 0",
+      "label": "Flametal Heater"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.flametalSlots",
+      "args": {
+        "prefab": "GP_MillOven"
+      },
+      "regex": "ingot slots [1-9][0-9]* of [0-9]+, old flametal 0",
+      "label": "Flametal Drying Oven"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.flametalSlots",
+      "args": {
+        "prefab": "GP_CannonBall"
+      },
+      "contains": "ingot slots 0 of",
+      "label": "the Iron Cannon Ball keeps its iron look"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

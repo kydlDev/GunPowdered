@@ -236,6 +236,12 @@
     "relog-dynamite-hole",
     "relog-terrain-template",
     "meta-terrain-heights-fails",
-    "relog-cannon-broken-rock"
+    "relog-cannon-broken-rock",
+    "blast-depth-from-ground",
+    "grenade-digs",
+    "musket-auto-reload",
+    "musket-faces-aim",
+    "flametal-look",
+    "dynamite-last-no-punch"
   ]
 }

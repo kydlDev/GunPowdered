@@ -1,0 +1,91 @@
+{
+  "name": "blast-depth-from-ground",
+  "description": "D-182 (user 2026-11-24, shot-004: a pack on a rock dug no hole): holes are measured from the ground under the blast, as deep as the user set (dynamite 3 m, pack 5 m, grenade 1.5 m); a pack 3 m up on a rock still digs its full hole; a stick 4 m above the ground does not reach it.",
+  "timeout": 90,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.arenaGround",
+        "contains": "ground flat"
+      },
+      "timeout": 15
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.craterDepths",
+      "expect": "stick 3.0, pack 5.0, grenade 1.5",
+      "label": "the user's depths"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.blastAbove",
+      "args": {
+        "kind": "pack",
+        "up": 3,
+        "dz": 12
+      },
+      "contains": "blast 2 object(s), 3.0 m above ground",
+      "label": "a pack blast 3 m above the ground (as if on a rock), 12 m ahead"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteHoleAtLeast",
+      "args": {
+        "metres": 3.75
+      },
+      "expect": true,
+      "label": "the full hole from the ground under it (5 m deep; at least 3.75 m at its middle)"
+    },
+    {
+      "do": "dynamiteGroundReset"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.blastAbove",
+      "args": {
+        "kind": "stick",
+        "up": 4,
+        "dz": 12
+      },
+      "contains": "blast 1 object(s), 4.0 m above ground",
+      "label": "a stick blast 4 m above the ground: out of its 3 m reach"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteHoleAtLeast",
+      "args": {
+        "metres": 0.3
+      },
+      "expect": false,
+      "label": "no hole (the check that found the pack's hole does not find one here)"
+    },
+    {
+      "do": "dynamiteGroundReset"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

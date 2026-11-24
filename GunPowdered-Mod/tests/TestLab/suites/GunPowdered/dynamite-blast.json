@@ -15,7 +15,7 @@
     {
       "do": "hook",
       "name": "GunPowdered.dynamiteInfo",
-      "contains": "stick True, radius 4, damage 100 tier 2, props True chars False, creatures 20 chars True props False, crater 2.5 x 1.5",
+      "contains": "stick True, radius 4, damage 100 tier 2, props True chars False, creatures 20 chars True props False, crater 2.5 x 3.0",
       "label": "blast 4 m, 100 to buildings up to iron, 20 (a fifth) + burning to creatures (D-107)"
     },
     {

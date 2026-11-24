@@ -47,11 +47,13 @@ namespace GunPowdered.Tests.Unit
             Assert.That(CartUseRules.OnHandle(metres), Is.EqualTo(grabs));
         }
 
-        [Test]
-        public void MuzzleSpot_IsBiggerThanTheOld30Centimetres()
+        [TestCase(0.1f, true, true, TestName = "SwallowsPunch: the press that set the last stick down is no punch")]
+        [TestCase(0.59f, true, true)]
+        [TestCase(0.6f, true, false, TestName = "SwallowsPunch: a later press punches as usual")]
+        [TestCase(0.1f, false, false, TestName = "SwallowsPunch: a weapon in hand attacks as usual")]
+        public void SwallowsPunch(float seconds, bool empty, bool swallowed)
         {
-            Assert.That(CartUseRules.MuzzleWidth, Is.GreaterThan(0.3f));
-            Assert.That(CartUseRules.MuzzleLength, Is.GreaterThan(0.35f));
+            Assert.That(DynamiteRules.SwallowsPunch(seconds, empty), Is.EqualTo(swallowed));
         }
 
         [TestCase(0, 5, true)]

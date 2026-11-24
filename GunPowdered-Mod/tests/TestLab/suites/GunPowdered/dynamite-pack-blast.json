@@ -214,10 +214,10 @@
       "do": "hook",
       "name": "GunPowdered.dynamiteHoleAtLeast",
       "args": {
-        "metres": 1.5
+        "metres": 3.75
       },
       "expect": true,
-      "label": "a deep crater where it stood (2 m deep)"
+      "label": "a deep crater where it stood (5 m deep, D-182)"
     },
     {
       "do": "invoke",

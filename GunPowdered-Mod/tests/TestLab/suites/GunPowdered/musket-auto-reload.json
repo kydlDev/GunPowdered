@@ -1,0 +1,114 @@
+{
+  "name": "musket-auto-reload",
+  "description": "D-182 (user 2026-11-24: 'make musket auto-reload when reaching 0'): the shot that empties the musket starts the reload by itself when cartridges are carried; a shot that leaves one in does not.",
+  "timeout": 60,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.arenaGround",
+        "contains": "ground flat"
+      },
+      "timeout": 15
+    },
+    {
+      "do": "musketStart",
+      "label": "empty backpack, the Iron Musket equipped"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_PaperCartridge",
+      "count": 3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.apiSetLoaded",
+      "args": {
+        "loaded": 2
+      },
+      "expect": "set 2, read 2",
+      "label": "two cartridges in"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketPress",
+      "args": {
+        "secondary": false
+      },
+      "expect": "fired, 1 left; loaded 1; reloading False",
+      "label": "a shot leaves one in"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketAutoReload",
+      "expect": "1 still loaded",
+      "label": "no automatic reload with one still loaded"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketPress",
+      "args": {
+        "secondary": false
+      },
+      "contains": "fired, 0 left; loaded 0",
+      "label": "the last shot empties it"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketAutoReload",
+      "contains": "starts in",
+      "label": "the reload is due by itself"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.musketLoaded",
+        "expect": 1
+      },
+      "timeout": 4
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketAutoReload",
+      "contains": "began: reloading",
+      "label": "it began like the reload key"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.invCount",
+      "args": {
+        "prefab": "GP_PaperCartridge"
+      },
+      "expect": 2,
+      "label": "the cartridge came out of the backpack"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

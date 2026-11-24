@@ -306,7 +306,15 @@ namespace GunPowdered.Testing.TestHooks
             { var returnedAt309 = best; if (RuleLog.Due("DynamiteTestHooks.Nearest:309", 2d)) ModLog.Every("DynamiteTestHooks.Nearest:309", 2d, $"DynamiteTestHooks.Nearest: returns {returnedAt309} (line 309)"); return returnedAt309; }
         }
 
-        static float Ground(Vector3 at)
+        /// <summary>D-182: remembers <paramref name="at"/> as the blast spot and its ground height, for blasts made by other hooks (BlastDepthTestHooks). Returns "marked G" or why not.</summary>
+        internal static string MarkAt(Vector3 at)
+        {
+            _placed = at;
+            _ground = Ground(at);
+            { var returnedAt311 = float.IsNaN(_ground) ? "ground not loaded" : "marked " + _ground.ToString("0.00"); ModLog.Verbose($"DynamiteTestHooks.MarkAt: returns {returnedAt311} (line 311)"); return returnedAt311; }
+        }
+
+        internal static float Ground(Vector3 at)
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.Ground(at={at})");
             float h;

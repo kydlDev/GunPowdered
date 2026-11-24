@@ -1,0 +1,69 @@
+{
+  "name": "musket-faces-aim",
+  "description": "D-182 (user 2026-11-24, shot-002/003: walking towards the camera the musket pointed at the camera and shot backwards): with the musket in both hands the character turns with the camera (and walks sideways / backwards); without it, it turns with the walk.",
+  "timeout": 40,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.arenaGround",
+        "contains": "ground flat"
+      },
+      "timeout": 15
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.facesAim",
+      "expect": "faces the aim False",
+      "label": "no musket: the game's own turning"
+    },
+    {
+      "do": "musketStart",
+      "label": "the Iron Musket equipped (taken up in both hands)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketRaised",
+      "contains": "raised True",
+      "label": "in both hands"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.facesAim",
+      "expect": "faces the aim True",
+      "label": "the body faces the aim"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.facesAim",
+      "expect": "faces the aim False",
+      "label": "put away: the game's own turning again"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}

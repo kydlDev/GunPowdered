@@ -20,8 +20,8 @@ public class TerrainSafetyRulesTests
     static readonly string[] TerrainFields = { "m_modifiedHeight", "m_levelDelta", "m_smoothDelta", "m_modifiedPaint", "m_paintMask" };
 
     /// Hooks that change the ground: a lit charge digs a crater, a spawned location levels and digs its own ground (SwampRuin1: a 20 m hole).
-    static readonly string[] DigHooks = { "GunPowdered.dynamiteLight", "GunPowdered.spawnLocationAt" };
-    static readonly string[] MarkHooks = { "GunPowdered.terrainMark", "GunPowdered.dynamiteGroundMark" };
+    static readonly string[] DigHooks = { "GunPowdered.dynamiteLight", "GunPowdered.spawnLocationAt", "GunPowdered.blastAbove", "GunPowdered.grenadeLand" };     // D-182: blasts and grenades dig too
+    static readonly string[] MarkHooks = { "GunPowdered.terrainMark", "GunPowdered.dynamiteGroundMark", "GunPowdered.blastAbove", "GunPowdered.grenadeLand" };     // D-182: those two mark the ground themselves before the blast
     static readonly string[] ResetHooks = { "GunPowdered.terrainReset", "GunPowdered.dynamiteTerrainReset" };
     static readonly string[] BackHooks = { "GunPowdered.terrainBack", "GunPowdered.dynamiteGroundBack" };
 

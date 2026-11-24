@@ -1,0 +1,62 @@
+{
+  "name": "grenade-digs",
+  "description": "D-182 (user 2026-11-24): a Spiked Grenade chips rock and ore (pickaxe 20, tier 1, below the dynamite) and leaves a 1.5 m deep hole where it bursts.",
+  "timeout": 60,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.arenaGround",
+        "contains": "ground flat"
+      },
+      "timeout": 15
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.grenadeBlastStats",
+      "expect": "pickaxe 20 tier 1, crater 2.0 x 1.5",
+      "label": "pickaxe 20 at tier 1, a 2 m wide 1.5 m deep hole"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.grenadeLand",
+      "args": {
+        "dz": 10
+      },
+      "contains": "grenade landed, marked",
+      "label": "a landed grenade 10 m ahead, its fuse burning"
+    },
+    {
+      "do": "wait",
+      "seconds": 6
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.dynamiteHoleAtLeast",
+      "args": {
+        "metres": 0.8
+      },
+      "expect": true,
+      "label": "a hole where it burst (1.5 m deep; at least 0.8 m at its middle)"
+    },
+    {
+      "do": "dynamiteGroundReset"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}
