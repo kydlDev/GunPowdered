@@ -87,8 +87,9 @@ namespace GunPowdered.Integrations.HarmonyPatches
     [HarmonyPatch(typeof(Vagon), nameof(Vagon.Interact))]
     internal static class MobileCannonTowedGrabPatch
     {
-        static bool Prefix(Vagon __instance, Humanoid character, ref bool __result)
+        static bool Prefix(Vagon __instance, Humanoid character, ref bool __result, bool __runOriginal)
         {
+            if (!__runOriginal) { if (RuleLog.Due("MobileCannonTowedGrabPatch.Prefix:answered", 2d)) ModLog.Every("MobileCannonTowedGrabPatch.Prefix:answered", 2d, "MobileCannonTowedGrabPatch.Prefix: returns false because !__runOriginal - MobileCannonUsePatch already loaded instead of grabbing (line 92)"); return false; }
             if (RuleLog.Due("MobileCannonTowedGrabPatch.Prefix", 2d)) ModLog.Every("MobileCannonTowedGrabPatch.Prefix", 2d, $"MobileCannonTowedGrabPatch.Prefix(__instance={RuleLog.Shown(__instance)}, character={RuleLog.Shown(character)}, __result={RuleLog.Shown(__result)})");
             MobileCannonTow tow = __instance != null ? __instance.GetComponent<MobileCannonTow>() : null;
             if (tow == null || !tow.Towed) { if (RuleLog.Due("MobileCannonTowedGrabPatch.Prefix:94", 2d)) ModLog.Every("MobileCannonTowedGrabPatch.Prefix:94", 2d, $"MobileCannonTowedGrabPatch.Prefix: returns true because tow == null || !tow.Towed (line 94)"); return true; }

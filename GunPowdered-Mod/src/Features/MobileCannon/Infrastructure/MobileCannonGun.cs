@@ -36,6 +36,12 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         internal bool Loading => _loading;
 
+        /// <summary>"loading...", "fuse burning!", "loaded" or "empty".</summary>
+        internal string StateText => Loading ? "loading..." : Lit ? "fuse burning!" : Loaded ? "loaded" : "empty";
+
+        /// <summary>D-182: what the player sees looking at the muzzle - or anywhere on the cannon but its handle.</summary>
+        internal string LoadHoverText() => Localization.instance.Localize("Mobile Cannon (" + StateText + ")\n[<color=yellow><b>$KEY_Use</b></color>] Load gunpowder and a Flametal Cannon Ball");
+
         internal bool IsValid => _nview != null && _nview.IsValid();
 
         internal Transform MuzzlePoint => _muzzle;
@@ -53,7 +59,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 // the muzzle and touch hole are empties of the model; they ride on the barrel so they follow the crank
                 _muzzle = Point(model.Find(MuzzleName), "gp_muzzle");
                 _touchHole = Point(model.Find(TouchHoleName), "gp_touchhole");
-                Handle<MobileCannonMuzzle>(_muzzle, new Vector3(0.3f, 0.3f, 0.35f));
+                Handle<MobileCannonMuzzle>(_muzzle, new Vector3(CartUseRules.MuzzleWidth, CartUseRules.MuzzleWidth, CartUseRules.MuzzleLength));     // D-182: was 0.3 m, the cart's E won
                 Handle<MobileCannonTouchHole>(_touchHole, new Vector3(0.2f, 0.2f, 0.2f));
             }
             WearNTear wnt = GetComponent<WearNTear>();

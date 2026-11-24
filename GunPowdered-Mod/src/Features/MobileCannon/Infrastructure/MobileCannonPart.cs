@@ -27,7 +27,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
 
         protected abstract bool Use(Player p);
 
-        protected string LoadState() => Gun == null ? "?" : Gun.Loading ? "loading..." : Gun.Lit ? "fuse burning!" : Gun.Loaded ? "loaded" : "empty";
+        protected string LoadState() => Gun == null ? "?" : Gun.StateText;
     }
 
     /// <summary>The muzzle: E loads gunpowder and one Cannon Ball.</summary>
@@ -35,7 +35,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
     {
         public override string GetHoverName() => "Mobile Cannon muzzle";
 
-        public override string GetHoverText() => Localization.instance.Localize("Mobile Cannon (" + LoadState() + ")\n[<color=yellow><b>$KEY_Use</b></color>] Load gunpowder and a Flametal Cannon Ball");
+        public override string GetHoverText() => Gun != null ? Gun.LoadHoverText() : "Mobile Cannon muzzle";
 
         protected override bool Use(Player p) => Gun.Load(p);
     }
