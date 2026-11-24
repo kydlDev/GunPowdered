@@ -82,8 +82,9 @@ namespace GunPowdered.Features.Grenades.Infrastructure
                 IProjectile p = b.GetComponentInChildren<IProjectile>();
                 if (p != null) p.Setup(_owner, Vector3.zero, 0f, null, null, null);      // the thrower owns the blast (friendly fire, who gets the kill)
             }
+            bool hole = GunPowdered.Features.Dynamite.Infrastructure.CraterPlacer.Place(GrenadeSetup.Crater, transform.position, GunPowdered.Configuration.ModSettings.GrenadeCraterDepth.Value, "Spiked Grenade");   // D-182
             Bursts++;
-            ModLog.Info("GrenadeFuse: burst at " + transform.position.ToString("0.0") + (blast == null ? " (no blast prefab!)" : ""));
+            ModLog.Info("GrenadeFuse: burst at " + transform.position.ToString("0.0") + ", hole " + hole + (blast == null ? " (no blast prefab!)" : ""));
             _nview.Destroy();
         }
     }

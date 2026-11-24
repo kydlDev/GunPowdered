@@ -19,6 +19,15 @@ namespace GunPowdered.Configuration
         public static readonly Tunable<float> GrenadeBlunt = new Tunable<float>("Grenades", "GrenadeBlunt", 50f, 0f, 500f, "Blunt damage of the blast (0-500).");
         public static readonly Tunable<float> GrenadePierce = new Tunable<float>("Grenades", "GrenadePierce", 30f, 0f, 500f, "Pierce damage of the spikes (0-500).");
         public static readonly Tunable<float> GrenadeFire = new Tunable<float>("Grenades", "GrenadeFire", 5f, 0f, 100f, "Fire damage per second of the burning the blast sets, for 5 s (0-100, D-107).");
+        // D-182 (user 2026-11-24): grenades chip rock and ore a little (below the dynamite's tier 2) and leave a 1.5 m deep hole
+        public static readonly Tunable<float> GrenadePickaxe = new Tunable<float>("Grenades", "GrenadePickaxe", 20f, 0f, 500f,
+            "Pickaxe damage of the blast to rock and ore (0-500; the dynamite has 100).");
+        public static readonly Tunable<int> GrenadeToolTier = new Tunable<int>("Grenades", "GrenadeToolTier", 1, 0, 6,
+            "The toughest rock or ore the blast chips, as the game's tool tier (0-6; 1 = below the dynamite's 2).");
+        public static readonly Tunable<float> GrenadeCraterRadius = new Tunable<float>("Grenades", "GrenadeCraterRadius", 1f, 0.25f, 4f,
+            "Radius of the grenade's hole in the ground in m (0.25-4).");
+        public static readonly Tunable<float> GrenadeCraterDepth = new Tunable<float>("Grenades", "GrenadeCraterDepth", GunPowdered.Features.Dynamite.Domain.CraterRules.GrenadeDepth, 0.1f, 4f,
+            "Depth of the grenade's hole in m, measured from the ground under the burst; also how far below the burst the ground can lie and still be dug (0.1-4).");
         public static readonly Tunable<float> GrenadeRecoil = new Tunable<float>("Grenades", "GrenadeRecoil", 1f, 0f, 10f,
             "Push back on the thrower when the grenade leaves the hand (0-10, the game's own recoil pushback).");
 

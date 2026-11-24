@@ -16,8 +16,8 @@ namespace GunPowdered.Configuration
             "The toughest material the blast breaks, as the game's tool tier (0-6; 2 = what an iron pickaxe breaks).");
         public static readonly Tunable<float> DynamiteCraterRadius = new Tunable<float>("Dynamite", "DynamiteCraterRadius", 1.25f, 0.25f, 5f,
             "Radius of the round hole in the ground in m (0.25-5; 1.25 = about 2.5 m wide).");
-        public static readonly Tunable<float> DynamiteCraterDepth = new Tunable<float>("Dynamite", "DynamiteCraterDepth", 1.5f, 0.1f, 5f,
-            "Depth of the hole in m (0.1-5).");
+        public static readonly Tunable<float> DynamiteCraterDepth = new Tunable<float>("Dynamite", "DynamiteCraterDepth", GunPowdered.Features.Dynamite.Domain.CraterRules.StickDepth, 0.1f, 5f,
+            "Depth of the hole in m, measured from the ground under the stick; also how far below the stick the ground can lie and still be dug (0.1-5, D-182).");
         public static readonly Tunable<float> DynamiteCreatureFire = new Tunable<float>("Dynamite", "DynamiteCreatureFire", 5f, 0f, 100f,
             "Fire damage per second of the burning the blast sets on creatures, for 5 s, on top of their 20 % share (0-100, D-107).");
 
@@ -34,7 +34,7 @@ namespace GunPowdered.Configuration
             "Fire damage per second of the burning the pack sets on creatures, for 5 s, on top of their 20 % share (0-200).");
         public static readonly Tunable<float> PackCraterRadius = new Tunable<float>("Dynamite", "PackCraterRadius", 5f, 0.25f, 10f,
             "Radius of the pack's hole in the ground in m (0.25-10).");
-        public static readonly Tunable<float> PackCraterDepth = new Tunable<float>("Dynamite", "PackCraterDepth", 2f, 0.1f, 6f,
-            "Depth of the pack's hole in m (0.1-6).");
+        public static readonly Tunable<float> PackCraterDepth = new Tunable<float>("Dynamite", "PackCraterDepth", GunPowdered.Features.Dynamite.Domain.CraterRules.PackDepth, 0.1f, 10f,
+            "Depth of the pack's hole in m, measured from the ground under the pack; also how far below the pack the ground can lie and still be dug (0.1-10, D-182).");
     }
 }

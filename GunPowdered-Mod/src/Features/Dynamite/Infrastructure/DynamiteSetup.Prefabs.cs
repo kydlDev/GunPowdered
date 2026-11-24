@@ -102,6 +102,48 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             { var returnedAt102 = clone; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteSetup.MakeExplosion: returns {returnedAt102} (line 102)"); return returnedAt102; }
         }
 
+        /// <summary>Craters of other blasts (D-182: the grenade's) that are listed as terrain operations with the charges' own.</summary>
+        static readonly System.Collections.Generic.List<GameObject> ExtraCraters = new System.Collections.Generic.List<GameObject>();
+
+        /// <summary>
+        /// D-182: a crater prefab for another blast (the grenade), listed as a terrain operation like the charges' craters. Expected outcome: the prefab
+        /// (made once per id), or null when the game's crater base is missing.
+        /// </summary>
+        internal static GameObject OtherCrater(string id)
+        {
+            foreach (GameObject known in ExtraCraters) if (known != null && known.name == id) { ModLog.Verbose($"DynamiteSetup.OtherCrater: {id} already made - returns it"); return known; }
+            GameObject crater = MakeCrater(id);
+            if (crater == null) { ModLog.Warn($"DynamiteSetup.OtherCrater: {id} could not be made - that blast digs no hole"); return null; }
+            ExtraCraters.Add(crater);
+            bool listed = ObjectDB.instance != null && ListOne(ObjectDB.instance, crater);
+            ModLog.Verbose($"DynamiteSetup.OtherCrater: {id} made, listed as a terrain operation now {listed} (later ObjectDB rebuilds: DynamiteTerrainPatch)");
+            return crater;
+        }
+
+        /// <summary>
+        /// Shapes a crater's terrain operation: a round hole <paramref name="radius"/> m wide and <paramref name="depth"/> m deep, smoothed, the ground around
+        /// painted bare. Expected outcome: true when the prefab has a TerrainOp and carries the values.
+        /// </summary>
+        internal static bool ShapeCrater(GameObject crater, float radius, float depth)
+        {
+            TerrainOp dig = crater != null ? crater.GetComponent<TerrainOp>() : null;
+            if (dig == null) { ModLog.Verbose($"DynamiteSetup.ShapeCrater: returns false because there is no TerrainOp on {(crater != null ? crater.name : "<none>")}"); return false; }
+            TerrainOp.Settings s = dig.m_settings;
+            s.m_level = false;
+            s.m_raise = true;
+            s.m_raiseRadius = radius;
+            s.m_raiseDelta = -depth;
+            s.m_square = false;                  // round
+            s.m_smooth = true;
+            s.m_smoothRadius = radius * 1.4f;
+            s.m_paintCleared = true;
+            s.m_paintType = TerrainModifier.PaintType.Dirt;    // the burnt, bare ground around the hole
+            s.m_paintRadius = radius * 1.5f;
+            dig.m_settings = s;                  // the same object (Settings is a class); kept explicit
+            bool shaped = Mathf.Approximately(s.m_raiseRadius, radius) && Mathf.Approximately(s.m_raiseDelta, -depth);
+            { if (RuleLog.Due("DynamiteSetup.ShapeCrater:" + crater.name, 2d)) ModLog.Every("DynamiteSetup.ShapeCrater:" + crater.name, 2d, $"DynamiteSetup.ShapeCrater: {crater.name} radius {radius:0.##} m, depth {depth:0.##} m - returns {shaped} (line 145)"); return shaped; }
+        }
+
         static GameObject MakeCrater(string id)
         {
             if (PrefabManager.Instance.GetPrefab(CraterBase) == null) { ModLog.Error("DynamiteSetup: no vanilla " + CraterBase + " - " + id + " digs no hole"); return null; }

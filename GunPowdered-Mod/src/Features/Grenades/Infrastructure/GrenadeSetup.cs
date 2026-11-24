@@ -17,11 +17,16 @@ namespace GunPowdered.Features.Grenades.Infrastructure
     {
         internal const string ProjectileId = "GP_SpikedGrenade_projectile";
         internal const string ExplosionId = "GP_SpikedGrenade_explosion";
+        /// <summary>D-182: the grenade's hole in the ground (a crater terrain operation like the dynamite's, made by DynamiteSetup).</summary>
+        internal const string CraterId = "GP_SpikedGrenade_crater";
         // the vanilla bases: the Ooze Bomb's flight (gravity 10, no bounce) and the Deep North dynamite's fiery blast (not the ooze's green poison cloud)
         static readonly string[] ProjectileBases = { "oozebomb_projectile", "bilebomb_projectile" };
         static readonly string[] ExplosionBases = { "bombdynamite_explosion", "bilebomb_explosion", "oozebomb_explosion" };
 
-        static GameObject _projectile, _explosion, _item, _landed;
+        static GameObject _projectile, _explosion, _item, _landed, _crater;
+
+        /// <summary>D-182: the crater the burst leaves (GrenadeFuse places it on the ground under the burst).</summary>
+        internal static GameObject Crater => _crater;
 
         /// <summary>D-157: the landed grenade whose fuse burns before the blast.</summary>
         internal const string LandedId = "GP_SpikedGrenade_landed";
@@ -70,7 +75,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             return landed;
         }
         // the values last put on the prefabs and the ones now asked for (filled in place: no allocation in the per-frame check)
-        static readonly float[] Applied = new float[9], Wanted = new float[9];
+        static readonly float[] Applied = new float[13], Wanted = new float[13];
         static bool _everApplied;
 
         /// <summary>
@@ -93,6 +98,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             if (_explosion != null) StripTerrainWork(_explosion);
             bool hand = AttachHandModel(itemPrefab);
             if (_landed == null) _landed = MakeLanded(itemPrefab);
+            if (_crater == null) _crater = GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.OtherCrater(CraterId);
             bool applied = Apply();
             ModLog.Verbose("GrenadeSetup: configured - item " + (_item != null) + ", projectile " + (_projectile != null) + ", explosion " + (_explosion != null) + ", values applied " + applied + ", hand model " + hand);
             return _item != null && _projectile != null && _explosion != null && applied;
@@ -124,6 +130,10 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             into[6] = ModSettings.GrenadeFire.Value;
             into[7] = ModSettings.GrenadeRecoil.Value;
             into[8] = TestFlightDrag;
+            into[9] = ModSettings.GrenadePickaxe.Value;
+            into[10] = ModSettings.GrenadeToolTier.Value;
+            into[11] = ModSettings.GrenadeCraterRadius.Value;
+            into[12] = ModSettings.GrenadeCraterDepth.Value;
         }
 
         /// <summary>
@@ -164,9 +174,10 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             {
                 m_blunt = ModSettings.GrenadeBlunt.Value,
                 m_pierce = ModSettings.GrenadePierce.Value,
-                m_fire = GunPowdered.Core.BurnRules.Total(ModSettings.GrenadeFire.Value)
+                m_fire = GunPowdered.Core.BurnRules.Total(ModSettings.GrenadeFire.Value),
+                m_pickaxe = ModSettings.GrenadePickaxe.Value          // D-182 (user 2026-11-24): grenades chip rock and ore a little
             };
-            blast.m_toolTier = 0;
+            blast.m_toolTier = ModSettings.GrenadeToolTier.Value;   // below the dynamite's tier
             blast.m_hitProps = true;                 // buildings, trees and rocks take the normal damage (user D-100: only the dynamite is special)
             blast.m_hitTerrain = false;
             blast.m_spawnOnHitTerrain = null;
@@ -174,10 +185,12 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             blast.m_hitOwner = true;                 // the red ring warns of it
             blast.m_hitAfterTtl = false;             // hit WITH the burst: the dynamite base hits only when its 3 s life ends (bombdynamite_explosion m_hitAfterTtl 1, D-100)
 
+            bool hole = GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.ShapeCrater(_crater, ModSettings.GrenadeCraterRadius.Value, ModSettings.GrenadeCraterDepth.Value);
+            if (!hole) ModLog.Warn("GrenadeSetup: the grenade crater could not be shaped - a burst digs no hole");
             Read(Applied);
             _everApplied = true;
             ModLog.Verbose("GrenadeSetup: applied - speed " + speed + " m/s, gravity " + flight.m_gravity + ", fuse " + flight.m_ttl + " s, burst offset " + flight.m_spawnOffset + ", radius " + blast.m_radius
-                + " m, damage blunt " + blast.m_damage.m_blunt + " pierce " + blast.m_damage.m_pierce + " fire " + blast.m_damage.m_fire + ", recoil " + attack.m_recoilPushback
+                + " m, damage blunt " + blast.m_damage.m_blunt + " pierce " + blast.m_damage.m_pierce + " fire " + blast.m_damage.m_fire + " pickaxe " + blast.m_damage.m_pickaxe + " tier " + blast.m_toolTier + ", hole " + hole + ", recoil " + attack.m_recoilPushback
                 + (TestFlightDrag > 0f ? ", TEST flight drag " + TestFlightDrag : ""));
             { var returnedAt182 = Mathf.Approximately(attack.m_projectileVel, speed) && Mathf.Approximately(blast.m_radius, ModSettings.GrenadeRadius.Value) && blast.m_hitProps; if (RuleLog.Due("GrenadeSetup.Apply:182", 2d)) ModLog.Every("GrenadeSetup.Apply:182", 2d, $"GrenadeSetup.Apply: returns {returnedAt182} (line 182)"); return returnedAt182; }
         }

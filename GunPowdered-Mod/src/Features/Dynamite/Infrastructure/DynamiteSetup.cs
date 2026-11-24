@@ -148,20 +148,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             creatures.m_dodgeable = false;
             creatures.m_blockable = false;
 
-            TerrainOp dig = kind.Crater.GetComponent<TerrainOp>();
-            if (dig == null) { if (RuleLog.Due("ChargeKind.ApplyKind:152", 2d)) ModLog.Every("ChargeKind.ApplyKind:152", 2d, $"ChargeKind.ApplyKind: returns false because dig == null (line 152)"); return false; }
-            TerrainOp.Settings s = dig.m_settings;
-            s.m_level = false;
-            s.m_raise = true;
-            s.m_raiseRadius = kind.CraterRadius();
-            s.m_raiseDelta = -kind.CraterDepth();
-            s.m_square = false;                  // round
-            s.m_smooth = true;
-            s.m_smoothRadius = kind.CraterRadius() * 1.4f;
-            s.m_paintCleared = true;
-            s.m_paintType = TerrainModifier.PaintType.Dirt;    // the burnt, bare ground around the hole
-            s.m_paintRadius = kind.CraterRadius() * 1.5f;
-            dig.m_settings = s;                  // the same object (Settings is a class); kept explicit
+            if (!ShapeCrater(kind.Crater, kind.CraterRadius(), kind.CraterDepth())) { ModLog.Warn($"ChargeKind.ApplyKind: {kind.Name} crater has no TerrainOp - returns false"); return false; }
             { var returnedAt165 = Mathf.Approximately(props.m_radius, r) && Mathf.Approximately(creatures.m_damage.m_blunt, c); if (RuleLog.Due("ChargeKind.ApplyKind:165", 2d)) ModLog.Every("ChargeKind.ApplyKind:165", 2d, $"ChargeKind.ApplyKind: returns {returnedAt165} (line 165)"); return returnedAt165; }
         }
 
@@ -175,6 +162,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             if (db == null || StickKind.Crater == null) return false;
             bool all = true;
             foreach (ChargeKind k in Kinds) if (k.Crater != null) all &= ListOne(db, k.Crater);
+            foreach (GameObject extra in ExtraCraters) all &= ListOne(db, extra);
             { var returnedAt178 = all; if (RuleLog.Due("ChargeKind.ListCrater:178", 2d)) ModLog.Every("ChargeKind.ListCrater:178", 2d, $"ChargeKind.ListCrater: returns {returnedAt178} (line 178)"); return returnedAt178; }
         }
 
@@ -331,11 +319,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
                 foreach (Aoe a in blast.GetComponentsInChildren<Aoe>(true)) a.Setup(owner, Vector3.zero, -1f, null, null, null);
                 made++;
             }
-            if (kind.Crater != null)
-            {
-                Object.Instantiate(kind.Crater, at - Vector3.up * 0.15f, Quaternion.identity);
-                made++;
-            }
+            if (CraterPlacer.Place(kind.Crater, at, kind.CraterDepth(), kind.Name)) made++;      // D-182: from the ground under the charge
             { var returnedAt339 = made; if (RuleLog.Due("ChargeKind.Blast:339", 2d)) ModLog.Every("ChargeKind.Blast:339", 2d, $"ChargeKind.Blast: returns {returnedAt339} (line 339)"); return returnedAt339; }
         }
 
