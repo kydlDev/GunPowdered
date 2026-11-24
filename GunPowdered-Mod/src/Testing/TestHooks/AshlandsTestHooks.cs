@@ -176,8 +176,13 @@ namespace GunPowdered.Testing.TestHooks
         /// </summary>
         internal static float Ground(Vector3 at)
         {
-            if (Physics.Raycast(new Vector3(at.x, at.y + 40f, at.z), Vector3.down, out RaycastHit hit, 200f, LayerMask.GetMask("terrain", "static_solid", "Default"), QueryTriggerInteraction.Ignore))
+            // a20ash2 rep02-mobilecannon-ash: the ray hit the crown of an AshlandsTree1 (51.8 m over ground at 36.6 m): the wall stood in the tree, the game
+            // counted the tree as its ash roof and the wall never wore. Trees are skipped: the nearest hit that is not part of a tree is the ground.
+            RaycastHit[] hits = Physics.RaycastAll(new Vector3(at.x, at.y + 40f, at.z), Vector3.down, 200f, LayerMask.GetMask("terrain", "static_solid", "Default"), QueryTriggerInteraction.Ignore);
+            System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+            foreach (RaycastHit hit in hits)
             {
+                if (IsTree(hit.collider)) { if (RuleLog.Due("AshlandsTestHooks.Ground:tree", 2d)) ModLog.Every("AshlandsTestHooks.Ground:tree", 2d, $"AshlandsTestHooks.Ground: skips to the next item (continue) because {hit.collider.name} at {hit.point.y:0.0} m is part of a tree (line 185)"); continue; }
                 if (RuleLog.Due("AshlandsTestHooks.Ground:ray", 2d)) ModLog.Every("AshlandsTestHooks.Ground:ray", 2d, $"AshlandsTestHooks.Ground: returns {hit.point.y:0.0} - the ray down hit {hit.collider.name}");
                 return hit.point.y;
             }
@@ -186,13 +191,21 @@ namespace GunPowdered.Testing.TestHooks
             return h;
         }
 
+        /// <summary>A collider of a choppable tree (the game's TreeBase), or of an object whose prefab name says tree (AshlandsTree1: its roof collider "default").</summary>
+        static bool IsTree(Collider c)
+        {
+            bool tree = c.GetComponentInParent<TreeBase>() != null || c.transform.root.name.IndexOf("Tree", System.StringComparison.OrdinalIgnoreCase) >= 0;
+            if (RuleLog.Due("AshlandsTestHooks.IsTree", 2d)) ModLog.Every("AshlandsTestHooks.IsTree", 2d, $"AshlandsTestHooks.IsTree: returns {tree} for {c.transform.root.name}");
+            return tree;
+        }
+
         /// <summary>Places a plain wooden wall 2.5 m beside the cannon spot (the comparison piece). Returns "wall placed at (x, y, z)" or why not.</summary>
         [TestHook("GunPowdered.testWallPlace")]
         static string TestWallPlace()
         {
             Player p = Player.m_localPlayer;
             GameObject prefab = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(WallPrefab) : null;
-            if (p == null || prefab == null) { ModLog.Verbose("AshlandsTestHooks.TestWallPlace: returns \"no player or no wall prefab\" because p == null || prefab == null (line 195)"); return "no player or no wall prefab"; }
+            if (p == null || prefab == null) { ModLog.Verbose("AshlandsTestHooks.TestWallPlace: returns \"no player or no wall prefab\" because p == null || prefab == null (line 208)"); return "no player or no wall prefab"; }
             Vector3 at = _spot == Vector3.zero ? p.transform.position + p.transform.forward * 4f + p.transform.rotation * Vector3.left * 2.5f : _spot + Vector3.left * 2.5f;
             at.y = Ground(at);
             _wall = Object.Instantiate(prefab, at, p.transform.rotation);
@@ -245,7 +258,7 @@ namespace GunPowdered.Testing.TestHooks
 
         static float Health(GameObject piece)
         {
-            if (piece == null) { if (RuleLog.Due("AshlandsTestHooks.Health:none", 2d)) ModLog.Every("AshlandsTestHooks.Health:none", 2d, "AshlandsTestHooks.Health: returns NaN because piece == null (line 248)"); return float.NaN; }
+            if (piece == null) { if (RuleLog.Due("AshlandsTestHooks.Health:none", 2d)) ModLog.Every("AshlandsTestHooks.Health:none", 2d, "AshlandsTestHooks.Health: returns NaN because piece == null (line 261)"); return float.NaN; }
             WearNTear w = piece.GetComponent<WearNTear>();
             ZNetView v = piece.GetComponent<ZNetView>();
             { float h = w == null ? float.NaN : v != null && v.IsValid() ? v.GetZDO().GetFloat(ZDOVars.s_health, w.m_health) : w.m_health; if (RuleLog.Due("AshlandsTestHooks.Health", 2d)) ModLog.Every("AshlandsTestHooks.Health", 2d, $"AshlandsTestHooks.Health: returns {h} for {piece.name}"); return h; }
@@ -273,7 +286,7 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.ashDamage")]
         static string AshDamage(double value)
         {
-            if (Game.instance == null) { ModLog.Verbose("AshlandsTestHooks.AshDamage: returns \"no game\" because Game.instance == null (line 276)"); return "no game"; }
+            if (Game.instance == null) { ModLog.Verbose("AshlandsTestHooks.AshDamage: returns \"no game\" because Game.instance == null (line 289)"); return "no game"; }
             float old = Game.instance.m_ashDamage;
             if (float.IsNaN(_ashBefore)) _ashBefore = old;
             Game.instance.m_ashDamage = (float)value;
@@ -294,7 +307,7 @@ namespace GunPowdered.Testing.TestHooks
                 foreach (GameObject g in ZNetScene.instance.m_prefabs)
                     if (g != null && g.GetComponent<Fire>() != null) { fire = g; ModLog.Verbose("AshlandsTestHooks.FireAtBoth: stops the search (break) because " + g.name + " has the game's Fire"); break; }
             GameObject cannon = MobileCannonTestHooks.Cannon;
-            if (fire == null || cannon == null || _wall == null) { ModLog.Verbose($"AshlandsTestHooks.FireAtBoth: returns why not because fire == null || cannon == null || _wall == null (fire {fire != null}, cannon {cannon != null}, wall {_wall != null}) (line 297)"); return $"fire {fire != null}, cannon {cannon != null}, wall {_wall != null}"; }
+            if (fire == null || cannon == null || _wall == null) { ModLog.Verbose($"AshlandsTestHooks.FireAtBoth: returns why not because fire == null || cannon == null || _wall == null (fire {fire != null}, cannon {cannon != null}, wall {_wall != null}) (line 310)"); return $"fire {fire != null}, cannon {cannon != null}, wall {_wall != null}"; }
             Object.Instantiate(fire, cannon.transform.position + Vector3.up * 0.4f, Quaternion.identity);
             Object.Instantiate(fire, _wall.transform.position + Vector3.up * 0.4f, Quaternion.identity);
             string s = "fire " + fire.name + " at cannon and wall";
@@ -326,7 +339,7 @@ namespace GunPowdered.Testing.TestHooks
                 fires++;
             }
             ModLog.Info($"AshlandsTestHooks: wall removed, {fires} fire(s) put out");
-            ModLog.Verbose("AshlandsTestHooks.TestWallRemove: returns \"wall removed\" (line 329)");
+            ModLog.Verbose("AshlandsTestHooks.TestWallRemove: returns \"wall removed\" (line 342)");
             return "wall removed";
         }
     }
