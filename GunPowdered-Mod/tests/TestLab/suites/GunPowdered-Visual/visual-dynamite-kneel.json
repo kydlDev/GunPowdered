@@ -67,6 +67,12 @@
       "seconds": 0.6
     },
     {
+      "do": "hook",
+      "name": "GunPowdered.freeCamSees",
+      "contains": "player in view",
+      "label": "the player is in the picture (a camera placed before a walk once showed empty grass, a19terrain-1)"
+    },
+    {
       "do": "invoke",
       "method": "Kydl.GameProbe.ProbeApi.Screenshot",
       "label": "GameProbe shot: dynamite-kneel-side"
@@ -89,6 +95,12 @@
     {
       "do": "wait",
       "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCamSees",
+      "contains": "player in view",
+      "label": "the player is in the picture (a camera placed before a walk once showed empty grass, a19terrain-1)"
     },
     {
       "do": "invoke",
@@ -130,24 +142,15 @@
       "seconds": 1.5
     },
     {
+      "do": "hook",
+      "name": "GunPowdered.freeCamSees",
+      "contains": "player in view",
+      "label": "the player is in the picture (a camera placed before a walk once showed empty grass, a19terrain-1)"
+    },
+    {
       "do": "invoke",
       "method": "Kydl.GameProbe.ProbeApi.Screenshot",
       "label": "GameProbe shot: dynamite-sparkle-close"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.freeCam",
-      "args": {
-        "azimuth": 160,
-        "elevation": 12,
-        "metres": 3.2
-      },
-      "contains": "free camera",
-      "label": "from the front"
-    },
-    {
-      "do": "wait",
-      "seconds": 0.5
     },
     {
       "do": "hook",
@@ -160,8 +163,25 @@
       "label": "the second stick: the player walks 4.8 m on and sets it down 1.2 m in front like any player, kneeling again (stays there for the picture)"
     },
     {
+      "do": "hook",
+      "name": "GunPowdered.freeCam",
+      "args": {
+        "azimuth": 160,
+        "elevation": 12,
+        "metres": 3.2
+      },
+      "contains": "free camera",
+      "label": "from the front, around the spot the player walked to (D-174: placed after the walk)"
+    },
+    {
       "do": "wait",
-      "seconds": 0.6
+      "seconds": 0.3
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.freeCamSees",
+      "contains": "player in view",
+      "label": "the player is in the picture (a camera placed before a walk once showed empty grass, a19terrain-1)"
     },
     {
       "do": "invoke",

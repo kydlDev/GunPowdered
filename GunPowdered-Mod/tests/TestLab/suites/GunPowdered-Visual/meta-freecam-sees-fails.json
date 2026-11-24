@@ -1,0 +1,16 @@
+{
+  "name": "meta-freecam-sees-fails",
+  "description": "D-175 negative test: freeCamSees must fail when the player is not in the picture (a camera placed, then the player 30 m to the side), so a picture step cannot pass on empty grass again (a19terrain-1 dynamite-kneel-front).",
+  "timeout": 40,
+  "expectFailure": "the player is in the picture",
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.freeCam", "args": { "azimuth": 0, "elevation": 8, "metres": 3.2 }, "contains": "free camera", "label": "a camera behind the player" },
+    { "do": "teleport", "x": 145, "z": 28 },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.freeCamSees", "contains": "player in view", "label": "the player is in the picture" },
+    { "do": "hook", "name": "GunPowdered.freeCamOff", "label": "free camera removed" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

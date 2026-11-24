@@ -106,6 +106,7 @@
   "resetBetweenTests": true,
   "tests": [
     "meta-cave-verdict-fails",
+    "meta-freecam-sees-fails",
     "visual-pieces",
     "visual-cannon",
     "visual-flametal-ball",
