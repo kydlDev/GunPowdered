@@ -25,10 +25,11 @@ public static class GunPowderedArtBuilder
         new MatDef("musket_iron", Kind.Iron, 0.27f, 0.27f, 0.28f, 0.45f),
         new MatDef("musket_brass", Kind.Metal, 0.77f, 0.65f, 0.38f, 0.60f),
         new MatDef("musket_steel", Kind.Metal, 0.58f, 0.58f, 0.60f, 0.60f),
-        new MatDef("flametal", Kind.Iron, 0.33f, 0.32f, 0.33f, 0.55f),
+        new MatDef("flametal", Kind.Flametal, 0.24f, 0.28f, 0.32f, 0.40f, 0.6f),         // D-192: our own look like the game's FlametalNew (slate blue-grey, speckled)
+        new MatDef("flametal_wheel", Kind.Flametal, 0.56f, 0.64f, 0.72f, 0.82f, 0.85f),  // D-192: the Mobile Cannon's wheel metal, shinier and lighter than the ash wood
         new MatDef("ashwood", Kind.Wood, 0.40f, 0.36f, 0.33f, 0.15f),
         new MatDef("carriage_blackiron", Kind.Iron, 0.25f, 0.25f, 0.26f, 0.40f),
-        new MatDef("flametal_glow", Kind.Glow, 0.98f, 0.58f, 0.25f, 0.50f),
+        new MatDef("flametal_glow", Kind.Glow, 0.35f, 0.62f, 1.00f, 0.50f),             // D-192: blue glow like the game's new flametal (was orange)
         new MatDef("arrow_ash", Kind.Ash, 0.77f, 0.68f, 0.55f, 0.15f),
         new MatDef("arrow_feather", Kind.Feather, 0.70f, 0.29f, 0.25f, 0.10f),
         new MatDef("arrow_horn", Kind.Horn, 0.93f, 0.91f, 0.84f, 0.50f),
@@ -63,7 +64,7 @@ public static class GunPowderedArtBuilder
         new MatDef("ext_copper", Kind.Metal, 0.79f, 0.56f, 0.38f, 0.65f, 0.8f),
         new MatDef("ext_marble", Kind.Marble, 0.24f, 0.24f, 0.26f, 0.70f),
         new MatDef("ext_ashwood", Kind.Wood, 0.40f, 0.37f, 0.35f, 0.15f),
-        new MatDef("ext_flametal", Kind.Flametal, 0.30f, 0.28f, 0.28f, 0.55f, 0.8f),     // D-138: dark metal with orange veins like flametal
+        new MatDef("ext_flametal", Kind.Flametal, 0.24f, 0.28f, 0.32f, 0.40f, 0.6f),     // D-192: like the game's FlametalNew (was D-138's dark metal with orange veins)
         new MatDef("ext_glow", Kind.Glow, 0.98f, 0.58f, 0.25f, 0.50f),
         new MatDef("ext_grausten", Kind.Grausten, 0.46f, 0.48f, 0.52f, 0.10f),   // D-138: the Flametal Drying Oven's table, like Grausten
         new MatDef("ext_glass", Kind.Glass, 1.00f, 0.55f, 0.20f, 0.90f),        // D-138: the see-through orange panes of the fire boxes
@@ -136,7 +137,7 @@ public static class GunPowderedArtBuilder
             {
                 float v = Shade(d.Kind, x, y, N, seed);                        // 1 = base colour
                 var c = new Color(Mathf.Clamp01(d.Color.r * v), Mathf.Clamp01(d.Color.g * v), Mathf.Clamp01(d.Color.b * v), 1f);
-                if (d.Kind == Kind.Flametal && FlametalVein(x, y, seed)) c = new Color(0.95f, 0.45f, 0.10f, 1f);
+                if (d.Kind == Kind.Flametal) c = FlametalSpeck(c, x, y, seed);
                 tex.SetPixel(x, y, c);
             }
         tex.Apply();
@@ -154,11 +155,15 @@ public static class GunPowderedArtBuilder
         imp.SaveAndReimport();
     }
 
-    // thin glowing-orange cracks over the dark metal, like the game's flametal
-    private static bool FlametalVein(int x, int y, int seed)
+    // D-192: the game's FlametalNew ingot is slate blue-grey with darker blotches and a few lighter teal-grey flecks (measured from the game's
+    // texture as a reference only: base ~(57,67,77), dark ~(41,51,62), light ~(105,122,118)); our own pattern, nothing of the game copied
+    private static Color FlametalSpeck(Color c, int x, int y, int seed)
     {
-        float wave = Mathf.Sin((x * 0.9f + y * 0.45f) * 0.32f + 6f * Hash(x / 10, y / 10, seed));
-        return Mathf.Abs(wave) < 0.07f && Hash(x / 3, y / 3, seed + 7) > 0.35f;
+        float blot = Hash(x / 4, y / 4, seed + 3);
+        if (blot > 0.82f) return new Color(c.r * 0.72f, c.g * 0.74f, c.b * 0.78f, 1f);                              // darker patches
+        float fleck = Hash(x / 2, y / 2, seed + 11);
+        if (fleck > 0.93f) return Color.Lerp(c, new Color(c.r * 1.65f, c.g * 1.75f, c.b * 1.5f, 1f), 0.8f);          // lighter teal-grey flecks
+        return c;
     }
 
     private static float Shade(Kind k, int x, int y, int n, int seed)
@@ -284,9 +289,17 @@ public static class GunPowderedArtBuilder
         var imp = AssetImporter.GetAtPath(path);
         imp.assetBundleName = Bundle;
         imp.SaveAndReimport();
+        if (it.Prefab == "GP_MobileCannon") SetWheelMetal(path, AssetDatabase.LoadAssetAtPath<Material>(Art + "/Materials/flametal_wheel_mat.mat"));   // D-192
     }
 
     // ---------- icons: 256 px, transparent background, rendered from the prefab ----------
+    // D-192 (user 2026-11-24 18:22 "a bit bigger, proportional to the window, not to each other"): these icons are fitted to their own square - the
+    // camera frames the bounding box's sphere, which leaves a round model (the cannon ball) at about half the square; after a first render the visible
+    // pixels are measured and, when the longer side fills less than GoodFill, the camera comes closer so it fills TargetFill.
+    private static readonly HashSet<string> FitIcons = new HashSet<string> { "MobileCannon", "FlametalHeater", "MillOven", "FlametalCannonBall" };
+    private const float TargetFill = 0.9f;
+    private const float GoodFill = 0.85f;
+
     private static void MakeIcon(ItemDef it)
     {
         var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Art + "/Prefabs/" + it.Prefab + ".prefab");
@@ -296,32 +309,18 @@ public static class GunPowderedArtBuilder
             var inst = (GameObject)Object.Instantiate(prefab);
             pru.AddSingleGO(inst);
             var b = Measure(inst);
-            var cam = pru.camera;
-            cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = new Color(0, 0, 0, 0);
-            cam.fieldOfView = 25f; cam.nearClipPlane = 0.05f; cam.farClipPlane = 100f;
-            float radius = b.extents.magnitude;
-            Vector3 dir = it.IconDir.normalized;
-            cam.transform.position = b.center + dir * (radius / Mathf.Sin(cam.fieldOfView * 0.5f * Mathf.Deg2Rad)) * 1.12f;
-            cam.transform.LookAt(b.center);
-            pru.lights[0].intensity = 1.3f; pru.lights[0].transform.rotation = Quaternion.Euler(40f, -35f, 0f);
-            pru.lights[1].intensity = 0.7f; pru.lights[1].transform.rotation = Quaternion.Euler(340f, 150f, 0f);
-            RenderSettings.ambientLight = new Color(0.55f, 0.55f, 0.6f);
-            // EndStaticPreview returns an RGB texture (no alpha: the icons had a black background, user 2026-11-19), so the preview renders into our
-            // own ARGB target and is read back as RGBA
-            pru.BeginStaticPreview(new Rect(0, 0, 256, 256));
-            var rt = new RenderTexture(256, 256, 24, RenderTextureFormat.ARGB32) { antiAliasing = 4 };
-            cam.targetTexture = rt;
-            pru.Render(true);
-            var prev = RenderTexture.active;
-            RenderTexture.active = rt;
-            var tex = new Texture2D(256, 256, TextureFormat.RGBA32, false);
-            tex.ReadPixels(new Rect(0, 0, 256, 256), 0, 0);
-            tex.Apply();
-            RenderTexture.active = prev;
-            cam.targetTexture = null;
-            pru.EndStaticPreview();
-            rt.Release();
-            Object.DestroyImmediate(rt);
+            var tex = RenderIcon(pru, b, it.IconDir, 1f);
+            if (FitIcons.Contains(it.Icon))
+            {
+                float fill = LongSideFill(tex);
+                if (fill > 0f && fill < GoodFill)
+                {
+                    Object.DestroyImmediate(tex);
+                    tex = RenderIcon(pru, b, it.IconDir, fill / TargetFill);
+                    Debug.Log("[GunPowdered] icon " + it.Icon + ": first render filled " + fill.ToString("0.00") + ", drawn again closer, now " + LongSideFill(tex).ToString("0.00"));
+                }
+                else Debug.Log("[GunPowdered] icon " + it.Icon + " fills " + fill.ToString("0.00") + " of its square");
+            }
             string path = Art + "/Icons/" + it.Icon + ".png";
             File.WriteAllBytes(path, tex.EncodeToPNG());
             Object.DestroyImmediate(tex);
@@ -333,5 +332,94 @@ public static class GunPowderedArtBuilder
             imp.SaveAndReimport();
         }
         finally { pru.Cleanup(); }
+    }
+
+    // distance 1 = the bounding box's sphere just fits the view (with a 12 % margin); smaller = closer
+    private static Texture2D RenderIcon(PreviewRenderUtility pru, Bounds b, Vector3 iconDir, float distance)
+    {
+        var cam = pru.camera;
+        cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = new Color(0, 0, 0, 0);
+        cam.fieldOfView = 25f; cam.nearClipPlane = 0.05f; cam.farClipPlane = 100f;
+        float radius = b.extents.magnitude;
+        Vector3 dir = iconDir.normalized;
+        cam.transform.position = b.center + dir * (radius / Mathf.Sin(cam.fieldOfView * 0.5f * Mathf.Deg2Rad)) * 1.12f * distance;
+        cam.transform.LookAt(b.center);
+        pru.lights[0].intensity = 1.3f; pru.lights[0].transform.rotation = Quaternion.Euler(40f, -35f, 0f);
+        pru.lights[1].intensity = 0.7f; pru.lights[1].transform.rotation = Quaternion.Euler(340f, 150f, 0f);
+        RenderSettings.ambientLight = new Color(0.55f, 0.55f, 0.6f);
+        // EndStaticPreview returns an RGB texture (no alpha: the icons had a black background, user 2026-11-19), so the preview renders into our
+        // own ARGB target and is read back as RGBA
+        pru.BeginStaticPreview(new Rect(0, 0, 256, 256));
+        var rt = new RenderTexture(256, 256, 24, RenderTextureFormat.ARGB32) { antiAliasing = 4 };
+        cam.targetTexture = rt;
+        pru.Render(true);
+        var prev = RenderTexture.active;
+        RenderTexture.active = rt;
+        var tex = new Texture2D(256, 256, TextureFormat.RGBA32, false);
+        tex.ReadPixels(new Rect(0, 0, 256, 256), 0, 0);
+        tex.Apply();
+        RenderTexture.active = prev;
+        cam.targetTexture = null;
+        pru.EndStaticPreview();
+        rt.Release();
+        Object.DestroyImmediate(rt);
+        return tex;
+    }
+
+    // how much of the square (0..1) the visible pixels (alpha above 0.1) cover on their longer side; 0 when nothing is visible
+    private static float LongSideFill(Texture2D t)
+    {
+        var px = t.GetPixels32();
+        int w = t.width, h = t.height, minX = w, minY = h, maxX = -1, maxY = -1;
+        for (int i = 0; i < px.Length; i++)
+        {
+            if (px[i].a <= 25) continue;
+            int x = i % w, y = i / w;
+            if (x < minX) minX = x; if (x > maxX) maxX = x;
+            if (y < minY) minY = y; if (y > maxY) maxY = y;
+        }
+        if (maxX < 0) return 0f;
+        return Mathf.Max((maxX - minX + 1) / (float)w, (maxY - minY + 1) / (float)h);
+    }
+
+    // ---------- D-192: our own Flametal look ----------
+    private static readonly string[] FlametalMats = { "flametal", "flametal_wheel", "flametal_glow", "ext_flametal" };
+    private static readonly string[] WheelTyres = { "model/wheel_left/wheel_left_tyre", "model/wheel_right/wheel_right_tyre" };
+
+    // Rebuilds only the flametal textures and materials, gives the Mobile Cannon's tyres the shiny wheel metal and redraws the icons of the four
+    // flametal prefabs. Leaves every other prefab and icon alone (BuildAll rebuilds all prefabs). Then: GunPowdered/Build AssetBundles.
+    [MenuItem("GunPowdered/Build Flametal look (D-192)")]
+    public static void BuildFlametalLook()
+    {
+        var made = new Dictionary<string, Material>();
+        foreach (var d in Mats) if (System.Array.IndexOf(FlametalMats, d.Name) >= 0) WriteTexture(d);
+        AssetDatabase.Refresh();
+        foreach (var d in Mats) if (System.Array.IndexOf(FlametalMats, d.Name) >= 0) { ConfigureTexture(d); made[d.Name] = MakeMaterial(d); }
+        AssetDatabase.SaveAssets();
+        SetWheelMetal(Art + "/Prefabs/GP_MobileCannon.prefab", made["flametal_wheel"]);
+        foreach (var it in Items) if (FitIcons.Contains(it.Icon)) MakeIcon(it);
+        MakeIcon(new ItemDef("FlametalCannonBall", "GP_FlametalCannonBall", "FlametalCannonBall", new Vector3(1f, 0.55f, -0.65f), true, 0f));
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log("[GunPowdered] D-192 flametal look built: " + made.Count + " materials, tyres on flametal_wheel_mat, " + FitIcons.Count + " icons");
+    }
+
+    private static void SetWheelMetal(string prefabPath, Material wheel)
+    {
+        var root = PrefabUtility.LoadPrefabContents(prefabPath);
+        try
+        {
+            int set = 0;
+            foreach (var p in WheelTyres)
+            {
+                var t = root.transform.Find(p);
+                var r = t != null ? t.GetComponent<Renderer>() : null;
+                if (r == null) { Debug.LogWarning("[GunPowdered] no tyre renderer at " + p + " in " + prefabPath); continue; }
+                r.sharedMaterial = wheel; set++;
+            }
+            PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+            Debug.Log("[GunPowdered] " + prefabPath + ": " + set + " tyre(s) use " + wheel.name);
+        }
+        finally { PrefabUtility.UnloadPrefabContents(root); }
     }
 }

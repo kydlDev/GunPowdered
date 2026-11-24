@@ -1,11 +1,10 @@
 using GunPowdered.Core;
-using GunPowdered.Integrations.Items;
 using KydlCore.Common;
 using UnityEngine;
 
 namespace GunPowdered.Testing.TestHooks
 {
-    /// <summary>D-182 / D-183 test hooks: the flametal look and the punch after the last stick was set down. They call the real code paths.</summary>
+    /// <summary>D-183 / D-192 test hooks: the punch after the last stick was set down, and the bundle's own Flametal look. They call the real code paths.</summary>
     internal static class PlayTestFixHooks
     {
         /// <summary>
@@ -16,61 +15,41 @@ namespace GunPowdered.Testing.TestHooks
         static string PressAttack()
         {
             Player p = Player.m_localPlayer;
-            if (p == null) { ModLog.Verbose("PlayTestFixHooks.PressAttack: returns \"no player\" because p == null (line 19)"); return "no player"; }
+            if (p == null) { ModLog.Verbose("PlayTestFixHooks.PressAttack: returns \"no player\" because p == null (line 18)"); return "no player"; }
             bool started = p.StartAttack(null, false);
             string s = "attack started " + started + ", in attack " + p.InAttack();
             ModLog.Info("PlayTestFixHooks: " + s);
             return s;
         }
 
-        /// <summary>How many renderer slots of a spawned-in prefab's look use the game's FlametalNew material: "ingot slots N of M" or why not.</summary>
-        [TestHook("GunPowdered.flametalSlots")]
-        static string FlametalSlots(string prefab)
+        /// <summary>
+        /// D-192: which material every part of a registered prefab's look uses: "flametal slots N of M: part=material; ..." where flametal slots are
+        /// the bundle's own Flametal materials (flametal_mat, ext_flametal_mat, flametal_glow_mat, flametal_wheel_mat). Parts the mod switched off
+        /// (the placeholder's own look) are left out.
+        /// </summary>
+        [TestHook("GunPowdered.flametalLook")]
+        static string FlametalLook(string prefab)
         {
             GameObject go = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
-            Material ingot = FlametalLook.Ingot;
-            if (go == null || ingot == null) { ModLog.Verbose($"PlayTestFixHooks.FlametalSlots: returns why not because go == null || ingot == null ({prefab}: prefab {go != null}, ingot {ingot != null}) (line 32)"); return "prefab " + (go != null) + ", ingot " + (ingot != null); }
-            int slots = 0, ingotSlots = 0, oldSlots = 0;
+            if (go == null) { ModLog.Verbose($"PlayTestFixHooks.FlametalLook: returns \"no prefab\" because {prefab} is not registered (line 34)"); return "no prefab"; }
+            int slots = 0, flametal = 0;
             var seen = new System.Text.StringBuilder();
             foreach (Renderer r in go.GetComponentsInChildren<Renderer>(true))
+            {
+                if (!r.enabled) { if (RuleLog.Due("PlayTestFixHooks.FlametalLook:39", 2d)) ModLog.Every("PlayTestFixHooks.FlametalLook:39", 2d, $"PlayTestFixHooks.FlametalLook: skips to the next item (continue) because {r.name} is switched off (line 39)"); continue; }
                 foreach (Material m in r.sharedMaterials)
                 {
+                    string n = m != null ? m.name.Replace(" (Instance)", "") : "<none>";
                     slots++;
-                    if (m == ingot || (m != null && m.name.Replace(" (Instance)", "") == ingot.name && m.shader == ingot.shader)) ingotSlots++;     // the flight's clone holds a copy ("(Instance)") of the same material
-                    else if (FlametalLook.IsFlametal(m)) oldSlots++;
-                    seen.Append(r.name).Append('=').Append(m != null ? m.name : "<none>").Append(r.enabled ? "" : " (off)").Append("; ");
+                    if (System.Array.IndexOf(OwnFlametal, n) >= 0) flametal++;
+                    seen.Append(r.name).Append('=').Append(n).Append("; ");
                 }
-            string s = $"ingot slots {ingotSlots} of {slots}, old flametal {oldSlots}";
-            ModLog.Info($"PlayTestFixHooks: {prefab} {s} - {seen}");
-            return s;
-        }
-
-        /// <summary>
-        /// D-191: whether the prefab's inventory / build menu icon is the one rendered from its FlametalNew look: "rendered True|False|not yet, icon is the
-        /// bundle picture True|False" - the icon the game shows now, compared with the bundle's own picture.
-        /// </summary>
-        [TestHook("GunPowdered.flametalIcon")]
-        static string FlametalIcon(string prefab)
-        {
-            GameObject go = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
-            ItemDrop drop = go != null ? go.GetComponent<ItemDrop>() : null;
-            Piece piece = go != null ? go.GetComponent<Piece>() : null;
-            Sprite shown = drop != null && drop.m_itemData.m_shared.m_icons != null && drop.m_itemData.m_shared.m_icons.Length > 0 ? drop.m_itemData.m_shared.m_icons[0] : piece != null ? piece.m_icon : null;
-            if (shown == null) { ModLog.Verbose($"PlayTestFixHooks.FlametalIcon: returns \"no icon\" because shown == null ({prefab}: prefab {go != null}) (line 59)"); return "no icon"; }
-            string rendered = FlametalIcons.Rendered.TryGetValue(prefab, out bool ok) ? ok.ToString() : "not yet";
-            bool bundle = shown == BundleVisuals.Icon(prefab);
-            string s = $"rendered {rendered}, icon is the bundle picture {bundle}, {shown.texture.width}x{shown.texture.height}, {Framing(shown.texture)}";
+            }
+            string s = $"flametal slots {flametal} of {slots}: {seen}";
             ModLog.Info($"PlayTestFixHooks: {prefab} {s}");
             return s;
         }
 
-        /// <summary>"fills W% x H%, centre off X% Y%" of the square (FlametalIcons.Measure, the same measure the renderer sizes by), or "not measured".</summary>
-        static string Framing(Texture2D t)
-        {
-            bool ok = FlametalIcons.Measure(t, out int fillW, out int fillH, out int offX, out int offY);
-            string s = ok ? $"fills {fillW}% x {fillH}%, centre off {offX}% {offY}%" : "not measured";
-            ModLog.Verbose($"PlayTestFixHooks.Framing: returns {s} for {(t != null ? t.name : "<none>")} (line 72)");
-            return s;
-        }
+        static readonly string[] OwnFlametal = { "flametal_mat", "ext_flametal_mat", "flametal_glow_mat", "flametal_wheel_mat" };
     }
 }

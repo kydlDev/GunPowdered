@@ -95,7 +95,6 @@ namespace GunPowdered.Bootstrap
         {
             if (RuleLog.Due("Plugin.Update", 2d)) ModLog.Every("Plugin.Update", 2d, $"Plugin.Update()");
             if (_cfgWatcher != null) _cfgWatcher.Tick();
-            GunPowdered.Integrations.Items.FlametalIcons.Tick();          // D-191: icons of the re-textured prefabs, once in a world
         }
 
         void OnDestroy()

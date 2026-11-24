@@ -1,6 +1,6 @@
 {
   "name": "flametal-look",
-  "description": "D-182 (user 2026-11-24, shot-008): every flametal part looks like the game's FlametalNew ingot - the Flametal Cannon Ball (item and flight), the Mobile Cannon (barrel, bands, tyres), the Flametal Heater and the drying oven; no old flametal material is left.",
+  "description": "D-192 (user 2026-11-24 18:27, replaces D-182's runtime swap): every flametal part uses GunPowdered's own Flametal-like materials from the bundle - the Flametal Cannon Ball (item and flight), the Mobile Cannon (barrel, blue glowing bands, shiny wheel metal on both tyres), the Flametal Heater and the drying oven; nothing uses the game's ingot material any more, and the Iron Cannon Ball has no flametal part.",
   "timeout": 40,
   "steps": [
     {
@@ -20,115 +20,75 @@
     },
     {
       "do": "hook",
-      "name": "GunPowdered.flametalSlots",
+      "name": "GunPowdered.flametalLook",
       "args": {
         "prefab": "GP_FlametalCannonBall"
       },
-      "regex": "ingot slots [1-9][0-9]* of [0-9]+, old flametal 0",
+      "regex": "flametal slots [1-9][0-9]* of [0-9]+: .*model=ext_flametal_mat;.*",
       "label": "Flametal Cannon Ball"
     },
     {
       "do": "hook",
-      "name": "GunPowdered.flametalSlots",
+      "name": "GunPowdered.flametalLook",
       "args": {
         "prefab": "GP_FlametalCannonBall_projectile"
       },
-      "regex": "ingot slots [1-9][0-9]* of [0-9]+, old flametal 0",
+      "regex": "flametal slots [1-9][0-9]* of [0-9]+: .*ext_flametal_mat;.*",
       "label": "its flight"
     },
     {
       "do": "hook",
-      "name": "GunPowdered.flametalSlots",
+      "name": "GunPowdered.flametalLook",
       "args": {
         "prefab": "GP_MobileCannon"
       },
-      "regex": "ingot slots [1-9][0-9]* of [0-9]+, old flametal 0",
-      "label": "Mobile Cannon"
+      "regex": "flametal slots [1-9][0-9]* of [0-9]+: .*cannon_bands=flametal_glow_mat;.*cannon_barrel=flametal_mat;.*",
+      "label": "Mobile Cannon barrel and glowing bands"
     },
     {
       "do": "hook",
-      "name": "GunPowdered.flametalSlots",
+      "name": "GunPowdered.flametalLook",
+      "args": {
+        "prefab": "GP_MobileCannon"
+      },
+      "regex": ".*wheel_left_tyre=flametal_wheel_mat;.*wheel_right_tyre=flametal_wheel_mat;.*",
+      "label": "both tyres use the shiny wheel metal"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.flametalLook",
       "args": {
         "prefab": "GP_FlametalHeater"
       },
-      "regex": "ingot slots [1-9][0-9]* of [0-9]+, old flametal 0",
+      "regex": "flametal slots [1-9][0-9]* of [0-9]+: .*ext_heater_box=ext_flametal_mat;.*",
       "label": "Flametal Heater"
     },
     {
       "do": "hook",
-      "name": "GunPowdered.flametalSlots",
+      "name": "GunPowdered.flametalLook",
       "args": {
         "prefab": "GP_MillOven"
       },
-      "regex": "ingot slots [1-9][0-9]* of [0-9]+, old flametal 0",
+      "regex": "flametal slots [1-9][0-9]* of [0-9]+: .*mill_ov_box=ext_flametal_mat;.*",
       "label": "Flametal Drying Oven"
     },
     {
       "do": "hook",
-      "name": "GunPowdered.flametalSlots",
-      "args": {
-        "prefab": "GP_CannonBall"
-      },
-      "contains": "ingot slots 0 of",
-      "label": "the Iron Cannon Ball keeps its iron look"
-    },
-    {
-      "do": "wait",
-      "until": {
-        "check": "hook",
-        "name": "GunPowdered.flametalIcon",
-        "args": {
-          "prefab": "GP_FlametalCannonBall"
-        },
-        "contains": "rendered True"
-      },
-      "timeout": 15,
-      "label": "D-191: the icons are rendered a few seconds after entering the world"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.flametalIcon",
-      "args": {
-        "prefab": "GP_FlametalCannonBall"
-      },
-      "regex": "rendered True, icon is the bundle picture False, 128x128, fills (([89][0-9]|100)% x [0-9]+%|[0-9]+% x ([89][0-9]|100)%), centre off -?[0-9]% -?[0-9]%",
-      "label": "Flametal Cannon Ball icon shows the new look"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.flametalIcon",
+      "name": "GunPowdered.flametalLook",
       "args": {
         "prefab": "GP_MobileCannon"
       },
-      "regex": "rendered True, icon is the bundle picture False, 128x128, fills (([89][0-9]|100)% x [0-9]+%|[0-9]+% x ([89][0-9]|100)%), centre off -?[0-9]% -?[0-9]%",
-      "label": "Mobile Cannon icon shows the new look"
+      "notContains": "Flametalore_Mat",
+      "label": "no part uses the game's ingot material any more"
     },
     {
       "do": "hook",
-      "name": "GunPowdered.flametalIcon",
-      "args": {
-        "prefab": "GP_FlametalHeater"
-      },
-      "regex": "rendered True, icon is the bundle picture False, 128x128, fills (([89][0-9]|100)% x [0-9]+%|[0-9]+% x ([89][0-9]|100)%), centre off -?[0-9]% -?[0-9]%",
-      "label": "Flametal Heater icon shows the new look"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.flametalIcon",
-      "args": {
-        "prefab": "GP_MillOven"
-      },
-      "regex": "rendered True, icon is the bundle picture False, 128x128, fills (([89][0-9]|100)% x [0-9]+%|[0-9]+% x ([89][0-9]|100)%), centre off -?[0-9]% -?[0-9]%",
-      "label": "Flametal Drying Oven icon shows the new look"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.flametalIcon",
+      "name": "GunPowdered.flametalLook",
       "args": {
         "prefab": "GP_CannonBall"
       },
-      "contains": "rendered not yet, icon is the bundle picture True",
-      "label": "the Iron Cannon Ball keeps its bundle icon (the check tells them apart)"
+      "contains": "flametal slots 0 of",
+      "label": "the Iron Cannon Ball has no flametal part (the check tells them apart)"
     },
     {
       "do": "cleanArena"
