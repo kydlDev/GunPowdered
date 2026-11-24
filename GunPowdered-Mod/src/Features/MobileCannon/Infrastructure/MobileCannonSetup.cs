@@ -47,6 +47,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 if (vagon.m_lineAttachPoints1 != null) vagon.m_lineAttachPoints1.localPosition = local - new Vector3(0.12f, 0f, 0f);
             }
             AddTrailFoot(piece);
+            MakeFireProof(piece);
             vagon.m_name = "Mobile Cannon";
             if (piece.GetComponent<MobileCannonWheels>() == null) piece.AddComponent<MobileCannonWheels>();
             if (piece.GetComponent<MobileCannonPull>() == null) piece.AddComponent<MobileCannonPull>();
@@ -56,6 +57,20 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             ModLog.Verbose("MobileCannonSetup: cart colliders on " + colliders + ", cart looks hidden " + hidden + ", pull point "
                 + (pull ? vagon.m_attachPoint.localPosition.ToString("0.00") : "missing") + ", wheels " + (vagon.m_wheels != null ? vagon.m_wheels.Length : 0));
             { var returnedAt58 = pull && colliders > 0; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonSetup.Configure: returns {returnedAt58} (line 58)"); return returnedAt58; }
+        }
+
+        /// <summary>
+        /// User 2026-11-24: the Mobile Cannon (an Ashlands weapon) is immune to fire and lava. WearNTear: fire damage Immune, it never catches fire
+        /// (m_burnable off), and m_ashDamageImmune skips both the lava ground damage and the Ashlands ash damage (WearNTear.UpdateAshlandsDamage).
+        /// </summary>
+        static void MakeFireProof(GameObject piece)
+        {
+            WearNTear wnt = piece.GetComponent<WearNTear>();
+            if (wnt == null) { ModLog.Warn("MobileCannonSetup.MakeFireProof: no WearNTear on " + piece.name + " - fire and lava would damage it"); return; }
+            wnt.m_damages.m_fire = HitData.DamageModifier.Immune;
+            wnt.m_burnable = false;
+            wnt.m_ashDamageImmune = true;
+            ModLog.Info("MobileCannonSetup: " + piece.name + " fire " + wnt.m_damages.m_fire + ", burnable " + wnt.m_burnable + ", lava / ash immune " + wnt.m_ashDamageImmune);
         }
 
         /// <summary>BundleVisuals switched every solid collider off; the cart needs its body boxes and its wheel colliders back. The model's own colliders stay off.</summary>

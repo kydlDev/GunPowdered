@@ -19,13 +19,18 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         Rigidbody _body;
         float _spinBefore;
 
-        internal void ResetTiltStats() { MaxRollSeen = 0f; MaxPitchSeen = 0f; MaxSpinSeen = 0f; Holds = 0; Flips = 0; }
+        internal void ResetTiltStats() { MaxRollSeen = 0f; MaxPitchSeen = 0f; MaxSpinSeen = 0f; Holds = 0; Flips = 0; Slips = 0; MaxSlipSeen = 0f; Dodges = 0; }
+
+        /// <summary>Physics steps in which an obstacle pushed the towed cart aside (MobileCannonDodge).</summary>
+        internal int Dodges { get; private set; }
 
         void FixedUpdate()
         {
             if (_joint == null || _animal == null || !IsValid || !_nview.IsOwner()) { if (RuleLog.Due("MobileCannonTow.FixedUpdate:251", 2d)) ModLog.Every("MobileCannonTow.FixedUpdate:251", 2d, $"MobileCannonTow.FixedUpdate: returns because _joint == null || _animal == null || !IsValid || !_nview.IsOwner() (line 251)"); return; }
             if (_body == null) _body = GetComponent<Rigidbody>();
             if (_body == null) { if (RuleLog.Due("MobileCannonTow.FixedUpdate:253", 2d)) ModLog.Every("MobileCannonTow.FixedUpdate:253", 2d, $"MobileCannonTow.FixedUpdate: returns because _body == null (line 253)"); return; }
+            LimitSlip();
+            if (MobileCannonDodge.Apply(_body, transform) != 0f) Dodges++;
             Vector3 ground = Vector3.up;
             RaycastHit hit;
             if (Physics.Raycast(_body.worldCenterOfMass + Vector3.up * 0.5f, Vector3.down, out hit, 3f, LayerMask.GetMask("terrain"), QueryTriggerInteraction.Ignore))
@@ -66,6 +71,29 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 + (ab != null ? Vector3.ProjectOnPlane(ab.linearVelocity, Vector3.up).magnitude.ToString("0.0") + " m/s turning " + _animalTurnRate.ToString("0") + " deg/s" : "?")
                 + ", yaw to the animal " + Vector3.SignedAngle(Vector3.ProjectOnPlane(fwd, Vector3.up), Vector3.ProjectOnPlane(_animal.transform.forward, Vector3.up), Vector3.up).ToString("0")
                 + " deg, joint force " + _joint.currentForce.magnitude.ToString("0") + " N, holds " + Holds);
+        }
+
+        /// <summary>How often the cannon was slowed to the Asksvin's speed + <see cref="AsksvinTowRules.MaxTowSlip"/>, and the fastest relative speed seen (m/s).</summary>
+        internal int Slips { get; private set; }
+        internal float MaxSlipSeen { get; private set; }
+
+        /// <summary>
+        /// A cannon wedged on a tree is flung free by the stretched joint (a19full: 48-62 m/s next to a 9 m/s Asksvin, then it went over): its speed relative to
+        /// the Asksvin is cut to <see cref="AsksvinTowRules.MaxTowSlip"/> every physics step.
+        /// </summary>
+        void LimitSlip()
+        {
+            Rigidbody ab = _animal.GetComponent<Rigidbody>();
+            if (ab == null) { if (RuleLog.Due("MobileCannonTow.LimitSlip:nobody", 2d)) ModLog.Every("MobileCannonTow.LimitSlip:nobody", 2d, "MobileCannonTow.LimitSlip: returns because the Asksvin has no Rigidbody (ab == null)"); return; }
+            Vector3 rel = _body.linearVelocity - ab.linearVelocity;
+            float speed = rel.magnitude;
+            MaxSlipSeen = Mathf.Max(MaxSlipSeen, speed);
+            float scale = AsksvinTowRules.SlipScale(speed, AsksvinTowRules.MaxTowSlip);
+            if (scale >= 1f) { if (RuleLog.Due("MobileCannonTow.LimitSlip:within", 2d)) ModLog.Every("MobileCannonTow.LimitSlip:within", 2d, $"MobileCannonTow.LimitSlip: returns because the relative speed {speed:0.0} m/s is within {AsksvinTowRules.MaxTowSlip} m/s (scale >= 1f)"); return; }
+            _body.linearVelocity = ab.linearVelocity + rel * scale;
+            Slips++;
+            if (ModLog.IsDue("MobileCannonTow.LimitSlip:cut", 0.5d))
+                ModLog.Decision("mobile cannon slip", "cut", $"relative {speed:0.0} m/s -> {AsksvinTowRules.MaxTowSlip:0.0} m/s, cannon {_body.linearVelocity.magnitude:0.0} m/s, asksvin {ab.linearVelocity.magnitude:0.0} m/s, cuts {Slips}");
         }
 
         long _lastCannonOwner = -1L, _lastAnimalOwner = -1L;

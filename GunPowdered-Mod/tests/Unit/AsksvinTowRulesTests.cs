@@ -162,5 +162,39 @@ namespace GunPowdered.Tests.Unit
             Assert.That(AsksvinTowRules.MaxHookDrop, Is.EqualTo(3f));
             Assert.That(AsksvinTowRules.HookDropSpeed, Is.EqualTo(4f));
         }
+
+        // a19full mobilecannon-tow-trees: a cannon flung free of a tree at 48-62 m/s next to a 9 m/s Asksvin went over; its relative speed is capped
+        [TestCase(0f, 1f, TestName = "SlipScale: standing still is untouched")]
+        [TestCase(7f, 1f, TestName = "SlipScale: a swing in a turn is untouched")]
+        [TestCase(10f, 1f, TestName = "SlipScale: exactly the limit is untouched")]
+        [TestCase(20f, 0.5f, TestName = "SlipScale: twice the limit is halved")]
+        [TestCase(50f, 0.2f, TestName = "SlipScale: the a19full fling is cut to the limit")]
+        public void SlipScale_CutsOnlyAboveTheLimit(float relative, float expected)
+        {
+            float scale = AsksvinTowRules.SlipScale(relative, AsksvinTowRules.MaxTowSlip);
+            Assert.That(scale, Is.EqualTo(expected).Within(1e-4f));
+            Assert.That(relative * scale, Is.LessThanOrEqualTo(AsksvinTowRules.MaxTowSlip + 1e-3f), "never above the limit after the cut");
+        }
+
+        // user 2026-11-24: an invisible field round trees / rocks steers the towed cart past them (a19full tow-trees: the cart caught on trees)
+        [TestCase(0.8f, 0f, -15f, TestName = "SidePush: a tree right of a wheel pushes left at half strength")]
+        [TestCase(-0.8f, 0f, 15f, TestName = "SidePush: a tree left of a wheel pushes right")]
+        [TestCase(0f, 0f, 30f, TestName = "SidePush: dead ahead pushes right at full strength (an obstacle on the middle line counts as left of it)")]
+        [TestCase(0.8f, 2.25f, -7.5f, TestName = "SidePush: half way ahead pushes half as hard")]
+        [TestCase(0.8f, -1f, -15f, TestName = "SidePush: beside the body pushes like at the wheel")]
+        [TestCase(1.6f, 0f, 0f, TestName = "SidePush: at the clearance edge nothing")]
+        [TestCase(0.5f, 4.6f, 0f, TestName = "SidePush: too far ahead nothing")]
+        [TestCase(0.5f, -1.6f, 0f, TestName = "SidePush: behind the cart nothing")]
+        public void SidePush_PushesAwayInsideTheField(float side, float ahead, float expected)
+        {
+            Assert.That(AsksvinTowRules.SidePush(side, ahead), Is.EqualTo(expected).Within(1e-3f));
+        }
+
+        [Test]
+        public void SidePush_NearerIsStronger()
+        {
+            Assert.That(System.Math.Abs(AsksvinTowRules.SidePush(0.2f, 1f)), Is.GreaterThan(System.Math.Abs(AsksvinTowRules.SidePush(1.2f, 1f))), "nearer the middle line");
+            Assert.That(System.Math.Abs(AsksvinTowRules.SidePush(0.5f, 0.5f)), Is.GreaterThan(System.Math.Abs(AsksvinTowRules.SidePush(0.5f, 3.5f))), "closer ahead");
+        }
     }
 }

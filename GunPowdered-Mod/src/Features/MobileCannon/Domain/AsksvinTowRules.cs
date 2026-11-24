@@ -70,6 +70,52 @@ namespace GunPowdered.Features.MobileCannon.Domain
         /// <summary>Highest spin (rad/s) a towed cannon may have: the game's default 7 let one joint yank roll it over between two keeper steps.</summary>
         public const float MaxTowSpin = 3.5f;
 
+        /// <summary>
+        /// Highest speed (m/s) a towed cannon may move relative to its Asksvin. A wheel caught on a tree loads the joint like a spring; when it came free the
+        /// solver flung the cannon at 48-62 m/s next to a 9 m/s Asksvin and it went over (a19full mobilecannon-tow-trees: flips 4). A cart cannot outrun what
+        /// pulls it by more than a swing in a turn (passing runs: up to about 7 m/s), so 10 m/s leaves the turns alone and stops the fling.
+        /// </summary>
+        public const float MaxTowSlip = 10f;
+
+        /// <summary>
+        /// By how much the cannon's speed relative to the Asksvin is scaled. Expected outcome: 1 up to <paramref name="limit"/>, else limit / relative speed,
+        /// so the scaled relative speed is exactly the limit.
+        /// </summary>
+        public static float SlipScale(float relativeSpeed, float limit)
+        {
+            if (RuleLog.Due("AsksvinTowRules.SlipScale", 2d)) RuleLog.Every("AsksvinTowRules.SlipScale", 2d, $"AsksvinTowRules.SlipScale(relativeSpeed={RuleLog.Shown(relativeSpeed)}, limit={RuleLog.Shown(limit)})");
+            if (relativeSpeed <= limit || relativeSpeed <= 0f) { if (RuleLog.Due("AsksvinTowRules.SlipScale:within", 2d)) RuleLog.Every("AsksvinTowRules.SlipScale:within", 2d, "AsksvinTowRules.SlipScale: returns 1f because relativeSpeed <= limit || relativeSpeed <= 0f"); return 1f; }
+            float scale = limit / relativeSpeed;
+            { if (RuleLog.Due("AsksvinTowRules.SlipScale:over", 2d)) RuleLog.Every("AsksvinTowRules.SlipScale:over", 2d, $"AsksvinTowRules.SlipScale: returns {scale} (over the limit)"); return scale; }
+        }
+
+        /// <summary>Sideways reach (m from the cart's middle line) inside which an obstacle pushes the towed cart aside: half the wheel track and a margin.</summary>
+        public const float DodgeClearance = 1.6f;
+
+        /// <summary>How far ahead of the cart's middle (m) an obstacle starts to push; beside the body (down to -DodgeBehind) it pushes at full strength.</summary>
+        public const float DodgeAhead = 4.5f, DodgeBehind = 1.5f;
+
+        /// <summary>Strongest sideways push (m/s^2) of one obstacle: right next to a wheel.</summary>
+        public const float DodgeStrength = 30f;
+
+        /// <summary>
+        /// User 2026-11-24 (a19full tow-trees: the cart caught on trees the Asksvin had walked past): the sideways acceleration (m/s^2, + = to the cart's right) one
+        /// obstacle gives the towed cart, like a soft invisible field round the obstacle. <paramref name="side"/> is the obstacle's sideways offset from the cart's
+        /// middle line (m, + = right), <paramref name="ahead"/> its distance ahead of the cart's middle (m, - = behind). Expected outcome: 0 outside the field;
+        /// otherwise away from the obstacle, stronger the nearer it is to the middle line and the closer ahead; an obstacle dead ahead pushes to the right.
+        /// </summary>
+        public static float SidePush(float side, float ahead)
+        {
+            if (RuleLog.Due("AsksvinTowRules.SidePush", 2d)) RuleLog.Every("AsksvinTowRules.SidePush", 2d, $"AsksvinTowRules.SidePush(side={RuleLog.Shown(side)}, ahead={RuleLog.Shown(ahead)})");
+            float across = System.Math.Abs(side);
+            if (across >= DodgeClearance || ahead > DodgeAhead || ahead < -DodgeBehind) { if (RuleLog.Due("AsksvinTowRules.SidePush:outside", 2d)) RuleLog.Every("AsksvinTowRules.SidePush:outside", 2d, "AsksvinTowRules.SidePush: returns 0f because the obstacle is outside the field (across >= DodgeClearance || ahead > DodgeAhead || ahead < -DodgeBehind)"); return 0f; }
+            float near = 1f - across / DodgeClearance;
+            float soon = ahead <= 0f ? 1f : 1f - ahead / DodgeAhead;
+            float away = side > 0f ? -1f : 1f;
+            float push = away * DodgeStrength * near * soon;
+            { if (RuleLog.Due("AsksvinTowRules.SidePush:inside", 2d)) RuleLog.Every("AsksvinTowRules.SidePush:inside", 2d, $"AsksvinTowRules.SidePush: returns {push} (inside the field)"); return push; }
+        }
+
         /// <summary>Of two signed excesses, the larger one (it needs the bigger correction). Expected outcome: 0 only when both are 0.</summary>
         public static float Tighter(float a, float b) => System.Math.Abs(a) >= System.Math.Abs(b) ? a : b;
 

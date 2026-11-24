@@ -1,0 +1,57 @@
+{
+  "name": "mobilecannon-fire-proof",
+  "description": "D-179 (user 2026-11-24): the Mobile Cannon is immune to fire and lava - fire damage Immune, it never catches fire, lava / Ashlands ash damage off (WearNTear.m_ashDamageImmune); a 500 fire hit leaves its health unchanged. Lava itself is not in the lab world: only the setting is checked for it.",
+  "timeout": 60,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
+    {
+      "do": "mobileCannonPlaced"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonFireProof",
+      "expect": "fire Immune, burnable False, lava / ash immune True",
+      "label": "fire immune, never burns, lava / ash immune"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonHit",
+      "args": {
+        "kind": "fire",
+        "damage": 500
+      },
+      "contains": "hit fire 500",
+      "label": "a 500 fire hit"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonHealthSame",
+      "contains": "same health",
+      "label": "the fire hit did no damage"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonRemove",
+      "label": "cannon removed"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}
