@@ -44,5 +44,33 @@ namespace GunPowdered.Testing.TestHooks
             ModLog.Info($"PlayTestFixHooks: {prefab} {s} - {seen}");
             return s;
         }
+
+        /// <summary>
+        /// D-191: whether the prefab's inventory / build menu icon is the one rendered from its FlametalNew look: "rendered True|False|not yet, icon is the
+        /// bundle picture True|False" - the icon the game shows now, compared with the bundle's own picture.
+        /// </summary>
+        [TestHook("GunPowdered.flametalIcon")]
+        static string FlametalIcon(string prefab)
+        {
+            GameObject go = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
+            ItemDrop drop = go != null ? go.GetComponent<ItemDrop>() : null;
+            Piece piece = go != null ? go.GetComponent<Piece>() : null;
+            Sprite shown = drop != null && drop.m_itemData.m_shared.m_icons != null && drop.m_itemData.m_shared.m_icons.Length > 0 ? drop.m_itemData.m_shared.m_icons[0] : piece != null ? piece.m_icon : null;
+            if (shown == null) { ModLog.Verbose($"PlayTestFixHooks.FlametalIcon: returns \"no icon\" because shown == null ({prefab}: prefab {go != null}) (line 59)"); return "no icon"; }
+            string rendered = FlametalIcons.Rendered.TryGetValue(prefab, out bool ok) ? ok.ToString() : "not yet";
+            bool bundle = shown == BundleVisuals.Icon(prefab);
+            string s = $"rendered {rendered}, icon is the bundle picture {bundle}, {shown.texture.width}x{shown.texture.height}, {Framing(shown.texture)}";
+            ModLog.Info($"PlayTestFixHooks: {prefab} {s}");
+            return s;
+        }
+
+        /// <summary>"fills W% x H%, centre off X% Y%" of the square (FlametalIcons.Measure, the same measure the renderer sizes by), or "not measured".</summary>
+        static string Framing(Texture2D t)
+        {
+            bool ok = FlametalIcons.Measure(t, out int fillW, out int fillH, out int offX, out int offY);
+            string s = ok ? $"fills {fillW}% x {fillH}%, centre off {offX}% {offY}%" : "not measured";
+            ModLog.Verbose($"PlayTestFixHooks.Framing: returns {s} for {(t != null ? t.name : "<none>")} (line 72)");
+            return s;
+        }
     }
 }

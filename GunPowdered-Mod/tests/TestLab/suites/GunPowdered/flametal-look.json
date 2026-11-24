@@ -73,6 +73,64 @@
       "label": "the Iron Cannon Ball keeps its iron look"
     },
     {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.flametalIcon",
+        "args": {
+          "prefab": "GP_FlametalCannonBall"
+        },
+        "contains": "rendered True"
+      },
+      "timeout": 15,
+      "label": "D-191: the icons are rendered a few seconds after entering the world"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.flametalIcon",
+      "args": {
+        "prefab": "GP_FlametalCannonBall"
+      },
+      "regex": "rendered True, icon is the bundle picture False, 128x128, fills (([89][0-9]|100)% x [0-9]+%|[0-9]+% x ([89][0-9]|100)%), centre off -?[0-9]% -?[0-9]%",
+      "label": "Flametal Cannon Ball icon shows the new look"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.flametalIcon",
+      "args": {
+        "prefab": "GP_MobileCannon"
+      },
+      "regex": "rendered True, icon is the bundle picture False, 128x128, fills (([89][0-9]|100)% x [0-9]+%|[0-9]+% x ([89][0-9]|100)%), centre off -?[0-9]% -?[0-9]%",
+      "label": "Mobile Cannon icon shows the new look"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.flametalIcon",
+      "args": {
+        "prefab": "GP_FlametalHeater"
+      },
+      "regex": "rendered True, icon is the bundle picture False, 128x128, fills (([89][0-9]|100)% x [0-9]+%|[0-9]+% x ([89][0-9]|100)%), centre off -?[0-9]% -?[0-9]%",
+      "label": "Flametal Heater icon shows the new look"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.flametalIcon",
+      "args": {
+        "prefab": "GP_MillOven"
+      },
+      "regex": "rendered True, icon is the bundle picture False, 128x128, fills (([89][0-9]|100)% x [0-9]+%|[0-9]+% x ([89][0-9]|100)%), centre off -?[0-9]% -?[0-9]%",
+      "label": "Flametal Drying Oven icon shows the new look"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.flametalIcon",
+      "args": {
+        "prefab": "GP_CannonBall"
+      },
+      "contains": "rendered not yet, icon is the bundle picture True",
+      "label": "the Iron Cannon Ball keeps its bundle icon (the check tells them apart)"
+    },
+    {
       "do": "cleanArena"
     }
   ],
