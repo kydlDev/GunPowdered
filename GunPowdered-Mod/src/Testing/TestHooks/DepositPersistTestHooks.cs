@@ -51,16 +51,33 @@ namespace GunPowdered.Testing.TestHooks
             return s;
         }
 
-        /// <summary>"same N mud, M guano" when the records match the snapshot exactly (count and every position within 1 cm); otherwise "bad: " + the first difference.</summary>
+        /// <summary>
+        /// "same N mud, M guano" when every snapshot record is still there (same prefab, position within 1 cm) and no record was added in a zone that
+        /// already had deposits (placed twice); otherwise "bad: " + the first difference. a20g16 run 1: the trip 2000 m away generated a new Grave1 zone
+        /// and the mod placed its first-visit pile mud there (2 deposits) - new deposits in zones the snapshot had none in are first placements, listed
+        /// as ", K new in zones generated since the snapshot", not counted as a difference.
+        /// </summary>
         [TestHook("GunPowdered.depositCompare")]
         static string Compare()
         {
             var now = Records();
-            string why = _snap.Count == 0 ? "no snapshot (or nothing was placed)" : now.Count != _snap.Count ? "count " + Count(now) + ", was " + Count(_snap) : "";
-            for (int i = 0; why.Length == 0 && i < now.Count; i++)
-                if (now[i].prefab != _snap[i].prefab || Vector3.Distance(now[i].pos, _snap[i].pos) > 0.01f)
-                    why = _snap[i].prefab + " at " + _snap[i].pos.ToString("0.00") + " is now " + now[i].prefab + " at " + now[i].pos.ToString("0.00");
-            string s = why.Length == 0 ? "same " + Count(now) : "bad: " + why;
+            var left = new List<(string prefab, Vector3 pos)>(now);
+            var snapZones = new HashSet<Vector2s>();
+            foreach (var r in _snap) snapZones.Add(ZoneSystem.GetZone(r.pos));
+            string why = _snap.Count == 0 ? "no snapshot (or nothing was placed)" : "";
+            for (int i = 0; why.Length == 0 && i < _snap.Count; i++)
+            {
+                int at = left.FindIndex(r => r.prefab == _snap[i].prefab && Vector3.Distance(r.pos, _snap[i].pos) <= 0.01f);
+                if (at >= 0) left.RemoveAt(at);
+                else why = _snap[i].prefab + " at " + _snap[i].pos.ToString("0.00") + " is gone or moved (count " + Count(now) + ", was " + Count(_snap) + ")";
+            }
+            int fresh = 0;
+            for (int i = 0; why.Length == 0 && i < left.Count; i++)
+            {
+                if (snapZones.Contains(ZoneSystem.GetZone(left[i].pos))) why = "extra " + left[i].prefab + " at " + left[i].pos.ToString("0.00") + " in a zone that already had deposits (placed twice?)";
+                else fresh++;
+            }
+            string s = why.Length == 0 ? "same " + Count(_snap) + (fresh > 0 ? ", " + fresh + " new in zones generated since the snapshot" : "") : "bad: " + why;
             ModLog.Info("DepositPersistTestHooks: compare -> " + s);
             return s;
         }
@@ -73,7 +90,7 @@ namespace GunPowdered.Testing.TestHooks
             if (_travelling) return "FAIL: still travelling";
             _travelling = true;
             Plugin.Instance.StartCoroutine(Travel((float)metres, (float)waitSeconds));
-            { if (RuleLog.IsOn()) ModLog.Verbose($"DepositPersistTestHooks.TravelFarAndBack: returns \"started\" (line 76)"); return "started"; }
+            { if (RuleLog.IsOn()) ModLog.Verbose($"DepositPersistTestHooks.TravelFarAndBack: returns \"started\" (line 93)"); return "started"; }
         }
 
         /// <summary>True when travelFarAndBack has come back.</summary>
