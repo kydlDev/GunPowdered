@@ -20,21 +20,12 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.arena")]
         static string Arena()
         {
-            string template = TerrainTemplateKeys.Sync();      // D-172: after a relog KydlCore's terrain template ids name other areas - re-key it first
+            // D-175: KydlCore's terrain restore keys the template by zone and rebuilds the heightmaps itself, so nothing terrain-related is done here.
             string moved = TestArena.MovePlayer();
-            template += "; " + TerrainTemplateKeys.Sync();      // remember (by position) the copies KydlCore has just taken
-            // a18persist1: KydlCore's cleanup restored an earlier test's crater ("terrain 3 restored") and the next step read the ground 10 m too low
-            // while the heightmaps were still rebuilding (a rock went in underground, the ball flew over it). Rebuild them now, before the test goes on.
-            if (System.Text.RegularExpressions.Regex.IsMatch(moved, @"terrain [1-9][0-9]* restored", System.Text.RegularExpressions.RegexOptions.None, System.TimeSpan.FromSeconds(1)))
-            {
-                Heightmap.ForceGenerateAll();
-                UnityEngine.Physics.SyncTransforms();
-                ModLog.Info("ModTestHooks.Arena: terrain was restored - heightmaps rebuilt before the test goes on");
-            }
             string cleaned = CleanArena();
             UnityEngine.Random.InitState(RandomSeed);
             string ground = GroundCheck(out bool flat);
-            string s = (flat ? moved : "GROUND NOT FLAT (" + ground + ") - " + moved.Replace("arena at", "spot")) + "; " + cleaned + "; random seed " + RandomSeed + "; " + ground + "; " + template;
+            string s = (flat ? moved : "GROUND NOT FLAT (" + ground + ") - " + moved.Replace("arena at", "spot")) + "; " + cleaned + "; random seed " + RandomSeed + "; " + ground;
             ModLog.Info("ModTestHooks.Arena: returns " + s);
             return s;
         }
