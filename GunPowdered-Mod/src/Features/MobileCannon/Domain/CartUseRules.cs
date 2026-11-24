@@ -12,9 +12,6 @@ namespace GunPowdered.Features.MobileCannon.Domain
         /// <summary>How far (m) from the handle the looked-at point may be and still grab the cart.</summary>
         internal const float HandleReach = 1.2f;
 
-        /// <summary>The muzzle's E spot (m): about the barrel's front third (was 0.3 x 0.3 x 0.35).</summary>
-        internal const float MuzzleWidth = 0.7f, MuzzleLength = 0.9f;
-
         /// <summary>Whether the player looks at the handle: the looked-at point is within <see cref="HandleReach"/> m of it. A NaN distance (nothing found) is not the handle.</summary>
         internal static bool OnHandle(float metresFromHandle)
         {

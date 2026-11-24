@@ -59,7 +59,9 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 // the muzzle and touch hole are empties of the model; they ride on the barrel so they follow the crank
                 _muzzle = Point(model.Find(MuzzleName), "gp_muzzle");
                 _touchHole = Point(model.Find(TouchHoleName), "gp_touchhole");
-                Handle<MobileCannonMuzzle>(_muzzle, new Vector3(CartUseRules.MuzzleWidth, CartUseRules.MuzzleWidth, CartUseRules.MuzzleLength));     // D-182: was 0.3 m, the cart's E won
+                // D-182: the muzzle keeps its small box - a 0.7 m solid box is part of the cart's body and tipped its nose down (a19play1 mobilecannon-fire:
+                // the ball landed 2 m away); looking anywhere on the cannon but its handle loads it instead (MobileCannonUsePatch)
+                Handle<MobileCannonMuzzle>(_muzzle, new Vector3(0.3f, 0.3f, 0.35f));
                 Handle<MobileCannonTouchHole>(_touchHole, new Vector3(0.2f, 0.2f, 0.2f));
             }
             WearNTear wnt = GetComponent<WearNTear>();
