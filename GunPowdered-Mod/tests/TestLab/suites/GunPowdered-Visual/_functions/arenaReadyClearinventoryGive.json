@@ -1,0 +1,24 @@
+{
+  "params": [],
+  "actions": [
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.arenaGround",
+        "contains": "ground flat"
+      },
+      "timeout": 15
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "count": 1,
+      "do": "give",
+      "equip": true,
+      "prefab": "GP_Musket"
+    }
+  ],
+  "asserts": []
+}

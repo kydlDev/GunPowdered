@@ -1,0 +1,22 @@
+{
+  "params": [],
+  "actions": [
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.arenaGround",
+        "contains": "ground flat"
+      },
+      "timeout": 15
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "musketAtSide",
+      "label": "the Iron Musket in hand, the player running: it hangs at the right side"
+    }
+  ],
+  "asserts": []
+}
