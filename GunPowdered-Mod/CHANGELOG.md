@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 (2026-11-23)
+## 1.0.0 (2026-11-24)
 First release.
 - Gunpowder chain: Bat Guano, Water + Bucket, Rain Barrel, Leaching Station, Saltpeter, Sulfur, Powder Mill, Gunpowder.
 - Leaching Station upgrades: five extension pieces (Second Leaching Barrel, Settling Tank, Black Metal-banded Boiler, Dvergr Drip Pipes, Flametal Heater); each makes the batch bigger and the run 5 minutes shorter. Use fills half a batch at any time (up to what the station holds) and takes all the Saltpeter; the station runs by itself while at least 10 + 10 + 4 is inside and stops below that; finished Saltpeter piles up; the hover text says what is missing.
@@ -15,7 +15,7 @@ First release.
 - Asksvin Harness: put it on a saddled tame Asksvin and hitch the Mobile Cannon. The Asksvin tows it at full speed, ridden or following, and the hitch stays after a relog.
 - Weapons API (musket load, stats, ShotFired event) and one Enable switch per weapon type.
 - All items listed in KY-Items, with a grid view.
-- Iron Musket: running lowers it to your right side; the mouse wheel click (new [Musket] Aim Key) raises it again, and it fires only when raised. Reloading works while running (not while jumping or swimming). A Torch or Shield can be held in the left hand next to the lowered musket; raising it puts them away. Block 10 (15 at Blocking 100), parry bonus 1.5, no movement slowdown.
+- Iron Musket: running lowers it to your right side; the mouse wheel click (new [Musket] Aim Key) brings it back into both hands. Reloading works while running (not while jumping or swimming). A Torch or Shield can be held in the left hand next to the lowered musket; raising it puts them away. Block 10 (15 at Blocking 100), parry bonus 1.5, no movement slowdown.
 - Other players now see your very first musket shot (it was missing before).
 - Iron Musket: a dodge roll keeps it in the right hand and an aimed musket stays aimed; a musket taken in hand always starts raised; other players no longer see a female character's arms shake while she holds it.
 - Emptied deposits refill after 2 in-game days (was 3).
@@ -25,3 +25,11 @@ First release.
 - Hildir's crypt and Hildir's cave now get Bat Guano like a Burial Chamber and a mountain cave.
 - Sulfurous Mud now also appears at geysers and swamp graves whose area the game created while you were still far away (they had none before); a world that had them before the mod gets their mud on the first visit.
 - Mud next to a bone pile is placed wherever there is water within 15 m of it (before, half the piles by water had none); bone piles with no water around keep none.
+- Writhans (Ashlands) drop Sulfur: one in five drops 3-5.
+- Iron Musket: in both hands your character turns with the camera and strafes with the direction keys; the mouse wheel no longer frees the camera. When the last cartridge is fired, the reload starts by itself if you carry a cartridge.
+- Iron and Flametal Cannon Balls stack to 50.
+- Craters are measured from the ground under the charge, also when it lies on a rock: Dynamite up to 3 m deep, the Deep North Dynamite Pack 5 m. The Spiked Grenade now digs too (up to 1.5 m) and chips rock and ore with light pickaxe damage.
+- Blasts hit every piece of a big rock, also in a dense forest.
+- Dynamite: setting the last stick down no longer makes your character punch right after.
+- Mobile Cannon: 2500 health; immune to fire, burning, lava and Ashlands ash (falling lava rocks still hurt it). E on the push handle moves it, E anywhere else on the cannon loads it. Towed by an Asksvin it steers around trees and rocks in its way.
+- Every Flametal part of the mod's items and pieces uses the game's own Flametal look.
