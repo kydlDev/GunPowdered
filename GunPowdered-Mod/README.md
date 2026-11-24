@@ -105,7 +105,7 @@ A shot deals the weapon's damage plus its ammunition's: the ball or cartridge ad
 `GunPowderedApi` exposes the prefab names and a small weapons part: musket load (read / set), capacity and stats, and a `ShotFired` event.
 
 ## Multiplayer
-Every player needs the mod (same minor version).
+The server and every player need the mod, all with exactly the same version (a player without it, or with another version, cannot join).
 
 ## Bug reports
 Turn on `[DebugLog] Enable`, reproduce the problem, and attach `BepInEx/LogOutput.log`.
