@@ -31,7 +31,10 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             {
                 Collider c = Near[i];
                 if (c == null || c.attachedRigidbody != null || c.transform.IsChildOf(cart)) { if (RuleLog.Due("MobileCannonDodge.Apply:skip", 2d)) ModLog.Every("MobileCannonDodge.Apply:skip", 2d, "MobileCannonDodge.Apply: skips to the next item (continue) because c == null || c.attachedRigidbody != null || c.transform.IsChildOf(cart)"); continue; }
-                Vector3 at = c is MeshCollider mc && !mc.convex ? c.bounds.ClosestPoint(middle) : c.ClosestPoint(middle);   // ClosestPoint fails on non-convex meshes
+                // ClosestPoint fails on non-convex meshes. Their bounds' closest point was no answer either: a tree's mesh ("Lod0") bounds hold the whole
+                // crown, so the cart was always "inside" and the push lost its side (a19play4 tow-trees: side 0.00, moved 3.6 m). The trunk stands at the
+                // bounds' centre, so a non-convex mesh counts at its centre, at the cart's height.
+                Vector3 at = c is MeshCollider mc && !mc.convex ? new Vector3(c.bounds.center.x, middle.y, c.bounds.center.z) : c.ClosestPoint(middle);
                 Vector3 d = at - middle;
                 float side = Vector3.Dot(d, right), ahead = Vector3.Dot(d, fwd);
                 if (Mathf.Abs(side) < 0.001f && _lastPush != 0f) side = _lastPush < 0f ? 0.001f : -0.001f;      // a19cannon-rep01: the middle point sat inside a tree's box, the push flipped sides - keep going the way it was pushing
