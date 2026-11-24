@@ -70,8 +70,12 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
             wnt.m_damages.m_fire = HitData.DamageModifier.Immune;
             wnt.m_burnable = false;
             wnt.m_ashDamageImmune = true;
-            ModLog.Info("MobileCannonSetup: " + piece.name + " fire " + wnt.m_damages.m_fire + ", burnable " + wnt.m_burnable + ", lava / ash immune " + wnt.m_ashDamageImmune);
+            wnt.m_health = Health;
+            ModLog.Info("MobileCannonSetup: " + piece.name + " fire " + wnt.m_damages.m_fire + ", burnable " + wnt.m_burnable + ", lava / ash immune " + wnt.m_ashDamageImmune + ", health " + wnt.m_health);
         }
+
+        /// <summary>D-182 (user 2026-11-24): the Mobile Cannon has 2500 health (the cart it is cloned from has far less).</summary>
+        internal const float Health = 2500f;
 
         /// <summary>BundleVisuals switched every solid collider off; the cart needs its body boxes and its wheel colliders back. The model's own colliders stay off.</summary>
         static int RestoreCartColliders(GameObject piece, Transform model)

@@ -16,8 +16,8 @@
     {
       "do": "hook",
       "name": "GunPowdered.mobileCannonFireProof",
-      "expect": "fire Immune, burnable False, lava / ash immune True",
-      "label": "fire immune, never burns, lava / ash immune"
+      "expect": "fire Immune, burnable False, lava / ash immune True, health 2500",
+      "label": "fire immune, never burns, lava / ash immune, 2500 health (D-182)"
     },
     {
       "do": "hook",

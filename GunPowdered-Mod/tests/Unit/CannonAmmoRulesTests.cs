@@ -129,7 +129,7 @@ namespace GunPowdered.Tests.Unit
             Assert.That(s.Cost.Count, Is.EqualTo(1));
             Assert.That(s.Cost[0].Prefab, Is.EqualTo("FlametalNew"), "the current game's Flametal, never the removed early-access one");
             Assert.That(s.Cost[0].Amount, Is.EqualTo(4));
-            Assert.That(s.Stack, Is.EqualTo(1));
+            Assert.That(s.Stack, Is.EqualTo(50), "D-182: cannon balls stack to 50");
         }
     }
 }

@@ -149,7 +149,10 @@ namespace GunPowdered.Core
         // D-145 (user 2026-11-21): shown as "Iron Cannon Ball" (named after its metal); the prefab keeps its name so carried balls stay.
         public static readonly ItemSpec CannonBall = new ItemSpec(GunPowderedPrefabs.CannonBall, "Iron Cannon Ball",
             "A cast iron ball. Feed it into the muzzle of a mounted Hand Cannon together with gunpowder. It can be picked up and used again after the shot.",
-            ItemKind.Material, Iron, 1, 3f, Forge, 1, new CostLine(Iron, 2)).AtStationLevel(2);
+            ItemKind.Material, Iron, BallStack, 3f, Forge, 1, new CostLine(Iron, 2)).AtStationLevel(2);
+
+        /// <summary>D-182 (user 2026-11-24): both cannon balls stack up to 50 in the inventory (they did not stack before).</summary>
+        public const int BallStack = 50;
 
         public static readonly ItemSpec Cannon = new ItemSpec(GunPowderedPrefabs.Cannon, "Hand Cannon",
             "A heavy cast iron cannon after the old Loshult gun. It cannot be fired in the hand: build a Cannon Stock and mount it there.",
@@ -203,10 +206,10 @@ namespace GunPowdered.Core
             new CostLine(LoxPelt, 10), new CostLine(Chain, 3), new CostLine(Flametal, 2), new CostLine(Bronze, 2)).AtStationLevel(2);
 
         // D-145 (user 2026-11-21): the Mobile Cannon's first ball (tier 2: the Mobile Cannon takes Flametal or better, the Hand Cannon takes it too),
-        // 4 Flametal at the Black Forge. Like the iron ball it never stacks, cannot be equipped and can be picked up again after the shot.
+        // 4 Flametal at the Black Forge. Like the iron ball it stacks to 50 (D-182), cannot be equipped and can be picked up again after the shot.
         public static readonly ItemSpec FlametalCannonBall = new ItemSpec(GunPowderedPrefabs.FlametalCannonBall, "Flametal Cannon Ball",
             "A heavy ball cast from flametal. Feed it into the muzzle of a Mobile Cannon (or a Hand Cannon) together with gunpowder. It breaks what an iron ball cannot and can be picked up and used again after the shot.",
-            ItemKind.Material, Flametal, 1, 4f, BlackForge, 1, new CostLine(Flametal, 4));
+            ItemKind.Material, Flametal, BallStack, 4f, BlackForge, 1, new CostLine(Flametal, 4));
 
         // D-080 / D-081 (user): the musket ammunition chain. Paper (2 Resin + 1 Leather Scraps, Workbench; the user gave no yield, so 1 per craft: my reading), iron bullets
         // (1 Iron makes 5, Forge level 2), paper cartridges (1 Gunpowder + 1 bullet + 1 paper, Workbench level 2). The musket loads cartridges, never loose bullets.

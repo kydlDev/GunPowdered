@@ -25,7 +25,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             WearNTear w = Wear();
             if (w == null) { if (RuleLog.IsOn()) ModLog.Verbose("MobileCannonFireTestHooks.FireProof: returns \"no cannon\" because w == null (line 27)"); return "no cannon"; }
-            string r = "fire " + w.m_damages.m_fire + ", burnable " + w.m_burnable + ", lava / ash immune " + w.m_ashDamageImmune;
+            string r = "fire " + w.m_damages.m_fire + ", burnable " + w.m_burnable + ", lava / ash immune " + w.m_ashDamageImmune + ", health " + w.m_health.ToString("0");
             ModLog.Info("MobileCannonFireTestHooks: " + r);
             return r;
         }

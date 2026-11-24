@@ -98,7 +98,7 @@ namespace GunPowdered.Tests.Unit
             Assert.That(ball.Station, Is.EqualTo(ItemCatalog.Forge));
             Assert.That(ball.StationLevel, Is.EqualTo(2), "user 2026-11-18: the ball is made at a Forge level 2");
             Assert.That(ball.Cost.Select(c => c.Prefab + ":" + c.Amount), Is.EquivalentTo(new[] { "Iron:2" }));
-            Assert.That(ball.Stack, Is.EqualTo(1));
+            Assert.That(ball.Stack, Is.EqualTo(50), "D-182: cannon balls stack to 50");
         }
 
         [Test]

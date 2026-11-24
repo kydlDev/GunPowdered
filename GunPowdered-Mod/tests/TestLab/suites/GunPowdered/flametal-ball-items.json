@@ -1,6 +1,6 @@
 {
   "name": "flametal-ball-items",
-  "description": "D-145 (user 2026-11-21): the Flametal Cannon Ball is 4 Flametal (FlametalNew) at the Black Forge, never stacks, has its own icon; the iron ball and the cartridge carry their new names; T-017: a dropped ball (iron and flametal) is drawn once, not twice",
+  "description": "D-145 (user 2026-11-21): the Flametal Cannon Ball is 4 Flametal (FlametalNew) at the Black Forge, stacks to 50 (D-182), has its own icon; the iron ball and the cartridge carry their new names; T-017: a dropped ball (iron and flametal) is drawn once, not twice",
   "timeout": 60,
   "steps": [
     {
@@ -25,8 +25,8 @@
       "args": {
         "prefab": "GP_FlametalCannonBall"
       },
-      "expect": "stack 1, weight 4, type Material",
-      "label": "it never stacks"
+      "expect": "stack 50, weight 4, type Material",
+      "label": "it stacks to 50 (D-182)"
     },
     {
       "do": "hook",

@@ -8,7 +8,7 @@
     { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_Cannon" }, "expect": "forge level 2, makes 1, enabled True: Iron x20, Wood x5, Resin x5", "label": "the cannon recipe in the game" },
     { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_Cannon" }, "expect": "stack 1, weight 20, type Material", "label": "the cannon never stacks" },
     { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_CannonBall" }, "expect": "forge level 2, makes 1, enabled True: Iron x2", "label": "the cannon ball recipe in the game" },
-    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_CannonBall" }, "expect": "stack 1, weight 3, type Material", "label": "the cannon ball never stacks" },
+    { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_CannonBall" }, "expect": "stack 50, weight 3, type Material", "label": "the cannon ball stacks to 50 (D-182)" },
     { "do": "hook", "name": "GunPowdered.pieceOf", "args": { "prefab": "GP_CannonStock" }, "expect": "category KY-Items, station piece_workbench, enabled True: Wood x10, Resin x4, in KY-Items True", "label": "the cannon stock is in the KY-Items build category and listed in KY-Items" },
     { "do": "hook", "name": "GunPowdered.kyItemsListed", "contains": "all ", "label": "every item and piece of the mod is in the KY-Items list" },
     { "do": "cleanArena" }
