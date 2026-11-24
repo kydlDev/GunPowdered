@@ -14,6 +14,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
     {
         static readonly Collider[] Near = new Collider[32];
         static int _mask;
+        static float _lastPush;
 
         /// <summary>Pushes <paramref name="body"/> sideways away from the obstacles near it. Returns the push (m/s^2, + = right; 0 when nothing is near).</summary>
         internal static float Apply(Rigidbody body, Transform cart)
@@ -33,11 +34,14 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                 Vector3 at = c is MeshCollider mc && !mc.convex ? c.bounds.ClosestPoint(middle) : c.ClosestPoint(middle);   // ClosestPoint fails on non-convex meshes
                 Vector3 d = at - middle;
                 float side = Vector3.Dot(d, right), ahead = Vector3.Dot(d, fwd);
+                if (Mathf.Abs(side) < 0.001f && _lastPush != 0f) side = _lastPush < 0f ? 0.001f : -0.001f;      // a19cannon-rep01: the middle point sat inside a tree's box, the push flipped sides - keep going the way it was pushing
                 float one = AsksvinTowRules.SidePush(side, ahead);
                 push += one;
                 if (Mathf.Abs(one) > Mathf.Abs(strongestPush)) { strongest = c; strongestPush = one; strongestSide = side; strongestAhead = ahead; }
             }
+            _lastPush = push;
             if (push == 0f) { if (RuleLog.Due("MobileCannonDodge.Apply:clear", 2d)) ModLog.Every("MobileCannonDodge.Apply:clear", 2d, $"MobileCannonDodge.Apply: returns 0 because no obstacle is inside the field ({n} collider(s) near)"); return 0f; }
+            push = Mathf.Clamp(push, -AsksvinTowRules.DodgeStrength, AsksvinTowRules.DodgeStrength);      // several colliders (one tree, two LODs) added up to 54 m/s2
             body.AddForce(right * push, ForceMode.Acceleration);
             if (ModLog.IsDue("MobileCannonDodge.push", 0.5d))
                 ModLog.Decision("mobile cannon dodge", push > 0f ? "right" : "left", $"push {push:0.0} m/s2, strongest {strongest.name} side {strongestSide:0.00} m ahead {strongestAhead:0.00} m, colliders {n}");
