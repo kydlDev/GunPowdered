@@ -1,7 +1,7 @@
 {
   "params": [],
   "actions": [
-    { "do": "hook", "name": "GunPowdered.dynamiteTerrainReset", "contains": "reset", "label": "the hole is undone (TerrainSnapshot, marked by dynamiteGroundMark before the blast)" },
+    { "do": "hook", "name": "GunPowdered.dynamiteTerrainReset", "contains": "reset", "label": "the hole is undone (KydlCore's zone-keyed lab terrain restore, D-175)" },
     { "do": "clearInventory" },
     { "do": "wait", "seconds": 1 }
   ],

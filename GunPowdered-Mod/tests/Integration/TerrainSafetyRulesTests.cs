@@ -9,7 +9,7 @@ namespace GunPowdered.Tests.Integration;
 /// The lab's KydlFlat arena is itself a terrain modification (the template's baked levelling). Test hooks that cleared terrain modifications without
 /// knowing what was there before dropped the arena ground, and the player fell through it in every later test - again and again while this mod was tested
 /// (lab a8dyn1, a11full1 mud-draugr-lake; user 2026-11-20: "make an integration test that checks for this"). These guards make that impossible to merge:
-/// (1) only TerrainSnapshot touches a terrain piece's modification data, and it never restores without a mark;
+/// (1) no mod file touches a terrain piece's modification data: the lab's one terrain restore is KydlCore's TestTerrainRestore (zone-keyed, D-175);
 /// (2) every lab test that digs marks the ground before, resets it after and checks that it is back;
 /// (3) no test resets terrain it did not mark.
 /// </summary>
@@ -25,8 +25,6 @@ public class TerrainSafetyRulesTests
     static readonly string[] ResetHooks = { "GunPowdered.terrainReset", "GunPowdered.dynamiteTerrainReset" };
     static readonly string[] BackHooks = { "GunPowdered.terrainBack", "GunPowdered.dynamiteGroundBack" };
 
-    const string SnapshotFile = "TerrainSnapshot.cs";
-
     static IEnumerable<string> SourceFiles() => Directory.GetFiles(TestPaths.Src, "*.cs", SearchOption.AllDirectories);
 
     static IEnumerable<string> SuiteDirs()
@@ -39,33 +37,18 @@ public class TerrainSafetyRulesTests
         Directory.GetFiles(suiteDir, "*.json").Where(f => Path.GetFileName(f) != "suite.json");
 
     [Test]
-    public void OnlyTerrainSnapshot_WritesTheStoredGroundChanges()
+    public void NoModFile_WritesTheStoredGroundChanges()
     {
         var offenders = new List<string>();
         foreach (string file in SourceFiles())
         {
-            if (Path.GetFileName(file) == SnapshotFile) continue;
             string code = File.ReadAllText(file);
             foreach (string field in TerrainFields)
                 if (code.Contains("\"" + field + "\"")) offenders.Add(Path.GetFileName(file) + " uses " + field);
             if (Regex.IsMatch(code, @"typeof\(TerrainComp\)\.GetMethod\(\s*""Save""")) offenders.Add(Path.GetFileName(file) + " calls TerrainComp.Save");
         }
         Assert.That(offenders, Is.Empty,
-            "only Testing/TestHooks/TerrainSnapshot.cs may change stored terrain data (Mark before, Restore after): a hand-made clear removes the arena's own levelling and the player falls through the ground");
-    }
-
-    [Test]
-    public void TerrainSnapshot_NeverRestoresWithoutAMark()
-    {
-        string file = SourceFiles().Single(f => Path.GetFileName(f) == SnapshotFile);
-        string code = File.ReadAllText(file);
-        int restore = code.IndexOf("internal static string Restore(", System.StringComparison.Ordinal);
-        Assert.That(restore, Is.GreaterThan(0), "TerrainSnapshot.Restore exists");
-        string body = code.Substring(restore);
-        int guard = body.IndexOf("if (Saved.Count == 0)", System.StringComparison.Ordinal);
-        int firstClear = body.IndexOf("Array.Clear", System.StringComparison.Ordinal);
-        Assert.That(guard, Is.GreaterThan(0).And.LessThan(firstClear),
-            "Restore returns before touching anything when nothing was marked (a blind clear is what removed the arena ground)");
+            "no mod file may change stored terrain data: the lab terrain is put back by KydlCore's TestTerrainRestore (D-175); a hand-made clear removes the arena's own levelling and the player falls through the ground");
     }
 
     [Test]

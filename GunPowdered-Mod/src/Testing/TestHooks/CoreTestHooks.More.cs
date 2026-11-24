@@ -22,29 +22,24 @@ namespace GunPowdered.Testing.TestHooks
 
         static float _markedGround = float.NaN;
 
-        /// Remembers the terrain height at (x, z) and copies the terrain pieces within TerrainMarkRadius m (TerrainSnapshot) before a test digs there (a generated ruin levels and digs its own ground). Returns the height, or -1 when the ground is not loaded.
+        /// Remembers the terrain height at (x, z) before a test digs there (a generated ruin levels and digs its own ground). Returns the height, or -1 when the ground is not loaded.
         [TestHook("GunPowdered.terrainMark")]
         static double TerrainMark(double x, double z)
         {
             float h;
             if (ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(new Vector3((float)x, 0f, (float)z), out h)) { if (RuleLog.IsOn()) ModLog.Verbose($"CoreTestHooks.TerrainMark: returns -1d because ZoneSystem.instance == null || !ZoneSystem.instance.GetGroundHeight(new Vector3((float)x, 0f, (float)z), out h) (line 249)"); return -1d; }
             _markedGround = h;
-            int pieces = TerrainSnapshot.Mark(new Vector3((float)x, 0f, (float)z), TerrainMarkRadius);
-            ModLog.Verbose("CoreTestHooks: terrain height marked " + h.ToString("0.00") + " at (" + x + ", " + z + "), " + pieces + " terrain piece(s) copied");
+            ModLog.Verbose("CoreTestHooks: terrain height marked " + h.ToString("0.00") + " at (" + x + ", " + z + ")");
             return System.Math.Round(h, 2);
         }
 
-        /// How far round the marked spot terrain pieces are copied and restored (m).
-        const float TerrainMarkRadius = 80f;
-
-        /// Puts the terrain near (x, z) back the way terrainMark found it (TerrainSnapshot): the marked pieces get their old modifications back, pieces the test
-        /// made are cleared. It never clears a piece it did not see at the mark, so the KydlFlat arena's own levelling stays (a11full1: the old blind clear dropped
-        /// the arena ground and the player fell through it in every later test). `radius` is kept for the test files; the mark's radius decides. Returns
-        /// "reset N restored, M cleared".
+        /// Puts the terrain near (x, z) back to the lab template with KydlCore's terrain restore (D-175: the one restore of the lab, zone-keyed, also run at
+        /// every test start). `radius` is kept for the test files; KydlCore restores every changed zone within its own range. Returns "reset N zone(s) ...".
         [TestHook("GunPowdered.terrainReset")]
         static string TerrainReset(double x, double z, double radius)
         {
-            string result = TerrainSnapshot.Restore(new Vector3((float)x, 0f, (float)z), TerrainMarkRadius);
+            int restored = TestTerrainRestore.Run(ModContexts.For(typeof(CoreTestHooks)), new Vector3((float)x, 0f, (float)z));
+            string result = "reset " + restored + " zone(s) put back to the template";
             ModLog.Verbose("CoreTestHooks: terrain reset near (" + x + ", " + z + ") asked radius " + radius + " m: " + result);
             return result;
         }
@@ -114,7 +109,7 @@ namespace GunPowdered.Testing.TestHooks
         /// Removes what a generated location left near (x, z): every object within `radius` m whose prefab is one of the location's own pieces (a swamp ruin's stone walls,
         /// pillars ...), so the next test finds the arena empty (run a5final-1: leftover ruin walls blocked visual-pieces' camera), AND the location's own LocationProxy.
         /// The proxy holds the location's non-networked body with its TerrainModifier (SwampRuin1: level radius 10, smooth 12); the game applies a TerrainModifier
-        /// whenever a heightmap is rebuilt and never stores it in TerrainComp, so TerrainSnapshot.Restore cannot undo it (a11gate 1-3: the ground stayed 6.76 m
+        /// whenever a heightmap is rebuilt and never stores it in TerrainComp, so a terrain restore cannot undo it (a11gate 1-3: the ground stayed 6.76 m
         /// above the mark). Destroying the proxy destroys the modifier, whose OnDestroy re-pokes the heightmaps. Only proxies whose ZDO names THIS location are
         /// touched (the KydlFlat world's own locations stay). Returns "removed N object(s), P proxy(ies)".
         [TestHook("GunPowdered.removeLocationObjects")]

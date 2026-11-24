@@ -156,7 +156,6 @@ namespace GunPowdered.Testing.TestHooks
             if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.GroundMark()");
             if (!_placed.HasValue) return "no stick";
             _ground = Ground(_placed.Value);
-            TerrainSnapshot.Mark(_placed.Value, TerrainNear);
             { var returnedAt160 = float.IsNaN(_ground) ? "ground not loaded" : "marked " + _ground.ToString("0.00"); if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.GroundMark: returns {returnedAt160} (line 160)"); return returnedAt160; }
         }
 
@@ -171,19 +170,17 @@ namespace GunPowdered.Testing.TestHooks
         }
 
         /// <summary>
-        /// Undoes the hole: the terrain pieces near the stick get back the modifications they had when the ground was marked (the KydlFlat arena is itself a
-        /// terrain modification, so clearing everything would drop the ground by metres - lab a8dyn1). Pieces made after the mark are cleared. Returns "reset N".
+        /// Undoes the hole with KydlCore's lab terrain restore (D-175: the one restore of the lab, zone-keyed, the same that runs at every test start): every
+        /// changed zone near the stick gets the template's terrain back. Returns "reset N zone(s) put back to the template".
         /// </summary>
         [TestHook("GunPowdered.dynamiteTerrainReset")]
         static string TerrainReset()
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.TerrainReset()");
-            if (!_placed.HasValue) return "no stick";
-            { var returnedAt182 = TerrainSnapshot.Restore(_placed.Value, TerrainNear); if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.TerrainReset: returns {returnedAt182} (line 182)"); return returnedAt182; }
+            if (!_placed.HasValue) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.TerrainReset: returns \"no stick\" because !_placed.HasValue (line 179)"); return "no stick"; }
+            int restored = TestTerrainRestore.Run(ModContexts.For(typeof(DynamiteTestHooks)), _placed.Value);
+            { var returnedAt181 = "reset " + restored + " zone(s) put back to the template"; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteTestHooks.TerrainReset: returns {returnedAt181} (line 181)"); return returnedAt181; }
         }
-
-        /// <summary>How far round the stick the terrain is marked and restored (m): the pack's 5 m crater with its smoothing and paint, and a margin.</summary>
-        const float TerrainNear = 46f;
 
         /// <summary>"back" when the ground at the stick is again within 5 cm of the marked height, else how far it differs.</summary>
         [TestHook("GunPowdered.dynamiteGroundBack")]
