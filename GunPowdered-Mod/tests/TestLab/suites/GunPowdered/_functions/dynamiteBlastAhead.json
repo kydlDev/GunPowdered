@@ -1,0 +1,20 @@
+{
+  "params": [ { "metres": 8 } ],
+  "actions": [
+    { "do": "hook", "name": "GunPowdered.setSkill", "args": { "name": "Explosives", "level": 50 }, "contains": "Explosives set to 50", "label": "the 4 s fuse" },
+    { "do": "clearInventory" },
+    { "do": "give", "prefab": "GP_Dynamite", "count": 1, "equip": true },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.dynamitePlaceAt", "args": { "metres": "{{metres}}" }, "contains": "placed at", "label": "a stick {{metres}} m out" },
+    { "do": "hook", "name": "GunPowdered.dynamiteGroundMark", "contains": "marked", "label": "remember the ground height at the stick" },
+    { "do": "give", "prefab": "Torch", "count": 1, "equip": true },
+    { "do": "wait", "seconds": 0.5 },
+    { "do": "hook", "name": "GunPowdered.dynamiteLight", "expect": "lit", "label": "light the fuse" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.dynamiteBlastsSinceLight", "expect": 1 }, "timeout": 8 },
+    { "do": "wait", "seconds": 1 },
+    { "do": "clearInventory" }
+  ],
+  "asserts": [
+    { "check": "hook", "name": "GunPowdered.dynamiteHoleAtLeast", "args": { "metres": 0.8 }, "expect": true, "label": "a hole is dug" }
+  ]
+}

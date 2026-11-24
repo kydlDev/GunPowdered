@@ -232,6 +232,8 @@
     "relog-musket-loaded",
     "relog-cannon-loaded",
     "relog-dynamite-hole",
+    "relog-terrain-template",
+    "meta-terrain-heights-fails",
     "relog-cannon-broken-rock"
   ]
 }

@@ -1,0 +1,15 @@
+{
+  "name": "meta-terrain-heights-fails",
+  "description": "D-175 negative test: the terrain height check must fail while a crater is still in the ground (no arena step between the blast and the check), so relog-terrain-template cannot pass with a check that never fails.",
+  "timeout": 90,
+  "expectFailure": "the ground is back to the marks",
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.terrainHeightsMark", "contains": ", 0 not loaded", "label": "remember the ground" },
+    { "do": "dynamiteBlastAhead", "metres": 8 },
+    { "do": "hook", "name": "GunPowdered.terrainHeightsSame", "contains": "same as marked", "label": "the ground is back to the marks" },
+    { "do": "dynamiteGroundReset" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+}

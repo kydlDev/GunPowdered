@@ -1,0 +1,11 @@
+{
+  "params": [],
+  "actions": [
+    { "do": "hook", "name": "GunPowdered.dynamiteTerrainReset", "contains": "reset", "label": "the hole is undone (TerrainSnapshot, marked by dynamiteGroundMark before the blast)" },
+    { "do": "clearInventory" },
+    { "do": "wait", "seconds": 1 }
+  ],
+  "asserts": [
+    { "check": "hook", "name": "GunPowdered.dynamiteGroundBack", "expect": "back", "label": "the ground is back" }
+  ]
+}

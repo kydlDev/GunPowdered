@@ -1,0 +1,19 @@
+{
+  "name": "relog-terrain-template",
+  "description": "D-175 (user 2026-11-24: torn lab terrain, sky and water strips between land after the relog tests): the ground around the arena is the template's again after a blast, a relog and the next arena step - KydlCore restores each zone's own levelling (keyed by zone, not by the ZDOIDs a relog reassigns).",
+  "timeout": 180,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "hook", "name": "GunPowdered.terrainHeightsMark", "contains": ", 0 not loaded", "label": "remember the template ground (4 m grid, 100 m around)" },
+    { "do": "dynamiteBlastAhead", "metres": 8 },
+    { "do": "hook", "name": "GunPowdered.terrainHeightsSame", "contains": "DIFFERS:", "label": "the blast changed the ground (the height check sees a crater)" },
+    { "do": "relog", "timeout": 150 },
+    { "do": "wait", "seconds": 8 },
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "the next arena step restores the template terrain" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.terrainHeightsSame", "contains": "same as marked", "label": "after relog + arena step: every ground height is the template's again (no zone got another zone's levelling)" },
+    { "do": "dynamiteGroundReset" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [ { "check": "noErrors", "source": "GunPowdered" }, { "check": "noErrors", "source": "KydlCore" } ]
+}
