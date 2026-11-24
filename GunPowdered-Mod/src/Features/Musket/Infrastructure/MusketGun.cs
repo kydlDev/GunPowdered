@@ -144,6 +144,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             LastShot = "fired from " + muzzle.ToString("0.00") + " along " + dir.ToString("0.00") + ", flight " + (flight != null) + ", effects " + fx + ", shove " + push.ToString("0.0") + ", " + left + " left";
             ModLog.Info("MusketGun: " + player.GetPlayerName() + " " + LastShot);
             RaiseFired(player, musket, muzzle, dir, left, bullet);
+            MusketReloader.AfterShot(player, left);          // D-182: empty -> reload by itself
             { var returnedAt147 = "fired, " + left + " left"; if (RuleLog.Due("MusketGun.FireCore:147", 2d)) ModLog.Every("MusketGun.FireCore:147", 2d, $"MusketGun.FireCore: returns {returnedAt147} (line 147)"); return returnedAt147; }
         }
 

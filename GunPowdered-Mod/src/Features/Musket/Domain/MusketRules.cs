@@ -19,7 +19,7 @@ namespace GunPowdered.Features.Musket.Domain
         internal const string Full = "The Iron Musket is fully loaded", NoCartridges = "You need Cartridges", Empty = "The Iron Musket is empty: reload it";
 
         /// <summary>D-155: the aim key hint, and what a press of fire says while the musket hangs at the side or is still coming up.</summary>
-        internal const string HintAim = "Aim", NotAimed = "Raise the Iron Musket first";
+        internal const string HintAim = "Both hands", NotAimed = "Raise the Iron Musket first";     // D-182: the key only brings the musket into both hands
 
         /// <summary>D-155: why a reload is refused or stopped while moving (running is allowed).</summary>
         internal const string ReloadSwimming = "You cannot reload while swimming", ReloadInAir = "You cannot reload while jumping";
@@ -67,6 +67,20 @@ namespace GunPowdered.Features.Musket.Domain
         }
 
         /// <summary>Why a reload is refused (null = allowed): the musket is full, or the player carries no cartridge.</summary>
+        /// <summary>
+        /// D-182 (user 2026-11-24: "make musket auto-reload when reaching 0"): after a shot that left the musket empty, the reload starts by itself when
+        /// the player carries a cartridge. Without cartridges nothing happens (no "no cartridges" message after every last shot).
+        /// </summary>
+        internal static bool AutoReloads(int leftAfterShot, int carried)
+        {
+            bool auto = leftAfterShot <= 0 && carried >= 1;
+            if (RuleLog.Due("MusketRules.AutoReloads", 2d)) RuleLog.Every("MusketRules.AutoReloads", 2d, $"MusketRules.AutoReloads(leftAfterShot={leftAfterShot}, carried={carried}): returns {auto}");
+            return auto;
+        }
+
+        /// <summary>D-182: seconds after the shot before the automatic reload starts (the fire pose ends first).</summary>
+        internal const float AutoReloadDelay = MusketPoseRules.FireSeconds + 0.15f;
+
         internal static string WhyNotReload(int loaded, int carried)
         {
             if (RuleLog.Due("MusketRules.WhyNotReload", 2d)) RuleLog.Every("MusketRules.WhyNotReload", 2d, $"MusketRules.WhyNotReload(loaded={RuleLog.Shown(loaded)}, carried={RuleLog.Shown(carried)})");

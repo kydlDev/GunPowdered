@@ -39,6 +39,31 @@ namespace GunPowdered.Features.Musket.Infrastructure
             { var returnedAt39 = LastBegin; if (RuleLog.Due("MusketReloader.Begin:39", 2d)) ModLog.Every("MusketReloader.Begin:39", 2d, $"MusketReloader.Begin: returns {returnedAt39} (line 39)"); return returnedAt39; }
         }
 
+        /// <summary>What the last automatic reload after a shot did (for test hooks).</summary>
+        internal static string LastAuto { get; private set; } = "no automatic reload yet";
+
+        /// <summary>
+        /// D-182: called after the local player's shot. When the shot left the musket empty and the player carries a cartridge, the reload starts by
+        /// itself after the fire pose (<see cref="MusketRules.AutoReloadDelay"/>), exactly as if the reload key was pressed. Expected outcome: "starts in N s" or why not.
+        /// </summary>
+        internal static string AfterShot(Player player, int left)
+        {
+            int carried = player != null ? Carried(player) : 0;
+            if (player == null || !MusketRules.AutoReloads(left, carried)) { LastAuto = player == null ? "no player" : left > 0 ? left + " still loaded" : "no cartridges"; ModLog.Decision("musket auto reload", "no", $"{left} left, carries {carried} cartridge(s) - {LastAuto}"); return LastAuto; }
+            GunPowdered.Bootstrap.Plugin.Instance.StartCoroutine(AutoReload(player));
+            LastAuto = "starts in " + MusketRules.AutoReloadDelay.ToString("0.00") + " s";
+            ModLog.Decision("musket auto reload", "yes", $"empty after the shot, carries {carried} cartridge(s) - {LastAuto}");
+            return LastAuto;
+        }
+
+        static System.Collections.IEnumerator AutoReload(Player player)
+        {
+            yield return new WaitForSeconds(MusketRules.AutoReloadDelay);
+            if (player == null || player.IsDead()) { ModLog.Verbose("MusketReloader.AutoReload: the player is gone or dead - stops (yield break)"); yield break; }
+            LastAuto = "began: " + Begin(player);
+            ModLog.Info("MusketReloader: automatic reload after the last shot - " + LastAuto);
+        }
+
         /// <summary>What the last press of the reload key did (for test hooks).</summary>
         internal static string LastBegin { get; private set; } = "not pressed yet";
 

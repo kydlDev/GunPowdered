@@ -130,6 +130,18 @@ namespace GunPowdered.Features.Musket.Domain
         }
 
         /// <summary>D-155: the musket may fire only when it is raised and the raise animation has finished.</summary>
+        /// <summary>
+        /// D-182 (user 2026-11-24, shot-002/003: walking towards the camera the musket pointed at the camera but shot the other way): while the musket is
+        /// in both hands (raised, not hanging at the right side) the character faces the camera's aim all the time and walks sideways / backwards with the
+        /// direction keys, like the game's blocking or bow drawing. Lowered at the side (running) it turns with the walk as usual.
+        /// </summary>
+        internal static bool FacesAim(bool musketInHand, bool raised)
+        {
+            bool faces = musketInHand && raised;
+            if (RuleLog.Due("MusketPoseRules.FacesAim", 2d)) RuleLog.Every("MusketPoseRules.FacesAim", 2d, $"MusketPoseRules.FacesAim(musketInHand={musketInHand}, raised={raised}): returns {faces}");
+            return faces;
+        }
+
         internal static bool ReadyToFire(bool raised, float carry)
         {
             bool ready = raised && Clamp01(carry) <= ReadyCarry;
