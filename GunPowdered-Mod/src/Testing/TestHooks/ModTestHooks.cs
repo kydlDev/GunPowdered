@@ -46,6 +46,9 @@ namespace GunPowdered.Testing.TestHooks
 
         const float GroundTolerance = 0.3f;
 
+        /// <summary>How far (m) the ground under the player may be from the arena spot's own level (a20ash1: the unlevelled world was 9 m lower).</summary>
+        const float LevelTolerance = 0.5f;
+
         /// <summary>
         /// a18g16b / a18g16d-2 / a18kneel2-3: after the relog tests the arena ground was no longer level - visual-dynamite-kneel stood 1.6 m low and found no
         /// ground 6 m ahead (or a step up). The arena step now checks the ground where the player stands and 6 m ahead (where the tests put things), both from
@@ -57,12 +60,17 @@ namespace GunPowdered.Testing.TestHooks
             if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.GroundCheck()");
             Player p = Player.m_localPlayer;
             flat = true;
-            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.GroundCheck: returns \"ground not checked (no player)\" because p == null (line 60)"); return "ground not checked (no player)"; }
+            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.GroundCheck: returns \"ground not checked (no player)\" because p == null (line 63)"); return "ground not checked (no player)"; }
             UnityEngine.Vector3 here = p.transform.position, ahead = here + UnityEngine.Vector3.forward * 6f;
             float h0 = Heightmap.GetHeight(here, out float a) ? a : float.NaN, h6 = Heightmap.GetHeight(ahead, out float b) ? b : float.NaN;
             float r0 = Ray(here), r6 = Ray(ahead);
-            flat = !float.IsNaN(r0) && !float.IsNaN(r6) && UnityEngine.Mathf.Abs(h0 - h6) <= GroundTolerance && UnityEngine.Mathf.Abs(r0 - h0) <= GroundTolerance && UnityEngine.Mathf.Abs(r6 - h6) <= GroundTolerance;
-            { var returnedAt65 = $"ground y {h0:0.00} here, {h6:0.00} 6 m ahead (ray {(float.IsNaN(r0) ? "no hit" : r0.ToString("0.00"))}, {(float.IsNaN(r6) ? "no hit" : r6.ToString("0.00"))})"; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.GroundCheck: returns {returnedAt65} (line 65)"); return returnedAt65; }
+            // a20ash1 rep05 / rep07: back from the Ashlands the arena zone first showed the unlevelled world (44 m, flat too) and the lab's levelled terrain
+            // (53 m) came ~7 s later - it pushed the cannon up 24 m, broke the wall and pushed the player through the ground. Flat is not enough: the ground
+            // must also be at the level the arena spot was chosen at (TestArena.Spot.y is that ground + 0.2 m).
+            float level = KydlCore.Common.TestArena.Spot == default ? float.NaN : KydlCore.Common.TestArena.Spot.y - 0.2f;
+            bool atLevel = float.IsNaN(level) || UnityEngine.Mathf.Abs(r0 - level) <= LevelTolerance;
+            flat = atLevel && !float.IsNaN(r0) && !float.IsNaN(r6) && UnityEngine.Mathf.Abs(h0 - h6) <= GroundTolerance && UnityEngine.Mathf.Abs(r0 - h0) <= GroundTolerance && UnityEngine.Mathf.Abs(r6 - h6) <= GroundTolerance;
+            { var returnedAt73 = $"ground y {h0:0.00} here, {h6:0.00} 6 m ahead (ray {(float.IsNaN(r0) ? "no hit" : r0.ToString("0.00"))}, {(float.IsNaN(r6) ? "no hit" : r6.ToString("0.00"))}), arena level {(float.IsNaN(level) ? "unknown" : level.ToString("0.00"))}"; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.GroundCheck: returns {returnedAt73} (line 73)"); return returnedAt73; }
         }
 
         static float Ray(UnityEngine.Vector3 at) =>
@@ -87,9 +95,9 @@ namespace GunPowdered.Testing.TestHooks
             int items = 0;
             foreach (ItemDrop drop in UnityEngine.Object.FindObjectsByType<ItemDrop>(UnityEngine.FindObjectsSortMode.None))
             {
-                if (drop == null || UnityEngine.Vector3.Distance(drop.transform.position, p.transform.position) > 80f) { if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.CleanArena: skips to the next item (continue) because drop == null || UnityEngine.Vector3.Distance(drop.transform.position, p.transform.position) > 80f (line 90)"); continue; }
+                if (drop == null || UnityEngine.Vector3.Distance(drop.transform.position, p.transform.position) > 80f) { if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.CleanArena: skips to the next item (continue) because drop == null || UnityEngine.Vector3.Distance(drop.transform.position, p.transform.position) > 80f (line 98)"); continue; }
                 ZNetView nv = drop.GetComponent<ZNetView>();
-                if (nv == null || !nv.IsValid()) { if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.CleanArena: skips to the next item (continue) because nv == null || !nv.IsValid() (line 92)"); continue; }      // a model in a hand or a prefab, not an item on the ground
+                if (nv == null || !nv.IsValid()) { if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.CleanArena: skips to the next item (continue) because nv == null || !nv.IsValid() (line 100)"); continue; }      // a model in a hand or a prefab, not an item on the ground
                 nv.ClaimOwnership();
                 ZNetScene.instance.Destroy(drop.gameObject);
                 items++;
@@ -125,7 +133,7 @@ namespace GunPowdered.Testing.TestHooks
                 nv.ClaimOwnership();
                 ZNetScene.instance.Destroy(nv.gameObject);
             }
-            { var returnedAt128 = seen.Count; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.CleanSpawners: returns {returnedAt128} (line 128)"); return returnedAt128; }
+            { var returnedAt136 = seen.Count; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.CleanSpawners: returns {returnedAt136} (line 136)"); return returnedAt136; }
         }
 
         static void Mark(UnityEngine.Component c, UnityEngine.Vector3 at, System.Collections.Generic.HashSet<ZNetView> seen)
@@ -157,7 +165,7 @@ namespace GunPowdered.Testing.TestHooks
             string s = "";
             if (p.InGhostMode()) { p.SetGhostMode(false); s += ", ghost mode off"; }
             if (p.InDebugFlyMode()) { p.ToggleDebugFly(); s += ", fly mode off"; }
-            { var returnedAt160 = s; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.PlainPlayer: returns {returnedAt160} (line 160)"); return returnedAt160; }
+            { var returnedAt168 = s; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.PlainPlayer: returns {returnedAt168} (line 168)"); return returnedAt168; }
         }
 
         /// All Startup_* / World_* checks of InGameTests (the ones Kydl.GameProbe runs): "PASS: ..." or "FAIL: ...".
@@ -178,7 +186,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.ExampleSet(value={value})");
             if (ModInstaller.Current == null) return "Failed: mod not installed";
-            { var returnedAt181 = ExampleCommands.SetValue(ModInstaller.Current.Deps.Commands, (float)value).ToString(); if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.ExampleSet: returns {returnedAt181} (line 181)"); return returnedAt181; }
+            { var returnedAt189 = ExampleCommands.SetValue(ModInstaller.Current.Deps.Commands, (float)value).ToString(); if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.ExampleSet: returns {returnedAt189} (line 189)"); return returnedAt189; }
         }
 
         /// Generates a real location (e.g. Crypt2, TrollCave02, MountainCave02, FireHole) several times through the game's own ZoneSystem.SpawnLocation (SpawnMode.Full), so the
@@ -188,12 +196,12 @@ namespace GunPowdered.Testing.TestHooks
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.SpawnLocations(name={name}, count={count})");
             var zs = ZoneSystem.instance;
-            if (zs == null) { if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.SpawnLocations: returns \"FAIL: no ZoneSystem\" because zs == null (line 191)"); return "FAIL: no ZoneSystem"; }
+            if (zs == null) { if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.SpawnLocations: returns \"FAIL: no ZoneSystem\" because zs == null (line 199)"); return "FAIL: no ZoneSystem"; }
             ZoneSystem.ZoneLocation loc = zs.m_locations.Find(l => l.m_prefabName == name);
-            if (loc == null) { var returnedAt193 = "FAIL: no location " + name; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.SpawnLocations: returns {returnedAt193} because loc == null (line 193)"); return returnedAt193; }
+            if (loc == null) { var returnedAt201 = "FAIL: no location " + name; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.SpawnLocations: returns {returnedAt201} because loc == null (line 201)"); return returnedAt201; }
             if (loc.m_prefab != null) loc.m_prefab.Load();
             var method = HarmonyLib.AccessTools.Method(typeof(ZoneSystem), "SpawnLocation");
-            if (method == null) { if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.SpawnLocations: returns \"FAIL: ZoneSystem.SpawnLocation not found\" because method == null (line 196)"); return "FAIL: ZoneSystem.SpawnLocation not found"; }
+            if (method == null) { if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.SpawnLocations: returns \"FAIL: ZoneSystem.SpawnLocation not found\" because method == null (line 204)"); return "FAIL: ZoneSystem.SpawnLocation not found"; }
             var pars = method.GetParameters();
             bool interior = loc.m_prefab != null && loc.m_prefab.IsLoaded && loc.m_prefab.Asset.GetComponentInChildren<DungeonGenerator>(true) != null;
             int ok = 0;
@@ -215,7 +223,7 @@ namespace GunPowdered.Testing.TestHooks
                 if (method.Invoke(zs, args) != null) ok++;
             }
             string why = ok == 0 ? " (prefab loaded " + (loc.m_prefab != null && loc.m_prefab.IsLoaded) + ", valid " + (loc.m_prefab != null && loc.m_prefab.IsValid) + ", method returns " + method.ReturnType.Name + ", enabled " + loc.m_enable + ")" : "";
-            { var returnedAt218 = "spawned " + ok + " of " + count + why; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.SpawnLocations: returns {returnedAt218} (line 218)"); return returnedAt218; }
+            { var returnedAt226 = "spawned " + ok + " of " + count + why; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.SpawnLocations: returns {returnedAt226} (line 226)"); return returnedAt226; }
         }
 
         static int _spawnLeft;
@@ -229,7 +237,7 @@ namespace GunPowdered.Testing.TestHooks
             if (_spawnLeft > 0) return "FAIL: a spawn run is still going (" + _spawnLeft + " left)";
             _spawnLeft = count;
             Plugin.Instance.StartCoroutine(SpawnNearRun(name, count, (float)waitSeconds));
-            { var returnedAt232 = "started " + count; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.SpawnNear: returns {returnedAt232} (line 232)"); return returnedAt232; }
+            { var returnedAt240 = "started " + count; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.SpawnNear: returns {returnedAt240} (line 240)"); return returnedAt240; }
         }
 
         [TestHook("GunPowdered.spawnLeft")]
@@ -287,7 +295,7 @@ namespace GunPowdered.Testing.TestHooks
             int n = 0;
             foreach (var view in UnityEngine.Object.FindObjectsByType<ZNetView>(UnityEngine.FindObjectsSortMode.None))
                 if (view != null && view.gameObject.name.StartsWith(prefix)) n++;
-            { var returnedAt290 = n; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.CountObjects: returns {returnedAt290} (line 290)"); return returnedAt290; }
+            { var returnedAt298 = n; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.CountObjects: returns {returnedAt298} (line 298)"); return returnedAt298; }
         }
 
         /// Is the guano deposit one of the vegetation entries of an alt biome called Bat Swamp (BatSwampPatch ran)? Returns the number of entries.
@@ -299,7 +307,7 @@ namespace GunPowdered.Testing.TestHooks
             foreach (var list in ZoneSystem.instance.m_altBiomeLists)
                 foreach (var alt in list.m_alts)
                     if (alt.m_name == "Bat Swamp") foreach (var v in alt.m_addVegetation) if (v.m_name == "GP_GuanoDeposit") n++;
-            { var returnedAt302 = n; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.BatSwampEntries: returns {returnedAt302} (line 302)"); return returnedAt302; }
+            { var returnedAt310 = n; if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.BatSwampEntries: returns {returnedAt310} (line 310)"); return returnedAt310; }
         }
 
         /// D-033: generates N real caves of one kind and goes in through each entrance like a player; poll caveRunLeft until 0, then read caveRunResult.
