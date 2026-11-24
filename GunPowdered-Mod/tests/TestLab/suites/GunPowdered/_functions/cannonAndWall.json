@@ -1,0 +1,33 @@
+{
+  "params": [],
+  "actions": [
+    {
+      "do": "mobileCannonPlaced"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.testWallPlace",
+      "contains": "wall placed",
+      "label": "a plain wooden wall 2.5 m beside it (the comparison piece)"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "log",
+      "message": "new pieces take no wear for their first 30 s (WearNTear.ShouldUpdate) - waiting it out"
+    },
+    {
+      "do": "wait",
+      "seconds": 31
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.healthMark",
+      "contains": "marked cannon",
+      "label": "note both healths"
+    }
+  ],
+  "asserts": []
+}

@@ -242,6 +242,9 @@
     "musket-auto-reload",
     "musket-faces-aim",
     "flametal-look",
-    "dynamite-last-no-punch"
+    "dynamite-last-no-punch",
+    "mobilecannon-lava",
+    "mobilecannon-ash",
+    "mobilecannon-fire-spread"
   ]
 }

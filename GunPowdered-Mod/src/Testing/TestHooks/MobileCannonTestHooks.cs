@@ -1,5 +1,6 @@
 using System.Collections;
 using KydlCore.Common;
+using KydlCore.Features.Diagnostics.Contracts;
 using UnityEngine;
 using GunPowdered.Core;
 using GunPowdered.Features.MobileCannon.Infrastructure;
@@ -24,7 +25,7 @@ namespace GunPowdered.Testing.TestHooks
             if (RuleLog.Due("MobileCannonTestHooks.Info", 2d)) ModLog.Every("MobileCannonTestHooks.Info", 2d, $"MobileCannonTestHooks.Info()");
             GameObject prefab = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(GunPowderedPrefabs.MobileCannon) : null;
             Vagon vagon = prefab != null ? prefab.GetComponent<Vagon>() : null;
-            if (vagon == null) { var returnedAt27 = "no cart in " + GunPowderedPrefabs.MobileCannon; if (RuleLog.Due("MobileCannonTestHooks.Info:27", 2d)) ModLog.Every("MobileCannonTestHooks.Info:27", 2d, $"MobileCannonTestHooks.Info: returns {returnedAt27} because vagon == null (line 27)"); return returnedAt27; }
+            if (vagon == null) { var returnedAt28 = "no cart in " + GunPowderedPrefabs.MobileCannon; if (RuleLog.Due("MobileCannonTestHooks.Info:28", 2d)) ModLog.Every("MobileCannonTestHooks.Info:28", 2d, $"MobileCannonTestHooks.Info: returns {returnedAt28} because vagon == null (line 28)"); return returnedAt28; }
             int colliders = 0;
             foreach (Collider c in prefab.GetComponentsInChildren<Collider>(true)) if (c.enabled && !c.isTrigger) colliders++;
             bool model = prefab.transform.Find(MobileCannonSetup.ModelName) != null;
@@ -39,13 +40,27 @@ namespace GunPowdered.Testing.TestHooks
             if (RuleLog.Due("MobileCannonTestHooks.Place", 2d)) ModLog.Every("MobileCannonTestHooks.Place", 2d, $"MobileCannonTestHooks.Place(metres={metres})");
             Player p = Player.m_localPlayer;
             GameObject prefab = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(GunPowderedPrefabs.MobileCannon) : null;
-            if (p == null || prefab == null) { if (RuleLog.Due("MobileCannonTestHooks.Place:42", 2d)) ModLog.Every("MobileCannonTestHooks.Place:42", 2d, $"MobileCannonTestHooks.Place: returns \"no player or no prefab\" because p == null || prefab == null (line 42)"); return "no player or no prefab"; }
+            if (p == null || prefab == null) { if (RuleLog.Due("MobileCannonTestHooks.Place:43", 2d)) ModLog.Every("MobileCannonTestHooks.Place:43", 2d, $"MobileCannonTestHooks.Place: returns \"no player or no prefab\" because p == null || prefab == null (line 43)"); return "no player or no prefab"; }
             Vector3 at = p.transform.position + p.transform.forward * (float)metres;
-            float h;
-            if (ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(at, out h)) at.y = h + 0.05f;
+            at.y = AshlandsTestHooks.Ground(at) + 0.05f;      // the loaded heightmap first (a19ash2: GetGroundHeight answered 18 m low in a fresh Ashlands zone)
             _cannon = Object.Instantiate(prefab, at, Quaternion.LookRotation(-p.transform.forward));
             _placedAt = at;
-            { var returnedAt48 = "placed at " + at.ToString("0.0"); if (RuleLog.Due("MobileCannonTestHooks.Place:48", 2d)) ModLog.Every("MobileCannonTestHooks.Place:48", 2d, $"MobileCannonTestHooks.Place: returns {returnedAt48} (line 48)"); return returnedAt48; }
+            TrackCannon(_cannon);
+            { var returnedAt49 = "placed at " + at.ToString("0.0"); if (RuleLog.Due("MobileCannonTestHooks.Place:49", 2d)) ModLog.Every("MobileCannonTestHooks.Place:49", 2d, $"MobileCannonTestHooks.Place: returns {returnedAt49} (line 49)"); return returnedAt49; }
+        }
+
+        /// <summary>
+        /// a19ash2 (Claude-Agent-20): a test cannon on the arena lost 3.5 health with no fire placed, and nothing in the log or the flight dump ("tracked 0")
+        /// showed its height, speed or health over time. The test cannon is tracked from now on, so a failed test's flight dump shows them every second.
+        /// </summary>
+        static void TrackCannon(GameObject cannon)
+        {
+            if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.TrackCannon(cannon={cannon})");
+            WearNTear wear = cannon != null ? cannon.GetComponent<WearNTear>() : null;
+            Rigidbody body = cannon != null ? cannon.GetComponent<Rigidbody>() : null;
+            if (wear == null) { ModLog.Warn("MobileCannonTestHooks.TrackCannon: the placed cannon has no WearNTear - not tracked (health cannot be read)"); return; }
+            bool tracked = FlightRecorder.Track(wear, "test Mobile Cannon", () => $"health {wear.GetHealthPercentage() * 100f:0.0} %, y {wear.transform.position.y:0.00} m, speed {(body != null ? body.linearVelocity.magnitude : 0f):0.00} m/s");
+            ModLog.Verbose("MobileCannonTestHooks.TrackCannon: tracked " + tracked);
         }
 
         /// <summary>Puts the local player at the trail end, facing away from the cannon, and presses E on the cart (the game attaches next frame). Returns "grab asked".</summary>
@@ -55,7 +70,7 @@ namespace GunPowdered.Testing.TestHooks
             if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Grab()");
             Player p = Player.m_localPlayer;
             Vagon vagon = _cannon != null ? _cannon.GetComponent<Vagon>() : null;
-            if (p == null || vagon == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Grab: returns \"no player or no cannon\" because p == null || vagon == null (line 58)"); return "no player or no cannon"; }
+            if (p == null || vagon == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Grab: returns \"no player or no cannon\" because p == null || vagon == null (line 73)"); return "no player or no cannon"; }
             Vector3 pull = vagon.m_attachPoint.position - vagon.m_attachOffset;
             Vector3 away = _cannon.transform.forward;
             Rigidbody body = p.GetComponent<Rigidbody>();
@@ -69,7 +84,7 @@ namespace GunPowdered.Testing.TestHooks
             }
             p.SetLookDir(away);
             vagon.Interact(p, false, false);                  // the game's cart always answers false; it attaches in its next Update
-            { var returnedAt72 = "grab asked at " + p.transform.position.ToString("0.0"); if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Grab: returns {returnedAt72} (line 72)"); return returnedAt72; }
+            { var returnedAt87 = "grab asked at " + p.transform.position.ToString("0.0"); if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Grab: returns {returnedAt87} (line 87)"); return returnedAt87; }
         }
 
         /// <summary>True while the local player is hitched to the placed cannon.</summary>
@@ -78,7 +93,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             if (RuleLog.Due("MobileCannonTestHooks.Attached", 2d)) ModLog.Every("MobileCannonTestHooks.Attached", 2d, $"MobileCannonTestHooks.Attached()");
             Vagon vagon = _cannon != null ? _cannon.GetComponent<Vagon>() : null;
-            { var returnedAt81 = vagon != null && Player.m_localPlayer != null && vagon.IsAttached(Player.m_localPlayer); if (RuleLog.Due("MobileCannonTestHooks.Attached:81", 2d)) ModLog.Every("MobileCannonTestHooks.Attached:81", 2d, $"MobileCannonTestHooks.Attached: returns {returnedAt81} (line 81)"); return returnedAt81; }
+            { var returnedAt96 = vagon != null && Player.m_localPlayer != null && vagon.IsAttached(Player.m_localPlayer); if (RuleLog.Due("MobileCannonTestHooks.Attached:96", 2d)) ModLog.Every("MobileCannonTestHooks.Attached:96", 2d, $"MobileCannonTestHooks.Attached: returns {returnedAt96} (line 96)"); return returnedAt96; }
         }
 
         /// <summary>Walks the local player <paramref name="metres"/> straight on over <paramref name="seconds"/> (physics steps). Returns "walking".</summary>
@@ -87,9 +102,9 @@ namespace GunPowdered.Testing.TestHooks
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Walk(metres={metres}, seconds={seconds})");
             Player p = Player.m_localPlayer;
-            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Walk: returns \"no player\" because p == null (line 90)"); return "no player"; }
+            if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Walk: returns \"no player\" because p == null (line 105)"); return "no player"; }
             p.StartCoroutine(WalkRoutine(p, (float)metres, (float)seconds));
-            { var returnedAt92 = "walking " + metres.ToString("0.0") + " m in " + seconds.ToString("0.0") + " s"; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Walk: returns {returnedAt92} (line 92)"); return returnedAt92; }
+            { var returnedAt107 = "walking " + metres.ToString("0.0") + " m in " + seconds.ToString("0.0") + " s"; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Walk: returns {returnedAt107} (line 107)"); return returnedAt107; }
         }
 
         static IEnumerator WalkRoutine(Player p, float metres, float seconds)
@@ -115,7 +130,7 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.mobileCannonState")]
         static string State()
         {
-            if (_cannon == null) { if (RuleLog.Due("MobileCannonTestHooks.State:118", 2d)) ModLog.Every("MobileCannonTestHooks.State:118", 2d, $"MobileCannonTestHooks.State: returns \"no cannon\" because _cannon == null (line 118)"); return "no cannon"; }
+            if (_cannon == null) { if (RuleLog.Due("MobileCannonTestHooks.State:133", 2d)) ModLog.Every("MobileCannonTestHooks.State:133", 2d, $"MobileCannonTestHooks.State: returns \"no cannon\" because _cannon == null (line 133)"); return "no cannon"; }
             MobileCannonWheels wheels = _cannon.GetComponent<MobileCannonWheels>();
             float moved = Vector3.Distance(new Vector3(_cannon.transform.position.x, 0f, _cannon.transform.position.z), new Vector3(_placedAt.x, 0f, _placedAt.z));
             string s = "moved " + moved.ToString("0.0") + " m, wheels " + (wheels != null ? wheels.TurnedDegrees.ToString("0") : "?") + " deg, attached " + Attached();
@@ -132,7 +147,7 @@ namespace GunPowdered.Testing.TestHooks
             ZNetView view = _cannon.GetComponent<ZNetView>();
             if (view != null && view.IsValid()) view.Destroy(); else Object.Destroy(_cannon);
             _cannon = null;
-            { if (RuleLog.Due("MobileCannonTestHooks.Remove:135", 2d)) ModLog.Every("MobileCannonTestHooks.Remove:135", 2d, $"MobileCannonTestHooks.Remove: returns \"removed\" (line 135)"); return "removed"; }
+            { if (RuleLog.Due("MobileCannonTestHooks.Remove:150", 2d)) ModLog.Every("MobileCannonTestHooks.Remove:150", 2d, $"MobileCannonTestHooks.Remove: returns \"removed\" (line 150)"); return "removed"; }
         }
         /// <summary>"max speed S m/s, stamina used U, facing A deg": the hitched local player's fastest speed and stamina since the hitch, and how far they look away from the cannon.</summary>
         [TestHook("GunPowdered.mobileCannonPullStats")]
@@ -140,7 +155,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             Player p = Player.m_localPlayer;
             MobileCannonPull pull = _cannon != null ? _cannon.GetComponent<MobileCannonPull>() : null;
-            if (p == null || pull == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.PullStats: returns \"no player or no cannon\" because p == null || pull == null (line 143)"); return "no player or no cannon"; }
+            if (p == null || pull == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.PullStats: returns \"no player or no cannon\" because p == null || pull == null (line 158)"); return "no player or no cannon"; }
             float facing = Quaternion.Angle(Quaternion.LookRotation(Vector3.ProjectOnPlane(p.transform.forward, Vector3.up)), pull.FacingFor(p));
             string s = "max speed " + pull.MaxSpeedSeen.ToString("0.0") + " m/s, stamina used " + pull.StaminaUsed.ToString("0.0") + ", facing " + facing.ToString("0") + " deg, hands on handle " + pull.HandsOnHandle;
             ModLog.Info("MobileCannonTestHooks: " + s);
@@ -152,8 +167,8 @@ namespace GunPowdered.Testing.TestHooks
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Crank(notches={notches})");
             MobileCannonAim aim = _cannon != null ? _cannon.GetComponent<MobileCannonAim>() : null;
-            if (aim == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Crank: returns \"no cannon\" because aim == null (line 155)"); return "no cannon"; }
-            { var returnedAt156 = aim.Turn(notches) ? "turned " + notches : "not sent"; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Crank: returns {returnedAt156} (line 156)"); return returnedAt156; }
+            if (aim == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Crank: returns \"no cannon\" because aim == null (line 170)"); return "no cannon"; }
+            { var returnedAt171 = aim.Turn(notches) ? "turned " + notches : "not sent"; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.Crank: returns {returnedAt171} (line 171)"); return returnedAt171; }
         }
 
         /// <summary>"pitch P deg, barrel B deg, hover H": the stored elevation, the barrel's real tilt (+ = muzzle up) and whether a crank handle with a hover text exists.</summary>
@@ -161,7 +176,7 @@ namespace GunPowdered.Testing.TestHooks
         static string PitchInfo()
         {
             MobileCannonAim aim = _cannon != null ? _cannon.GetComponent<MobileCannonAim>() : null;
-            if (aim == null || aim.BarrelPart == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.PitchInfo: returns \"no cannon\" because aim == null || aim.BarrelPart == null (line 164)"); return "no cannon"; }
+            if (aim == null || aim.BarrelPart == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.PitchInfo: returns \"no cannon\" because aim == null || aim.BarrelPart == null (line 179)"); return "no cannon"; }
             Vector3 muzzleDir = -_cannon.transform.forward;                       // the model is turned: the muzzle points to the cart's back
             Vector3 barrelDir = aim.BarrelPart.forward;
             float tilt = Mathf.Asin(Mathf.Clamp(Vector3.Dot(barrelDir, _cannon.transform.up), -1f, 1f)) * Mathf.Rad2Deg;     // against the carriage
@@ -179,10 +194,10 @@ namespace GunPowdered.Testing.TestHooks
             if (RuleLog.Due("MobileCannonTestHooks.Load", 2d)) ModLog.Every("MobileCannonTestHooks.Load", 2d, $"MobileCannonTestHooks.Load()");
             Player p = Player.m_localPlayer;
             MobileCannonGun gun = _cannon != null ? _cannon.GetComponent<MobileCannonGun>() : null;
-            if (p == null || gun == null || gun.MuzzlePoint == null) { if (RuleLog.Due("MobileCannonTestHooks.Load:182", 2d)) ModLog.Every("MobileCannonTestHooks.Load:182", 2d, $"MobileCannonTestHooks.Load: returns \"no player or no cannon\" because p == null || gun == null || gun.MuzzlePoint == null (line 182)"); return "no player or no cannon"; }
+            if (p == null || gun == null || gun.MuzzlePoint == null) { if (RuleLog.Due("MobileCannonTestHooks.Load:197", 2d)) ModLog.Every("MobileCannonTestHooks.Load:197", 2d, $"MobileCannonTestHooks.Load: returns \"no player or no cannon\" because p == null || gun == null || gun.MuzzlePoint == null (line 197)"); return "no player or no cannon"; }
             Vector3 outward = Vector3.ProjectOnPlane(gun.MuzzlePoint.forward, Vector3.up).normalized;
             StandAt(p, gun.MuzzlePoint.position + outward * 1.2f, -outward);
-            { var returnedAt185 = gun.Load(p) ? "loading" : "refused"; if (RuleLog.Due("MobileCannonTestHooks.Load:185", 2d)) ModLog.Every("MobileCannonTestHooks.Load:185", 2d, $"MobileCannonTestHooks.Load: returns {returnedAt185} (line 185)"); return returnedAt185; }
+            { var returnedAt200 = gun.Load(p) ? "loading" : "refused"; if (RuleLog.Due("MobileCannonTestHooks.Load:200", 2d)) ModLog.Every("MobileCannonTestHooks.Load:200", 2d, $"MobileCannonTestHooks.Load: returns {returnedAt200} (line 200)"); return returnedAt200; }
         }
 
         /// <summary>"loaded L, lit F, loading G".</summary>
@@ -191,7 +206,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.GunState()");
             MobileCannonGun gun = _cannon != null ? _cannon.GetComponent<MobileCannonGun>() : null;
-            { var returnedAt194 = gun == null ? "no cannon" : "loaded " + gun.Loaded + ", lit " + gun.Lit + ", loading " + gun.Loading; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.GunState: returns {returnedAt194} (line 194)"); return returnedAt194; }
+            { var returnedAt209 = gun == null ? "no cannon" : "loaded " + gun.Loaded + ", lit " + gun.Lit + ", loading " + gun.Loading; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.GunState: returns {returnedAt209} (line 209)"); return returnedAt209; }
         }
 
         /// <summary>Stands the local player beside the touch hole and lights the fuse with the torch in hand. Returns "lit" or the reason.</summary>
@@ -201,11 +216,11 @@ namespace GunPowdered.Testing.TestHooks
             if (RuleLog.Due("MobileCannonTestHooks.Light", 2d)) ModLog.Every("MobileCannonTestHooks.Light", 2d, $"MobileCannonTestHooks.Light()");
             Player p = Player.m_localPlayer;
             MobileCannonGun gun = _cannon != null ? _cannon.GetComponent<MobileCannonGun>() : null;
-            if (p == null || gun == null || gun.TouchHolePoint == null) { if (RuleLog.Due("MobileCannonTestHooks.Light:204", 2d)) ModLog.Every("MobileCannonTestHooks.Light:204", 2d, $"MobileCannonTestHooks.Light: returns \"no player or no cannon\" because p == null || gun == null || gun.TouchHolePoint == null (line 204)"); return "no player or no cannon"; }
+            if (p == null || gun == null || gun.TouchHolePoint == null) { if (RuleLog.Due("MobileCannonTestHooks.Light:219", 2d)) ModLog.Every("MobileCannonTestHooks.Light:219", 2d, $"MobileCannonTestHooks.Light: returns \"no player or no cannon\" because p == null || gun == null || gun.TouchHolePoint == null (line 219)"); return "no player or no cannon"; }
             Vector3 side = _cannon.transform.right;
             StandAt(p, gun.TouchHolePoint.position + side * 1.3f, -side);
             string why = gun.Light(p);
-            { var returnedAt208 = why ?? "lit"; if (RuleLog.Due("MobileCannonTestHooks.Light:208", 2d)) ModLog.Every("MobileCannonTestHooks.Light:208", 2d, $"MobileCannonTestHooks.Light: returns {returnedAt208} (line 208)"); return returnedAt208; }
+            { var returnedAt223 = why ?? "lit"; if (RuleLog.Due("MobileCannonTestHooks.Light:223", 2d)) ModLog.Every("MobileCannonTestHooks.Light:223", 2d, $"MobileCannonTestHooks.Light: returns {returnedAt223} (line 223)"); return returnedAt223; }
         }
 
         static GameObject _target;
@@ -218,20 +233,20 @@ namespace GunPowdered.Testing.TestHooks
             if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.TargetAhead(prefab={prefab}, metres={metres})");
             MobileCannonGun gun = _cannon != null ? _cannon.GetComponent<MobileCannonGun>() : null;
             GameObject source = ZNetScene.instance != null ? ZNetScene.instance.GetPrefab(prefab) : null;
-            if (gun == null || gun.MuzzlePoint == null || source == null) { var returnedAt221 = "no cannon or no prefab " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.TargetAhead: returns {returnedAt221} because gun == null || gun.MuzzlePoint == null || source == null (line 221)"); return returnedAt221; }
+            if (gun == null || gun.MuzzlePoint == null || source == null) { var returnedAt236 = "no cannon or no prefab " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.TargetAhead: returns {returnedAt236} because gun == null || gun.MuzzlePoint == null || source == null (line 236)"); return returnedAt236; }
             Vector3 dir = Vector3.ProjectOnPlane(-_cannon.transform.forward, Vector3.up).normalized;      // the muzzle points to the cart's back
             Vector3 at = gun.MuzzlePoint.position + dir * (float)metres;
             float h;
             if (ZoneSystem.instance != null && ZoneSystem.instance.GetGroundHeight(at, out h)) at.y = h;
             _target = Object.Instantiate(source, at, Quaternion.LookRotation(-dir));
-            { var returnedAt227 = "target " + prefab + " at " + metres.ToString("0") + " m, health " + TargetHealth(); if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.TargetAhead: returns {returnedAt227} (line 227)"); return returnedAt227; }
+            { var returnedAt242 = "target " + prefab + " at " + metres.ToString("0") + " m, health " + TargetHealth(); if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.TargetAhead: returns {returnedAt242} (line 242)"); return returnedAt242; }
         }
 
         /// <summary>The target's health (WearNTear / Destructible / MineRock5), e.g. "6000". "none" without a target.</summary>
         [TestHook("GunPowdered.mobileCannonTargetHealth")]
         static string TargetHealth()
         {
-            if (_target == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.TargetHealth: returns \"none\" because _target == null (line 234)"); return "none"; }
+            if (_target == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.TargetHealth: returns \"none\" because _target == null (line 249)"); return "none"; }
             ZNetView v = _target.GetComponent<ZNetView>();
             WearNTear w = _target.GetComponent<WearNTear>();
             float max = w != null ? w.m_health : 0f;
@@ -248,7 +263,7 @@ namespace GunPowdered.Testing.TestHooks
             if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.TargetRemove()");
             if (_target != null) { ZNetView v = _target.GetComponent<ZNetView>(); if (v != null && v.IsValid()) { v.ClaimOwnership(); ZNetScene.instance.Destroy(_target); } }
             _target = null;
-            { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.TargetRemove: returns \"target removed\" (line 251)"); return "target removed"; }
+            { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.TargetRemove: returns \"target removed\" (line 266)"); return "target removed"; }
         }
 
         /// <summary>Burning on the nearest creature of a prefab within 40 m (D-107): "burning True, per tick T, left L" (the game's SE_Burning: 1 tick a second
@@ -261,13 +276,13 @@ namespace GunPowdered.Testing.TestHooks
             float bestDist = 40f;
             foreach (Character c in Character.GetAllCharacters())
             {
-                if (c == null || c == p || Utils.GetPrefabName(c.gameObject) != prefab) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.BurningOn: skips to the next item (continue) because c == null || c == p || Utils.GetPrefabName(c.gameObject) != prefab (line 264)"); continue; }
+                if (c == null || c == p || Utils.GetPrefabName(c.gameObject) != prefab) { if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.BurningOn: skips to the next item (continue) because c == null || c == p || Utils.GetPrefabName(c.gameObject) != prefab (line 279)"); continue; }
                 float d = p != null ? Vector3.Distance(c.transform.position, p.transform.position) : 0f;
                 if (d < bestDist) { best = c; bestDist = d; }
             }
-            if (best == null) { var returnedAt268 = "no " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.BurningOn: returns {returnedAt268} because best == null (line 268)"); return returnedAt268; }
+            if (best == null) { var returnedAt283 = "no " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.BurningOn: returns {returnedAt283} because best == null (line 283)"); return returnedAt283; }
             StatusEffect se = best.GetSEMan() != null ? best.GetSEMan().GetStatusEffect(SEMan.s_statusEffectBurning) : null;
-            if (se == null) { var returnedAt270 = "burning False" + (best.IsDead() ? " (dead)" : ""); if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.BurningOn: returns {returnedAt270} because se == null (line 270)"); return returnedAt270; }
+            if (se == null) { var returnedAt285 = "burning False" + (best.IsDead() ? " (dead)" : ""); if (RuleLog.IsOn()) ModLog.Verbose($"MobileCannonTestHooks.BurningOn: returns {returnedAt285} because se == null (line 285)"); return returnedAt285; }
             float perHit = (float)HarmonyLib.AccessTools.Field(se.GetType(), "m_fireDamagePerHit").GetValue(se);
             float left = (float)HarmonyLib.AccessTools.Field(se.GetType(), "m_fireDamageLeft").GetValue(se);
             string s = "burning True, per tick " + perHit.ToString("0.0") + ", left " + left.ToString("0.0");
@@ -304,7 +319,7 @@ namespace GunPowdered.Testing.TestHooks
         {
             if (RuleLog.Due("MobileCannonTestHooks.Find", 2d)) ModLog.Every("MobileCannonTestHooks.Find", 2d, $"MobileCannonTestHooks.Find()");
             Player p = Player.m_localPlayer;
-            if (p == null) { if (RuleLog.Due("MobileCannonTestHooks.Find:307", 2d)) ModLog.Every("MobileCannonTestHooks.Find:307", 2d, $"MobileCannonTestHooks.Find: returns \"no player\" because p == null (line 307)"); return "no player"; }
+            if (p == null) { if (RuleLog.Due("MobileCannonTestHooks.Find:322", 2d)) ModLog.Every("MobileCannonTestHooks.Find:322", 2d, $"MobileCannonTestHooks.Find: returns \"no player\" because p == null (line 322)"); return "no player"; }
             GameObject best = null;
             float bestDist = 40f;
             foreach (MobileCannonGun gun in Object.FindObjectsByType<MobileCannonGun>(FindObjectsSortMode.None))
@@ -313,7 +328,7 @@ namespace GunPowdered.Testing.TestHooks
                 if (d < bestDist) { best = gun.gameObject; bestDist = d; }
             }
             _cannon = best;
-            { var returnedAt316 = best == null ? "none" : "found at " + bestDist.ToString("0") + " m"; if (RuleLog.Due("MobileCannonTestHooks.Find:316", 2d)) ModLog.Every("MobileCannonTestHooks.Find:316", 2d, $"MobileCannonTestHooks.Find: returns {returnedAt316} (line 316)"); return returnedAt316; }
+            { var returnedAt331 = best == null ? "none" : "found at " + bestDist.ToString("0") + " m"; if (RuleLog.Due("MobileCannonTestHooks.Find:331", 2d)) ModLog.Every("MobileCannonTestHooks.Find:331", 2d, $"MobileCannonTestHooks.Find: returns {returnedAt331} (line 331)"); return returnedAt331; }
         }
     }
 }

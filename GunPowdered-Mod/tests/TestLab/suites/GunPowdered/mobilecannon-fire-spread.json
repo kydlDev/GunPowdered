@@ -1,0 +1,82 @@
+{
+  "name": "mobilecannon-fire-spread",
+  "description": "D-179 / D-184 (user 2026-11-24): the game's own spreading fire (the Fire the Ashlands cinders start: fire + chop hits on burnable pieces) burns a wooden wall but never the Mobile Cannon beside it.",
+  "timeout": 100,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.arenaGround",
+        "contains": "ground flat"
+      },
+      "timeout": 15
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.testWallRemove",
+      "contains": "wall",
+      "label": "nothing left from an earlier run (wall, spot, ash damage)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.spawnBlock",
+      "args": {
+        "radius": 100
+      },
+      "contains": "spawns blocked within 100 m",
+      "label": "no game spawns here for the test (D-185: a falling lava rock hit the cannon for 60 in a19ash7)"
+    },
+    {
+      "do": "cannonAndWall"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.fireAtBoth",
+      "contains": "at cannon and wall",
+      "label": "the game's fire at the foot of both"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.healthCompare",
+        "contains": "wall lost"
+      },
+      "timeout": 12
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.healthCompare",
+      "contains": "cannon same",
+      "label": "the cannon lost nothing (the wall's loss is proven by the step before; it may already be gone)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonRemove",
+      "contains": "removed",
+      "label": "cannon removed"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.testWallRemove",
+      "contains": "wall",
+      "label": "the wall removed (the lava may have burned it down already)"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
+}
