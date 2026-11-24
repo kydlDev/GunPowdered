@@ -4,6 +4,7 @@
   "timeout": 40,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     { "do": "hook", "name": "GunPowdered.featureRunning", "args": { "id": "cannon" }, "expect": true, "label": "the hand cannon runs at start" },
     { "do": "hook", "name": "GunPowdered.featureRunning", "args": { "id": "mobilecannon" }, "expect": true, "label": "the mobile cannon runs at start" },
     { "do": "setConfig", "values": { "General/Enable Cannons": false } },

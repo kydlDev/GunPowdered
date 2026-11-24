@@ -10,17 +10,7 @@
       "label": "start on the arena spot"
     },
     {
-      "do": "hook",
-      "name": "GunPowdered.setSkill",
-      "args": {
-        "name": "Explosives",
-        "level": 50
-      },
-      "contains": "Explosives set to 50",
-      "label": "Explosives skill 50: the 4 s fuse these timings were written for (D-157)"
-    },
-    {
-      "do": "clearInventory"
+      "do": "arenaReadySetskillClearinventory"
     },
     {
       "do": "give",

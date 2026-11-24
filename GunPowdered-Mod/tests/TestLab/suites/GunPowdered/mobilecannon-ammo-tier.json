@@ -1,127 +1,122 @@
 {
-    "name":  "mobilecannon-ammo-tier",
-    "description":  "D-145: the Mobile Cannon takes Flametal or better - it refuses the Iron Cannon Ball, loads the Flametal one and its shot is 120 blunt, 250 pickaxe, fire 10/s plus the ball\u0027s 50 pierce, tool tier 5",
-    "timeout":  120,
-    "steps":  [
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.arena",
-                      "contains":  "arena at",
-                      "label":  "start on the arena spot"
-                  },
-                  {
-                      "do":  "mobileCannonPlaced"
-                  },
-                  {
-                      "do":  "give",
-                      "prefab":  "GP_Gunpowder",
-                      "count":  3
-                  },
-                  {
-                      "do":  "give",
-                      "prefab":  "GP_CannonBall",
-                      "count":  1
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.mobileCannonLoad",
-                      "expect":  "refused",
-                      "label":  "the Mobile Cannon refuses the Iron Cannon Ball"
-                  },
-                  {
-                      "do":  "wait",
-                      "seconds":  5
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.mobileCannonGunState",
-                      "contains":  "loaded False",
-                      "label":  "still empty"
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.invCount",
-                      "args":  {
-                                   "prefab":  "GP_CannonBall"
-                               },
-                      "expect":  1,
-                      "label":  "the iron ball stays in the inventory"
-                  },
-                  {
-                      "do":  "give",
-                      "prefab":  "GP_FlametalCannonBall",
-                      "count":  1
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.mobileCannonLoad",
-                      "expect":  "loading",
-                      "label":  "the flametal ball loads"
-                  },
-                  {
-                      "do":  "wait",
-                      "seconds":  5
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.mobileCannonGunState",
-                      "contains":  "loaded True",
-                      "label":  "loaded"
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.invCount",
-                      "args":  {
-                                   "prefab":  "GP_FlametalCannonBall"
-                               },
-                      "expect":  0,
-                      "label":  "the flametal ball went in"
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.invCount",
-                      "args":  {
-                                   "prefab":  "GP_CannonBall"
-                               },
-                      "expect":  1,
-                      "label":  "the iron ball was not taken"
-                  },
-                  {
-                      "do":  "mobileCannonLightLevel0",
-                      "label":  "a torch in hand, Cannons skill 0, the fuse lit"
-                  },
-                  {
-                      "do":  "wait",
-                      "seconds":  6.5
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.mobileCannonGunState",
-                      "contains":  "loaded False, lit False",
-                      "label":  "fired"
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.cannonShotDamage",
-                      "expect":  "GP_FlametalCannonBall: pierce 50, blunt 120, pickaxe 250, fire 10/s, tool tier 5",
-                      "label":  "the Mobile Cannon\u0027s part + the flametal ball\u0027s part"
-                  },
-                  {
-                      "do":  "hook",
-                      "name":  "GunPowdered.mobileCannonRemove",
-                      "contains":  "removed"
-                  },
-                  {
-                      "do":  "clearInventory"
-                  },
-                  {
-                      "do":  "cleanArena"
-                  }
-              ],
-    "asserts":  [
-                    {
-                        "check":  "noErrors",
-                        "source":  "GunPowdered"
-                    }
-                ]
+  "name": "mobilecannon-ammo-tier",
+  "description": "D-145: the Mobile Cannon takes Flametal or better - it refuses the Iron Cannon Ball, loads the Flametal one and its shot is 120 blunt, 250 pickaxe, fire 10/s plus the ball's 50 pierce, tool tier 5",
+  "timeout": 120,
+  "steps": [
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "arenaReadyMobilecannonplacedGive"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_CannonBall",
+      "count": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonLoad",
+      "expect": "refused",
+      "label": "the Mobile Cannon refuses the Iron Cannon Ball"
+    },
+    {
+      "do": "wait",
+      "seconds": 5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonGunState",
+      "contains": "loaded False",
+      "label": "still empty"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.invCount",
+      "args": {
+        "prefab": "GP_CannonBall"
+      },
+      "expect": 1,
+      "label": "the iron ball stays in the inventory"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_FlametalCannonBall",
+      "count": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonLoad",
+      "expect": "loading",
+      "label": "the flametal ball loads"
+    },
+    {
+      "do": "wait",
+      "seconds": 5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonGunState",
+      "contains": "loaded True",
+      "label": "loaded"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.invCount",
+      "args": {
+        "prefab": "GP_FlametalCannonBall"
+      },
+      "expect": 0,
+      "label": "the flametal ball went in"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.invCount",
+      "args": {
+        "prefab": "GP_CannonBall"
+      },
+      "expect": 1,
+      "label": "the iron ball was not taken"
+    },
+    {
+      "do": "mobileCannonLightLevel0",
+      "label": "a torch in hand, Cannons skill 0, the fuse lit"
+    },
+    {
+      "do": "wait",
+      "seconds": 6.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonGunState",
+      "contains": "loaded False, lit False",
+      "label": "fired"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonShotDamage",
+      "expect": "GP_FlametalCannonBall: pierce 50, blunt 120, pickaxe 250, fire 10/s, tool tier 5",
+      "label": "the Mobile Cannon's part + the flametal ball's part"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonRemove",
+      "contains": "removed"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "cleanArena"
+    }
+  ],
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

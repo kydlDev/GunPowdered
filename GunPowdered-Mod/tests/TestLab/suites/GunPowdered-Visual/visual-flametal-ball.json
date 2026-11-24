@@ -4,6 +4,7 @@
   "timeout": 60,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     { "do": "spawn", "prefab": "GP_CannonBall", "dx": -0.25, "dz": 2.8, "as": "iron" },
     { "do": "spawn", "prefab": "GP_FlametalCannonBall", "dx": 0.25, "dz": 2.8, "as": "flametal" },
     { "do": "wait", "seconds": 2 },

@@ -10,10 +10,7 @@
       "label": "start on the arena spot"
     },
     {
-      "do": "cannonStock"
-    },
-    {
-      "do": "cannonLoaded"
+      "do": "arenaReadyCannonstockCannonloaded"
     },
     {
       "do": "hook",

@@ -3,17 +3,72 @@
   "description": "Hand Cannon (D-053 addendum 2): a building ends the flight where it is hit and takes the ball's damage (D-055 addendum 1)",
   "timeout": 90,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "cannonStock" },
-    { "do": "cannonLoaded" },
-    { "do": "hook", "name": "GunPowdered.cannonPlaceOnLine", "args": { "prefab": "woodwall", "distance": 15 }, "expect": "placed woodwall", "label": "a wood wall 15 m out" },
-    { "do": "wait", "seconds": 1 },
-    { "do": "cannonFire30" },
-    { "do": "hook", "name": "GunPowdered.cannonShot", "contains": "stopped by woodwall", "label": "the wall stopped the ball" },
-    { "do": "hook", "name": "GunPowdered.cannonPassed", "expect": 0, "label": "nothing passed" },
-    { "do": "hook", "name": "GunPowdered.cannonLandedNear", "args": { "distance": 14.5, "tolerance": 1.0 }, "expect": true, "label": "stopped at the wall (15 m from the stock = 14.5 m from the muzzle)" },
-    { "do": "check", "check": "hook", "name": "GunPowdered.pieceHealth", "args": { "prefab": "woodwall" }, "max": 99.5, "label": "the wall lost health" },
-    { "do": "cannonClean" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "arenaReadyCannonstockCannonloaded"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonPlaceOnLine",
+      "args": {
+        "prefab": "woodwall",
+        "distance": 15
+      },
+      "expect": "placed woodwall",
+      "label": "a wood wall 15 m out"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "cannonFire30"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonShot",
+      "contains": "stopped by woodwall",
+      "label": "the wall stopped the ball"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonPassed",
+      "expect": 0,
+      "label": "nothing passed"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonLandedNear",
+      "args": {
+        "distance": 14.5,
+        "tolerance": 1.0
+      },
+      "expect": true,
+      "label": "stopped at the wall (15 m from the stock = 14.5 m from the muzzle)"
+    },
+    {
+      "do": "check",
+      "check": "hook",
+      "name": "GunPowdered.pieceHealth",
+      "args": {
+        "prefab": "woodwall"
+      },
+      "max": 99.5,
+      "label": "the wall lost health"
+    },
+    {
+      "do": "cannonClean"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

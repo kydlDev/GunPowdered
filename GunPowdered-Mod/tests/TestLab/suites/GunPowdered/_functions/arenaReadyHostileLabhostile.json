@@ -1,0 +1,25 @@
+{
+  "params": [],
+  "actions": [
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.arenaGround",
+        "contains": "ground flat"
+      },
+      "timeout": 15
+    },
+    {
+      "command": "testlab.hostile",
+      "do": "console"
+    },
+    {
+      "do": "hook",
+      "expect": "creatures hostile True",
+      "label": "creatures can be alerted, as in a real game (user 2026-11-23: the lab's CreaturesHostile off had kept every Alert() from sticking; the lab turns it off again between tests)",
+      "name": "GunPowdered.labHostile"
+    }
+  ],
+  "asserts": []
+}

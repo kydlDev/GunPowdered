@@ -24,9 +24,23 @@ namespace GunPowdered.Testing.TestHooks
             string moved = TestArena.MovePlayer();
             string cleaned = CleanArena();
             UnityEngine.Random.InitState(RandomSeed);
-            string ground = GroundCheck(out bool flat);
-            string s = (flat ? moved : "GROUND NOT FLAT (" + ground + ") - " + moved.Replace("arena at", "spot")) + "; " + cleaned + "; random seed " + RandomSeed + "; " + ground;
+            string s = moved + "; " + cleaned + "; random seed " + RandomSeed + "; " + GroundCheck(out bool _);
             ModLog.Info("ModTestHooks.Arena: returns " + s);
+            return s;
+        }
+
+        /// <summary>
+        /// a19full-1 (03:24, 03:38): the arena step teleports the player back from a far trip (spot visits, cave runs) in ONE frame, but the arena zones load
+        /// over the next frames (heightmap first, collider and TerrainComp after): the ground check in the same frame read 44 m (the unlevelled world) and "no hit"
+        /// 6 m ahead although nothing was wrong. The check is its own step now: a `wait until` on this hook right after the arena step (timeout 15 s) passes as soon
+        /// as the ground is level and fails with the last reading when it never gets there. Expected outcome: "ground flat: ground y ..." or "ground NOT flat: ...".
+        /// </summary>
+        [TestHook("GunPowdered.arenaGround")]
+        static string ArenaGround()
+        {
+            string ground = GroundCheck(out bool flat);
+            string s = (flat ? "ground flat: " : "ground NOT flat: ") + ground;
+            ModLog.Verbose("ModTestHooks.ArenaGround: returns " + s);
             return s;
         }
 

@@ -4,6 +4,7 @@
   "timeout": 40,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     { "do": "give", "prefab": "GP_Musket", "count": 1, "equip": true },
     { "do": "wait", "seconds": 2 },
     { "do": "hook", "name": "GunPowdered.musketSkipGuard", "args": { "on": false }, "expect": "skip guard off" },

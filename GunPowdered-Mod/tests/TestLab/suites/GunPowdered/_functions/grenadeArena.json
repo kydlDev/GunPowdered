@@ -2,6 +2,7 @@
   "params": [],
   "actions": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     { "do": "hook", "name": "GunPowdered.removeStationsNearby", "contains": "removed", "label": "no station piece of an earlier test stands in the line of fire" },
     { "do": "hook", "name": "GunPowdered.setSkill", "args": { "name": "Explosives", "level": 100 }, "contains": "Explosives set to 100", "label": "Explosives 100: the shortest fuse after landing (1 s, D-157), so the grenade tests stay close to the old burst on impact" }
   ],

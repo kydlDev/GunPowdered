@@ -4,6 +4,7 @@
   "timeout": 60,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     { "do": "holdGrenadeFacing" },
     { "do": "hook", "name": "GunPowdered.aimInput", "args": { "value": "block" }, "label": "right button only" },
     { "do": "wait", "seconds": 1 },

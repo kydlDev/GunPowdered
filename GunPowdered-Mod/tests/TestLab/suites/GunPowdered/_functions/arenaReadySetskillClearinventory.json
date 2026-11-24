@@ -1,0 +1,28 @@
+{
+  "params": [],
+  "actions": [
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.arenaGround",
+        "contains": "ground flat"
+      },
+      "timeout": 15
+    },
+    {
+      "args": {
+        "level": 50,
+        "name": "Explosives"
+      },
+      "contains": "Explosives set to 50",
+      "do": "hook",
+      "label": "Explosives skill 50: the 4 s fuse these timings were written for (D-157)",
+      "name": "GunPowdered.setSkill"
+    },
+    {
+      "do": "clearInventory"
+    }
+  ],
+  "asserts": []
+}

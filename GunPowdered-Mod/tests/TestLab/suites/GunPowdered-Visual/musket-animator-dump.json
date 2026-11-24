@@ -8,6 +8,7 @@
       "name": "GunPowdered.arena",
       "contains": "arena at"
     },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     {
       "do": "give",
       "prefab": "GP_Musket",

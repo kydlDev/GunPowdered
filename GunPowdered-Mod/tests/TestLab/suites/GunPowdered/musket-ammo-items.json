@@ -4,6 +4,7 @@
   "timeout": 60,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_Paper" }, "expect": "piece_workbench level 1, makes 1, enabled True: Resin x2, LeatherScraps x1", "label": "the paper recipe in the game" },
     { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_Paper" }, "expect": "stack 50, weight 0.05, type Material", "label": "paper stacks to 50" },
     { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_IronBullet" }, "expect": "forge level 2, makes 5, enabled True: Iron x1", "label": "1 iron makes 5 bullets at forge level 2" },

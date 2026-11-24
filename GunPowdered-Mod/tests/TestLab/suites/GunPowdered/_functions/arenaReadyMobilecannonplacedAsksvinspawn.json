@@ -1,0 +1,24 @@
+{
+  "params": [],
+  "actions": [
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.arenaGround",
+        "contains": "ground flat"
+      },
+      "timeout": 15
+    },
+    {
+      "do": "mobileCannonPlaced"
+    },
+    {
+      "contains": "tamed True",
+      "do": "hook",
+      "label": "a tame Asksvin behind the trail",
+      "name": "GunPowdered.asksvinSpawn"
+    }
+  ],
+  "asserts": []
+}

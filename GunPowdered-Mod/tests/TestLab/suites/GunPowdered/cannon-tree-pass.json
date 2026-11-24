@@ -3,16 +3,61 @@
   "description": "Hand Cannon (D-053): a tree on the line is hit (it can break) and passed; the ball lands by the landing rule",
   "timeout": 90,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "cannonStock" },
-    { "do": "cannonLoaded" },
-    { "do": "hook", "name": "GunPowdered.cannonPlaceOnLine", "args": { "prefab": "Beech1", "distance": 12 }, "expect": "placed Beech1", "label": "a beech 12 m out" },
-    { "do": "wait", "seconds": 1 },
-    { "do": "cannonFire30" },
-    { "do": "hook", "name": "GunPowdered.cannonShot", "contains": "hits: Beech1", "label": "the beech was hit" },
-    { "do": "hook", "name": "GunPowdered.cannonPassed", "expect": 1, "label": "and passed" },
-    { "do": "hook", "name": "GunPowdered.cannonLandingRule", "args": { "tolerance": 1.5 }, "contains": "held", "label": "lands half way between the beech and 30 m" },
-    { "do": "cannonClean" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "arenaReadyCannonstockCannonloaded"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonPlaceOnLine",
+      "args": {
+        "prefab": "Beech1",
+        "distance": 12
+      },
+      "expect": "placed Beech1",
+      "label": "a beech 12 m out"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "cannonFire30"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonShot",
+      "contains": "hits: Beech1",
+      "label": "the beech was hit"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonPassed",
+      "expect": 1,
+      "label": "and passed"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonLandingRule",
+      "args": {
+        "tolerance": 1.5
+      },
+      "contains": "held",
+      "label": "lands half way between the beech and 30 m"
+    },
+    {
+      "do": "cannonClean"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

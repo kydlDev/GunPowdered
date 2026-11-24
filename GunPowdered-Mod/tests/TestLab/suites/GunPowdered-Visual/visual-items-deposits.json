@@ -9,6 +9,7 @@
       "contains": "arena at",
       "label": "start on the arena spot (user 2026-11-23: the first step cleans the arena)"
     },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     {
       "do": "spawn",
       "prefab": "GP_GuanoDeposit",

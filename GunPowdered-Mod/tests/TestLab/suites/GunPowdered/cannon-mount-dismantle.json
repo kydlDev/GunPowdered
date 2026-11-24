@@ -4,6 +4,7 @@
   "timeout": 90,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     { "do": "cannonStock" },
     { "do": "give", "prefab": "GP_Cannon", "count": 1 },
     { "do": "hook", "name": "GunPowdered.cannonState", "contains": "mounted False", "label": "an empty stock" },

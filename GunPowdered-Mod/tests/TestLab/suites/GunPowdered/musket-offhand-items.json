@@ -4,6 +4,7 @@
   "timeout": 90,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     { "do": "musketStart", "label": "empty backpack, the Iron Musket equipped" },
     { "do": "hook", "name": "GunPowdered.musketBlocker", "expect": "blocker GP_Musket", "label": "the raised musket blocks (the user's current blocking)" },
 

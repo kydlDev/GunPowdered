@@ -3,52 +3,263 @@
   "description": "D-155 (user 2026-11-22): running lowers the Iron Musket to the right side and it stays there until the aim key (default the mouse wheel button) raises it with the raise animation; fire works only when raised and up; a reload runs while running but not in the air; a torch can be held next to the lowered musket (it shows in the left hand) and the aim key takes it off; block 10 / parry 1.5 / adrenaline 10 and 2 / no movement penalty. Running is set with the test switch musketTestSpeed (the rig takes 7 m/s as the player's speed).",
   "timeout": 90,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "clearInventory" },
-    { "do": "give", "prefab": "GP_Musket", "count": 1, "equip": true },
-    { "do": "hook", "name": "GunPowdered.setSkill", "args": { "name": "Muskets", "level": 100 }, "contains": "Muskets set to 100", "label": "Muskets skill 100: 1.2 s per cartridge (D-157; the reload times below were written for it)" },
-    { "do": "give", "prefab": "GP_PaperCartridge", "count": 5 },
-    { "do": "wait", "seconds": 1 },
-    { "do": "hook", "name": "GunPowdered.musketStats", "expect": "block 10, per level 0, parry 1.5, parry adrenaline 10, block adrenaline 2, movement 0", "label": "the user's block numbers, no movement penalty" },
-    { "do": "hook", "name": "GunPowdered.apiSetLoaded", "args": { "loaded": 2 }, "expect": "set 2, read 2", "label": "two cartridges in" },
-    { "do": "hook", "name": "GunPowdered.musketRaised", "contains": "raised True, ready True", "label": "a freshly equipped musket is raised and ready" },
-
-    { "do": "hook", "name": "GunPowdered.musketTestSpeed", "args": { "speed": 7 }, "contains": "speed 7", "label": "the player runs (7 m/s)" },
-    { "do": "wait", "seconds": 0.5 },
-    { "do": "hook", "name": "GunPowdered.musketRaised", "contains": "raised False", "label": "running lowers the musket to the side" },
-    { "do": "hook", "name": "GunPowdered.musketRaised", "contains": "carry 1.00", "label": "it is fully at the side" },
-    { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": false }, "contains": "Raise the Iron Musket first", "label": "fire is refused at the side" },
-    { "do": "hook", "name": "GunPowdered.musketLoaded", "expect": 2, "label": "nothing was fired" },
-    { "do": "hook", "name": "GunPowdered.musketAim", "expect": "running", "label": "the aim key does nothing while running" },
-    { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": true }, "contains": "reloading", "label": "a reload starts while running" },
-    { "do": "wait", "seconds": 1.4 },
-    { "do": "hook", "name": "GunPowdered.musketLoaded", "expect": 3, "label": "one cartridge went in while running" },
-
-    { "do": "hook", "name": "GunPowdered.musketTestSpeed", "args": { "speed": 0 }, "contains": "speed 0", "label": "the player stops" },
-    { "do": "wait", "seconds": 0.5 },
-    { "do": "hook", "name": "GunPowdered.musketRaised", "contains": "raised False", "label": "the musket stays at the side after running" },
-    { "do": "give", "prefab": "Torch", "count": 1, "equip": true },
-    { "do": "wait", "seconds": 0.5 },
-    { "do": "hook", "name": "GunPowdered.musketHands", "contains": "right Torch, left GP_Musket, musket held True", "label": "the torch is held next to the lowered musket" },
-    { "do": "hook", "name": "GunPowdered.musketHands", "contains": "other item in the left hand True", "label": "the torch shows in the left hand" },
-
-    { "do": "hook", "name": "GunPowdered.musketAim", "expect": "raising", "label": "the aim key raises the musket" },
-    { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": false }, "contains": "Raise the Iron Musket first", "label": "no shot while it is still coming up (right after the aim click; the raise takes 0.4 s)" },
-    { "do": "hook", "name": "GunPowdered.musketHands", "contains": "right nothing, left GP_Musket", "label": "the torch was taken off, the musket is the only thing equipped" },
-    { "do": "wait", "seconds": 0.5 },
-    { "do": "hook", "name": "GunPowdered.musketRaised", "contains": "raised True, ready True", "label": "up and ready after the raise" },
-    { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": false }, "contains": "fired", "label": "now it fires" },
-    { "do": "hook", "name": "GunPowdered.musketAim", "expect": "already aimed", "label": "the aim key again does nothing" },
-
-    { "do": "wait", "seconds": 1 },
-    { "do": "hook", "name": "GunPowdered.musketLift", "args": { "metres": 8 }, "contains": "lifted to", "label": "up in the air (like a jump)" },
-    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.onGround", "expect": "on ground False" }, "timeout": 1 },
-    { "do": "hook", "name": "GunPowdered.musketPress", "args": { "secondary": true }, "contains": "You cannot reload while jumping", "label": "no reload in the air" },
-    { "do": "wait", "seconds": 2 },
-
-    { "do": "hook", "name": "GunPowdered.musketTestSpeed", "args": { "speed": -1 }, "contains": "speed -1", "label": "the real speed again" },
-    { "do": "clearInventory" },
-    { "do": "console", "command": "killall" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "arenaReadyClearinventoryGive"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.setSkill",
+      "args": {
+        "name": "Muskets",
+        "level": 100
+      },
+      "contains": "Muskets set to 100",
+      "label": "Muskets skill 100: 1.2 s per cartridge (D-157; the reload times below were written for it)"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_PaperCartridge",
+      "count": 5
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketStats",
+      "expect": "block 10, per level 0, parry 1.5, parry adrenaline 10, block adrenaline 2, movement 0",
+      "label": "the user's block numbers, no movement penalty"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.apiSetLoaded",
+      "args": {
+        "loaded": 2
+      },
+      "expect": "set 2, read 2",
+      "label": "two cartridges in"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketRaised",
+      "contains": "raised True, ready True",
+      "label": "a freshly equipped musket is raised and ready"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketTestSpeed",
+      "args": {
+        "speed": 7
+      },
+      "contains": "speed 7",
+      "label": "the player runs (7 m/s)"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketRaised",
+      "contains": "raised False",
+      "label": "running lowers the musket to the side"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketRaised",
+      "contains": "carry 1.00",
+      "label": "it is fully at the side"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketPress",
+      "args": {
+        "secondary": false
+      },
+      "contains": "Raise the Iron Musket first",
+      "label": "fire is refused at the side"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketLoaded",
+      "expect": 2,
+      "label": "nothing was fired"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketAim",
+      "expect": "running",
+      "label": "the aim key does nothing while running"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketPress",
+      "args": {
+        "secondary": true
+      },
+      "contains": "reloading",
+      "label": "a reload starts while running"
+    },
+    {
+      "do": "wait",
+      "seconds": 1.4
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketLoaded",
+      "expect": 3,
+      "label": "one cartridge went in while running"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketTestSpeed",
+      "args": {
+        "speed": 0
+      },
+      "contains": "speed 0",
+      "label": "the player stops"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketRaised",
+      "contains": "raised False",
+      "label": "the musket stays at the side after running"
+    },
+    {
+      "do": "give",
+      "prefab": "Torch",
+      "count": 1,
+      "equip": true
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketHands",
+      "contains": "right Torch, left GP_Musket, musket held True",
+      "label": "the torch is held next to the lowered musket"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketHands",
+      "contains": "other item in the left hand True",
+      "label": "the torch shows in the left hand"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketAim",
+      "expect": "raising",
+      "label": "the aim key raises the musket"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketPress",
+      "args": {
+        "secondary": false
+      },
+      "contains": "Raise the Iron Musket first",
+      "label": "no shot while it is still coming up (right after the aim click; the raise takes 0.4 s)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketHands",
+      "contains": "right nothing, left GP_Musket",
+      "label": "the torch was taken off, the musket is the only thing equipped"
+    },
+    {
+      "do": "wait",
+      "seconds": 0.5
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketRaised",
+      "contains": "raised True, ready True",
+      "label": "up and ready after the raise"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketPress",
+      "args": {
+        "secondary": false
+      },
+      "contains": "fired",
+      "label": "now it fires"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketAim",
+      "expect": "already aimed",
+      "label": "the aim key again does nothing"
+    },
+    {
+      "do": "wait",
+      "seconds": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketLift",
+      "args": {
+        "metres": 8
+      },
+      "contains": "lifted to",
+      "label": "up in the air (like a jump)"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.onGround",
+        "expect": "on ground False"
+      },
+      "timeout": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketPress",
+      "args": {
+        "secondary": true
+      },
+      "contains": "You cannot reload while jumping",
+      "label": "no reload in the air"
+    },
+    {
+      "do": "wait",
+      "seconds": 2
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.musketTestSpeed",
+      "args": {
+        "speed": -1
+      },
+      "contains": "speed -1",
+      "label": "the real speed again"
+    },
+    {
+      "do": "clearInventory"
+    },
+    {
+      "do": "console",
+      "command": "killall"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

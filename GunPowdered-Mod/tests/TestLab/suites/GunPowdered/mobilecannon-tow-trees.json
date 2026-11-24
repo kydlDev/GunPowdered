@@ -1,6 +1,6 @@
 {
   "name": "mobilecannon-tow-trees",
-  "description": "T-009: towing at full speed between trees that stand right beside the path (wheels and trail brush them): the cannon gets through or unhitches cleanly, never flips, no errors.",
+  "description": "T-009: towing at full speed between trees that stand right beside the path (wheels and trail brush them): the cannon gets through or unhitches cleanly, never flips, no errors. D-178 (user 2026-11-24): an invisible field round the trees steers the cart past them (dodges counted); D-177: it is never flung faster than the Asksvin + 10 m/s.",
   "timeout": 120,
   "steps": [
     {
@@ -9,6 +9,7 @@
       "contains": "arena at",
       "label": "start on the arena spot"
     },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     {
       "do": "towReady"
     },
@@ -39,6 +40,12 @@
       "name": "GunPowdered.mobileCannonTowState",
       "regex": "moved ([5-9]|[1-9]\\d)\\.\\d m.*upright True.*flips 0",
       "label": "through the trees, upright"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.mobileCannonTowState",
+      "regex": ".*dodges [1-9][0-9]*,.*",
+      "label": "D-178: the trees pushed the cart aside (dodges counted)"
     },
     {
       "do": "hook",

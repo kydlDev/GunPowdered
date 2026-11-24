@@ -3,12 +3,32 @@
   "description": "Dodge tests (user 2026-11-23): musket at the right side while moving, nothing in the left hand, the player dodges. The game's own roll plays and the musket stays in the right hand, turning with it; afterwards it hangs at the side again. Pictures before, during and after the roll.",
   "timeout": 60,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "clearInventory" },
-    { "do": "musketAtSide", "label": "the Iron Musket in hand, the player running: it hangs at the right side" },
-    { "do": "musketDodge", "shot": "visual-dodge-side", "after": "raised False" },
-    { "do": "musketTestEnd", "label": "free camera off, the real speed again, empty backpack" },
-    { "do": "cleanArena" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "arenaReadyClearinventoryMusketatside"
+    },
+    {
+      "do": "musketDodge",
+      "shot": "visual-dodge-side",
+      "after": "raised False"
+    },
+    {
+      "do": "musketTestEnd",
+      "label": "free camera off, the real speed again, empty backpack"
+    },
+    {
+      "do": "cleanArena"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

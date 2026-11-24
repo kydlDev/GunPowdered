@@ -4,11 +4,13 @@
   "timeout": 90,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     { "do": "hook", "name": "GunPowdered.groundNote", "regex": "^-?[0-9]+\\.[0-9]+$", "args": { "dz": 20 }, "label": "ground height 20 m ahead noted" },
     { "do": "spawn", "prefab": "digg_v2", "dz": 20, "as": "dig" },
     { "do": "wait", "seconds": 3 },
     { "do": "hook", "name": "GunPowdered.groundDelta", "regex": "^-?(?!0\\.00)[0-9]+\\.[0-9]+$", "args": { "dz": 20 }, "label": "the dig moved the ground (the check below is not vacuous)" },
     { "do": "hook", "name": "GunPowdered.arena", "regex": "pieces [1-9]", "label": "the next start removes the modifier" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     { "do": "wait", "seconds": 2 },
     { "do": "hook", "name": "GunPowdered.groundDelta", "expect": "0.00", "args": { "dz": 20 }, "label": "ground back at the noted height" },
     { "do": "cleanArena" }

@@ -4,6 +4,7 @@
   "timeout": 60,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_Cannon" }, "expect": "forge level 2, makes 1, enabled True: Iron x20, Wood x5, Resin x5", "label": "the cannon recipe in the game" },
     { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_Cannon" }, "expect": "stack 1, weight 20, type Material", "label": "the cannon never stacks" },
     { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_CannonBall" }, "expect": "forge level 2, makes 1, enabled True: Iron x2", "label": "the cannon ball recipe in the game" },

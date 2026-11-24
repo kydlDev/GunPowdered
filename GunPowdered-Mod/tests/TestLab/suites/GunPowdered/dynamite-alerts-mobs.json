@@ -10,14 +10,7 @@
       "label": "start on the arena spot"
     },
     {
-      "do": "console",
-      "command": "testlab.hostile"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.labHostile",
-      "expect": "creatures hostile True",
-      "label": "creatures can be alerted, as in a real game (user 2026-11-23: the lab's CreaturesHostile off had kept every Alert() from sticking; the lab turns it off again between tests)"
+      "do": "arenaReadyHostileLabhostile"
     },
     {
       "do": "hook",

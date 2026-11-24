@@ -10,13 +10,7 @@
       "label": "start on the arena spot"
     },
     {
-      "do": "mobileCannonPlaced"
-    },
-    {
-      "do": "hook",
-      "name": "GunPowdered.asksvinSpawn",
-      "contains": "tamed True",
-      "label": "a tame Asksvin behind the trail"
+      "do": "arenaReadyMobilecannonplacedAsksvinspawn"
     },
     {
       "do": "hook",

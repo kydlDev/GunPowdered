@@ -146,6 +146,8 @@
     "mobilecannon-pull",
     "mobilecannon-crank",
     "mobilecannon-fire",
+    "mobilecannon-fire-proof",
+    "meta-mobilecannon-hit-check-fails",
     "mobilecannon-ammo-tier",
     "mobilecannon-fortress",
     "mobilecannon-tow",

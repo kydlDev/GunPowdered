@@ -3,22 +3,91 @@
   "description": "D-145: a Hand Cannon shot deals the cannon's part (70 blunt, 150 pickaxe, fire 10/s) plus the ball's part - Iron Cannon Ball 30 pierce / tool tier 2, Flametal Cannon Ball 50 pierce / tool tier 5 (the Hand Cannon takes Iron or better); the fired ball lies where it stopped",
   "timeout": 120,
   "steps": [
-    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "cannonStock" },
-    { "do": "cannonLoaded" },
-    { "do": "cannonFire30" },
-    { "do": "hook", "name": "GunPowdered.cannonShotDamage", "expect": "GP_CannonBall: pierce 30, blunt 70, pickaxe 150, fire 10/s, tool tier 2", "label": "iron ball: the Hand Cannon's part + 30 pierce, tool tier 2" },
-    { "do": "hook", "name": "GunPowdered.cannonBallsAtStop", "expect": 1, "label": "the iron ball lies where it stopped" },
-    { "do": "give", "prefab": "GP_Gunpowder", "count": 1 },
-    { "do": "give", "prefab": "GP_FlametalCannonBall", "count": 1 },
-    { "do": "hook", "name": "GunPowdered.cannonUse", "args": { "alt": false }, "expect": true, "label": "load the flametal ball (a higher tier fits the Hand Cannon)" },
-    { "do": "wait", "seconds": 4.6 },
-    { "do": "hook", "name": "GunPowdered.cannonState", "contains": "loaded True", "label": "loaded" },
-    { "do": "hook", "name": "GunPowdered.invCount", "args": { "prefab": "GP_FlametalCannonBall" }, "expect": 0, "label": "the flametal ball went in" },
-    { "do": "cannonFire30" },
-    { "do": "hook", "name": "GunPowdered.cannonShotDamage", "expect": "GP_FlametalCannonBall: pierce 50, blunt 70, pickaxe 150, fire 10/s, tool tier 5", "label": "flametal ball: the Hand Cannon's part + 50 pierce, tool tier 5" },
-    { "do": "hook", "name": "GunPowdered.cannonBallsAtStop", "expect": 1, "label": "the flametal ball lies where it stopped" },
-    { "do": "cannonClean" }
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "start on the arena spot"
+    },
+    {
+      "do": "arenaReadyCannonstockCannonloaded"
+    },
+    {
+      "do": "cannonFire30"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonShotDamage",
+      "expect": "GP_CannonBall: pierce 30, blunt 70, pickaxe 150, fire 10/s, tool tier 2",
+      "label": "iron ball: the Hand Cannon's part + 30 pierce, tool tier 2"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonBallsAtStop",
+      "expect": 1,
+      "label": "the iron ball lies where it stopped"
+    },
+    {
+      "do": "give",
+      "prefab": "GP_Gunpowder",
+      "count": 1
+    },
+    {
+      "do": "give",
+      "prefab": "GP_FlametalCannonBall",
+      "count": 1
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonUse",
+      "args": {
+        "alt": false
+      },
+      "expect": true,
+      "label": "load the flametal ball (a higher tier fits the Hand Cannon)"
+    },
+    {
+      "do": "wait",
+      "seconds": 4.6
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonState",
+      "contains": "loaded True",
+      "label": "loaded"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.invCount",
+      "args": {
+        "prefab": "GP_FlametalCannonBall"
+      },
+      "expect": 0,
+      "label": "the flametal ball went in"
+    },
+    {
+      "do": "cannonFire30"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonShotDamage",
+      "expect": "GP_FlametalCannonBall: pierce 50, blunt 70, pickaxe 150, fire 10/s, tool tier 5",
+      "label": "flametal ball: the Hand Cannon's part + 50 pierce, tool tier 5"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.cannonBallsAtStop",
+      "expect": 1,
+      "label": "the flametal ball lies where it stopped"
+    },
+    {
+      "do": "cannonClean"
+    }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    {
+      "check": "noErrors",
+      "source": "GunPowdered"
+    }
+  ]
 }

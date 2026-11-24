@@ -4,6 +4,7 @@
   "timeout": 60,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
     { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_SpikedGrenade" }, "expect": "piece_workbench level 3, makes 5, enabled True: GP_Gunpowder x3, Obsidian x2, Stone x2, Resin x1", "label": "the grenade recipe in the game" },
     { "do": "hook", "name": "GunPowdered.kyItemsListed", "contains": "all ", "label": "every item, piece, ingredient and deposit of the mod is in the KY-Items list" },
     { "do": "hook", "name": "GunPowdered.kyMaterialsListed", "contains": "all ", "label": "the ingredients and deposits are KyKind.Material (the Materials tab)" },
