@@ -1,6 +1,6 @@
 ﻿{
   "name": "GunPowdered",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "https://github.com/kydlDev/GunPowdered",
   "description": "Craft gunpowder: collect bat guano and water, leach saltpeter in a Leaching Vat, find sulfur, then grind it at the Powder Mill. Adds a water bucket and a public API for mods.",
   "dependencies": [

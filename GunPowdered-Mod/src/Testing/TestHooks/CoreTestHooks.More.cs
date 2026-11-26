@@ -122,7 +122,7 @@ namespace GunPowdered.Testing.TestHooks
             if (root == null) { ModLog.Verbose("CoreTestHooks.RemoveLocationObjects: the game knows no location " + name + " - returns 'no location'"); return "no location " + name; }
             var names = new System.Collections.Generic.HashSet<string>();
             foreach (ZNetView v in root.GetComponentsInChildren<ZNetView>(true)) names.Add(Utils.GetPrefabName(v.gameObject));
-            int locationHash = loc.m_prefab.Name.GetStableHashCode();
+            int locationHash = loc.m_prefab.name.GetStableHashCode();
             var centre = new Vector2((float)x, (float)z);
             int removed = 0, proxies = 0;
             foreach (ZNetView nv in UnityEngine.Object.FindObjectsByType<ZNetView>(FindObjectsSortMode.None))
