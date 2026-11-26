@@ -187,6 +187,24 @@ namespace GunPowdered.Testing.TestHooks
             return "no player " + name;
         }
 
+        /// <summary>
+        /// Switches the musket data sync to a virtual player on or off. DrakesTestLab 0.8.0 peerMirror copies nothing on this game (its ZdoRaw reads
+        /// ZDOExtraData.GetData into List&lt;KeyValuePair&gt;, the game now returns FastIterableKeyValues), so this test helper copies what the musket
+        /// rig needs from the local player's ZDO to the named player every frame (T-119, D-114). Expected outcome: "sync on/off for NAME".
+        /// </summary>
+        [TestHook("GunPowdered.musketZdoSync")]
+        static string ZdoSync(string name, bool on)
+        {
+            ModLog.Verbose("MusketTestHooks.ZdoSync(name=" + name + ", on=" + on + ")");
+            Player me = Player.m_localPlayer;
+            if (me == null) { ModLog.Info($"MusketTestHooks.ZdoSync: returns no local player because me == null ({name})"); return "no local player"; }
+            MusketZdoSync sync = me.GetComponent<MusketZdoSync>();
+            if (sync == null) sync = me.gameObject.AddComponent<MusketZdoSync>();
+            sync.PeerName = on ? name : null;
+            string s = "sync " + (on ? "on" : "off") + " for " + name;
+            ModLog.Info("MusketTestHooks.ZdoSync: returns " + s);
+            return s;
+        }
         // what the player's character shows in the right hand (a remote player's inventory is not synced, its VisEquipment is)
         static string Shown(Player p)
         {
@@ -208,4 +226,33 @@ namespace GunPowdered.Testing.TestHooks
             return s;
         }
     }
-}
+
+    /// <summary>Test helper (T-119): copies the musket rig's ZDO values (held item hashes, action, counter, stroke) from the local player to a virtual player, every frame.</summary>
+    internal sealed class MusketZdoSync : MonoBehaviour
+    {
+        /// <summary>Name part of the virtual player to feed; null = off.</summary>
+        internal string PeerName;
+
+        void Update()
+        {
+            if (RuleLog.Due("MusketZdoSync.Update", 2d)) ModLog.Every("MusketZdoSync.Update", 2d, $"MusketZdoSync.Update: feeds {PeerName ?? "nobody"}");
+            if (PeerName == null) { if (RuleLog.Due("MusketZdoSync.Update:off", 2d)) ModLog.Every("MusketZdoSync.Update:off", 2d, $"MusketZdoSync.Update: returns because PeerName == null ({PeerName ?? "null"})"); return; }
+            Player me = GetComponent<Player>();
+            ZNetView src = me != null ? me.GetComponent<ZNetView>() : null;
+            ZDO from = src != null && src.IsValid() ? src.GetZDO() : null;
+            if (from == null) { if (RuleLog.Due("MusketZdoSync.Update:nozdo", 2d)) ModLog.Every("MusketZdoSync.Update:nozdo", 2d, $"MusketZdoSync.Update: returns because from == null (player {(me != null ? me.name : "none")})"); return; }
+            foreach (Player p in Player.GetAllPlayers())
+            {
+                if (p == null || p == me || p.GetPlayerName().IndexOf(PeerName, System.StringComparison.OrdinalIgnoreCase) < 0) { if (RuleLog.IsOn()) ModLog.Verbose($"MusketZdoSync.Update: skips to the next item (continue) because the player is not {PeerName} ({(p != null ? p.GetPlayerName() : "null")})"); continue; }
+                ZNetView nv = p.GetComponent<ZNetView>();
+                ZDO to = nv != null && nv.IsValid() ? nv.GetZDO() : null;
+                if (to == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MusketZdoSync.Update: skips to the next item (continue) because to == null ({p.GetPlayerName()})"); continue; }
+                to.Set(ZDOVars.s_leftItem, from.GetInt(ZDOVars.s_leftItem, 0), false);
+                to.Set(ZDOVars.s_rightItem, from.GetInt(ZDOVars.s_rightItem, 0), false);
+                to.Set(MusketRig.ActionKey, from.GetInt(MusketRig.ActionKey, 0));
+                to.Set(MusketRig.ActionSeqKey, from.GetInt(MusketRig.ActionSeqKey, 0));
+                to.Set(MusketRig.StrokeKey, from.GetFloat(MusketRig.StrokeKey, 0f));
+                to.Set(MusketRig.LoweredKey, from.GetBool(MusketRig.LoweredKey, false));
+            }
+        }
+    }}

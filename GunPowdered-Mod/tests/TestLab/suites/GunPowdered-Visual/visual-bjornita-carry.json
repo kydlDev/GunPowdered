@@ -54,6 +54,8 @@
       "face": "me",
       "equipment": true
     },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.musketHeld", "contains": "animation" }, "timeout": 10 },
+    { "do": "hook", "name": "GunPowdered.musketZdoSync", "args": { "name": "Bjornita", "on": true }, "contains": "sync on", "label": "DrakesTestLab 0.8.0 peerMirror copies nothing on this game (D-114): the held musket and the shot data go to Bjornita through the test helper" },
     {
       "do": "invoke",
       "method": "Kydl.GameProbe.ProbeApi.Screenshot",
