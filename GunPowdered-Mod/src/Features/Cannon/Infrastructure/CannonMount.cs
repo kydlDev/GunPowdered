@@ -24,7 +24,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         internal const string KeyMounted = "gp_cannon_mounted", KeyLoaded = "gp_cannon_loaded", KeyFuse = "gp_cannon_fuse",
             KeyYaw = "gp_cannon_yaw", KeyPitch = "gp_cannon_pitch", KeyBall = "gp_cannon_ball";   // D-145: which ball is loaded
         internal const string PivotName = "gp_pivot", BarrelName = "gp_barrel";
-        const float UseRange = 3.5f, AnimEvery = 1.2f, FuseSparkEvery = 0.12f, SyncEvery = 0.1f;
+        const float UseRange = 3.5f, AnimEvery = 1.2f, AnimTail = 0.9f, FuseSparkEvery = 0.12f, SyncEvery = 0.1f;
         static readonly System.Reflection.MethodInfo UseHandVisual = AccessTools.Method(typeof(Humanoid), "SetUseHandVisual");
 
         ZNetView _nview;

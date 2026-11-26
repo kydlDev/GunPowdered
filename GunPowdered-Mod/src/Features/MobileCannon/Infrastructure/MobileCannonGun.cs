@@ -20,7 +20,7 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
     {
         internal const string KeyLoaded = "gp_mc_loaded", KeyFuse = "gp_mc_fuse", KeyBall = "gp_mc_ball";   // D-145: which ball is loaded
         const string Barrel = "cannon_barrel", MuzzleName = "Muzzle", TouchHoleName = "TouchHole";
-        const float UseRange = 3.5f, AnimEvery = 1.2f, SparkEvery = 0.12f;
+        const float UseRange = 3.5f, AnimEvery = 1.2f, AnimTail = 0.9f, SparkEvery = 0.12f;
 
         ZNetView _nview;
         Rigidbody _body;
@@ -40,7 +40,8 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
         internal string StateText => Loading ? "loading..." : Lit ? "fuse burning!" : Loaded ? "loaded" : "empty";
 
         /// <summary>D-182: what the player sees looking at the muzzle - or anywhere on the cannon but its handle.</summary>
-        internal string LoadHoverText() => Localization.instance.Localize("Mobile Cannon (" + StateText + ")\n[<color=yellow><b>$KEY_Use</b></color>] Load gunpowder and a Flametal Cannon Ball");
+        internal string LoadHoverText() => Localization.instance.Localize("Mobile Cannon (" + StateText + ")"
+            + (CannonLoadRules.OffersLoad(Loaded, Lit, Loading) ? "\n[<color=yellow><b>$KEY_Use</b></color>] Load gunpowder and a Flametal Cannon Ball" : ""));   // no refill prompt until it is empty (user 2026-11-26)
 
         internal bool IsValid => _nview != null && _nview.IsValid();
 
@@ -117,7 +118,16 @@ namespace GunPowdered.Features.MobileCannon.Infrastructure
                     ModLog.Verbose("MobileCannonGun: loading stopped (the player left)");
                     yield break;
                 }
-                if (Time.time >= nextAnim)
+                // user 2026-11-26: the moment the cannon is filled (another player, an earlier load) the fill animation stops; none starts in the last AnimTail s
+                CannonLoadStep step = CannonLoadRules.Step(Loaded, Time.time, nextAnim, end, AnimTail);
+                if (step == CannonLoadStep.StopFilled)
+                {
+                    _loading = false;
+                    Tell(p, MobileCannonFireRules.AlreadyLoaded);
+                    ModLog.Decision("mobile cannon", "loading stopped", "the cannon is already filled - no more fill animation");
+                    yield break;
+                }
+                if (step == CannonLoadStep.Animate)
                 {
                     p.GetZAnim().SetTrigger("interact");
                     nextAnim += AnimEvery;

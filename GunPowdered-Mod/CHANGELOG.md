@@ -2,6 +2,8 @@
 
 ## 1.0.1
 
+- Fixed: once a cannon (Hand Cannon or Mobile Cannon) is filled, your character stops the fill animation at once (also when another player filled it while you were loading), and no fill animation starts in the last moment before it is loaded.
+- Fixed: the Mobile Cannon's muzzle no longer offers "Load" while the cannon is loaded, being loaded or its fuse burns; it offers it again once the cannon is empty.
 - Fixed: builds against Valheim 1.0.31 again (a test hook used `SoftReference.Name`, which the game renamed to `name`); no change for players.
 
 ### Testing

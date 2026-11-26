@@ -48,7 +48,16 @@ namespace GunPowdered.Features.Cannon.Infrastructure
                     ModLog.Verbose("CannonMount: loading stopped (the player left)");
                     yield break;
                 }
-                if (Time.time >= nextAnim)
+                // user 2026-11-26: the moment the cannon is filled (another player, an earlier load) the fill animation stops; none starts in the last AnimTail s
+                CannonLoadStep step = CannonLoadRules.Step(Status().Loaded, Time.time, nextAnim, end, AnimTail);
+                if (step == CannonLoadStep.StopFilled)
+                {
+                    _loading = false;
+                    Tell(p, CannonStateRules.AlreadyLoaded);
+                    ModLog.Decision("hand cannon", "loading stopped", "the cannon is already filled - no more fill animation");
+                    yield break;
+                }
+                if (step == CannonLoadStep.Animate)
                 {
                     p.GetZAnim().SetTrigger("interact");
                     nextAnim += AnimEvery;
