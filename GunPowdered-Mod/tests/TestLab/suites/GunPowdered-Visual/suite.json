@@ -95,6 +95,12 @@
       "section": "DebugLog",
       "key": "Enable",
       "value": "true"
+    },
+    {
+      "guid": "com.kydldev.WSADMounts",
+      "section": "General",
+      "key": "Enable Mod",
+      "value": "false"
     }
   ],
   "setup": {

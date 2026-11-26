@@ -101,6 +101,12 @@
       "section": "1. General",
       "key": "No item usage with god mode",
       "value": "false"
+    },
+    {
+      "guid": "com.kydldev.WSADMounts",
+      "section": "General",
+      "key": "Enable Mod",
+      "value": "false"
     }
   ],
   "setup": {
