@@ -111,6 +111,7 @@
   },
   "resetBetweenTests": true,
   "tests": [
+    "visual-icons",
     "meta-cave-verdict-fails",
     "meta-freecam-sees-fails",
     "visual-pieces",
