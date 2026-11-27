@@ -1,6 +1,3 @@
-using Jotunn.Configs;
-using Jotunn.Entities;
-using Jotunn.Managers;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Core;
@@ -64,17 +61,11 @@ namespace GunPowdered.Features.Musket.Infrastructure
         static void AddKeyHints()
         {
             if (_hints) { if (RuleLog.IsOn()) ModLog.Verbose($"MusketSetup.AddKeyHints: returns because _hints (line 66)"); return; }
-            _hints = KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
-            {
-                Item = GunPowderedPrefabs.Musket,
-                ButtonConfigs = new[]
-                {
-                    new ButtonConfig { Name = "Attack", Hint = MusketRules.HintFire },
-                    MusketInput.AimButton ?? new ButtonConfig { Name = "SecondaryAttack", Hint = MusketRules.HintAim },      // D-155
-                    MusketInput.ReloadButton ?? new ButtonConfig { Name = "SecondaryAttack", Hint = MusketRules.HintReload },
-                    new ButtonConfig { Name = "Block", Hint = MusketRules.HintBlock }
-                }
-            });
+            _hints = KyKeyHints.Add(GunPowderedPrefabs.Musket,
+                new KyKeyHint { Button = "Attack", Hint = MusketRules.HintFire },
+                MusketInput.AimHint ?? new KyKeyHint { Button = "SecondaryAttack", Hint = MusketRules.HintAim },      // D-155
+                MusketInput.ReloadHint ?? new KyKeyHint { Button = "SecondaryAttack", Hint = MusketRules.HintReload },
+                new KyKeyHint { Button = "Block", Hint = MusketRules.HintBlock });
             ModLog.Verbose("MusketSetup: key hints " + _hints);
         }
 
@@ -101,7 +92,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         // the bullet: a clone of the vanilla iron bolt's projectile (the game's flight, hit, friendly fire and skill rules) with the Iron Bullet's model
         static GameObject MakeBullet()
         {
-            GameObject bolt = PrefabManager.Instance.GetPrefab(BoltItem);
+            GameObject bolt = KyPrefabs.Get(BoltItem);
             ItemDrop boltDrop = bolt != null ? bolt.GetComponent<ItemDrop>() : null;
             GameObject baseFlight = boltDrop != null ? boltDrop.m_itemData.m_shared.m_attack.m_attackProjectile : null;
             if (baseFlight == null)
@@ -109,7 +100,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 ModLog.Error("MusketSetup: no vanilla bolt projectile (" + BoltItem + ") - the musket cannot fire");
                 return null;
             }
-            GameObject clone = PrefabManager.Instance.CreateClonedPrefab(BulletId, baseFlight);
+            GameObject clone = KyPrefabs.Clone(BulletId, baseFlight);
             if (clone == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MusketSetup.MakeBullet: returns null because clone == null (line 113)"); return null; }
             Projectile flight = clone.GetComponent<Projectile>();
             if (flight != null)
@@ -121,7 +112,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 flight.m_stayAfterHitStatic = false;
                 flight.m_stayAfterHitDynamic = false;
             }
-            PrefabManager.Instance.AddPrefab(new CustomPrefab(clone, true));
+            KyPrefabs.Add(clone);
             ModLog.Verbose("MusketSetup: " + BulletId + " cloned from " + baseFlight.name + ", projectile " + (flight != null));
             return clone;
         }
@@ -129,7 +120,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         static bool BulletLook(GameObject clone, Projectile flight)
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"MusketSetup.BulletLook(clone={RuleLog.Shown(clone)}, flight={RuleLog.Shown(flight)})");
-            GameObject bulletItem = PrefabManager.Instance.GetPrefab(GunPowderedPrefabs.IronBullet);
+            GameObject bulletItem = KyPrefabs.Get(GunPowderedPrefabs.IronBullet);
             Transform model = bulletItem != null ? bulletItem.transform.Find("gp_model") : null;
             if (model == null) { if (RuleLog.IsOn()) ModLog.Verbose($"MusketSetup.BulletLook: returns false because model == null (line 134)"); return false; }
             Transform parent = flight != null && flight.m_visual != null ? flight.m_visual.transform : clone.transform;

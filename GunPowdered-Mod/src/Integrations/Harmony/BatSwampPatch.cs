@@ -1,7 +1,6 @@
 // kydl:read-only-observer - no creature is moved, commanded or spawned here; the patch only extends the vegetation list of one alt biome
 using System;
 using HarmonyLib;
-using Jotunn.Managers;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Configuration;
@@ -23,7 +22,7 @@ namespace GunPowdered.Integrations.HarmonyPatches
         {
             try
             {
-                GameObject deposit = PrefabManager.Instance.GetPrefab(GunPowderedPrefabs.GuanoDeposit);
+                GameObject deposit = KyPrefabs.Get(GunPowderedPrefabs.GuanoDeposit);
                 if (deposit == null) { ModLog.Warn("BatSwampPatch: the guano deposit prefab is not there yet"); return; }
 
                 int added = 0;

@@ -59,7 +59,7 @@ namespace GunPowdered.Testing
             int ok = 0;
             foreach (var s in ItemCatalog.All)
             {
-                var go = Jotunn.Managers.PrefabManager.Instance.GetPrefab(s.Id);
+                var go = KyPrefabs.Get(s.Id);
                 if (go == null) { bad.Append(s.Id).Append(" missing; "); { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_BundleModels: skips to the next item (continue) because go == null (line 63)"); continue; } }
                 var model = WorldModel(go.transform);
                 if (model == null) { bad.Append(s.Id).Append(" no gp_model; "); { if (RuleLog.IsOn()) ModLog.Verbose($"InGameTests.World_BundleModels: skips to the next item (continue) because model == null (line 65)"); continue; } }

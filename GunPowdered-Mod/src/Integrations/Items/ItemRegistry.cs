@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Jotunn.Configs;
-using Jotunn.Entities;
-using Jotunn.Managers;
 using KydlCore.Common;
+using KydlCore.Features.Items.Contracts;
 using UnityEngine;
 using GunPowdered.Configuration;
 using GunPowdered.Core;
@@ -19,7 +17,7 @@ using GunPowdered.Integrations.Valheim;
 namespace GunPowdered.Integrations.Items
 {
     /// <summary>
-    /// Turns the pure <see cref="ItemCatalog"/> entries into Jotunn items, pieces and deposit prefabs, cloned from vanilla placeholders (D-013).
+    /// Turns the pure <see cref="ItemCatalog"/> entries into KydlCore items (KyItems), pieces and deposit prefabs (KyPrefabs), cloned from vanilla placeholders (D-013).
     /// Everything is registered once, whatever the switches say, because saves and worlds store these prefabs; a feature switched off only disables
     /// the recipes and pieces (<see cref="SetEnabled"/>), so a config change applies at once (PROJECT_RULES 17).
     /// </summary>
@@ -28,15 +26,17 @@ namespace GunPowdered.Integrations.Items
         sealed class FeatureSet
         {
             internal readonly List<ItemSpec> Specs = new List<ItemSpec>();
-            internal readonly List<Recipe> Recipes = new List<Recipe>();
+            internal readonly List<string> RecipeIds = new List<string>();
             internal readonly List<Piece> Pieces = new List<Piece>();
             internal bool Created;
         }
 
         static readonly Dictionary<string, FeatureSet> Sets = new Dictionary<string, FeatureSet>();
-        /// <summary>Recipes that wait for a world key (D-108), with their feature and the key.</summary>
-        static readonly List<KeyValuePair<Recipe, KeyValuePair<string, string>>> Keyed = new List<KeyValuePair<Recipe, KeyValuePair<string, string>>>();
-        static bool _hooked;
+        /// <summary>Recipes that wait for a world key (D-108): item id -> key.</summary>
+        static readonly Dictionary<string, string> Keyed = new Dictionary<string, string>();
+        static bool _hooked, _created;
+        static ObjectDB _recipeDb;
+        static readonly Dictionary<string, Recipe> RecipeCache = new Dictionary<string, Recipe>();
 
         /// <summary>Remembers what a feature adds; the game objects are created when the vanilla prefabs are available. Expected outcome: the feature's specs are queued.</summary>
         internal static bool Register(string featureId, params ItemSpec[] specs)
@@ -46,7 +46,7 @@ namespace GunPowdered.Integrations.Items
             set.Specs.AddRange(specs);
             if (!_hooked)
             {
-                PrefabManager.OnVanillaPrefabsAvailable += CreateAll;
+                KyPrefabs.WhenVanillaAvailable(CreateAll);          // runs now when the vanilla prefabs are there already, and again on every later ObjectDB copy (CreateAll skips then)
                 _hooked = true;
             }
             ModLog.Verbose("ItemRegistry: " + featureId + " queued " + specs.Length + " entr" + (specs.Length == 1 ? "y" : "ies"));
@@ -58,9 +58,9 @@ namespace GunPowdered.Integrations.Items
         {
             FeatureSet set;
             if (!Sets.TryGetValue(featureId, out set)) { var returnedAt60 = set == null; if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.SetEnabled: returns {returnedAt60} because !Sets.TryGetValue(featureId, out set) (line 60)"); return returnedAt60; }
-            foreach (var r in set.Recipes) r.m_enabled = RecipeGate.IsOn(on, KeyOf(r), HasKey);
+            foreach (string id in set.RecipeIds) { Recipe r = RecipeOf(id); if (r != null) r.m_enabled = RecipeGate.IsOn(on, KeyOf(id), HasKey); }
             foreach (var p in set.Pieces) p.m_enabled = on;
-            bool state = set.Recipes.TrueForAll(r => r.m_enabled == RecipeGate.IsOn(on, KeyOf(r), HasKey)) && set.Pieces.TrueForAll(p => p.m_enabled == on);
+            bool state = set.RecipeIds.TrueForAll(id => { Recipe r = RecipeOf(id); return r == null || r.m_enabled == RecipeGate.IsOn(on, KeyOf(id), HasKey); }) && set.Pieces.TrueForAll(p => p.m_enabled == on);
             ModLog.Verbose("ItemRegistry: " + featureId + " recipes and pieces " + (on ? "on" : "off") + ", state ok " + state);
             return state;
         }
@@ -72,32 +72,54 @@ namespace GunPowdered.Integrations.Items
         internal static int RefreshKeyed()
         {
             int on = 0;
-            foreach (var k in Keyed)
+            foreach (var pair in Sets)
             {
-                if (k.Key == null) { if (RuleLog.Due("FeatureSet.RefreshKeyed:77", 2d)) ModLog.Every("FeatureSet.RefreshKeyed:77", 2d, $"FeatureSet.RefreshKeyed: skips to the next item (continue) because k.Key == null (line 77)"); continue; }
-                bool want = RecipeGate.IsOn(IsOn(k.Value.Key), k.Value.Value, HasKey);
-                if (k.Key.m_enabled != want)
+                bool featureOn = IsOn(pair.Key);
+                foreach (string id in pair.Value.RecipeIds)
                 {
-                    k.Key.m_enabled = want;
-                    ModLog.Info("ItemRegistry: recipe " + (k.Key.m_item != null ? k.Key.m_item.name : "?") + " now " + (want ? "on" : "off") + " (world key " + k.Value.Value + " " + HasKey(k.Value.Value) + ")");
+                    Recipe recipe = RecipeOf(id);
+                    if (recipe == null) { if (RuleLog.Due("FeatureSet.RefreshKeyed:77", 2d)) ModLog.Every("FeatureSet.RefreshKeyed:77", 2d, $"FeatureSet.RefreshKeyed: skips to the next item (continue) because the recipe of {id} is not in ObjectDB (line 77)"); continue; }
+                    string key = KeyOf(id);
+                    bool want = RecipeGate.IsOn(featureOn, key, HasKey);
+                    if (recipe.m_enabled != want)
+                    {
+                        recipe.m_enabled = want;       // ObjectDB makes its recipes anew with every world: the switch state goes on again before the game lists them
+                        if (key != null) ModLog.Info("ItemRegistry: recipe " + id + " now " + (want ? "on" : "off") + " (world key " + key + " " + HasKey(key) + ")");
+                    }
+                    if (want && key != null) on++;
                 }
-                if (want) on++;
             }
-            { var returnedAt86 = on; if (RuleLog.Due("FeatureSet.RefreshKeyed:86", 2d)) ModLog.Every("FeatureSet.RefreshKeyed:86", 2d, $"FeatureSet.RefreshKeyed: returns {returnedAt86} (line 86)"); return returnedAt86; }
+            { var returnedAt92 = on; if (RuleLog.Due("FeatureSet.RefreshKeyed:86", 2d)) ModLog.Every("FeatureSet.RefreshKeyed:92", 2d, $"FeatureSet.RefreshKeyed: returns {returnedAt92} (line 92)"); return returnedAt92; }
         }
 
-        static string KeyOf(Recipe r)
+        static string KeyOf(string id)
         {
-            if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.KeyOf(r={RuleLog.Shown(r)})");
-            foreach (var k in Keyed) if (k.Key == r) return k.Value.Value;
-            { if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.KeyOf: returns null (line 93)"); return null; }
+            if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.KeyOf(id={RuleLog.Shown(id)})");
+            string key;
+            if (Keyed.TryGetValue(id, out key)) { var returnedAt99 = key; if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.KeyOf: returns {returnedAt99} because the recipe waits for a world key (line 99)"); return returnedAt99; }
+            { if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.KeyOf: returns null (line 100)"); return null; }
+        }
+
+        /// <summary>The recipe KydlCore made for an item (KyItems.Contribute: "Recipe_" + prefab name) in the ObjectDB that is awake now; null before it is there.</summary>
+        static Recipe RecipeOf(string id)
+        {
+            ObjectDB db = ObjectDB.instance;
+            if (db == null) { if (RuleLog.Due("ItemRegistry.RecipeOf:nodb", 2d)) ModLog.Every("ItemRegistry.RecipeOf:nodb", 2d, $"ItemRegistry.RecipeOf({id}): returns null (no ObjectDB)"); return null; }
+            if (!ReferenceEquals(db, _recipeDb)) { RecipeCache.Clear(); _recipeDb = db; }
+            Recipe cached;
+            if (RecipeCache.TryGetValue(id, out cached) && cached != null) { var returnedAt110 = cached; if (RuleLog.Due("FeatureSet.RecipeOf:110", 2d)) ModLog.Every("FeatureSet.RecipeOf:110", 2d, $"FeatureSet.RecipeOf: returns {returnedAt110} because it is cached (line 110)"); return returnedAt110; }
+            string name = "Recipe_" + id;
+            foreach (Recipe r in db.m_recipes)
+                if (r != null && r.name == name) { RecipeCache[id] = r; { var returnedAt113 = r; if (RuleLog.Due("FeatureSet.RecipeOf:113", 2d)) ModLog.Every("FeatureSet.RecipeOf:113", 2d, $"FeatureSet.RecipeOf: returns {returnedAt113} because the name matches (line 113)"); return returnedAt113; } }
+            { if (RuleLog.Due("ItemRegistry.RecipeOf:none", 2d)) ModLog.Every("ItemRegistry.RecipeOf:none", 2d, $"ItemRegistry.RecipeOf({id}): returns null (not in ObjectDB yet)"); return null; }
         }
 
         static bool HasKey(string key) => ZoneSystem.instance != null && ZoneSystem.instance.GetGlobalKey(key);
 
         static void CreateAll()
         {
-            PrefabManager.OnVanillaPrefabsAvailable -= CreateAll;
+            if (_created) { ModLog.Verbose("ItemRegistry.CreateAll: the prefabs exist already - returns"); return; }       // WhenVanillaAvailable runs again on every later ObjectDB copy
+            _created = true;
             foreach (var pair in Sets)
             {
                 try
@@ -105,7 +127,7 @@ namespace GunPowdered.Integrations.Items
                     // items first (the guano deposit points at the Bat Guano item), then pieces, then deposits
                     foreach (var s in pair.Value.Specs) if (s.Kind == ItemKind.Material || s.Kind == ItemKind.Tool || s.Kind == ItemKind.Weapon) CreateItem(s, pair.Value);
                 }
-                catch (Exception e) { ModLog.Warn("ItemRegistry: creating the items of " + pair.Key + " failed (" + e.GetType().Name + "): " + e.Message + "\n" + e.StackTrace); }      // foreign code: another mod's listener / Jotunn ran here - its exception types are not ours to know, so the catch-all is the only catch
+                catch (Exception e) { ModLog.Warn("ItemRegistry: creating the items of " + pair.Key + " failed (" + e.GetType().Name + "): " + e.Message + "\n" + e.StackTrace); }      // foreign code: another mod's listener ran here - its exception types are not ours to know, so the catch-all is the only catch
             }
             foreach (var pair in Sets)
             {
@@ -115,7 +137,7 @@ namespace GunPowdered.Integrations.Items
                     foreach (var s in pair.Value.Specs) if (s.Kind == ItemKind.Deposit) CreateDeposit(s);
                     pair.Value.Created = true;
                 }
-                catch (Exception e) { ModLog.Warn("ItemRegistry: creating the pieces of " + pair.Key + " failed (" + e.GetType().Name + "): " + e.Message + "\n" + e.StackTrace); }      // foreign code: another mod's listener / Jotunn ran here - its exception types are not ours to know, so the catch-all is the only catch
+                catch (Exception e) { ModLog.Warn("ItemRegistry: creating the pieces of " + pair.Key + " failed (" + e.GetType().Name + "): " + e.Message + "\n" + e.StackTrace); }      // foreign code: another mod's listener ran here - its exception types are not ours to know, so the catch-all is the only catch
             }
             foreach (var pair in Sets) SetEnabled(pair.Key, IsOn(pair.Key));
             KyItemsContributions.Start();          // the item viewer lists every item and piece of the mod
@@ -125,7 +147,7 @@ namespace GunPowdered.Integrations.Items
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.FeatureOf(set={RuleLog.Shown(set)})");
             foreach (var pair in Sets) if (pair.Value == set) return pair.Key;
-            { if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.FeatureOf: returns null (line 128)"); return null; }
+            { if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.FeatureOf: returns null (line 150)"); return null; }
         }
 
         // The Enable switch of each feature, read at call time.
@@ -134,83 +156,76 @@ namespace GunPowdered.Integrations.Items
             if (RuleLog.Due("FeatureSet.IsOn", 2d)) ModLog.Every("FeatureSet.IsOn", 2d, $"FeatureSet.IsOn(featureId={RuleLog.Shown(featureId)})");
             switch (featureId)
             {
-                case "guano": { var returnedAt137 = ModSettings.FeatureOn(ModSettings.EnableGuano); if (RuleLog.Due("FeatureSet.IsOn:137", 2d)) ModLog.Every("FeatureSet.IsOn:137", 2d, $"FeatureSet.IsOn: returns {returnedAt137} (line 137)"); return returnedAt137; }
-                case "water": { var returnedAt138 = ModSettings.FeatureOn(ModSettings.EnableWater); if (RuleLog.Due("FeatureSet.IsOn:138", 2d)) ModLog.Every("FeatureSet.IsOn:138", 2d, $"FeatureSet.IsOn: returns {returnedAt138} (line 138)"); return returnedAt138; }
-                case "saltpeter": { var returnedAt139 = ModSettings.FeatureOn(ModSettings.EnableSaltpeter); if (RuleLog.Due("FeatureSet.IsOn:139", 2d)) ModLog.Every("FeatureSet.IsOn:139", 2d, $"FeatureSet.IsOn: returns {returnedAt139} (line 139)"); return returnedAt139; }
-                case "sulfur": { var returnedAt140 = ModSettings.FeatureOn(ModSettings.EnableSulfur); if (RuleLog.Due("FeatureSet.IsOn:140", 2d)) ModLog.Every("FeatureSet.IsOn:140", 2d, $"FeatureSet.IsOn: returns {returnedAt140} (line 140)"); return returnedAt140; }
-                case "gunpowder": { var returnedAt141 = ModSettings.FeatureOn(ModSettings.EnableGunpowder); if (RuleLog.Due("FeatureSet.IsOn:141", 2d)) ModLog.Every("FeatureSet.IsOn:141", 2d, $"FeatureSet.IsOn: returns {returnedAt141} (line 141)"); return returnedAt141; }
-                case "grenades": { var returnedAt142 = ModSettings.FeatureOn(ModSettings.EnableGrenades); if (RuleLog.Due("FeatureSet.IsOn:142", 2d)) ModLog.Every("FeatureSet.IsOn:142", 2d, $"FeatureSet.IsOn: returns {returnedAt142} (line 142)"); return returnedAt142; }
-                case "cannon": { var returnedAt143 = ModSettings.FeatureOn(ModSettings.EnableCannon); if (RuleLog.Due("FeatureSet.IsOn:143", 2d)) ModLog.Every("FeatureSet.IsOn:143", 2d, $"FeatureSet.IsOn: returns {returnedAt143} (line 143)"); return returnedAt143; }
-                case "musket": { var returnedAt144 = ModSettings.FeatureOn(ModSettings.EnableMusket); if (RuleLog.Due("FeatureSet.IsOn:144", 2d)) ModLog.Every("FeatureSet.IsOn:144", 2d, $"FeatureSet.IsOn: returns {returnedAt144} (line 144)"); return returnedAt144; }
-                case "arrows": { var returnedAt145 = ModSettings.FeatureOn(ModSettings.EnableExplosiveArrows); if (RuleLog.Due("FeatureSet.IsOn:145", 2d)) ModLog.Every("FeatureSet.IsOn:145", 2d, $"FeatureSet.IsOn: returns {returnedAt145} (line 145)"); return returnedAt145; }
-                case "dynamite": { var returnedAt146 = ModSettings.FeatureOn(ModSettings.EnableDynamite); if (RuleLog.Due("FeatureSet.IsOn:146", 2d)) ModLog.Every("FeatureSet.IsOn:146", 2d, $"FeatureSet.IsOn: returns {returnedAt146} (line 146)"); return returnedAt146; }
-                case "mobilecannon": { var returnedAt147 = ModSettings.FeatureOn(ModSettings.EnableCannon); if (RuleLog.Due("FeatureSet.IsOn:147", 2d)) ModLog.Every("FeatureSet.IsOn:147", 2d, $"FeatureSet.IsOn: returns {returnedAt147} (line 147)"); return returnedAt147; }   // one switch for both cannon types
-                default: { if (RuleLog.Due("FeatureSet.IsOn:148", 2d)) ModLog.Every("FeatureSet.IsOn:148", 2d, $"FeatureSet.IsOn: returns false (line 148)"); return false; }
+                case "guano": { var returnedAt159 = ModSettings.FeatureOn(ModSettings.EnableGuano); if (RuleLog.Due("FeatureSet.IsOn:137", 2d)) ModLog.Every("FeatureSet.IsOn:159", 2d, $"FeatureSet.IsOn: returns {returnedAt159} (line 159)"); return returnedAt159; }
+                case "water": { var returnedAt160 = ModSettings.FeatureOn(ModSettings.EnableWater); if (RuleLog.Due("FeatureSet.IsOn:138", 2d)) ModLog.Every("FeatureSet.IsOn:160", 2d, $"FeatureSet.IsOn: returns {returnedAt160} (line 160)"); return returnedAt160; }
+                case "saltpeter": { var returnedAt161 = ModSettings.FeatureOn(ModSettings.EnableSaltpeter); if (RuleLog.Due("FeatureSet.IsOn:139", 2d)) ModLog.Every("FeatureSet.IsOn:161", 2d, $"FeatureSet.IsOn: returns {returnedAt161} (line 161)"); return returnedAt161; }
+                case "sulfur": { var returnedAt162 = ModSettings.FeatureOn(ModSettings.EnableSulfur); if (RuleLog.Due("FeatureSet.IsOn:140", 2d)) ModLog.Every("FeatureSet.IsOn:162", 2d, $"FeatureSet.IsOn: returns {returnedAt162} (line 162)"); return returnedAt162; }
+                case "gunpowder": { var returnedAt163 = ModSettings.FeatureOn(ModSettings.EnableGunpowder); if (RuleLog.Due("FeatureSet.IsOn:141", 2d)) ModLog.Every("FeatureSet.IsOn:163", 2d, $"FeatureSet.IsOn: returns {returnedAt163} (line 163)"); return returnedAt163; }
+                case "grenades": { var returnedAt164 = ModSettings.FeatureOn(ModSettings.EnableGrenades); if (RuleLog.Due("FeatureSet.IsOn:142", 2d)) ModLog.Every("FeatureSet.IsOn:164", 2d, $"FeatureSet.IsOn: returns {returnedAt164} (line 164)"); return returnedAt164; }
+                case "cannon": { var returnedAt165 = ModSettings.FeatureOn(ModSettings.EnableCannon); if (RuleLog.Due("FeatureSet.IsOn:143", 2d)) ModLog.Every("FeatureSet.IsOn:165", 2d, $"FeatureSet.IsOn: returns {returnedAt165} (line 165)"); return returnedAt165; }
+                case "musket": { var returnedAt166 = ModSettings.FeatureOn(ModSettings.EnableMusket); if (RuleLog.Due("FeatureSet.IsOn:144", 2d)) ModLog.Every("FeatureSet.IsOn:166", 2d, $"FeatureSet.IsOn: returns {returnedAt166} (line 166)"); return returnedAt166; }
+                case "arrows": { var returnedAt167 = ModSettings.FeatureOn(ModSettings.EnableExplosiveArrows); if (RuleLog.Due("FeatureSet.IsOn:145", 2d)) ModLog.Every("FeatureSet.IsOn:167", 2d, $"FeatureSet.IsOn: returns {returnedAt167} (line 167)"); return returnedAt167; }
+                case "dynamite": { var returnedAt168 = ModSettings.FeatureOn(ModSettings.EnableDynamite); if (RuleLog.Due("FeatureSet.IsOn:146", 2d)) ModLog.Every("FeatureSet.IsOn:168", 2d, $"FeatureSet.IsOn: returns {returnedAt168} (line 168)"); return returnedAt168; }
+                case "mobilecannon": { var returnedAt169 = ModSettings.FeatureOn(ModSettings.EnableCannon); if (RuleLog.Due("FeatureSet.IsOn:147", 2d)) ModLog.Every("FeatureSet.IsOn:169", 2d, $"FeatureSet.IsOn: returns {returnedAt169} (line 169)"); return returnedAt169; }   // one switch for both cannon types
+                default: { if (RuleLog.Due("FeatureSet.IsOn:148", 2d)) ModLog.Every("FeatureSet.IsOn:170", 2d, $"FeatureSet.IsOn: returns false (line 170)"); return false; }
             }
         }
 
         static void CreateItem(ItemSpec s, FeatureSet set)
         {
-            var cost = Costs(s);
-            var cfg = new ItemConfig
-            {
-                Name = s.Name,
-                Description = s.Description,
-                Weight = s.Weight,
-                CraftingStation = s.HasRecipe ? s.Station : null,
-                MinStationLevel = s.StationLevel,
-                Amount = Yield(s),
-                Requirements = ToRequirements(cost)
-            };
-            var item = new CustomItem(s.Id, s.CloneOf, cfg);
-            if (!ItemManager.Instance.AddItem(item)) { ModLog.Warn("ItemRegistry: Jotunn refused item " + s.Id); return; }
+            GameObject prefab = KyPrefabs.Clone(s.Id, s.CloneOf);
+            ItemDrop drop = prefab != null ? prefab.GetComponent<ItemDrop>() : null;
+            if (drop == null) { ModLog.Warn("ItemRegistry: item " + s.Id + " not made - could not clone " + s.CloneOf + " (prefab " + (prefab != null) + ")"); return; }
+            KyPrefabs.Add(prefab);          // findable by name for the set-up below (an ingredient, a projectile) before KyItems puts it into the game
 
-            var shared = item.ItemDrop.m_itemData.m_shared;
+            var shared = drop.m_itemData.m_shared;
+            shared.m_name = s.Name;
+            shared.m_description = s.Description;
+            shared.m_weight = s.Weight;
+            drop.m_itemData.m_dropPrefab = prefab;
             shared.m_maxStackSize = s.Stack;
-            BundleVisuals.Apply(s.Id, item.ItemPrefab);
+            BundleVisuals.Apply(s.Id, prefab);
             Sprite icon = BundleVisuals.Icon(s.Id);
             if (icon != null) shared.m_icons = new[] { icon };
-            if (item.Recipe != null && item.Recipe.Recipe != null)
+            if (s.HasRecipe)
             {
-                set.Recipes.Add(item.Recipe.Recipe);
-                if (s.RequiredGlobalKey != null)
-                    Keyed.Add(new KeyValuePair<Recipe, KeyValuePair<string, string>>(item.Recipe.Recipe, new KeyValuePair<string, string>(FeatureOf(set), s.RequiredGlobalKey)));
+                set.RecipeIds.Add(s.Id);
+                if (s.RequiredGlobalKey != null) Keyed[s.Id] = s.RequiredGlobalKey;
             }
-            if (s.Id == GunPowderedPrefabs.SpikedGrenade) GrenadeSetup.Configure(item.ItemPrefab);
-            if (s.Id == GunPowderedPrefabs.CannonBall || s.Id == GunPowderedPrefabs.FlametalCannonBall) CannonSetup.ConfigureBall(item.ItemPrefab);
-            if (s.Id == GunPowderedPrefabs.Musket) MusketSetup.Configure(item.ItemPrefab);
-            if (s.Id == GunPowderedPrefabs.Dynamite) GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.Configure(item.ItemPrefab);
-            if (s.Id == GunPowderedPrefabs.DeepNorthPack) GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.ConfigurePack(item.ItemPrefab);
-            if (s.Id == GunPowderedPrefabs.ExplosiveArrow) GunPowdered.Features.ExplosiveArrows.Infrastructure.ExplosiveArrowSetup.Configure(item.ItemPrefab);
-            ItemGroundModel.AddIfBoth(item.ItemPrefab);           // T-017 / T-019: an item with a hand copy is drawn once on the ground
-            ModLog.Verbose("ItemRegistry: item " + s.Id + " cloned from " + s.CloneOf + ", stack " + s.Stack + ", recipe " + (item.Recipe != null) + " at station level " + s.StationLevel);
+            if (s.Id == GunPowderedPrefabs.SpikedGrenade) GrenadeSetup.Configure(prefab);
+            if (s.Id == GunPowderedPrefabs.CannonBall || s.Id == GunPowderedPrefabs.FlametalCannonBall) CannonSetup.ConfigureBall(prefab);
+            if (s.Id == GunPowderedPrefabs.Musket) MusketSetup.Configure(prefab);
+            if (s.Id == GunPowderedPrefabs.Dynamite) GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.Configure(prefab);
+            if (s.Id == GunPowderedPrefabs.DeepNorthPack) GunPowdered.Features.Dynamite.Infrastructure.DynamiteSetup.ConfigurePack(prefab);
+            if (s.Id == GunPowderedPrefabs.ExplosiveArrow) GunPowdered.Features.ExplosiveArrows.Infrastructure.ExplosiveArrowSetup.Configure(prefab);
+            ItemGroundModel.AddIfBoth(prefab);           // T-017 / T-019: an item with a hand copy is drawn once on the ground
+            if (!KyItemsContributions.Contribute(s, prefab, true)) { ModLog.Warn("ItemRegistry: KY-Items refused item " + s.Id); return; }
+            ModLog.Verbose("ItemRegistry: item " + s.Id + " cloned from " + s.CloneOf + ", stack " + s.Stack + ", recipe " + s.HasRecipe + " at station level " + s.StationLevel);
         }
 
         static void CreatePiece(ItemSpec s, FeatureSet set)
         {
-            var cfg = new PieceConfig
-            {
-                Name = s.Name,
-                Description = s.Description,
-                PieceTable = "Hammer",
-                Category = s.Id == GunPowderedPrefabs.CannonStock || s.Id == GunPowderedPrefabs.MobileCannon ? KyCategory.For(s.Id) : s.Id == GunPowderedPrefabs.RainBarrel ? "Misc" : "Crafting",
-                CraftingStation = s.HasRecipe ? s.Station : ItemCatalog.Workbench,           // the Mobile Cannon is built beside a Forge, the other pieces at a Workbench
-                Requirements = ToRequirements(Costs(s))
-            };
-            var piece = new CustomPiece(s.Id, s.CloneOf, cfg);
-            if (!PieceManager.Instance.AddPiece(piece)) { ModLog.Warn("ItemRegistry: Jotunn refused piece " + s.Id); return; }
+            GameObject prefab = KyPrefabs.Clone(s.Id, s.CloneOf);
+            Piece piece = prefab != null ? prefab.GetComponent<Piece>() : null;
+            if (piece == null) { ModLog.Warn("ItemRegistry: piece " + s.Id + " not made - could not clone " + s.CloneOf + " (prefab " + (prefab != null) + ")"); return; }
+            KyPrefabs.Add(prefab);
+            piece.m_name = s.Name;
+            piece.m_description = s.Description;
+            piece.m_enabled = true;
 
-            var station = piece.PiecePrefab.GetComponent<CraftingStation>();
+            var station = prefab.GetComponent<CraftingStation>();
             if (station != null) station.m_name = s.Name;          // the station's own name must differ from the workbench or recipes mix up
-            AddBehaviour(s, piece.PiecePrefab);
-            BundleVisuals.Apply(s.Id, piece.PiecePrefab);
-            if (s.Id == GunPowderedPrefabs.CannonStock) CannonSetup.ConfigureStock(piece.PiecePrefab);     // needs the bundle look in place
-            if (s.Id == GunPowderedPrefabs.MobileCannon) GunPowdered.Features.MobileCannon.Infrastructure.MobileCannonSetup.Configure(piece.PiecePrefab);   // cart clone, D-104
+            AddBehaviour(s, prefab);
+            BundleVisuals.Apply(s.Id, prefab);
+            if (s.Id == GunPowderedPrefabs.CannonStock) CannonSetup.ConfigureStock(prefab);     // needs the bundle look in place
+            if (s.Id == GunPowderedPrefabs.MobileCannon) GunPowdered.Features.MobileCannon.Infrastructure.MobileCannonSetup.Configure(prefab);   // cart clone, D-104
             // D-140: stations and extensions glue side by side (snap points at ground level) and never overlap; needs the bundle look in place
-            if (s.Id == GunPowderedPrefabs.LeachingVat || s.Id == GunPowderedPrefabs.PowderMill || StationOf(s.Id) != null) StationSnapPoints.Configure(piece.PiecePrefab);
+            if (s.Id == GunPowderedPrefabs.LeachingVat || s.Id == GunPowderedPrefabs.PowderMill || StationOf(s.Id) != null) StationSnapPoints.Configure(prefab);
             Sprite icon = BundleVisuals.Icon(s.Id);
-            if (icon != null) piece.Piece.m_icon = icon;
-            set.Pieces.Add(piece.Piece);
+            if (icon != null) piece.m_icon = icon;
+            // KydlCore puts every piece into the Hammer's KY-Items build category (the user's own category) and fills station and requirements
+            if (!KyItemsContributions.Contribute(s, prefab, true)) { ModLog.Warn("ItemRegistry: KY-Items refused piece " + s.Id); return; }
+            set.Pieces.Add(piece);
             ModLog.Verbose("ItemRegistry: piece " + s.Id + " cloned from " + s.CloneOf);
         }
 
@@ -278,7 +293,7 @@ namespace GunPowdered.Integrations.Items
         // Deposits are Pickables: the vanilla Pickable respawns by itself, so the 2-day refill (D-154) is its respawn time.
         static void CreateDeposit(ItemSpec s)
         {
-            GameObject prefab = PrefabManager.Instance.CreateClonedPrefab(s.Id, s.CloneOf);
+            GameObject prefab = KyPrefabs.Clone(s.Id, s.CloneOf);
             if (prefab == null) { ModLog.Warn("ItemRegistry: could not clone " + s.CloneOf + " for " + s.Id); return; }
             // the vanilla sulfur rock can also be smashed for its drops; a deposit of ours is only picked, with the tool the PickablePatch asks for
             var smash = prefab.GetComponent<Destructible>();
@@ -289,8 +304,7 @@ namespace GunPowdered.Integrations.Items
             if (pick != null)
             {
                 string yields = s.Id == GunPowderedPrefabs.GuanoDeposit ? GunPowderedPrefabs.BatGuano : ItemCatalog.Sulfur;
-                var item = ItemManager.Instance.GetItem(yields);
-                GameObject drop = item != null ? item.ItemPrefab : PrefabManager.Instance.GetPrefab(yields);
+                GameObject drop = KyPrefabs.Get(yields);
                 if (drop != null) pick.m_itemPrefab = drop;
                 pick.m_amount = 1;
                 pick.m_overrideName = s.Name;          // else the hover still says "Sulfur Rock"
@@ -305,7 +319,8 @@ namespace GunPowdered.Integrations.Items
             // a deposit is hidden while it is not full (D-056 d): the Pickable hides its model when picked and shows it again at the refill
             Transform model = prefab.transform.Find("gp_model");
             if (pick != null && model != null) pick.m_hideWhenPicked = model.gameObject;
-            PrefabManager.Instance.AddPrefab(new CustomPrefab(prefab, true));
+            KyPrefabs.Add(prefab);
+            KyItemsContributions.Contribute(s, prefab, false);          // listed in KY-Items (Materials); the prefab itself goes into the network scene through KyPrefabs
             ModLog.Verbose("ItemRegistry: deposit " + s.Id + " cloned from " + s.CloneOf + ", respawn " + (pick != null ? pick.m_respawnTimeMinutes.ToString("0.#") + " min" : "no Pickable"));
         }
 
@@ -324,14 +339,6 @@ namespace GunPowdered.Integrations.Items
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.Yield({s.Id}): returns {s.Yield}");
             return s.Yield;
-        }
-
-        static RequirementConfig[] ToRequirements(IList<CostLine> cost)
-        {
-            if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.ToRequirements(cost={RuleLog.Shown(cost)})");
-            var list = new RequirementConfig[cost.Count];
-            for (int i = 0; i < list.Length; i++) list[i] = new RequirementConfig { Item = cost[i].Prefab, Amount = cost[i].Amount, Recover = true };
-            { var returnedAt334 = list; if (RuleLog.IsOn()) ModLog.Verbose($"FeatureSet.ToRequirements: returns {returnedAt334} (line 334)"); return returnedAt334; }
         }
     }
 }

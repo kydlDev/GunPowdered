@@ -1,5 +1,3 @@
-using Jotunn.Configs;
-using Jotunn.Managers;
 using KydlCore.Common;
 using GunPowdered.Bootstrap;
 using GunPowdered.Configuration;
@@ -10,22 +8,22 @@ namespace GunPowdered.Features.Musket.Infrastructure
 {
     /// <summary>
     /// The musket's own reload key (user 2026-11-19 13:14, D-100: "a separate reload key (R) instead of middle mouse"): [Musket] Reload Key, default R,
-    /// registered with Jotunn's input manager so the key hint shows whatever key the player bound. Read once per frame for the local player while the
+    /// shown in the key hint (KyKeyHints) with whatever key the player bound. Read once per frame for the local player while the
     /// musket is in hand and no chat, console, menu, inventory, text box or map is open.
     /// </summary>
     internal static class MusketInput
     {
         internal const string ReloadButtonName = "GunPowdered_MusketReload", AimButtonName = "GunPowdered_MusketAim";
-        static ButtonConfig _reload, _aim;
+        static KyKeyHint _reload, _aim;
         static bool _registered;
 
         /// <summary>D-155: the aim button ([Musket] Aim Key, default the mouse wheel button), also used by the key hint.</summary>
-        internal static ButtonConfig AimButton
+        internal static KyKeyHint AimHint
         {
             get
             {
                 if (_aim == null && ModSettings.MusketAimKey != null)
-                    _aim = new ButtonConfig { Name = AimButtonName, Config = ModSettings.MusketAimKey, Hint = MusketRules.HintAim, ActiveInCustomGUI = false };
+                    _aim = new KyKeyHint { Key = ModSettings.MusketAimKey, Hint = MusketRules.HintAim };
                 return _aim;
             }
         }
@@ -67,31 +65,30 @@ namespace GunPowdered.Features.Musket.Infrastructure
             return result;
         }
 
-        /// <summary>The reload button (also used by the key hint).</summary>
-        internal static ButtonConfig ReloadButton
+        /// <summary>The reload key row of the key hint.</summary>
+        internal static KyKeyHint ReloadHint
         {
             get
             {
                 if (_reload == null && ModSettings.MusketReloadKey != null)
-                    _reload = new ButtonConfig { Name = ReloadButtonName, Config = ModSettings.MusketReloadKey, Hint = MusketRules.HintReload, ActiveInCustomGUI = false };
+                    _reload = new KyKeyHint { Key = ModSettings.MusketReloadKey, Hint = MusketRules.HintReload };
                 return _reload;
             }
         }
 
-        /// <summary>Registers the button with Jotunn (once, at start). Expected outcome: true when it is registered.</summary>
+        /// <summary>Checks the key settings the hint rows follow (once, at start). Expected outcome: true when the reload key setting exists.</summary>
         internal static bool Register()
         {
             if (_registered) { if (RuleLog.IsOn()) ModLog.Verbose($"MusketInput.Register: returns true because _registered (line 84)"); return true; }
             ModLog.Verbose("MusketInput: Register - key setting " + (ModSettings.MusketReloadKey != null ? ModSettings.MusketReloadKey.Value.ToString() : "missing"));
-            if (ReloadButton == null)
+            if (ReloadHint == null)
             {
                 ModLog.Warn("MusketInput: no [Musket] Reload Key setting - the musket has no reload key");
                 return false;
             }
-            InputManager.Instance.AddButton(Plugin.ModGuid, ReloadButton);
-            if (AimButton != null) InputManager.Instance.AddButton(Plugin.ModGuid, AimButton);     // D-155: for the key hint
+            _ = AimHint;          // D-155: the aim row of the key hint
             _registered = true;
-            ModLog.Verbose("MusketInput: reload key " + ModSettings.MusketReloadKey.Value + " registered");
+            ModLog.Verbose("MusketInput: reload key " + ModSettings.MusketReloadKey.Value + " ready");
             return true;
         }
 
@@ -100,18 +97,16 @@ namespace GunPowdered.Features.Musket.Infrastructure
         {
             PollAim(local);
             UnityEngine.KeyCode key = ModSettings.MusketReloadKey != null ? ModSettings.MusketReloadKey.Value : UnityEngine.KeyCode.None;
-            // the game's own key read (ZInput.GetKeyDown, like KydlCore's hub key) is what starts the reload. The Jotunn button alone never fired in game
-            // (user 2026-11-20 09:08, lab a10rkey1: key down, button False); it stays registered for the key hint and is logged next to the key read.
+            // the game's own key read (ZInput.GetKeyDown, like KydlCore's hub key) is what starts the reload (user 2026-11-20 09:08, lab a10rkey1)
             bool gameKey = key != UnityEngine.KeyCode.None && ZInput.GetKeyDown(key, true);
-            bool button = _registered && ZInput.GetButtonDown(ReloadButtonName);
             bool raw = key != UnityEngine.KeyCode.None && UnityEngine.Input.GetKeyDown(key);
-            if (!gameKey && !button && !raw) { if (RuleLog.Due("MusketInput.Poll:108", 2d)) ModLog.Every("MusketInput.Poll:108", 2d, $"MusketInput.Poll: returns null because !gameKey && !button && !raw (line 108)"); return null; }                       // nothing pressed this frame: nothing to log
+            if (!gameKey && !raw) { if (RuleLog.Due("MusketInput.Poll:108", 2d)) ModLog.Every("MusketInput.Poll:108", 2d, $"MusketInput.Poll: returns null because !gameKey && !raw (line 108)"); return null; }                       // nothing pressed this frame: nothing to log
             bool held = MusketGun.Held(local) != null;
             string blocked = Blocker();
-            ModLog.Verbose("MusketInput: reload key " + key + " down - game key " + gameKey + ", Jotunn button " + button + ", raw key " + raw
+            ModLog.Verbose("MusketInput: reload key " + key + " down - game key " + gameKey + ", raw key " + raw
                 + ", musket in hand " + held + ", blocked by " + (blocked ?? "nothing"));
             if (!held || blocked != null) { if (RuleLog.Due("MusketInput.Poll:113", 2d)) ModLog.Every("MusketInput.Poll:113", 2d, $"MusketInput.Poll: returns null because !held || blocked != null (line 113)"); return null; }
-            if (!gameKey && !button)
+            if (!gameKey)
             {
                 ModLog.Verbose("MusketInput: only the raw key saw the press, the game's input did not - no reload");
                 return null;

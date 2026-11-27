@@ -1,8 +1,8 @@
-// kydl:read-only-observer - test-only: reads the recipe the game really has and what KydlCore's KY-Items registry lists
+﻿// kydl:read-only-observer - test-only: reads the recipe the game really has and what KydlCore's KY-Items registry lists
 using System.Globalization;
 using System.Text;
-using Jotunn.Managers;
 using KydlCore.Common;
+using KydlCore.Features.Items.Contracts;
 using UnityEngine;
 using GunPowdered.Integrations.KyRegistry;
 using GunPowdered.Core;
@@ -34,11 +34,11 @@ namespace GunPowdered.Testing.TestHooks
         [TestHook("GunPowdered.pieceOf")]
         static string PieceOf(string prefab)
         {
-            GameObject go = PrefabManager.Instance != null ? PrefabManager.Instance.GetPrefab(prefab) : null;
+            GameObject go = KyPrefabs.Get(prefab);
             Piece p = go != null ? go.GetComponent<Piece>() : null;
             if (p == null) { var returnedAt39 = "no piece " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"ItemListingTestHooks.PieceOf: returns {returnedAt39} because p == null (line 39)"); return returnedAt39; }
             var sb = new StringBuilder();
-            sb.Append("category ").Append(p.m_category == PieceManager.Instance.GetPieceCategory(KyCategory.Name) ? KyCategory.Name : p.m_category.ToString()).Append(", station ").Append(p.m_craftingStation != null ? p.m_craftingStation.name : "none").Append(", enabled ").Append(p.m_enabled).Append(':');
+            sb.Append("category ").Append(p.m_category == KyItems.Category ? KyCategory.Name : p.m_category.ToString()).Append(", station ").Append(p.m_craftingStation != null ? p.m_craftingStation.name : "none").Append(", enabled ").Append(p.m_enabled).Append(':');
             for (int i = 0; i < p.m_resources.Length; i++) sb.Append(i == 0 ? " " : ", ").Append(p.m_resources[i].m_resItem.name).Append(" x").Append(p.m_resources[i].m_amount.ToString(CultureInfo.InvariantCulture));
             sb.Append(", in KY-Items ").Append(KyItemsContributions.IsListed(prefab));
             ModLog.Verbose("ItemListingTestHooks: piece " + prefab + " = " + sb);
@@ -50,7 +50,7 @@ namespace GunPowdered.Testing.TestHooks
         static string ItemOf(string prefab)
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"ItemListingTestHooks.ItemOf(prefab={prefab})");
-            GameObject go = PrefabManager.Instance != null ? PrefabManager.Instance.GetPrefab(prefab) : null;
+            GameObject go = KyPrefabs.Get(prefab);
             ItemDrop drop = go != null ? go.GetComponent<ItemDrop>() : null;
             if (drop == null) { var returnedAt55 = "no item " + prefab; if (RuleLog.IsOn()) ModLog.Verbose($"ItemListingTestHooks.ItemOf: returns {returnedAt55} because drop == null (line 55)"); return returnedAt55; }
             ItemDrop.ItemData.SharedData s = drop.m_itemData.m_shared;

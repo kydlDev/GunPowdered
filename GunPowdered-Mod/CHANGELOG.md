@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.2
+
+- Changed: GunPowdered no longer needs Jotunn. Items, pieces, deposits, skills, the musket's key hints and the version check on servers now come from KydlCore 1.2.0 (which this version requires). Saved skill levels, items and placed pieces carry over unchanged.
+- Changed: the buildable pieces (Leaching Station, Powder Mill, extensions, Rain Barrel, cannon pieces) now appear in the Hammer's KY-Items category together with the other KydlDev pieces.
+
+### Testing
+- Built and unit / integration tested against the 1.0.31 game files.
+- Not tested in game yet.
+
 ## 1.0.1
 
 - Fixed: once a cannon (Hand Cannon or Mobile Cannon) is filled, your character stops the fill animation at once (also when another player filled it while you were loading), and no fill animation starts in the last moment before it is loaded.

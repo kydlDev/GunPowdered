@@ -1,5 +1,3 @@
-using Jotunn.Entities;
-using Jotunn.Managers;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Configuration;
@@ -35,13 +33,13 @@ namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
                 ModLog.Error("ExplosiveArrowSetup: the arrow has no vanilla flight to copy - it cannot be shot");
                 return false;
             }
-            if (_projectile == null) _projectile = PrefabManager.Instance.CreateClonedPrefab(ProjectileId, baseFlight);
+            if (_projectile == null) _projectile = KyPrefabs.Clone(ProjectileId, baseFlight);
             if (_explosion == null) _explosion = CloneFirst(ExplosionId, ExplosionBases);
-            if (_projectile != null) PrefabManager.Instance.AddPrefab(new CustomPrefab(_projectile, true));
+            if (_projectile != null) KyPrefabs.Add(_projectile);
             if (_explosion != null)
             {
                 StripTerrainWork(_explosion);
-                PrefabManager.Instance.AddPrefab(new CustomPrefab(_explosion, true));
+                KyPrefabs.Add(_explosion);
             }
             bool look = ArrowLook(itemPrefab, _projectile);
             bool applied = Apply();
@@ -111,8 +109,8 @@ namespace GunPowdered.Features.ExplosiveArrows.Infrastructure
         {
             foreach (string b in bases)
             {
-                if (PrefabManager.Instance.GetPrefab(b) == null) { if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowSetup.CloneFirst: skips to the next item (continue) because PrefabManager.Instance.GetPrefab(b) == null (line 114)"); continue; }
-                GameObject clone = PrefabManager.Instance.CreateClonedPrefab(id, b);
+                if (KyPrefabs.Get(b) == null) { if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowSetup.CloneFirst: skips to the next item (continue) because KyPrefabs.Get(b) == null (line 114)"); continue; }
+                GameObject clone = KyPrefabs.Clone(id, b);
                 if (clone != null) { var returnedAt116 = clone; if (RuleLog.IsOn()) ModLog.Verbose($"ExplosiveArrowSetup.CloneFirst: returns {returnedAt116} because clone != null (line 116)"); return returnedAt116; }
             }
             ModLog.Error("ExplosiveArrowSetup: no vanilla base for " + id);

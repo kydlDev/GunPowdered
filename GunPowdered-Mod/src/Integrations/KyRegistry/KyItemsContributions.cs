@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Jotunn.Managers;
 using KydlCore.Common;
 using KydlCore.Features.Items.Contracts;
 using UnityEngine;
@@ -11,7 +10,7 @@ namespace GunPowdered.Integrations.KyRegistry
     /// <summary>
     /// GunPowdered's items and pieces in KydlCore's KY-Items registry, which the item viewer lists (user, 2026-11-18: "all items from this mod should be visible
     /// in KydlCore's item viewer"). Each catalog entry is contributed as "gunpowdered:&lt;prefab in lowercase&gt;" with its recipe, once the prefabs exist. The mod still
-    /// adds the prefabs to the game itself (Jotunn, RegisterInGame = false); this only tells the registry. Ingredients (bat guano, saltpeter, gunpowder, water) and the world
+    /// adds the items and pieces to the game through KY-Items itself (RegisterInGame = true, ItemRegistry); the deposits are listed only (their mod adds them through KyPrefabs). Ingredients (bat guano, saltpeter, gunpowder, water) and the world
     /// deposits are contributed as KyKind.Material, which the viewer shows in its Materials tab (user, 2026-11-18). Items stay listed whatever the Enable switches say: they are always registered in the game (PROJECT_RULES 17).
     /// </summary>
     internal static class KyItemsContributions
@@ -21,7 +20,7 @@ namespace GunPowdered.Integrations.KyRegistry
         internal static string IdOf(string prefab) => "gunpowdered:" + prefab.ToLowerInvariant();
 
         /// <summary>
-        /// Contributes every catalog entry now and again when Jotunn has registered the prefabs. Expected outcome: true when the hook is in place; the entries
+        /// Lists every catalog entry now and again when the prefabs are in the network scene (KyPrefabs). Expected outcome: true when the hook is in place; the entries
         /// are listed as soon as their prefabs exist.
         /// </summary>
         internal static bool Start()
@@ -29,7 +28,7 @@ namespace GunPowdered.Integrations.KyRegistry
             if (!_hooked)
             {
                 _hooked = true;
-                PrefabManager.OnPrefabsRegistered += OnPrefabsRegistered;
+                KyPrefabs.PrefabsRegistered += OnPrefabsRegistered;
             }
             int listed = ContributeAll();
             ModLog.Verbose("KyItemsContributions: started, " + listed + " of " + Wanted().Count + " entries listed (the rest wait for the prefabs)");
@@ -92,8 +91,20 @@ namespace GunPowdered.Integrations.KyRegistry
         {
             string id = IdOf(s.Id);
             if (KyItems.FindById(id) != null) { if (RuleLog.Due("KyItemsContributions.TryContribute:94", 2d)) ModLog.Every("KyItemsContributions.TryContribute:94", 2d, $"KyItemsContributions.TryContribute: returns true because KyItems.FindById(id) != null (line 94)"); return true; }
-            GameObject prefab = PrefabManager.Instance != null ? PrefabManager.Instance.GetPrefab(s.Id) : null;
+            GameObject prefab = KyPrefabs.Get(s.Id);
             if (prefab == null) { if (RuleLog.Due("KyItemsContributions.TryContribute:96", 2d)) ModLog.Every("KyItemsContributions.TryContribute:96", 2d, $"KyItemsContributions.TryContribute: returns false because prefab == null (line 96)"); return false; }
+            { var returnedAt101 = Contribute(s, prefab, false); if (RuleLog.Due("KyItemsContributions.TryContribute:101", 2d)) ModLog.Every("KyItemsContributions.TryContribute:101", 2d, $"KyItemsContributions.TryContribute: returns {returnedAt101} (line 101)"); return returnedAt101; }
+        }
+
+        /// <summary>
+        /// Gives a finished prefab of the catalog to KydlCore's KY-Items. With <paramref name="registerInGame"/> KydlCore also puts it into the game (items and
+        /// their recipes into ObjectDB, pieces into the Hammer's KY-Items category); a deposit is no item, its mod adds it to the network scene (KyPrefabs).
+        /// Expected outcome: true when KY-Items accepted it (or knew it already).
+        /// </summary>
+        internal static bool Contribute(ItemSpec s, GameObject prefab, bool registerInGame)
+        {
+            string id = IdOf(s.Id);
+            if (KyItems.FindById(id) != null) { if (RuleLog.Due("KyItemsContributions.Contribute:known", 2d)) ModLog.Every("KyItemsContributions.Contribute:known", 2d, $"KyItemsContributions.Contribute: {id} is listed already - returns true"); return true; }
             KyResult r = KyItems.Contribute(new KyContribution
             {
                 Id = id,
@@ -102,21 +113,22 @@ namespace GunPowdered.Integrations.KyRegistry
                 Prefab = prefab,
                 Kind = IsMaterial(s) ? KyKind.Material : s.Kind == ItemKind.Piece ? KyKind.Piece : KyKind.Item,
                 Recipe = RecipeOf(s),
-                RegisterInGame = false,
+                RegisterInGame = registerInGame,
                 Tags = IsMaterial(s) ? new[] { "GunPowdered", s.Kind.ToString(), s.Kind == ItemKind.Deposit ? "deposit" : "ingredient" } : new[] { "GunPowdered", s.Kind.ToString() }
             });
             if (!r.Accepted) ModLog.Warn("KyItemsContributions: KY-Items refused " + id + ": " + r.Reason);
-            { var returnedAt109 = r.Accepted; if (RuleLog.Due("KyItemsContributions.TryContribute:109", 2d)) ModLog.Every("KyItemsContributions.TryContribute:109", 2d, $"KyItemsContributions.TryContribute: returns {returnedAt109} (line 109)"); return returnedAt109; }
+            { var returnedAt109 = r.Accepted; if (RuleLog.Due("KyItemsContributions.Contribute:109", 2d)) ModLog.Every("KyItemsContributions.Contribute:109", 2d, $"KyItemsContributions.Contribute: returns {returnedAt109} (line 109)"); return returnedAt109; }
         }
 
         static KyRecipe RecipeOf(ItemSpec s)
         {
             if (RuleLog.Due("KyItemsContributions.RecipeOf", 2d)) ModLog.Every("KyItemsContributions.RecipeOf", 2d, $"KyItemsContributions.RecipeOf(s={RuleLog.Shown(s)})");
-            if (!s.HasRecipe) return null;
+            if (!s.HasRecipe && s.Kind != ItemKind.Piece) return null;          // a piece always has a recipe: its requirements and a station (the workbench when it names none, as before)
+            string station = s.HasRecipe ? s.Station : ItemCatalog.Workbench;
             IList<CostLine> cost = Integrations.Items.ItemRegistry.CostsOf(s);
             var resources = new KyResource[cost.Count];
             for (int i = 0; i < resources.Length; i++) resources[i] = new KyResource(cost[i].Prefab, cost[i].Amount);
-            { var returnedAt119 = new KyRecipe { CraftingStation = s.Station, MinStationLevel = s.StationLevel, Amount = Integrations.Items.ItemRegistry.YieldOf(s), Resources = resources }; if (RuleLog.Due("KyItemsContributions.RecipeOf:119", 2d)) ModLog.Every("KyItemsContributions.RecipeOf:119", 2d, $"KyItemsContributions.RecipeOf: returns {returnedAt119} (line 119)"); return returnedAt119; }
+            { var returnedAt119 = new KyRecipe { CraftingStation = station, MinStationLevel = s.StationLevel, Amount = Integrations.Items.ItemRegistry.YieldOf(s), Resources = resources }; if (RuleLog.Due("KyItemsContributions.RecipeOf:119", 2d)) ModLog.Every("KyItemsContributions.RecipeOf:119", 2d, $"KyItemsContributions.RecipeOf: returns {returnedAt119} (line 119)"); return returnedAt119; }
         }
     }
 }

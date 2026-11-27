@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -69,12 +69,12 @@ public class ManifestTests
     }
 
     [Test]
-    public void Manifest_Dependencies_UseFormatAndContainBepInExAndJotunn()
+    public void Manifest_Dependencies_UseFormatAndContainBepInExButNotJotunn()
     {
         var deps = Dependencies();
         foreach (var d in deps) Assert.That(DependencyFormat.IsMatch(d), Is.True, "bad dependency string: " + d);
         Assert.That(deps.Any(d => d.IndexOf("BepInExPack_Valheim", StringComparison.OrdinalIgnoreCase) >= 0), Is.True);
-        Assert.That(deps.Any(d => d.IndexOf("Jotunn", StringComparison.OrdinalIgnoreCase) >= 0), Is.True);
+        Assert.That(deps.Any(d => d.IndexOf("Jotunn", StringComparison.OrdinalIgnoreCase) >= 0), Is.False, "KydlCore 1.2.0 replaces Jotunn: the mod must not depend on it");
     }
 
     /// The KydlCore version asked for by the plugin attribute: [BepInDependency(KydlCore.Bootstrap.Plugin.ModGuid, "x.y.z")] (or the GUID text).
@@ -108,16 +108,12 @@ public class ManifestTests
     }
 
     [Test]
-    public void Manifest_JotunnDependency_IsNotNewerThanTheJotunnTheModIsBuiltAgainst()
+    public void Plugin_HasNoJotunnDependencyOrReference()
     {
-        var dep = Dependencies().First(d => d.IndexOf("Jotunn", StringComparison.OrdinalIgnoreCase) >= 0);
-        var declared = Version.Parse(dep.Substring(dep.LastIndexOf('-') + 1));
-        var dll = Path.Combine(TestPaths.RefDir, "Jotunn.dll");
-        Assume.That(File.Exists(dll), "Jotunn.dll not in the reference folder");
-        var built = Version.Parse(FileVersionInfo.GetVersionInfo(dll).FileVersion);
-
-        Assert.That(new Version(declared.Major, declared.Minor, declared.Build), Is.LessThanOrEqualTo(new Version(built.Major, built.Minor, built.Build)),
-            "manifest asks for a newer Jotunn than the one the mod is compiled against");
+        var plugin = File.ReadAllText(Path.Combine(TestPaths.Src, "Bootstrap", "Plugin.cs"));
+        Assert.That(plugin, Does.Not.Match(@"using\s+Jotunn|Jotunn\.Main|\[NetworkCompatibility"), "Plugin.cs must not use Jotunn (KydlCore 1.2.0 replaces it)");
+        var csproj = File.ReadAllText(Directory.GetFiles(TestPaths.ModDir, "*.csproj").Single());
+        Assert.That(csproj, Does.Contain("<KydlNoJotunn>true</KydlNoJotunn>"), "the project must not reference Jotunn");
     }
 
     [Test]

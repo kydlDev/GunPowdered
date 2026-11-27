@@ -1,6 +1,4 @@
 using System.Linq;
-using Jotunn.Entities;
-using Jotunn.Managers;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Configuration;
@@ -16,7 +14,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"ChargeKind.MakeCharge(kind={RuleLog.Shown(kind)}, item={RuleLog.Shown(item)})");
             Transform model = item.transform.Find("gp_model");
-            GameObject stick = PrefabManager.Instance.CreateEmptyPrefab(kind.ChargeId, true);
+            GameObject stick = KyPrefabs.CreateEmpty(kind.ChargeId, true);
             if (stick == null) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteSetup.MakeCharge: returns null because stick == null (line 20)"); return null; }
             ZNetView nv = stick.GetComponent<ZNetView>();
             if (nv != null) nv.m_persistent = true;
@@ -48,7 +46,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             int layer = LayerMask.NameToLayer("piece_nonsolid");
             if (layer >= 0) foreach (Transform t in stick.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = layer;
             stick.AddComponent<DynamiteCharge>().m_kindId = kind.ChargeId;
-            PrefabManager.Instance.AddPrefab(new CustomPrefab(stick, true));
+            KyPrefabs.Add(stick);
             { var returnedAt52 = stick; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteSetup.MakeCharge: returns {returnedAt52} (line 52)"); return returnedAt52; }
         }
 
@@ -65,7 +63,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
         /// </summary>
         static bool AddSparkle(GameObject stick, Bounds bounds)
         {
-            GameObject wood = PrefabManager.Cache.GetPrefab<GameObject>("Wood");
+            GameObject wood = KyPrefabs.Asset<GameObject>("Wood");
             if (wood == null || wood.GetComponent<ParticleSystem>() == null) { ModLog.Warn("DynamiteSetup: no Wood item sparkle found - the placed dynamite shows none"); return false; }
             // the charge prefab lies under Jotunn's inactive prefab root, so the copy's game scripts (ItemDrop, ZNetView ...) never wake up before they go
             GameObject sparkle = Object.Instantiate(wood, stick.transform);
@@ -88,8 +86,8 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 
         static GameObject MakeExplosion(ChargeKind kind)
         {
-            if (PrefabManager.Instance.GetPrefab(ExplosionBase) == null) { ModLog.Error("DynamiteSetup: no vanilla " + ExplosionBase + " - the " + kind.Name + " has no blast"); return null; }
-            GameObject clone = PrefabManager.Instance.CreateClonedPrefab(kind.ExplosionId, ExplosionBase);
+            if (KyPrefabs.Get(ExplosionBase) == null) { ModLog.Error("DynamiteSetup: no vanilla " + ExplosionBase + " - the " + kind.Name + " has no blast"); return null; }
+            GameObject clone = KyPrefabs.Clone(kind.ExplosionId, ExplosionBase);
             if (clone == null) { if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteSetup.MakeExplosion: returns null because clone == null (line 93)"); return null; }
             foreach (TerrainOp op in clone.GetComponentsInChildren<TerrainOp>(true)) Object.DestroyImmediate(op);
             var child = new GameObject(CreatureChild);
@@ -98,7 +96,7 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
             child.AddComponent<Aoe>();
             if (!Mathf.Approximately(kind.ExplosionScale, 1f))        // the pack's bang looks bigger; the Aoe reach is its radius, not the scale
                 foreach (Transform t in clone.transform) if (t.name != CreatureChild) t.localScale *= kind.ExplosionScale;
-            PrefabManager.Instance.AddPrefab(new CustomPrefab(clone, true));
+            KyPrefabs.Add(clone);
             { var returnedAt102 = clone; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteSetup.MakeExplosion: returns {returnedAt102} (line 102)"); return returnedAt102; }
         }
 
@@ -146,9 +144,9 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 
         static GameObject MakeCrater(string id)
         {
-            if (PrefabManager.Instance.GetPrefab(CraterBase) == null) { ModLog.Error("DynamiteSetup: no vanilla " + CraterBase + " - " + id + " digs no hole"); return null; }
-            GameObject clone = PrefabManager.Instance.CreateClonedPrefab(id, CraterBase);
-            if (clone != null) PrefabManager.Instance.AddPrefab(new CustomPrefab(clone, true));
+            if (KyPrefabs.Get(CraterBase) == null) { ModLog.Error("DynamiteSetup: no vanilla " + CraterBase + " - " + id + " digs no hole"); return null; }
+            GameObject clone = KyPrefabs.Clone(id, CraterBase);
+            if (clone != null) KyPrefabs.Add(clone);
             { var returnedAt110 = clone; if (RuleLog.IsOn()) ModLog.Verbose($"DynamiteSetup.MakeCrater: returns {returnedAt110} (line 110)"); return returnedAt110; }
         }
 

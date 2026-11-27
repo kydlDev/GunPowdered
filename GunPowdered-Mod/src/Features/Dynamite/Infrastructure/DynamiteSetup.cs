@@ -1,6 +1,4 @@
 using System.Linq;
-using Jotunn.Entities;
-using Jotunn.Managers;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Configuration;
@@ -183,12 +181,12 @@ namespace GunPowdered.Features.Dynamite.Infrastructure
 
         static void MakeQuietFuseSound()
         {
-            if (PrefabManager.Instance.GetPrefab(QuietFuseSound) != null) { ModLog.Verbose("DynamiteSetup.MakeQuietFuseSound: already made - returns"); return; }
-            GameObject clone = PrefabManager.Instance.CreateClonedPrefab(QuietFuseSound, "sfx_FireAddFuel");
+            if (KyPrefabs.Get(QuietFuseSound) != null) { ModLog.Verbose("DynamiteSetup.MakeQuietFuseSound: already made - returns"); return; }
+            GameObject clone = KyPrefabs.Clone(QuietFuseSound, "sfx_FireAddFuel");
             if (clone == null) { ModLog.Warn("DynamiteSetup: no vanilla sfx_FireAddFuel - the fuse burns silently"); return; }
             int scaled = 0;
             foreach (ZSFX z in clone.GetComponentsInChildren<ZSFX>(true)) { z.m_minVol *= FuseVolume; z.m_maxVol *= FuseVolume; scaled++; }
-            PrefabManager.Instance.AddPrefab(new CustomPrefab(clone, true));
+            KyPrefabs.Add(clone);
             ModLog.Verbose("DynamiteSetup.MakeQuietFuseSound: " + QuietFuseSound + " at " + FuseVolume + " x the volume (" + scaled + " sound(s)) - returns");
         }
 

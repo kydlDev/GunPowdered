@@ -1,5 +1,3 @@
-using Jotunn.Configs;
-using Jotunn.Managers;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Integrations.Items;
@@ -8,8 +6,8 @@ using GunPowdered.Core;
 namespace GunPowdered.Features.Skilling.Infrastructure
 {
     /// <summary>
-    /// D-157 (user 2026-11-23): the three GunPowdered skills in the game's Skills window - Explosives, Muskets, Cannons - registered once at start with Jotunn's
-    /// SkillManager (the identifiers never change: they are what the players' saved skill levels are kept under). The values per level: SkillRules.
+    /// D-157 (user 2026-11-23): the three GunPowdered skills in the game's Skills window - Explosives, Muskets, Cannons - registered once at start with KydlCore's
+    /// KySkills (the identifiers never change: they are what the players' saved skill levels are kept under). The values per level: SkillRules.
     /// A skill's level is known only on its player's own client (the game does not sync skills), so everything that depends on it is worked out there and
     /// the result is synced (a fuse end, a stroke length).
     /// </summary>
@@ -38,7 +36,7 @@ namespace GunPowdered.Features.Skilling.Infrastructure
         {
             Sprite icon = BundleVisuals.Icon(iconItem);
             if (icon == null) ModLog.Warn("GunSkills: no icon for the " + name + " skill (item " + iconItem + " has none in the bundle)");
-            Skills.SkillType type = SkillManager.Instance.AddSkill(new SkillConfig { Identifier = id, Name = name, Description = description, Icon = icon, IncreaseStep = 1f });
+            Skills.SkillType type = KySkills.Add(id, name, description, icon, 1f);
             ModLog.Verbose("GunSkills.Add: " + name + " -> " + (int)type);
             return type;
         }

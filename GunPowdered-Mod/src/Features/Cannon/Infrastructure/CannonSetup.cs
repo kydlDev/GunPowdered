@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using Jotunn.Entities;
-using Jotunn.Managers;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Integrations.Items;
@@ -103,7 +101,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         static void CopyGrip(Transform attach)
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"CannonSetup.CopyGrip(attach={RuleLog.Shown(attach)})");
-            GameObject bomb = PrefabManager.Instance.GetPrefab("BombOoze");
+            GameObject bomb = KyPrefabs.Get("BombOoze");
             Transform grip = bomb != null ? bomb.transform.Find("attach") : null;
             if (grip == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonSetup.CopyGrip: returns because grip == null (line 108)"); return; }
             attach.localPosition = grip.localPosition;
@@ -117,7 +115,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         // where a held ball's centre is, in the "attach" space of a hand item: the vanilla Ooze Bomb's ball (an item made to be held as a ball)
         static Vector3 HeldBallCentre()
         {
-            GameObject bomb = PrefabManager.Instance.GetPrefab("BombOoze");
+            GameObject bomb = KyPrefabs.Get("BombOoze");
             Transform attach = bomb != null ? bomb.transform.Find("attach") : null;
             Renderer r = attach != null ? attach.GetComponentInChildren<Renderer>(true) : null;
             if (r == null)
@@ -134,8 +132,8 @@ namespace GunPowdered.Features.Cannon.Infrastructure
         {
             foreach (string b in ProjectileBases)
             {
-                if (PrefabManager.Instance.GetPrefab(b) == null) { ModLog.Warn("CannonSetup: vanilla base " + b + " not found, trying the next one"); continue; }
-                GameObject clone = PrefabManager.Instance.CreateClonedPrefab(projectileId, b);
+                if (KyPrefabs.Get(b) == null) { ModLog.Warn("CannonSetup: vanilla base " + b + " not found, trying the next one"); continue; }
+                GameObject clone = KyPrefabs.Clone(projectileId, b);
                 if (clone == null) { if (RuleLog.IsOn()) ModLog.Verbose($"CannonSetup.MakeProjectile: skips to the next item (continue) because clone == null (line 139)"); continue; }
                 foreach (global::Projectile p in clone.GetComponentsInChildren<global::Projectile>(true)) Object.DestroyImmediate(p);
                 foreach (Light l in clone.GetComponentsInChildren<Light>(true)) l.enabled = false;
@@ -145,7 +143,7 @@ namespace GunPowdered.Features.Cannon.Infrastructure
                 foreach (Collider c in clone.GetComponentsInChildren<Collider>(true)) c.enabled = false;           // the flight tests the world itself
                 if (clone.GetComponent<ZSyncTransform>() == null) clone.AddComponent<ZSyncTransform>();
                 clone.AddComponent<CannonBallFlight>();
-                PrefabManager.Instance.AddPrefab(new CustomPrefab(clone, true));
+                KyPrefabs.Add(clone);
                 ModLog.Verbose("CannonSetup: " + projectileId + " cloned from " + b);
                 return clone;
             }

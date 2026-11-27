@@ -1,6 +1,4 @@
 using System;
-using Jotunn.Entities;
-using Jotunn.Managers;
 using KydlCore.Common;
 using UnityEngine;
 using GunPowdered.Configuration;
@@ -38,7 +36,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         /// </summary>
         static GameObject MakeLanded(GameObject item)
         {
-            GameObject landed = PrefabManager.Instance.CreateEmptyPrefab(LandedId, true);
+            GameObject landed = KyPrefabs.CreateEmpty(LandedId, true);
             if (landed == null) { ModLog.Warn("GrenadeSetup: the landed grenade could not be made - it bursts on impact as before"); return null; }
             ZNetView nv = landed.GetComponent<ZNetView>();
             if (nv != null) nv.m_persistent = false;
@@ -70,7 +68,7 @@ namespace GunPowdered.Features.Grenades.Infrastructure
             int layer = LayerMask.NameToLayer("item");
             if (layer >= 0) foreach (Transform t in landed.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = layer;
             landed.AddComponent<GrenadeFuse>();
-            PrefabManager.Instance.AddPrefab(new CustomPrefab(landed, true));
+            KyPrefabs.Add(landed);
             ModLog.Info("GrenadeSetup: landed grenade " + LandedId + " made (model " + (model != null) + ")");
             return landed;
         }
@@ -199,15 +197,15 @@ namespace GunPowdered.Features.Grenades.Infrastructure
         {
             foreach (string b in bases)
             {
-                if (PrefabManager.Instance.GetPrefab(b) == null)
+                if (KyPrefabs.Get(b) == null)
                 {
                     ModLog.Warn("GrenadeSetup: vanilla base " + b + " for " + id + " not found, trying the next one");
                     continue;
                 }
-                GameObject clone = PrefabManager.Instance.CreateClonedPrefab(id, b);
+                GameObject clone = KyPrefabs.Clone(id, b);
                 if (clone == null) { ModLog.Warn("GrenadeSetup: cloning " + b + " into " + id + " failed"); continue; }
                 BundleVisuals.Apply(id, clone);
-                PrefabManager.Instance.AddPrefab(new CustomPrefab(clone, true));
+                KyPrefabs.Add(clone);
                 ModLog.Verbose("GrenadeSetup: " + id + " cloned from " + b);
                 return clone;
             }
