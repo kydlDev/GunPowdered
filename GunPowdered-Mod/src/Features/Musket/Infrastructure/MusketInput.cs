@@ -99,6 +99,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             string binding = setting != null ? MusketRules.PadBinding(setting.Value) : null;
             bool down = binding != null && ZInput.GetButtonDown(binding);
             if (down) ModLog.Verbose($"MusketInput.PadDown: {setting.Definition.Key} '{setting.Value}' ({binding}) pressed");
+            if (RuleLog.Due("MusketInput.PadDown", 2d)) ModLog.Every("MusketInput.PadDown", 2d, $"MusketInput.PadDown: {(setting != null ? setting.Definition.Key : "<no setting>")} ({binding ?? "no gamepad button"}) -> {down}");
             return down;
         }
 
@@ -144,7 +145,12 @@ namespace GunPowdered.Features.Musket.Infrastructure
             PollAim(local);
             // D-198: the gamepad buttons (the game's bindings of the chosen game buttons); the same paths as the keys
             if (PadDown(ModSettings.MusketAimPad)) PadPressed(local, false);
-            if (PadDown(ModSettings.MusketReloadPad)) return PadPressed(local, true);
+            if (PadDown(ModSettings.MusketReloadPad))
+            {
+                string padResult = PadPressed(local, true);
+                ModLog.Verbose($"MusketInput.Poll: returns the reload gamepad button's result '{padResult ?? "nothing"}'");
+                return padResult;
+            }
             UnityEngine.KeyCode key = ModSettings.MusketReloadKey != null ? ModSettings.MusketReloadKey.Value : UnityEngine.KeyCode.None;
             // the game's own key read (ZInput.GetKeyDown, like KydlCore's hub key) is what starts the reload (user 2026-11-20 09:08, lab a10rkey1)
             bool gameKey = key != UnityEngine.KeyCode.None && ZInput.GetKeyDown(key, true);

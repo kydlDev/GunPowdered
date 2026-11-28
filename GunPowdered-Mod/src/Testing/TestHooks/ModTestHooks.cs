@@ -43,7 +43,6 @@ namespace GunPowdered.Testing.TestHooks
             string ground = GroundCheck(out bool flat);
             float since = UnityEngine.Time.realtimeSinceStartup - _arenaPlacedAt;
             string s = (flat ? "ground flat: " : "ground NOT flat: ") + ground + $" ({since:0.0} s after the arena step)";
-            ModLog.Verbose("ModTestHooks.ArenaGround: returns " + s);
             // a37 (a20ash / q7fixgp mobilecannon-fire-spread): the levelled arena ground arrives 7-15.5 s after a far trip (the zones load time-sliced), so the
             // arrival time itself is logged ONCE per arena step at Info (a CHECK that warns above 30 s = a real loading problem, not the usual wait).
             if (flat && !_arenaGroundReported && _arenaPlacedAt > 0f)
@@ -52,6 +51,7 @@ namespace GunPowdered.Testing.TestHooks
                 ModLog.Info($"ModTestHooks.ArenaGround: the arena ground was level {since:0.0} s after the arena step");
                 ModLog.Check("TestArena: seconds until the arena ground was level", since, 10.0, 20.0, "s");
             }
+            ModLog.Verbose("ModTestHooks.ArenaGround: returns " + s);
             return s;
         }
 
