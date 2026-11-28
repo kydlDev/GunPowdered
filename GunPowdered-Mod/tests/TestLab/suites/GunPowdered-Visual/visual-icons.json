@@ -1,7 +1,8 @@
 {
   "name": "visual-icons",
   "description": "Rule 42 (user 2026-11-27): the icons of every item / piece GunPowdered contributes to KY-Items exist and are not small (hook), and a GameProbe screenshot of the KY-Items grid filtered to this mod is taken for a person to LOOK at (icon cut off, wrong colour, empty frame); the view and the filter are reset at the end",
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ],
+  "asserts": [
+    { "check": "hook", "name": "kc.errorsThisTest", "expect": "errors 0" }, { "check": "noErrors", "source": "GunPowdered" } ],
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
     { "do": "wait", "until": { "check": "hook", "name": "kc.itemsReady", "args": {}, "expect": true }, "timeout": 20 },

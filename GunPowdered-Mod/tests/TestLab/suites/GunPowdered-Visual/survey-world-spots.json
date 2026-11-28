@@ -1,4 +1,4 @@
-﻿{
+{
     "name": "survey-world-spots",
     "description": "User 2026-11-23: checks the user's list of cave / chamber / geyser / bone pile spots (X, Z) against the lab world's own placed locations and logs name, ground height and biome per spot (WorldSpots: lines). A survey, not a gate: it only checks the hook ran.",
     "timeout": 60,
@@ -21,6 +21,7 @@
         }
     ],
     "asserts": [
+    { "check": "hook", "name": "kc.errorsThisTest", "expect": "errors 0" },
         {
             "check": "noErrors",
             "source": "GunPowdered"

@@ -15,5 +15,6 @@
     { "do": "hook", "name": "GunPowdered.cameraDistance", "args": { "metres": 4 }, "label": "camera distance back to the default" },
     { "do": "cleanArena" }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    { "check": "hook", "name": "kc.errorsThisTest", "expect": "errors 0" }, { "check": "noErrors", "source": "GunPowdered" } ]
 }
