@@ -79,6 +79,8 @@ Make gunpowder, then build weapons with it.
 - **Muskets**: faster reloading, 1.8 s per cartridge at level 0 down to 1.2 s at level 100.
 - **Cannons**: faster loading (4 s at level 0 down to 2.5 s at level 100) and harder shots (the cannon's blunt damage up to x1.5).
 
+- **Gamepad:** the musket also works with a controller (Aim = secondary attack, Reload = Use, both changeable in the settings). Controller support is offered but has not been tested with a real controller yet.
+
 All pieces and items are listed in the KY-Items viewer (grid or list view).
 
 ## How to use

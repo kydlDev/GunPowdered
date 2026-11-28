@@ -6,6 +6,9 @@
 - Changed: the buildable pieces (Leaching Station, Powder Mill, extensions, Rain Barrel, cannon pieces) now appear in the Hammer's KY-Items category together with the other KydlDev pieces.
 - Fixed: the musket's bullet is made even when the game's iron bolt cannot be found at game start (a start error reported "the musket cannot fire"); the bolt is looked up again when the musket is first fired.
 
+- New: the musket works with a gamepad. Aim uses the game's secondary attack button and Reload the game's Use button (only while you are not pointing at something to interact with); both are settings (`[Musket] Aim Gamepad Button` / `Reload Gamepad Button`, a game button name). Fire and Block are as before. The musket's key hints show the gamepad glyphs.
+- Controller support is offered, but it has not been tested with a real controller yet (only with simulated button presses in the test lab).
+
 ### Testing
 - Built and unit / integration tested against the 1.0.31 game files.
 - Not tested in game yet.
