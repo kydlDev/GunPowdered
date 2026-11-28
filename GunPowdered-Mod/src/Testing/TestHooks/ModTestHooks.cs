@@ -22,6 +22,8 @@ namespace GunPowdered.Testing.TestHooks
         {
             // D-175: KydlCore's terrain restore keys the template by zone and rebuilds the heightmaps itself, so nothing terrain-related is done here.
             string moved = TestArena.MovePlayer();
+            _arenaPlacedAt = UnityEngine.Time.realtimeSinceStartup;
+            _arenaGroundReported = false;
             string cleaned = CleanArena();
             UnityEngine.Random.InitState(RandomSeed);
             string s = moved + "; " + cleaned + "; random seed " + RandomSeed + "; " + GroundCheck(out bool _);
@@ -39,10 +41,22 @@ namespace GunPowdered.Testing.TestHooks
         static string ArenaGround()
         {
             string ground = GroundCheck(out bool flat);
-            string s = (flat ? "ground flat: " : "ground NOT flat: ") + ground;
+            float since = UnityEngine.Time.realtimeSinceStartup - _arenaPlacedAt;
+            string s = (flat ? "ground flat: " : "ground NOT flat: ") + ground + $" ({since:0.0} s after the arena step)";
             ModLog.Verbose("ModTestHooks.ArenaGround: returns " + s);
+            // a37 (a20ash / q7fixgp mobilecannon-fire-spread): the levelled arena ground arrives 7-15.5 s after a far trip (the zones load time-sliced), so the
+            // arrival time itself is logged ONCE per arena step at Info (a CHECK that warns above 30 s = a real loading problem, not the usual wait).
+            if (flat && !_arenaGroundReported && _arenaPlacedAt > 0f)
+            {
+                _arenaGroundReported = true;
+                ModLog.Info($"ModTestHooks.ArenaGround: the arena ground was level {since:0.0} s after the arena step");
+                ModLog.Check("TestArena: seconds until the arena ground was level", since, 10.0, 20.0, "s");
+            }
             return s;
         }
+
+        static float _arenaPlacedAt;
+        static bool _arenaGroundReported;
 
         const float GroundTolerance = 0.3f;
 

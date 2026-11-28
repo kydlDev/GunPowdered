@@ -4,15 +4,15 @@
   "timeout": 90,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot (also takes the template snapshot on the very first test)" },
-    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 45 },
     { "do": "spawn", "prefab": "Wood", "dz": 20, "as": "drop" },
     { "do": "spawn", "prefab": "Boar", "dz": 22, "as": "boar" },
     { "do": "spawn", "prefab": "GP_RainBarrel", "dz": 24, "owner": "me", "as": "barrel" },
     { "do": "wait", "seconds": 2 },
     { "do": "hook", "name": "GunPowdered.arena", "regex": "removed [0-9]+ \\(drops [1-9][0-9]*, creatures 1, logs 0, stumps 0, pieces 1\\)", "label": "the next test start removes the drop, the creature and the piece" },
-    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 45 },
     { "do": "hook", "name": "GunPowdered.arena", "contains": "removed 0", "label": "a second start finds the arena clean" },
-    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 45 },
     { "do": "cleanArena" }
   ],
   "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]

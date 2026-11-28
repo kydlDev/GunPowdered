@@ -4,7 +4,7 @@
   "timeout": 60,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 45 },
     { "do": "grenadeArena" },
     { "do": "hook", "name": "GunPowdered.setSkill", "args": { "name": "Explosives", "level": 0 }, "contains": "Explosives set to 0", "label": "Explosives skill 0" },
     { "do": "give", "prefab": "GP_SpikedGrenade", "count": 5, "equip": true },

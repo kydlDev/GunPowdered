@@ -4,7 +4,7 @@
   "timeout": 240,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 45 },
     { "do": "spawn", "prefab": "Boar", "dx": -8, "dz": 8, "as": "mob0" },
     { "do": "spawn", "prefab": "Neck", "dx": -4, "dz": 10, "as": "mob1" },
     { "do": "spawn", "prefab": "Boar", "dx": 0, "dz": 12, "as": "mob2" },

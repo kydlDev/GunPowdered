@@ -4,6 +4,7 @@
 
 - Changed: GunPowdered no longer needs Jotunn. Items, pieces, deposits, skills, the musket's key hints and the version check on servers now come from KydlCore 1.2.0 (which this version requires). Saved skill levels, items and placed pieces carry over unchanged.
 - Changed: the buildable pieces (Leaching Station, Powder Mill, extensions, Rain Barrel, cannon pieces) now appear in the Hammer's KY-Items category together with the other KydlDev pieces.
+- Fixed: the musket's bullet is made even when the game's iron bolt cannot be found at game start (a start error reported "the musket cannot fire"); the bolt is looked up again when the musket is first fired.
 
 ### Testing
 - Built and unit / integration tested against the 1.0.31 game files.

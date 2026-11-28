@@ -4,7 +4,7 @@
   "timeout": 60,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 45 },
     { "do": "console", "command": "env Clear" },
     { "do": "wait", "seconds": 15 },
     { "do": "spawn", "prefab": "GP_RainBarrel", "dz": 4, "owner": "me", "as": "barrel" },

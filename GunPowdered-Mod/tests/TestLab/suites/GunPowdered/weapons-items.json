@@ -4,7 +4,7 @@
   "timeout": 60,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 45 },
     { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_Musket" }, "expect": "forge level 2, makes 1, enabled True: Iron x15, Wood x10, Bronze x2", "label": "the musket recipe in the game" },
     { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_Musket" }, "expect": "stack 1, weight 4, type Bow", "label": "the musket never stacks and is a Bow-type weapon (cloned from the Arbalest, D-087)" },
     { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_ExplosiveArrow" }, "expect": "forge level 4, makes 10, enabled True: Wood x8, BlackMetal x1, Feathers x2, GP_Gunpowder x2", "label": "the explosive arrow recipe in the game" },

@@ -36,6 +36,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
         const string BoltItem = "BoltIron";
         static GameObject _bullet;
         static bool _bulletLook;
+        static bool _bulletRetried;
 
         /// <summary>
         /// The flying bullet prefab (null before Configure or when no vanilla bolt projectile was found). Its look (the Iron Bullet model) is put on at the
@@ -45,6 +46,13 @@ namespace GunPowdered.Features.Musket.Infrastructure
         {
             get
             {
+                if (_bullet == null && !_bulletRetried)
+                {
+                    // one more try at the first use: the vanilla bolt may not have been findable when the musket was set up (2026-11-28, B04 in every GameProbe session)
+                    _bulletRetried = true;
+                    _bullet = MakeBullet();
+                    ModLog.Info("MusketSetup: bullet made at first use: " + (_bullet != null));
+                }
                 if (_bullet != null && !_bulletLook)
                 {
                     _bulletLook = BulletLook(_bullet, _bullet.GetComponent<Projectile>());

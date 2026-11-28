@@ -4,7 +4,7 @@
   "timeout": 30,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 45 },
     { "do": "hook", "name": "GunPowdered.recipeOf", "args": { "prefab": "GP_AsksvinHarness" }, "regex": "level 2, makes 1, enabled True: .*x10, .*x3, .*x2, .*x2", "label": "the harness recipe in the game" },
     { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_AsksvinHarness" }, "contains": "weight 5, type Material", "label": "the harness item exists (weight 5, a material)" },
     { "do": "cleanArena" }

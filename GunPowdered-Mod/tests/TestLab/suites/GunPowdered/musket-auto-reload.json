@@ -16,7 +16,7 @@
         "name": "GunPowdered.arenaGround",
         "contains": "ground flat"
       },
-      "timeout": 15
+      "timeout": 45
     },
     {
       "do": "musketStart",

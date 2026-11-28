@@ -5,7 +5,7 @@
   "expectFailure": "the ground is back to the marks",
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 45 },
     { "do": "hook", "name": "GunPowdered.terrainHeightsMark", "contains": ", 0 not loaded", "label": "remember the ground" },
     { "do": "dynamiteBlastAhead", "metres": 8 },
     { "do": "hook", "name": "GunPowdered.terrainHeightsSame", "contains": "same as marked", "label": "the ground is back to the marks" },

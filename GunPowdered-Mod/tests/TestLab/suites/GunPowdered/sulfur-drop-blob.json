@@ -4,7 +4,7 @@
   "timeout": 60,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 45 },
     { "do": "hook", "name": "GunPowdered.setTunable", "args": { "field": "KillSulfurChance", "value": "1" }, "expect": "1", "label": "sulfur chance 100 % for the test" },
     { "do": "spawn", "prefab": "Blob", "dz": 6 },
     { "do": "wait", "seconds": 1 },

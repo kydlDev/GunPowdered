@@ -4,7 +4,7 @@
   "timeout": 60,
   "steps": [
     { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
-    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 15 },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 45 },
     { "do": "hook", "name": "GunPowdered.clearLoose", "args": { "prefab": "GP_BatGuano" }, "label": "no loose GP_BatGuano left from an earlier test" },
     { "do": "give", "prefab": "PickaxeAntler", "count": 1, "equip": true },
     { "do": "spawnAndPick", "prefab": "GP_GuanoDeposit" },
