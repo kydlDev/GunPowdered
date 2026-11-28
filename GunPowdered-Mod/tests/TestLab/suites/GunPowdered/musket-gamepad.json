@@ -1,0 +1,28 @@
+{
+  "name": "musket-gamepad",
+  "description": "D-198 / KydlCore D-176 (user 2026-11-28): the musket on a gamepad. The key hint has a gamepad side with every row (Fire, Both hands, Reload, Block) and no dead layout entries (the old NullReferenceException), the gamepad aim button raises the musket and the gamepad reload button reloads, through the same path as the real gamepad read (no controller in the lab). Not tested with a real controller.",
+  "timeout": 60,
+  "steps": [
+    { "do": "hook", "name": "GunPowdered.arena", "contains": "arena at", "label": "start on the arena spot" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.arenaGround", "contains": "ground flat" }, "timeout": 45 },
+    { "do": "give", "prefab": "GP_Musket", "count": 1, "equip": true },
+    { "do": "hook", "name": "GunPowdered.setSkill", "args": { "name": "Muskets", "level": 100 }, "contains": "Muskets set to 100", "label": "Muskets skill 100: 1.2 s per cartridge" },
+    { "do": "give", "prefab": "GP_PaperCartridge", "count": 2 },
+    { "do": "wait", "until": { "check": "hook", "name": "kc.keyHintRows", "contains": "item GP_Musket" }, "timeout": 5 },
+    { "do": "hook", "name": "kc.keyHintRows", "contains": "pad: Fire <mspace", "label": "the gamepad side has the Fire row in the game's gamepad-hint format" },
+    { "do": "hook", "name": "kc.keyHintRows", "regex": "pad: .*Both hands <mspace.*Reload <mspace.*Block <mspace", "label": "the gamepad side has all four rows" },
+    { "do": "hook", "name": "kc.keyHintRows", "regex": "layouts (\\d+)/\\1 live", "label": "no layout entry points at a destroyed row (the NullReferenceException of D-176)" },
+    { "do": "hook", "name": "GunPowdered.musketPadPress", "args": { "action": "aim" }, "contains": "aim -> ", "notContains": "nothing", "label": "the gamepad aim button raises the musket" },
+    { "do": "wait", "seconds": 1 },
+    { "do": "hook", "name": "GunPowdered.musketPadPress", "args": { "action": "reload" }, "contains": "reloading", "label": "the gamepad reload button (Use, nothing hovered) starts the reload" },
+    { "do": "wait", "until": { "check": "hook", "name": "GunPowdered.musketLoaded", "expect": 2 }, "timeout": 6 },
+    { "do": "clearInventory" },
+    { "do": "cleanArena" }
+  ],
+  "asserts": [
+    { "check": "hook", "name": "kc.errorsThisTest", "expect": "errors 0" },
+    { "check": "noErrors", "source": "GunPowdered" },
+    { "check": "noErrors", "source": "KydlCore" },
+    { "check": "logContains", "text": "MusketInput: reload gamepad button -> ", "label": "the gamepad press is logged (rule 8)", "source": "GunPowdered" }
+  ]
+}

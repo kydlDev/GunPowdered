@@ -23,6 +23,10 @@ namespace GunPowdered.Configuration
         public static ConfigEntry<KeyCode> MusketReloadKey;
         /// <summary>D-155: [Musket] Aim Key (default the mouse wheel button): raises the musket from the side.</summary>
         public static ConfigEntry<KeyCode> MusketAimKey;
+        /// <summary>D-198: the game buttons whose GAMEPAD binding aims / reloads the musket (default SecondaryAttack / Use; "None" = no gamepad button).</summary>
+        public static ConfigEntry<string> MusketAimPad, MusketReloadPad;
+        /// <summary>D-198: the game buttons a gamepad musket action can use (the game's own functions, so the player's controller layout applies).</summary>
+        public static readonly string[] PadButtons = { "SecondaryAttack", "Use", "Hide", "Sit", "Crouch", "Jump", "Run", "Inventory", "None" };
         // no MenuKey: the mod's menu is a set of tabs in the KY hub (F6, KydlCore), see src/Presentation/Hub/Registration/HubTabs.cs
         // One functionality = one [General] switch "Enable <Category>" (PROJECT_RULES 11), only when the mod has several of them, e.g.:
         //   public static ConfigEntry<bool> ColoursEnable;   // bound in General as "Enable Colours" with the value of the old Colours Enable entry;  on only when On && ColoursEnable.Value
@@ -92,6 +96,12 @@ namespace GunPowdered.Configuration
                 "The key that reloads the Iron Musket in your hands: one Cartridge from your backpack goes in every 1.2 s until it holds 5. Pick any key from the list.");
             MusketAimKey = c.Bind("Musket", "Aim Key", KeyCode.Mouse2,
                 "The key that raises the Iron Musket to the shoulder after running (running lowers it to your side); it stays raised until you run again, and it only fires when raised. Default: the mouse wheel button. Pick any key from the list.");
+            MusketAimPad = c.Bind("Musket", "Aim Gamepad Button", "SecondaryAttack", new ConfigDescription(
+                "On a gamepad: the game button that raises the Iron Musket to the shoulder (the button your controller layout gives that game action). Default: Secondary Attack, which does nothing else with the musket. None = no gamepad button. Controller support has not been tested with a real controller.",
+                new AcceptableValueList<string>(PadButtons)));
+            MusketReloadPad = c.Bind("Musket", "Reload Gamepad Button", "Use", new ConfigDescription(
+                "On a gamepad: the game button that reloads the Iron Musket. Default: Use - it reloads only while you are not looking at something you can use (a door or chest still opens). None = no gamepad button. Controller support has not been tested with a real controller.",
+                new AcceptableValueList<string>(PadButtons)));
             DebugLog = c.Bind("DebugLog", "Enable", false,
                 "Writes detailed lines about everything the mod does to the BepInEx log (for bug reports). Leave off while playing normally.");
 
@@ -101,7 +111,7 @@ namespace GunPowdered.Configuration
             EnableMod.SettingChanged += (s, e) => ModLog.Info("Config: Enable Mod = " + EnableMod.Value + (EnableMod.Value ? ", the mod is on" : ", the mod is inert (no effects)"));
             ModLog.Verbose("Config: bound (Enable Mod " + EnableMod.Value + ", debug log " + DebugLog.Value + ")");
             return EnableMod != null && EnableGuano != null && EnableWater != null && EnableSaltpeter != null && EnableSulfur != null && EnableGunpowder != null && EnableGrenades != null && EnableCannon != null
-                && EnableMusket != null && EnableExplosiveArrows != null && EnableDynamite != null && MusketReloadKey != null && MusketAimKey != null && DebugLog != null;
+                && EnableMusket != null && EnableExplosiveArrows != null && EnableDynamite != null && MusketReloadKey != null && MusketAimKey != null && MusketAimPad != null && MusketReloadPad != null && DebugLog != null;
         }
     }
 }

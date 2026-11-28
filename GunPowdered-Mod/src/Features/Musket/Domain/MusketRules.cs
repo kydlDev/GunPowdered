@@ -30,6 +30,30 @@ namespace GunPowdered.Features.Musket.Domain
         /// </summary>
         internal const float BlockPower = 10f, BlockPowerPerLevel = 0f, ParryBonus = 1.5f, ParryAdrenaline = 10f, BlockAdrenaline = 2f, MovementModifier = 0f;
 
+        /// <summary>D-198: the game button name that means "no gamepad button".</summary>
+        internal const string NoPadButton = "None";
+
+        /// <summary>D-198: the game binding a gamepad musket action reads ("Use" -> "JoyUse", a "Joy..." name is kept); null for "None" / empty = no gamepad button.</summary>
+        internal static string PadBinding(string button)
+        {
+            string name = (button ?? "").Trim();
+            string binding = name.Length == 0 || string.Equals(name, NoPadButton, StringComparison.OrdinalIgnoreCase) ? null
+                : name.StartsWith("Joy", StringComparison.Ordinal) ? name : "Joy" + name;
+            if (RuleLog.Due("MusketRules.PadBinding", 2d)) RuleLog.Every("MusketRules.PadBinding", 2d, $"MusketRules.PadBinding(button={RuleLog.Shown(button)}): returns {RuleLog.Shown(binding)}");
+            return binding;
+        }
+
+        /// <summary>
+        /// D-198 (user 2026-11-28): may the gamepad reload button reload now? The game's Use button also opens doors and chests, so on Use the musket
+        /// reloads only while the player hovers nothing usable; any other button always reloads.
+        /// </summary>
+        internal static bool PadReloadAllowed(string button, bool hovering)
+        {
+            bool allowed = !hovering || !string.Equals((button ?? "").Trim(), "Use", StringComparison.OrdinalIgnoreCase);
+            RuleLog.Verbose($"MusketRules.PadReloadAllowed(button={RuleLog.Shown(button)}, hovering={hovering}): returns {allowed}");
+            return allowed;
+        }
+
         /// <summary>D-155: why a reload cannot run now because of how the player moves (null = allowed): swimming or in the air (jumping, falling). Running is fine.</summary>
         internal static string WhyNotReloadMoving(bool onGround, bool swimming)
         {

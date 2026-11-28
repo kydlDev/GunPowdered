@@ -23,7 +23,7 @@ namespace GunPowdered.Features.Musket.Infrastructure
             get
             {
                 if (_aim == null && ModSettings.MusketAimKey != null)
-                    _aim = new KyKeyHint { Key = ModSettings.MusketAimKey, Hint = MusketRules.HintAim };
+                    _aim = new KyKeyHint { Key = ModSettings.MusketAimKey, Hint = MusketRules.HintAim, GamepadButton = PadHintButton(ModSettings.MusketAimPad) };
                 return _aim;
             }
         }
@@ -71,9 +71,53 @@ namespace GunPowdered.Features.Musket.Infrastructure
             get
             {
                 if (_reload == null && ModSettings.MusketReloadKey != null)
-                    _reload = new KyKeyHint { Key = ModSettings.MusketReloadKey, Hint = MusketRules.HintReload };
+                    _reload = new KyKeyHint { Key = ModSettings.MusketReloadKey, Hint = MusketRules.HintReload, GamepadButton = PadHintButton(ModSettings.MusketReloadPad) };
                 return _reload;
             }
+        }
+
+        /// <summary>D-198: the game button a hint row shows on the gamepad side ("" for None: the row then shows the keyboard key there).</summary>
+        static string PadHintButton(BepInEx.Configuration.ConfigEntry<string> setting)
+        {
+            string button = setting != null && MusketRules.PadBinding(setting.Value) != null ? setting.Value.Trim() : "";
+            if (RuleLog.IsOn()) ModLog.Verbose($"MusketInput.PadHintButton({(setting != null ? setting.Definition.Key : "<no setting>")}): returns '{button}'");
+            return button;
+        }
+
+        /// <summary>D-198: a gamepad button setting changed: the hint rows show the new button at once (rule 17).</summary>
+        static void PadSettingChanged()
+        {
+            if (_aim != null) _aim.GamepadButton = PadHintButton(ModSettings.MusketAimPad);
+            if (_reload != null) _reload.GamepadButton = PadHintButton(ModSettings.MusketReloadPad);
+            int panels = KyKeyHints.Redraw();
+            ModLog.Info($"MusketInput: gamepad buttons - aim '{ModSettings.MusketAimPad?.Value}', reload '{ModSettings.MusketReloadPad?.Value}' ({panels} key-hint panel(s) redrawn)");
+        }
+
+        /// <summary>D-198: once per frame: was the gamepad button of a musket action pressed (the game's binding of that game button, any controller layout)?</summary>
+        static bool PadDown(BepInEx.Configuration.ConfigEntry<string> setting)
+        {
+            string binding = setting != null ? MusketRules.PadBinding(setting.Value) : null;
+            bool down = binding != null && ZInput.GetButtonDown(binding);
+            if (down) ModLog.Verbose($"MusketInput.PadDown: {setting.Definition.Key} '{setting.Value}' ({binding}) pressed");
+            return down;
+        }
+
+        /// <summary>D-198: a gamepad press as the game's own key read (test hooks call it with the setting's button). Expected outcome: what the press did, or null.</summary>
+        internal static string PadPressed(Player local, bool reload)
+        {
+            if (local == null || MusketGun.Held(local) == null) { ModLog.Verbose($"MusketInput.PadPressed(reload={reload}): no musket in hand - nothing"); return null; }
+            string blocked = Blocker();
+            if (blocked != null) { ModLog.Verbose($"MusketInput.PadPressed(reload={reload}): blocked by {blocked}"); return null; }
+            if (!reload) { string aim = AimPressed(local); ModLog.Info($"MusketInput: aim gamepad button -> {aim}"); return aim; }
+            bool hovering = local.GetHoverObject() != null;
+            if (!MusketRules.PadReloadAllowed(ModSettings.MusketReloadPad?.Value, hovering))
+            {
+                ModLog.Verbose($"MusketInput: reload gamepad button '{ModSettings.MusketReloadPad?.Value}' pressed while hovering '{local.GetHoverObject()?.name}' - the game uses it, no reload");
+                return null;
+            }
+            string result = ReloadPressed(local);
+            ModLog.Info($"MusketInput: reload gamepad button -> {result}");
+            return result;
         }
 
         /// <summary>Checks the key settings the hint rows follow (once, at start). Expected outcome: true when the reload key setting exists.</summary>
@@ -87,6 +131,8 @@ namespace GunPowdered.Features.Musket.Infrastructure
                 return false;
             }
             _ = AimHint;          // D-155: the aim row of the key hint
+            if (ModSettings.MusketAimPad != null) ModSettings.MusketAimPad.SettingChanged += (s, e) => PadSettingChanged();       // D-198
+            if (ModSettings.MusketReloadPad != null) ModSettings.MusketReloadPad.SettingChanged += (s, e) => PadSettingChanged();
             _registered = true;
             ModLog.Verbose("MusketInput: reload key " + ModSettings.MusketReloadKey.Value + " ready");
             return true;
@@ -96,6 +142,9 @@ namespace GunPowdered.Features.Musket.Infrastructure
         internal static string Poll(Player local)
         {
             PollAim(local);
+            // D-198: the gamepad buttons (the game's bindings of the chosen game buttons); the same paths as the keys
+            if (PadDown(ModSettings.MusketAimPad)) PadPressed(local, false);
+            if (PadDown(ModSettings.MusketReloadPad)) return PadPressed(local, true);
             UnityEngine.KeyCode key = ModSettings.MusketReloadKey != null ? ModSettings.MusketReloadKey.Value : UnityEngine.KeyCode.None;
             // the game's own key read (ZInput.GetKeyDown, like KydlCore's hub key) is what starts the reload (user 2026-11-20 09:08, lab a10rkey1)
             bool gameKey = key != UnityEngine.KeyCode.None && ZInput.GetKeyDown(key, true);

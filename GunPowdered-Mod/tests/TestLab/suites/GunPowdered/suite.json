@@ -92,6 +92,18 @@
     },
     {
       "guid": "com.kydldev.GunPowdered",
+      "section": "Musket",
+      "key": "Aim Gamepad Button",
+      "value": "SecondaryAttack"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
+      "section": "Musket",
+      "key": "Reload Gamepad Button",
+      "value": "Use"
+    },
+    {
+      "guid": "com.kydldev.GunPowdered",
       "section": "DebugLog",
       "key": "Enable",
       "value": "true"
@@ -143,6 +155,7 @@
     "grenade-fuse-skill",
     "cannon-skill",
     "musket-reload-key",
+    "musket-gamepad",
     "api-musket",
     "cannons-switch",
     "explosive-arrow-burst",

@@ -5,6 +5,32 @@ namespace GunPowdered.Tests.Unit
     /// The Iron Musket's magazine (D-080 / D-081): up to 5 paper cartridges, reload below 5 and never above 5, one cartridge per shot.
     public class MusketRulesTests
     {
+        // ---- D-198 (user 2026-11-28): the musket on a gamepad uses the game's own buttons
+
+        [TestCase("Use", "JoyUse")]
+        [TestCase("SecondaryAttack", "JoySecondaryAttack")]
+        [TestCase(" Hide ", "JoyHide")]
+        [TestCase("JoyLTrigger", "JoyLTrigger")]
+        [TestCase("None", null)]
+        [TestCase("none", null)]
+        [TestCase("", null)]
+        [TestCase(null, null)]
+        public void PadBinding_GameButtonGetsTheJoyName_NoneHasNone(string button, string expected)
+        {
+            Assert.That(MusketRules.PadBinding(button), Is.EqualTo(expected));
+        }
+
+        [TestCase("Use", false, true)]
+        [TestCase("Use", true, false)]
+        [TestCase(" use ", true, false)]
+        [TestCase("SecondaryAttack", true, true)]
+        [TestCase("Hide", false, true)]
+        [TestCase(null, true, true)]
+        public void PadReloadAllowed_UseWhileHoveringIsTheGames(string button, bool hovering, bool expected)
+        {
+            Assert.That(MusketRules.PadReloadAllowed(button, hovering), Is.EqualTo(expected));
+        }
+
         // ---- D-155 (user 2026-11-22)
 
         [TestCase(true, false, null)]

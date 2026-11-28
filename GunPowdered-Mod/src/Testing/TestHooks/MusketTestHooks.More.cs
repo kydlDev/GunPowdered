@@ -63,6 +63,20 @@ namespace GunPowdered.Testing.TestHooks
             { var returnedAt279 = string.Join(" | ", texts); if (RuleLog.IsOn()) ModLog.Verbose($"MusketTestHooks.KeyHintTexts: returns {returnedAt279} (line 279)"); return returnedAt279; }
         }
 
+        /// <summary>
+        /// D-198: a press of the musket's gamepad button (action "aim" or "reload") through the same path as the real gamepad read (no controller in the
+        /// lab). Returns "aim -> ..." / "reload -> ..." with what the press did, or "... -> nothing" (no musket, blocked, or Use while hovering something).
+        /// </summary>
+        [TestHook("GunPowdered.musketPadPress")]
+        static string MusketPadPress(string action)
+        {
+            bool reload = string.Equals(action, "reload", System.StringComparison.OrdinalIgnoreCase);
+            string result = MusketInput.PadPressed(Player.m_localPlayer, reload);
+            string text = (reload ? "reload" : "aim") + " -> " + (result ?? "nothing");
+            ModLog.Verbose($"MusketTestHooks.MusketPadPress(action={action}): returns {text}");
+            return text;
+        }
+
         /// <summary>Starts a new shake measurement on the local player's musket rig (D-099).</summary>
         [TestHook("GunPowdered.musketShakeReset")]
         static string ShakeReset()
