@@ -4,6 +4,15 @@
   "timeout": 260,
   "steps": [
     {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.playerAlive",
+        "contains": "player alive"
+      },
+      "timeout": 30
+    },
+    {
       "do": "hook",
       "name": "GunPowdered.arena",
       "contains": "arena at",
@@ -34,7 +43,7 @@
         },
         "contains": "going to"
       },
-      "timeout": 10
+      "timeout": 30
     },
     {
       "do": "wait",
@@ -96,6 +105,21 @@
       "name": "GunPowdered.testWallRemove",
       "contains": "wall",
       "label": "the wall removed (the lava may have burned it down already)"
+    },
+    {
+      "do": "hook",
+      "name": "GunPowdered.arena",
+      "contains": "arena at",
+      "label": "leave the lava: back on the arena spot (user 2026-11-28, q2gunp1: the player stood in lava when the next test began)"
+    },
+    {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.arenaGround",
+        "contains": "ground flat"
+      },
+      "timeout": 45
     },
     {
       "do": "cleanArena"

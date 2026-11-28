@@ -24,9 +24,10 @@ namespace GunPowdered.Testing.TestHooks
             string moved = TestArena.MovePlayer();
             _arenaPlacedAt = UnityEngine.Time.realtimeSinceStartup;
             _arenaGroundReported = false;
+            string held = HoldForGround();
             string cleaned = CleanArena();
             UnityEngine.Random.InitState(RandomSeed);
-            string s = moved + "; " + cleaned + "; random seed " + RandomSeed + "; " + GroundCheck(out bool _);
+            string s = moved + "; " + held + "; " + cleaned + "; random seed " + RandomSeed + "; " + GroundCheck(out bool _);
             ModLog.Info("ModTestHooks.Arena: returns " + s);
             return s;
         }
@@ -55,6 +56,52 @@ namespace GunPowdered.Testing.TestHooks
             return s;
         }
 
+        /// <summary>
+        /// User 2026-11-28 (q2gunp1 mobilecannon-ash): the arena step puts the player on the spot at once, but the zone's ground arrives seconds later - the
+        /// player stood on nothing, fell to y -18 and was gone for 9 s. For at most <see cref="HoldSeconds"/> the player is therefore put back on the spot every
+        /// physics step (velocity zero) until the ground check passes. Expected outcome: "player held on the spot until the ground is level (max 15 s)" or why not.
+        /// </summary>
+        static string HoldForGround()
+        {
+            if (RuleLog.IsOn()) ModLog.Verbose("ModTestHooks.HoldForGround()");
+            Player p = Player.m_localPlayer;
+            UnityEngine.Rigidbody body = p == null ? null : p.GetComponent<UnityEngine.Rigidbody>();
+            if (body == null) { if (RuleLog.IsOn()) ModLog.Verbose("ModTestHooks.HoldForGround: returns \"no hold\" because there is no player or body"); return "no hold (no player)"; }
+            p.StartCoroutine(HoldLoop(p, body, TestArena.Spot));
+            { var r = $"player held on the spot until the ground is level (max {HoldSeconds:0} s)"; if (RuleLog.IsOn()) ModLog.Verbose("ModTestHooks.HoldForGround: returns " + r); return r; }
+        }
+
+        /// <summary>Longest time (s) the player is held on the arena spot while the ground loads (user 2026-11-28: 15 s).</summary>
+        internal const float HoldSeconds = 15f;
+
+        static System.Collections.IEnumerator HoldLoop(Player p, UnityEngine.Rigidbody body, UnityEngine.Vector3 spot)
+        {
+            float until = UnityEngine.Time.realtimeSinceStartup + HoldSeconds, start = UnityEngine.Time.realtimeSinceStartup;
+            bool flat = false;
+            while (p != null && body != null && UnityEngine.Time.realtimeSinceStartup < until)
+            {
+                GroundCheck(out flat);
+                if (flat) { ModLog.Verbose("ModTestHooks.HoldLoop: the ground is level - stops holding the player"); break; }
+                body.linearVelocity = UnityEngine.Vector3.zero;
+                body.position = spot;
+                yield return new UnityEngine.WaitForFixedUpdate();
+            }
+            ModLog.Info($"ModTestHooks.HoldLoop: player released after {UnityEngine.Time.realtimeSinceStartup - start:0.0} s, ground level {flat}");
+        }
+
+        /// <summary>
+        /// User 2026-11-28: a test that follows a lava test starts with this check in a `wait until`: the local player exists and is not dead (after a death
+        /// the game respawns it seconds later). Expected outcome: "player alive" or "no player" / "player dead".
+        /// </summary>
+        [TestHook("GunPowdered.playerAlive")]
+        static string PlayerAlive()
+        {
+            Player p = Player.m_localPlayer;
+            string s = p == null ? "no player" : p.IsDead() ? "player dead" : "player alive";
+            if (RuleLog.Due("ModTestHooks.PlayerAlive", 2d)) ModLog.Every("ModTestHooks.PlayerAlive", 2d, "ModTestHooks.PlayerAlive: returns " + s);
+            return s;
+        }
+
         static float _arenaPlacedAt;
         static bool _arenaGroundReported;
 
@@ -73,8 +120,10 @@ namespace GunPowdered.Testing.TestHooks
         {
             if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.GroundCheck()");
             Player p = Player.m_localPlayer;
-            flat = true;
+            // q2gunp1: no player used to count as "flat" - the ground wait passed while the player was dead and the next hook found no player. Not checked = not flat.
+            flat = false;
             if (p == null) { if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.GroundCheck: returns \"ground not checked (no player)\" because p == null (line 63)"); return "ground not checked (no player)"; }
+            if (p.IsDead()) { if (RuleLog.IsOn()) ModLog.Verbose($"ModTestHooks.GroundCheck: returns \"ground not checked (player dead)\" because p.IsDead()"); return "ground not checked (player dead)"; }
             UnityEngine.Vector3 here = p.transform.position, ahead = here + UnityEngine.Vector3.forward * 6f;
             float h0 = Heightmap.GetHeight(here, out float a) ? a : float.NaN, h6 = Heightmap.GetHeight(ahead, out float b) ? b : float.NaN;
             float r0 = Ray(here), r6 = Ray(ahead);

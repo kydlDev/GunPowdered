@@ -4,6 +4,15 @@
   "timeout": 260,
   "steps": [
     {
+      "do": "wait",
+      "until": {
+        "check": "hook",
+        "name": "GunPowdered.playerAlive",
+        "contains": "player alive"
+      },
+      "timeout": 30
+    },
+    {
       "do": "hook",
       "name": "GunPowdered.arena",
       "contains": "arena at",
@@ -34,7 +43,7 @@
         },
         "contains": "going to"
       },
-      "timeout": 10
+      "timeout": 30
     },
     {
       "do": "wait",

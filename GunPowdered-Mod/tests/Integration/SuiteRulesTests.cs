@@ -62,9 +62,11 @@ public class SuiteRulesTests
         {
             var test = Json.Deserialize<Dictionary<string, object>>(File.ReadAllText(f));
             var steps = test.ContainsKey("steps") ? ((System.Collections.ArrayList)test["steps"]).Cast<object>().ToList() : new List<object>();
-            var first = steps.Count > 0 ? steps[0] as Dictionary<string, object> : null;
+            // user 2026-11-28 (q2gunp1 mobilecannon-ash): a test after a lava test may open with ONE wait for a live player (GunPowdered.playerAlive); the arena hook follows at once
+            int at = steps.Count > 0 && steps[0] is Dictionary<string, object> w && Equals(w["do"], "wait") && w["until"] is Dictionary<string, object> u && Equals(u["name"], "GunPowdered.playerAlive") ? 1 : 0;
+            var first = steps.Count > at ? steps[at] as Dictionary<string, object> : null;
             Assert.That(first != null && Equals(first["do"], "hook") && Equals(first["name"], "GunPowdered.arena"), Is.True,
-                Path.GetFileName(f) + ": the first step must be the GunPowdered.arena hook (MIGRATION_DECISIONS C26: every test starts on the arena spot, away from the lab start)");
+                Path.GetFileName(f) + ": the first step must be the GunPowdered.arena hook, after at most a GunPowdered.playerAlive wait (MIGRATION_DECISIONS C26: every test starts on the arena spot, away from the lab start)");
         }
     }
 
