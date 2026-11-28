@@ -17,5 +17,6 @@
     { "do": "hook", "name": "GunPowdered.heldPrefab", "expect": "GP_Bucket", "label": "the bucket is empty again" },
     { "do": "cleanArena" }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    { "check": "hook", "name": "kc.errorsThisTest", "expect": "errors 0" }, { "check": "noErrors", "source": "GunPowdered" } ]
 }

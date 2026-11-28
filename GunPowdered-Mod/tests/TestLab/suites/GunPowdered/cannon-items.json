@@ -13,5 +13,6 @@
     { "do": "hook", "name": "GunPowdered.kyItemsListed", "contains": "all ", "label": "every item and piece of the mod is in the KY-Items list" },
     { "do": "cleanArena" }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    { "check": "hook", "name": "kc.errorsThisTest", "expect": "errors 0" }, { "check": "noErrors", "source": "GunPowdered" } ]
 }

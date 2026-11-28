@@ -37,5 +37,6 @@
     { "do": "setConfig", "values": { "DebugLog/Enable": true } },
     { "do": "console", "command": "killall" }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    { "check": "hook", "name": "kc.errorsThisTest", "expect": "errors 0" }, { "check": "noErrors", "source": "GunPowdered" } ]
 }

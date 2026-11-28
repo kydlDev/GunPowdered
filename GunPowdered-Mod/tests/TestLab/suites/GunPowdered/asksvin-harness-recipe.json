@@ -9,5 +9,6 @@
     { "do": "hook", "name": "GunPowdered.itemOf", "args": { "prefab": "GP_AsksvinHarness" }, "contains": "weight 5, type Material", "label": "the harness item exists (weight 5, a material)" },
     { "do": "cleanArena" }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    { "check": "hook", "name": "kc.errorsThisTest", "expect": "errors 0" }, { "check": "noErrors", "source": "GunPowdered" } ]
 }

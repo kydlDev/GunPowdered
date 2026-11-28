@@ -74,6 +74,7 @@
     }
   ],
   "asserts": [
+    { "check": "hook", "name": "kc.errorsThisTest", "expect": "errors 0" },
     {
       "check": "noErrors",
       "source": "GunPowdered"

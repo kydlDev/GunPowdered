@@ -17,5 +17,6 @@
     { "do": "hook", "name": "GunPowdered.caveClaimAnswer", "expect": "refused", "label": "the host is refused: Bjornita filled the cave" },
     { "do": "cleanArena" }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    { "check": "hook", "name": "kc.errorsThisTest", "expect": "errors 0" }, { "check": "noErrors", "source": "GunPowdered" } ]
 }

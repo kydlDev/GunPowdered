@@ -15,5 +15,6 @@
     { "do": "hook", "name": "GunPowdered.groundDelta", "expect": "0.00", "args": { "dz": 20 }, "label": "ground back at the noted height" },
     { "do": "cleanArena" }
   ],
-  "asserts": [ { "check": "noErrors", "source": "GunPowdered" } ]
+  "asserts": [
+    { "check": "hook", "name": "kc.errorsThisTest", "expect": "errors 0" }, { "check": "noErrors", "source": "GunPowdered" } ]
 }
